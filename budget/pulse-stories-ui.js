@@ -375,7 +375,10 @@
       window.PulseGuidePreview = preview;
       state.group = group; state.program = null; state.list = listFor(group);
       root.hidden = false;
-      root.classList.remove('is-entering', 'is-flip');
+      root.classList.remove('is-entering', 'is-flip', 'is-preparing');
+      // Growing from a muscle: stay see-through until the artwork is decoded, so
+      // the body never gives way to an empty dark frame.
+      if (wall && wall.from && !matchMedia('(prefers-reduced-motion: reduce)').matches) root.classList.add('is-preparing');
       if (wall && wall.src) {
         var image = new Image();
         var play = function () {
@@ -400,16 +403,17 @@
       var size = Math.max(from.width / box.width, from.height / box.height, 0.12);
       var dx = from.left + from.width / 2 - (box.left + box.width / 2), dy = from.top + from.height / 2 - (box.top + box.height / 2);
       var curve = 'cubic-bezier(.2,.8,.2,1)';
-      root.classList.add('is-flip');
+      root.classList.add('is-flip'); root.classList.remove('is-preparing');
+      root.animate([{ backgroundColor: 'rgba(5,7,11,0)' }, { backgroundColor: 'rgb(5,7,11)' }], { duration: 380, easing: 'ease-out' });
       art.animate([
         { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + size + ')', borderRadius: '50%', filter: 'brightness(1.8) saturate(1.4) drop-shadow(0 0 30px #ff4a3a)', opacity: 0.6 },
         { borderRadius: '28px', filter: 'brightness(1.3) saturate(1.2) drop-shadow(0 0 18px #ff4a3a88)', opacity: 1, offset: 0.55 },
         { transform: 'none', borderRadius: '0', filter: 'none', opacity: 1 }
-      ], { duration: 720, easing: curve });
+      ], { duration: 720, easing: curve, fill: 'backwards' });
       var rise = function (node, delay, y) {
         if (node) node.animate([{ opacity: 0, translate: '0 ' + y + 'px' }, { opacity: 1, translate: '0 0' }], { duration: 520, delay: delay, easing: curve, fill: 'backwards' });
       };
-      stageHost.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'ease-out' });
+      stageHost.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 120, easing: 'ease-out', fill: 'backwards' });
       rise(document.getElementById('studio-stage'), 260, 60);
       rise(heroCopy, 420, 10); rise(top, 480, -8); rise(info, 540, 12); rise(rail, 620, 16);
       rise(root.querySelector('.st-poster'), 260, 60); rise(navPrev, 620, 0); rise(navNext, 620, 0);

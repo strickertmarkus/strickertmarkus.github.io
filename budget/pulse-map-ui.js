@@ -53,10 +53,16 @@
       figure.classList.add('gm-zooming');
       var name = region.dataset.mapMuscle;
       // Where the muscle will be on screen at the hand-off, partway into the zoom.
-      var r = region.getBoundingClientRect(), grow = 2;
+      var r = region.getBoundingClientRect(), grow = 2.2;
       from = { left: r.left + r.width / 2 - r.width * grow / 2, top: r.top + r.height / 2 - r.height * grow / 2, width: r.width * grow, height: r.height * grow };
       if (ART[name]) new Image().src = 'assets/atlas-art-v1/' + ART[name] + '.webp';
-      setTimeout(function () { ui.openMuscleExercise(name); }, 240);
+      // Hand off once the body has faded out, so the page switch behind it never shows.
+      var done = false, handoff = function (event) {
+        if (done || (event && event.propertyName !== 'opacity')) return;
+        done = true; figure.removeEventListener('transitionend', handoff); ui.openMuscleExercise(name);
+      };
+      figure.addEventListener('transitionend', handoff);
+      setTimeout(handoff, 600);
     });
     scene.onLeave(function () { document.documentElement.classList.remove('gm-scene-open'); showBody(); });
     // Browser back from the exercise view returns to the body as well.

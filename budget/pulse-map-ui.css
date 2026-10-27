@@ -9,6 +9,6 @@ html.ui-gym #muscle-map-page{position:relative;padding-top:calc(14px + env(safe-
 .gm-exit{position:absolute;right:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ffffff12;color:#f6ece9}
 .gm-exit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .gm-exit:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
-html.ui-gym .muscle-map-figure{transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .4s}
+html.ui-gym .muscle-map-figure{transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s cubic-bezier(.3,0,.6,1)}
 html.ui-gym .muscle-map-figure.gm-zooming{transform:scale(2.6);opacity:0}
 @media(prefers-reduced-motion:reduce){html.ui-gym .muscle-map-figure{transition:none}}
