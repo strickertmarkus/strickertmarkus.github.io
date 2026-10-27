@@ -1,14 +1,20 @@
-/* Stories preview for the exercise explorer, enabled with ?ui=stories.
-   Each exercise is a full-screen story around the live animated figure:
-   swipe up/down for the next/previous exercise, sideways for the next muscle
-   group, tap to pause, double tap to choose. Programs play as story
-   playlists. The page's own stage, selection and transfer are reused through
-   PulseGuideUI, so the default UI is untouched when the flag is off. */
+/* Full-screen exercise scene around the live animated figure, used by two
+   previews of the exercise explorer:
+   ?ui=stories  Auto-advancing stories with muscle tabs: swipe up/down for
+                the next/previous exercise, sideways for the next muscle.
+   ?ui=gym      Opened from the muscle map (pulse-map-ui.js) for one muscle:
+                swipe sideways between its exercises, up for technique, down
+                to return to the body.
+   Both: tap to pause, double tap to choose, programmes play as playlists.
+   The page's own stage, selection and transfer are reused through
+   PulseGuideUI, so the default UI is untouched without a flag. */
 (function () {
   'use strict';
   var params = new URLSearchParams(location.search);
-  if ((params.get('ui') || '').split(',').indexOf('stories') < 0) return;
-  document.documentElement.classList.add('ui-stories');
+  var flags = (params.get('ui') || '').split(',');
+  var GYM = flags.indexOf('gym') >= 0;
+  if (!GYM && flags.indexOf('stories') < 0) return;
+  document.documentElement.classList.add(GYM ? 'ui-gym' : 'ui-stories');
 
   var POSES = [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,21,22,23,25,26,30,34,35,43,44,45,52];
   var GROUPS = ['Alla', 'Bröst', 'Axlar', 'Rygg', 'Biceps', 'Triceps', 'Mage', 'Framsida lår', 'Säte', 'Baksida lår', 'Vader'];
@@ -28,6 +34,7 @@
     turn: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg>',
     pass: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>',
     play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+    back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
     close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
   };
 
@@ -35,10 +42,13 @@
     var ui = window.PulseGuideUI, explore = window.PulseExplore;
     if (!ui || !explore) return;
     var all = explore.exercises;
-    // The figure animates only while the explorer's own exercise view is open.
-    if ($('guide-page').hidden || document.body.classList.contains('exercise-list-open')) $('living-dock').querySelector('[data-page="guide"]').click();
+    // The figure animates only while the explorer's own exercise view is open;
+    // in gym mode the muscle map opens it (PulseGuideUI.openMuscleExercise).
+    if (!GYM && ($('guide-page').hidden || document.body.classList.contains('exercise-list-open'))) $('living-dock').querySelector('[data-page="guide"]').click();
 
-    var root = el('div', 'st-root'); root.setAttribute('role', 'region'); root.setAttribute('aria-label', 'Övningar som stories');
+    var root = el('div', 'st-root' + (GYM ? ' is-gym' : '')); root.setAttribute('role', 'region'); root.setAttribute('aria-label', GYM ? 'Övningar för vald muskel' : 'Övningar som stories');
+    if (GYM) root.hidden = true;
+    var flash = el('img', 'st-flash'); flash.alt = ''; flash.setAttribute('aria-hidden', 'true');
     var stageHost = el('div', 'st-stage');
     var poster = el('img', 'st-poster'); poster.alt = ''; poster.setAttribute('aria-hidden', 'true');
     stageHost.appendChild(poster);
@@ -47,14 +57,16 @@
     var top = el('div', 'st-top');
     var bars = el('div', 'st-bars');
     var tabs = el('div', 'st-tabs');
-    var close = el('a', 'st-close', ICON.close); close.href = $('explore-back').getAttribute('href'); close.setAttribute('aria-label', 'Till träningen');
+    var close = GYM ? el('button', 'st-close', ICON.back) : el('a', 'st-close', ICON.close);
+    if (GYM) { close.type = 'button'; close.setAttribute('aria-label', 'Tillbaka till kroppen'); close.addEventListener('click', function () { leave(); }); }
+    else { close.href = $('explore-back').getAttribute('href'); close.setAttribute('aria-label', 'Till träningen'); }
     top.appendChild(bars); top.appendChild(el('div', 'st-toprow')); top.lastChild.appendChild(close); top.lastChild.appendChild(tabs);
     var info = el('div', 'st-info');
     var rail = el('div', 'st-rail');
     var pauseMark = el('div', 'st-pause', '<span></span><span></span>'); pauseMark.setAttribute('aria-hidden', 'true');
     var burst = el('div', 'st-burst'); burst.setAttribute('aria-hidden', 'true');
     var end = el('div', 'st-end'); end.hidden = true;
-    [stageHost, touch, pauseMark, burst, top, info, rail, end].forEach(function (n) { root.appendChild(n); });
+    [stageHost, touch, pauseMark, burst, top, info, rail, end, flash].forEach(function (n) { root.appendChild(n); });
     document.body.appendChild(root);
 
     function railButton(key, label, onClick) {
@@ -73,6 +85,11 @@
     var state = { group: 'Alla', program: null, list: [], index: 0, started: 0, elapsed: 0 };
     function listFor(group) { return all.filter(function (e) { return group === 'Alla' || e.muscles.indexOf(group) >= 0; }).map(function (e) { return e.id; }); }
     function renderTabs() {
+      if (GYM) {
+        tabs.innerHTML = '<div class="st-title"><b>' + (state.program ? state.program.name : state.group) + '</b><small>' + String(state.index + 1).padStart(2, '0') + ' / ' + state.list.length + '</small></div>' +
+          (state.program ? '<button type="button" class="st-tab st-program-tab is-on" data-exit-program aria-label="Avsluta programmet">' + ICON.close + '</button>' : '');
+        return;
+      }
       tabs.innerHTML = (state.program
         ? '<button type="button" class="st-tab is-on st-program-tab" data-exit-program>▶ ' + state.program.name + ' <span aria-hidden="true">×</span></button>'
         : GROUPS.map(function (g) { return '<button type="button" class="st-tab' + (g === state.group ? ' is-on' : '') + '" data-group="' + g + '">' + (g === 'Alla' ? 'För dig' : g) + '</button>'; }).join(''));
@@ -88,6 +105,7 @@
 
     function renderBars() {
       var n = state.list.length;
+      bars.classList.toggle('is-static', GYM);
       if (n <= 16) bars.innerHTML = state.list.map(function (_, i) { return '<span class="' + (i < state.index ? 'is-done' : i === state.index ? 'is-now' : '') + '"><i></i></span>'; }).join('');
       else bars.innerHTML = '<span class="st-bar-long is-now"><i></i></span><em>' + String(state.index + 1).padStart(2, '0') + ' / ' + n + '</em>';
       bars.style.setProperty('--story-ms', STORY_MS + 'ms');
@@ -115,7 +133,7 @@
       state.index = Math.max(0, Math.min(state.list.length - 1, index));
       state.elapsed = 0; state.started = performance.now();
       ui.select(state.list[state.index]);
-      renderBars(); renderInfo();
+      renderBars(); renderInfo(); if (GYM) renderTabs();
       root.classList.remove('is-next'); void root.offsetWidth; root.classList.add('is-next');
       if (!sheetOpen) ui.setPaused(false);
       sync();
@@ -123,11 +141,11 @@
     function next() {
       if (state.index < state.list.length - 1) go(state.index + 1);
       else if (state.program) showEnd();
-      else go(0);
+      else if (!GYM) go(0);
     }
     function prev() { go(state.index - 1); }
     function stepGroup(dir) {
-      if (state.program) return;
+      if (GYM || state.program) return;
       var i = GROUPS.indexOf(state.group);
       playGroup(GROUPS[(i + dir + GROUPS.length) % GROUPS.length]);
     }
@@ -147,8 +165,10 @@
        stops its story timer. */
     var timer = 0;
     function sync() {
-      var paused = ui.paused() || sheetOpen || !end.hidden;
+      // Gym scenes have no timer: the bars only show the position.
+      var paused = GYM || ui.paused() || sheetOpen || !end.hidden;
       root.classList.toggle('is-paused', ui.paused() && end.hidden);
+      if (GYM) return;
       clearTimeout(timer);
       var now = performance.now();
       if (paused) { if (state.started) { state.elapsed += now - state.started; state.started = 0; } }
@@ -178,8 +198,14 @@
     touch.addEventListener('pointerup', function (event) {
       if (!start) return;
       var dx = event.clientX - start.x, dy = event.clientY - start.y, s = start; start = null;
-      if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.2) { hideHint(); (dy < 0 ? next : prev)(); return; }
-      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.2) { hideHint(); stepGroup(dx < 0 ? 1 : -1); return; }
+      if (GYM) {
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.2) { hideHint(); (dx < 0 ? next : prev)(); return; }
+        if (dy < -60 && Math.abs(dy) > Math.abs(dx) * 1.2) { hideHint(); openSheet('technique'); return; }
+        if (dy > 80 && Math.abs(dy) > Math.abs(dx) * 1.2) { hideHint(); leave(); return; }
+      } else {
+        if (Math.abs(dy) > 60 && Math.abs(dy) > Math.abs(dx) * 1.2) { hideHint(); (dy < 0 ? next : prev)(); return; }
+        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.2) { hideHint(); stepGroup(dx < 0 ? 1 : -1); return; }
+      }
       if (Math.abs(dx) > 12 || Math.abs(dy) > 12 || Date.now() - s.t > 450) return;
       var now = Date.now();
       if (now - lastTap < 300) { clearTimeout(tapTimer); lastTap = 0; hideHint(); choose(); return; }
@@ -188,21 +214,32 @@
     });
     touch.addEventListener('pointercancel', function () { start = null; });
     document.addEventListener('keydown', function (event) {
+      if (root.hidden) return;
       if (sheetOpen) { if (event.key === 'Escape') closeSheet(); return; }
+      if (GYM) {
+        if (event.key === 'ArrowRight') next(); else if (event.key === 'ArrowLeft') prev();
+        else if (event.key === 'Escape') leave();
+        else if (event.key === ' ') { event.preventDefault(); ui.setPaused(!ui.paused()); }
+        return;
+      }
       if (event.key === 'ArrowDown') next(); else if (event.key === 'ArrowUp') prev();
       else if (event.key === 'ArrowRight') stepGroup(1); else if (event.key === 'ArrowLeft') stepGroup(-1);
       else if (event.key === ' ') { event.preventDefault(); ui.setPaused(!ui.paused()); }
     });
 
-    var hint = null, seen = false;
-    try { seen = localStorage.getItem('pulse-stories-hint-v1') === '1'; } catch (_) {}
-    if (!seen || params.get('hint') === '1') {
-      hint = el('div', 'st-hint', '<span><b>↑ ↓</b>övning</span><span><b>← →</b>muskel</span><span><b>Tryck</b>paus</span><span><b>Dubbeltryck</b>välj</span>');
+    var HINT_KEY = GYM ? 'pulse-gym-hint-v1' : 'pulse-stories-hint-v1', hint = null, seen = false;
+    try { seen = localStorage.getItem(HINT_KEY) === '1'; } catch (_) {}
+    function showHint() {
+      if (seen && params.get('hint') !== '1') return;
+      seen = true;
+      hint = el('div', 'st-hint', GYM
+        ? '<span><b>← →</b>övning</span><span><b>↑</b>teknik</span><span><b>Tryck</b>paus</span><span><b>Dubbeltryck</b>välj</span>'
+        : '<span><b>↑ ↓</b>övning</span><span><b>← →</b>muskel</span><span><b>Tryck</b>paus</span><span><b>Dubbeltryck</b>välj</span>');
       hint.setAttribute('role', 'note'); root.appendChild(hint); setTimeout(hideHint, 6500);
     }
     function hideHint() {
       if (!hint) return; var h = hint; hint = null; h.classList.add('is-gone'); setTimeout(function () { h.remove(); }, 400);
-      try { localStorage.setItem('pulse-stories-hint-v1', '1'); } catch (_) {}
+      try { localStorage.setItem(HINT_KEY, '1'); } catch (_) {}
     }
 
     /* ---- Sheets: technique, Mitt pass, programmes ---- */
@@ -229,7 +266,8 @@
         sheet.setAttribute('aria-label', 'Mitt pass'); renderPassSheet();
       } else {
         sheet.setAttribute('aria-label', 'Program');
-        sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Spela ett program</span><h3>Program</h3><div class="st-programs">' + explore.programs.map(function (p) {
+        var programs = GYM ? explore.programs.filter(function (p) { return p.ids.some(function (id) { return all[id].muscles.indexOf(state.group) >= 0; }); }) : explore.programs;
+        sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Spela ett program</span><h3>' + (GYM ? 'Program för ' + state.group.toLowerCase() : 'Program') + '</h3><div class="st-programs">' + programs.map(function (p) {
           var stills = p.ids.filter(function (id) { return POSES.indexOf(id) >= 0; }).slice(0, 3);
           return '<button type="button" class="st-program" data-program="' + p.id + '"><span class="st-program-art">' + stills.map(function (id, i) { return '<img src="' + pose(id, true) + '" alt="" data-i="' + i + '">'; }).join('') +
             '</span><span class="st-program-copy"><b>' + p.name + '</b><small>' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</small></span><span class="st-program-play">' + ICON.play + '</span></button>';
@@ -258,10 +296,36 @@
     sheet.addEventListener('pointerdown', function (event) { if (event.target.closest('.st-grip')) sheetY = event.clientY; });
     sheet.addEventListener('pointerup', function (event) { if (sheetY != null && event.clientY - sheetY > 50) closeSheet(); sheetY = null; });
 
+    /* Gym mode: opened for one muscle by the muscle map, closed back to it. */
+    var onLeave = null;
+    function enter(group, id, art) {
+      state.group = group; state.program = null; state.list = listFor(group);
+      root.hidden = false;
+      root.classList.remove('is-entering');
+      if (art) {
+        flash.src = art;
+        var play = function () { void root.offsetWidth; root.classList.add('is-entering'); };
+        if (flash.decode) flash.decode().then(play, play); else play();
+      }
+      go(Math.max(0, state.list.indexOf(id != null ? id : ui.active())));
+      close.focus({ preventScroll: true });
+      setTimeout(showHint, 900);
+    }
+    function leave(silent) {
+      if (root.hidden) return;
+      if (sheetOpen) closeSheet();
+      ui.setPaused(true);
+      root.hidden = true; root.classList.remove('is-entering');
+      if (!silent && onLeave) onLeave();
+    }
+    if (GYM) {
+      window.PulseGymScene = { enter: enter, leave: leave, isOpen: function () { return !root.hidden; }, onLeave: function (fn) { onLeave = fn; } };
+      return;
+    }
     var startGroup = GROUPS.indexOf(params.get('grupp')) >= 0 ? params.get('grupp') : 'Alla';
     state.group = startGroup; state.list = listFor(startGroup);
     var startIndex = Math.max(0, state.list.indexOf(ui.active()));
-    renderTabs(); go(startIndex);
+    renderTabs(); go(startIndex); showHint();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });

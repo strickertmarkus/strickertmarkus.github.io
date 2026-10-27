@@ -104,3 +104,17 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 
 @media(min-width:700px){.st-root{max-width:460px;margin:0 auto;box-shadow:0 0 0 100vmax #020306}}
 @media(prefers-reduced-motion:reduce){.st-root.is-next .st-stage,.st-burst{animation:none}.st-sheet,.st-scrim{transition:none}}
+
+/* Gym mode (?ui=gym): one muscle's exercises, opened from the muscle map. */
+.st-root.is-gym .st-bars.is-static span.is-now i{width:100%;animation:none}
+.st-title{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;padding:6px 0}
+.st-title b{font-size:17px;font-weight:650;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-title small{color:var(--st-muted);font-size:11px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+.st-root.is-gym .st-program-tab{display:grid;place-items:center;width:36px;height:36px;padding:0;border-radius:50%;background:#ffffff14;color:#f6ece9}
+.st-root.is-gym .st-program-tab::after{display:none}
+.st-root.is-gym .st-program-tab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+/* The muscle's artwork fills the screen as the scene opens, then gives way to the figure. */
+.st-flash{position:absolute;inset:0;z-index:8;width:100%;height:100%;object-fit:cover;object-position:50% 40%;opacity:0;pointer-events:none}
+.st-root.is-entering .st-flash{animation:stFlash 1.15s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes stFlash{0%{opacity:1;transform:scale(1.12)}45%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
+@media(prefers-reduced-motion:reduce){.st-root.is-entering .st-flash{animation:none}}
