@@ -70,6 +70,9 @@ function observeEditor(win){
  function sync(){
   var sessionOpen=doc.getElementById('session-modal').classList.contains('show');
   dialog.classList.toggle('field-workspace-session',sessionOpen);
+  // Preview (?ui=mittpass): the pass builder runs full screen with its own close.
+  var builder=doc.getElementById('day-workout-modal');
+  dialog.classList.toggle('field-workspace-fullbuilder',!sessionOpen&&/(?:^|[?&])ui=[^&]*mittpass/.test(location.search)&&!!builder&&builder.classList.contains('show'));
   if(sessionOpen){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
   if(!dialog.open||activeTool==='goals'||openingTool||win.__embeddedSessionStarting||hasOpenModal(doc))return;
   if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
@@ -134,7 +137,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261027-builder-2');
+  url.searchParams.set('v','20261027-builder-3');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});

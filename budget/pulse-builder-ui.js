@@ -1,8 +1,9 @@
-/* Pass builder preview (?ui=mittpass) — presentation layer for the classic
- * Maja/Markus builder. The original inputs stay the single source of truth:
- * rows are still parsed by parseExerciseRow and saved by the existing code.
- * This file only adds: a card-less row summary, a number sheet that writes
- * into the original inputs, and guide suggestions in the exercise picker. */
+/* Pass builder preview (?ui=mittpass), option A: calm full-screen list.
+ * Presentation layer only. The classic builder's inputs stay the source of
+ * truth: rows are parsed by parseExerciseRow and saved by the existing code,
+ * and the original row DOM is kept intact so drag-to-reorder still works.
+ * No popups: rows expand in place with numbers, exercise choice and the
+ * between-sets switch. */
 (function(){
 'use strict';
 var root=document.documentElement;
@@ -15,7 +16,7 @@ var UPPER=['Bröst','Axlar','Rygg','Biceps','Triceps'];
 var TOKENS=[
  [/bröst|chest|pec/,['Bröst']],
  [/axl|axel|shoulder|delt/,['Axlar']],
- [/rygg|back|lats?\b/,['Rygg']],
+ [/rygg|back|\blats?\b/,['Rygg']],
  [/bicep/,['Biceps']],
  [/tricep/,['Triceps']],
  [/\barm/,['Biceps','Triceps']],
@@ -23,14 +24,18 @@ var TOKENS=[
  [/baksida|hamstring/,['Baksida lår']],
  [/framsida|quad/,['Framsida lår']],
  [/säte|rump|glute|höft/,['Säte']],
- [/vad|calf|calves/,['Vader']],
+ [/\bvad|calf|calves/,['Vader']],
  [/\bben\b|\bben[a-zåäö]|\blår|underkropp|\blegs?\b/,LEGS],
  [/push|tryck/,['Bröst','Axlar','Triceps']],
  [/pull|drag/,['Rygg','Biceps']],
  [/överkropp|upper/,UPPER],
  [/helkropp|full ?body/,UPPER.concat(LEGS,['Mage'])]
 ];
-var CARDIO=/kondition|cardio|löp|jogg|cykel|cykl|spinning|intervall|promenad|gång/;
+var CARDIO=/kondition|cardio|löp|jogg|cykel|cykl|spinning|intervall|promenad/;
+var SPECS={
+ strength:[{n:1,label:'Sets',step:1,min:1,unit:''},{n:2,label:'Reps',step:1,min:0,unit:''},{n:3,label:'Vikt',step:2.5,min:0,unit:'kg'}],
+ cardio:[{n:1,label:'Distans',step:.5,min:0,unit:'km'},{n:2,label:'Tid',step:1,min:0,unit:'min'}]
+};
 
 var api=function(){return window.PulseExplore||null;};
 var byId=function(id){return document.getElementById(id);};
@@ -54,231 +59,201 @@ function imageFor(name){
 }
 function rowKind(row){var k=row.querySelector('[class$="-kind"]');return k&&k.value==='cardio'?'cardio':'strength';}
 function field(row,n){return row.querySelector('[class*="-metric'+n+'"]');}
-
-/* ---------- Row summary (no cards, no visible number boxes) ---------- */
-function summaryText(row){
- var a=num(field(row,1).value),b=num(field(row,2).value);
- if(rowKind(row)==='cardio'){
-  var parts=[];if(a)parts.push(fmt(a)+' km');if(b)parts.push(fmt(b)+' min');
-  return parts.length?parts.join(' · '):'Lägg till distans och tid';
- }
- var w=num(field(row,3).value);
- if(!a&&!b&&!w)return 'Lägg till sets, reps och vikt';
- return (a||'–')+' × '+(b||'–')+(w?' · '+fmt(w)+' kg':'');
-}
-function paintRow(row){
- var line=row.querySelector('.pbu-summary');if(!line)return;
- var text=summaryText(row);
- var val=line.querySelector('.pbu-summary-value');
- if(val.textContent!==text)val.textContent=text;
- line.classList.toggle('is-empty',/^Lägg till/.test(text));
- var nameInput=row.querySelector('.exercise-name-picker-input-v1');
- var thumb=row.querySelector('.pbu-thumb');
- var src=imageFor(nameInput&&nameInput.value);
- if(thumb.dataset.src!==src){
-  thumb.dataset.src=src;
-  thumb.innerHTML=src?'<img alt="" src="'+src+'" loading="lazy" decoding="async">':'<span aria-hidden="true">'+esc((nameInput&&nameInput.value||'+').trim().charAt(0).toUpperCase()||'+')+'</span>';
- }
-}
-function enhanceRow(row){
- if(!row||row.dataset.pbu==='1'||!row.querySelector('.ex-row'))return;
- row.dataset.pbu='1';
- var thumb=document.createElement('span');thumb.className='pbu-thumb';thumb.setAttribute('aria-hidden','true');
- row.insertBefore(thumb,row.firstChild);
- var line=document.createElement('button');
- line.type='button';line.className='pbu-summary';
- line.setAttribute('aria-label','Ändra sets, reps och vikt');
- line.innerHTML='<span class="pbu-summary-value"></span><span class="pbu-summary-edit" aria-hidden="true">Ändra</span>';
- row.querySelector('.ex-row').insertAdjacentElement('afterend',line);
- paintRow(row);
-}
-function enhanceAll(){document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(enhanceRow);}
-
-/* ---------- Number sheet ---------- */
-var sheet=null,sheetRow=null;
-var SPECS={
- strength:[{n:1,label:'Sets',step:1,min:1,unit:''},{n:2,label:'Reps',step:1,min:0,unit:''},{n:3,label:'Vikt',step:2.5,min:0,unit:'kg'}],
- cardio:[{n:1,label:'Distans',step:.5,min:0,unit:'km'},{n:2,label:'Tid',step:1,min:0,unit:'min'}]
-};
-function ensureSheet(){
- if(sheet)return sheet;
- sheet=document.createElement('div');
- sheet.className='pbu-sheet';sheet.id='pbu-number-sheet';
- sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');sheet.setAttribute('aria-labelledby','pbu-sheet-title');
- sheet.innerHTML='<div class="pbu-sheet-scrim" data-pbu-close></div>'
-  +'<section class="pbu-sheet-panel">'
-  +'<div class="pbu-sheet-grip" aria-hidden="true"></div>'
-  +'<div class="pbu-sheet-kicker" id="pbu-sheet-kind-label">Styrka</div>'
-  +'<h3 id="pbu-sheet-title" class="pbu-sheet-title"></h3>'
-  +'<div class="pbu-seg" role="group" aria-label="Typ av övning"><button type="button" data-pbu-kind="strength">Styrka</button><button type="button" data-pbu-kind="cardio">Kondition</button></div>'
-  +'<div class="pbu-steppers"></div>'
-  +'<div class="pbu-sheet-actions"><button type="button" class="pbu-text-btn" data-pbu-copy>Duplicera</button><button type="button" class="pbu-text-btn is-danger" data-pbu-delete>Ta bort</button></div>'
-  +'<button type="button" class="pbu-primary" data-pbu-close>Klar</button>'
-  +'</section>';
- document.body.appendChild(sheet);
- sheet.addEventListener('click',function(e){
-  var t=e.target;
-  if(t.closest('[data-pbu-close]')){closeSheet();return;}
-  var kind=t.closest('[data-pbu-kind]');
-  if(kind&&sheetRow){
-   var btn=Array.prototype.find.call(sheetRow.querySelectorAll('.ex-kind-btn'),function(b){return kind.dataset.pbuKind==='cardio'?/kondition/i.test(b.textContent):/styrka/i.test(b.textContent);});
-   if(btn&&typeof window.setExerciseKind==='function')window.setExerciseKind(btn,kind.dataset.pbuKind);
-   renderSheet();paintRow(sheetRow);return;
-  }
-  var step=t.closest('[data-pbu-step]');
-  if(step&&sheetRow){
-   var spec=specFor(Number(step.dataset.pbuN));
-   var input=field(sheetRow,spec.n),value=num(input.value)+Number(step.dataset.pbuStep)*spec.step;
-   write(input,Math.max(spec.min,Math.round(value*100)/100));
-   var shown=sheet.querySelector('[data-pbu-value="'+spec.n+'"]');if(shown)shown.value=input.value;
-   paintRow(sheetRow);return;
-  }
-  if(t.closest('[data-pbu-copy]')&&sheetRow){
-   var plus=sheetRow.querySelector('.builder-row-plus-v3');var row=sheetRow;closeSheet();if(plus)plus.click();
-   setTimeout(function(){var next=row.nextElementSibling;if(next&&next.classList.contains('ex-row-item'))next.scrollIntoView({block:'nearest',behavior:'smooth'});},60);
-   return;
-  }
-  if(t.closest('[data-pbu-delete]')&&sheetRow){
-   var del=sheetRow.querySelector('.ex-del');closeSheet();if(del)del.click();
-  }
- });
- sheet.addEventListener('input',function(e){
-  var el=e.target.closest('[data-pbu-value]');if(!el||!sheetRow)return;
-  write(field(sheetRow,Number(el.dataset.pbuValue)),el.value===''?'':num(el.value));
-  paintRow(sheetRow);
- });
- sheet.addEventListener('focusin',function(e){var el=e.target.closest('[data-pbu-value]');if(el&&el.select)setTimeout(function(){try{el.select();}catch(_e){}},0);});
- document.addEventListener('keydown',function(e){if(e.key==='Escape'&&sheet.classList.contains('show')){e.preventDefault();e.stopPropagation();closeSheet();}},true);
- return sheet;
-}
-function specFor(n){return SPECS[rowKind(sheetRow)].filter(function(s){return s.n===n;})[0];}
+function nameInput(row){return row.querySelector('.ex-row input[class*="-name"]');}
 function write(input,value){
  if(!input)return;
  input.value=value===''?'':String(value);
  input.dispatchEvent(new Event('input',{bubbles:true}));
  input.dispatchEvent(new Event('change',{bubbles:true}));
 }
-function renderSheet(){
- var kind=rowKind(sheetRow);
- var name=(sheetRow.querySelector('.exercise-name-picker-input-v1')||{}).value||'Övning';
- sheet.querySelector('.pbu-sheet-title').textContent=name;
- sheet.querySelector('#pbu-sheet-kind-label').textContent=kind==='cardio'?'Kondition':'Styrka';
- sheet.querySelectorAll('[data-pbu-kind]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.pbuKind===kind?'true':'false');});
- var wrap=sheet.querySelector('.pbu-steppers');
+function setKind(row,kind){
+ if(rowKind(row)===kind)return;
+ if(typeof window.ensureExerciseRowKind==='function'){window.ensureExerciseRowKind(row,kind);return;}
+ var btn=Array.prototype.find.call(row.querySelectorAll('.ex-kind-btn'),function(b){return kind==='cardio'?/kondition/i.test(b.textContent):/styrka/i.test(b.textContent);});
+ if(btn&&typeof window.setExerciseKind==='function')window.setExerciseKind(btn,kind);
+}
+
+/* ---------- Row: collapsed summary ---------- */
+function summaryText(row){
+ var a=num(field(row,1).value),b=num(field(row,2).value);
+ if(rowKind(row)==='cardio'){
+  var parts=[];if(a)parts.push(fmt(a)+' km');if(b)parts.push(fmt(b)+' min');
+  return parts.length?parts.join(' · '):'Kondition · ange distans eller tid';
+ }
+ var w=num(field(row,3).value);
+ if(!a&&!b&&!w)return 'Ange sets och reps';
+ return (a||'–')+' × '+(b||'–')+(w?' · '+fmt(w)+' kg':'');
+}
+function paintRow(row){
+ if(!row||!row.querySelector('.pbu-head'))return;
+ var name=(nameInput(row)||{}).value||'';
+ var title=row.querySelector('.pbu-title');
+ var text=name||'Välj övning';
+ if(title.textContent!==text)title.textContent=text;
+ row.classList.toggle('pbu-empty',!name);
+ var sum=row.querySelector('.pbu-sum');
+ var s=name?summaryText(row):'Tryck för att välja';
+ if(sum.textContent!==s)sum.textContent=s;
+ var thumb=row.querySelector('.pbu-thumb'),src=name?imageFor(name):'';
+ if(thumb.dataset.src!==src){
+  thumb.dataset.src=src;
+  thumb.innerHTML=src?'<img alt="" src="'+src+'" loading="lazy" decoding="async">':'<i class="pbu-plus" aria-hidden="true"></i>';
+ }
+}
+function enhanceRow(row){
+ if(!row||row.dataset.pbu==='1'||!row.querySelector('.ex-row'))return;
+ row.dataset.pbu='1';row.classList.add('pbu-row');
+ var thumb=document.createElement('span');thumb.className='pbu-thumb';thumb.setAttribute('aria-hidden','true');
+ var head=document.createElement('button');head.type='button';head.className='pbu-head';head.setAttribute('aria-expanded','false');
+ head.innerHTML='<span class="pbu-title"></span><span class="pbu-sum"></span>';
+ var panel=document.createElement('div');panel.className='pbu-panel';
+ panel.innerHTML='<div class="pbu-pick" hidden></div>'
+  +'<div class="pbu-seg" role="group" aria-label="Typ av övning"><button type="button" data-pbu-kind="strength">Styrka</button><button type="button" data-pbu-kind="cardio">Kondition</button></div>'
+  +'<div class="pbu-steps"></div>';
+ var actions=document.createElement('div');actions.className='pbu-actions';
+ actions.innerHTML='<button type="button" class="pbu-link" data-pbu-change>Byt övning</button>'
+  +'<button type="button" class="pbu-link is-danger" data-pbu-delete>Ta bort</button>';
+ row.insertBefore(head,row.firstChild);
+ row.insertBefore(thumb,row.firstChild);
+ row.appendChild(panel);row.appendChild(actions);
+ paintRow(row);
+}
+function enhanceAll(){document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(enhanceRow);}
+
+/* ---------- Row: expanded panel ---------- */
+function openRow(row,opts){
+ opts=opts||{};
+ document.querySelectorAll('#day-workout-ex-list .pbu-row.pbu-open').forEach(function(r){if(r!==row)closeRow(r);});
+ row.classList.add('pbu-open');
+ row.querySelector('.pbu-head').setAttribute('aria-expanded','true');
+ var empty=!(nameInput(row)||{}).value;
+ if(empty||opts.pick)showPicker(row);else hidePicker(row);
+ renderSteps(row);syncActions(row);
+ if(opts.scroll!==false)setTimeout(function(){try{row.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_e){}},30);
+}
+function closeRow(row){
+ row.classList.remove('pbu-open');
+ var h=row.querySelector('.pbu-head');if(h)h.setAttribute('aria-expanded','false');
+ hidePicker(row);paintRow(row);
+}
+function syncActions(row){
+ var kind=rowKind(row);
+ row.querySelectorAll('[data-pbu-kind]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.pbuKind===kind?'true':'false');});
+}
+function renderSteps(row){
+ var wrap=row.querySelector('.pbu-steps'),kind=rowKind(row);
  wrap.dataset.count=SPECS[kind].length;
  wrap.innerHTML=SPECS[kind].map(function(s){
-  var v=field(sheetRow,s.n).value;
-  return '<div class="pbu-stepper"><span class="pbu-stepper-label">'+s.label+(s.unit?' <small>'+s.unit+'</small>':'')+'</span>'
-   +'<input class="pbu-stepper-value" data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1?'decimal':'numeric')+'" value="'+esc(v)+'" placeholder="0" aria-label="'+s.label+'" autocomplete="off">'
-   +'<div class="pbu-stepper-btns"><button type="button" data-pbu-step="-1" data-pbu-n="'+s.n+'" aria-label="Minska '+s.label.toLowerCase()+'">−</button><button type="button" data-pbu-step="1" data-pbu-n="'+s.n+'" aria-label="Öka '+s.label.toLowerCase()+'">+</button></div></div>';
+  var v=field(row,s.n).value;
+  return '<div class="pbu-step"><span class="pbu-step-label">'+s.label+(s.unit?' <small>'+s.unit+'</small>':'')+'</span>'
+   +'<div class="pbu-step-ctrl"><button type="button" data-pbu-step="-1" data-pbu-n="'+s.n+'" aria-label="Minska '+s.label.toLowerCase()+'"><i class="pbu-minus"></i></button>'
+   +'<input class="pbu-step-value" data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1?'decimal':'numeric')+'" value="'+esc(v)+'" placeholder="0" aria-label="'+s.label+'" autocomplete="off">'
+   +'<button type="button" data-pbu-step="1" data-pbu-n="'+s.n+'" aria-label="Öka '+s.label.toLowerCase()+'"><i class="pbu-plus"></i></button></div></div>';
  }).join('');
 }
-function openSheet(row){
- ensureSheet();sheetRow=row;renderSheet();
- if(typeof window.closeExerciseNamePicker==='function')window.closeExerciseNamePicker();
- sheet.classList.add('show');
- var first=sheet.querySelector('.pbu-primary');try{first.focus({preventScroll:true});}catch(_e){}
-}
-function closeSheet(){
- if(!sheet||!sheet.classList.contains('show'))return;
- sheet.classList.remove('show');
- var row=sheetRow;sheetRow=null;
- if(row&&document.body.contains(row)){paintRow(row);var b=row.querySelector('.pbu-summary');try{b.focus({preventScroll:true});}catch(_e){}}
-}
 
-/* ---------- Guide suggestions in the existing picker ---------- */
-function suggestionContext(input){
+/* ---------- Inline exercise choice (no popup) ---------- */
+function passContext(row){
  var name=(byId('day-workout-name')||{}).value||'',type=(byId('day-workout-type')||{}).value||'';
- var row=input&&input.closest('.ex-row-item');
- var cardio=(row&&rowKind(row)==='cardio')||(CARDIO.test(key(name))&&!musclesFromText(name).length)||(CARDIO.test(key(type))&&!musclesFromText(name).length);
- var muscles=musclesFromText(name);
- var source=name;
+ var muscles=musclesFromText(name),source=name;
  if(!muscles.length){muscles=musclesFromText(type);source=type;}
- return {cardio:cardio,muscles:muscles,label:cardio?'Kondition':muscles.length>4?String(source||'').trim():muscles.join(' + ')};
+ var cardio=rowKind(row)==='cardio'||(!muscles.length&&(CARDIO.test(key(name))||CARDIO.test(key(type))));
+ return {cardio:cardio,muscles:muscles,type:type,label:cardio?'Kondition':muscles.length>4?String(source).trim():muscles.join(' + ')};
 }
-function suggestionsFor(input){
- var p=api();if(!p)return {ctx:null,list:[]};
- var ctx=suggestionContext(input);
+function guideSuggestions(ctx){
+ var p=api();if(!p)return [];
+ if(ctx.cardio)return p.exercises.filter(function(e){return e.group==='Kondition';});
  var list=[];
- if(ctx.cardio)list=p.exercises.filter(function(e){return e.group==='Kondition';});
- else if(ctx.muscles.length){
-  ctx.muscles.forEach(function(m){p.exercises.forEach(function(e){if(e.group!=='Kondition'&&e.muscles[0]===m&&list.indexOf(e)<0)list.push(e);});});
- }
- return {ctx:ctx,list:list};
+ ctx.muscles.forEach(function(m){p.exercises.forEach(function(e){if(e.group!=='Kondition'&&e.muscles[0]===m&&list.indexOf(e)<0)list.push(e);});});
+ return list;
 }
-function inPass(){
- var names={};
- document.querySelectorAll('#day-workout-ex-list .exercise-name-picker-input-v1').forEach(function(i){if(i.value)names[key(i.value)]=1;});
- return names;
+function ownExercises(ctx,row){
+ if(typeof window.getExerciseNameCatalog!=='function')return [];
+ try{return window.getExerciseNameCatalog(ctx.type||'Övrigt',ctx.cardio?'cardio':rowKind(row))||[];}catch(_e){return [];}
 }
-function decoratePicker(input){
- var picker=byId('exercise-name-picker-v1');
- if(!picker||!input||!input.closest('#day-workout-modal'))return;
- picker.classList.add('pbu-picker');
- var options=picker.querySelector('.exercise-name-picker-options-v1');
- var old=options.querySelector('.pbu-suggest');if(old)old.remove();
- var s=suggestionsFor(input),used=inPass(),current=key(input.value);
+function usedNames(except){
+ var used={};
+ document.querySelectorAll('#day-workout-ex-list .pbu-row').forEach(function(r){if(r===except)return;var v=(nameInput(r)||{}).value;if(v)used[key(v)]=1;});
+ return used;
+}
+function showPicker(row){
+ var pick=row.querySelector('.pbu-pick');
+ pick.hidden=false;row.classList.add('pbu-picking');
+ pick.innerHTML='<label class="pbu-search"><span class="pbu-search-icon" aria-hidden="true"></span><input type="text" data-pbu-search placeholder="Sök eller skriv eget namn" autocomplete="off" enterkeyhint="done" aria-label="Sök övning"></label><div class="pbu-options" role="listbox"></div>';
+ renderOptions(row,'');
+}
+function hidePicker(row){
+ var pick=row.querySelector('.pbu-pick');if(!pick)return;
+ pick.hidden=true;pick.innerHTML='';row.classList.remove('pbu-picking');
+}
+function renderOptions(row,query){
+ var box=row.querySelector('.pbu-options');if(!box)return;
+ var ctx=passContext(row),q=key(query),used=usedNames(row),current=key((nameInput(row)||{}).value);
+ var match=function(n){return !q||key(n).indexOf(q)>=0;};
+ var guide=guideSuggestions(ctx).filter(function(e){return match(e.name);});
+ var gk={};guide.forEach(function(e){gk[key(e.name)]=1;});
+ var own=ownExercises(ctx,row).filter(function(e){return !gk[key(e.name)]&&match(e.name);});
+ // Searching reaches the whole guide, not only the pass's muscle groups.
+ if(q&&api())api().exercises.forEach(function(e){if(!gk[key(e.name)]&&match(e.name)&&!own.some(function(o){return key(o.name)===key(e.name);})){guide.push(e);gk[key(e.name)]=1;}});
  var html='';
- if(s.list.length){
-  // Don't list the same name twice: guide matches win over the registered list.
-  var guideNames={};s.list.forEach(function(e){guideNames[key(e.name)]=1;});
-  options.querySelectorAll('.exercise-name-picker-row-v1').forEach(function(r){var b=r.querySelector('.exercise-name-picker-option-v1');if(b&&guideNames[key(b.dataset.exerciseName)])r.remove();});
-  html+='<div class="pbu-suggest-head"><span>Förslag</span><strong>'+esc(s.ctx.label)+'</strong></div>';
-  html+=s.list.map(function(e){
-   var img=MUSCLE_IMAGE[e.muscles[0]];
-   var isUsed=used[key(e.name)]&&key(e.name)!==current;
-   return '<div class="exercise-name-picker-row-v1 pbu-suggest-row'+(isUsed?' is-used':'')+'">'
-    +'<button type="button" class="exercise-name-picker-option-v1'+(key(e.name)===current?' is-current':'')+'" role="option" data-exercise-name="'+esc(e.name)+'" data-exercise-kind="'+(e.group==='Kondition'?'cardio':'strength')+'" data-pbu-guide-id="'+e.id+'">'
-    +'<span class="pbu-thumb">'+(img?'<img alt="" src="assets/atlas-art-v1/'+img+'.webp" loading="lazy" decoding="async">':'<span>'+esc(e.name.charAt(0))+'</span>')+'</span>'
-    +'<span class="pbu-suggest-copy"><span class="pbu-suggest-name">'+esc(e.name)+'</span><small>'+esc(e.muscles.slice(0,3).join(' · '))+(isUsed?' · redan i passet':'')+'</small></span></button>'
-    +'<button type="button" class="pbu-info" data-pbu-guide="'+e.id+'" aria-label="Visa '+esc(e.name)+' i övningsguiden">i</button></div>';
+ if(guide.length){
+  html+='<div class="pbu-group">'+(q?'Övningsguiden':'Förslag · '+esc(ctx.label))+'</div>';
+  html+=guide.slice(0,q?12:10).map(function(e){
+   var img=MUSCLE_IMAGE[e.muscles[0]],isUsed=used[key(e.name)];
+   return '<div class="pbu-opt'+(isUsed?' is-used':'')+(key(e.name)===current?' is-current':'')+'">'
+    +'<button type="button" class="pbu-opt-main" data-pbu-pick="'+esc(e.name)+'" data-pbu-kind-pick="'+(e.group==='Kondition'?'cardio':'strength')+'" data-pbu-guide-id="'+e.id+'">'
+    +'<span class="pbu-thumb is-small">'+(img?'<img alt="" src="assets/atlas-art-v1/'+img+'.webp" loading="lazy" decoding="async">':'')+'</span>'
+    +'<span class="pbu-opt-copy"><span class="pbu-opt-name">'+esc(e.name)+'</span><small>'+esc(e.muscles.slice(0,3).join(' · '))+(isUsed?' · redan i passet':'')+'</small></span></button>'
+    +'<button type="button" class="pbu-link" data-pbu-guide="'+e.id+'" aria-label="Visa '+esc(e.name)+' i övningsguiden">Visa</button></div>';
   }).join('');
- }else if(s.ctx&&!s.ctx.cardio){
-  html+='<div class="pbu-suggest-hint">Tips: döp passet till t.ex. <b>Bröst + Triceps</b> så föreslås övningar ur guiden.</div>';
  }
- var registered=options.querySelectorAll('.exercise-name-picker-row-v1:not(.pbu-suggest-row)').length;
- if(html){
-  html+='<div class="pbu-suggest-head is-own"><span>Dina övningar</span><strong>'+registered+'</strong></div>';
-  var wrap=document.createElement('div');wrap.className='pbu-suggest';wrap.innerHTML=html;
-  options.insertBefore(wrap,options.firstChild);
-  var empty=options.querySelector('.exercise-name-picker-empty-v1');
-  if(empty&&s.list.length)empty.textContent='Inga egna övningar i den här kategorin ännu.';
+ if(own.length){
+  var limit=q?own.length:Math.min(own.length,6);
+  html+='<div class="pbu-group">Dina övningar</div>';
+  html+=own.slice(0,limit).map(function(e){
+   return '<div class="pbu-opt is-own'+(key(e.name)===current?' is-current':'')+'"><button type="button" class="pbu-opt-main" data-pbu-pick="'+esc(e.name)+'" data-pbu-kind-pick="'+e.kind+'"><span class="pbu-opt-copy"><span class="pbu-opt-name">'+esc(e.name)+'</span></span></button></div>';
+  }).join('');
  }
- options.scrollTop=0;
+ var typed=String(query||'').trim();
+ var exact=typed&&(guide.concat(own)).some(function(e){return key(e.name)===key(typed);});
+ if(typed&&!exact)html+='<button type="button" class="pbu-new" data-pbu-pick="'+esc(typed.slice(0,70))+'" data-pbu-kind-pick="'+(ctx.cardio?'cardio':rowKind(row))+'">Lägg till <b>'+esc(typed.slice(0,70))+'</b> som ny övning</button>';
+ if(!html)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden, eller skriv ett eget namn ovan.</p>';
+ else if(!guide.length&&!q&&!ctx.cardio)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden.</p>'+html;
+ box.innerHTML=html;
 }
-/* Selecting a guide suggestion also fills empty sets/reps from the guide's
-   standard prescription, so the row is ready to save. */
+function choose(row,name,kind,guideId){
+ if(!name)return;
+ setKind(row,kind||rowKind(row));
+ write(nameInput(row),name);
+ if(guideId!=null&&guideId!=='')fillFromGuide(row,Number(guideId));
+ hidePicker(row);renderSteps(row);syncActions(row);paintRow(row);
+}
+/* A guide choice fills empty fields with the guide's standard prescription. */
 function fillFromGuide(row,id){
- var p=api();if(!p||!row)return;
- var rx=p.prescription(Number(id));if(!rx)return;
- setTimeout(function(){
-  if(rowKind(row)==='cardio'){
-   if(!field(row,2).value&&rx.minutes)write(field(row,2),rx.minutes);
-  }else if(rx.mode==='kg'){
-   if(!field(row,1).value)write(field(row,1),rx.sets);
-   if(!field(row,2).value&&rx.reps)write(field(row,2),rx.reps);
-  }
-  paintRow(row);
- },0);
+ var p=api();if(!p)return;
+ var rx=p.prescription(id);if(!rx)return;
+ if(rowKind(row)==='cardio'){if(!field(row,2).value&&rx.minutes)write(field(row,2),rx.minutes);}
+ else if(rx.mode==='kg'){
+  if(!field(row,1).value)write(field(row,1),rx.sets);
+  if(!field(row,2).value&&rx.reps)write(field(row,2),rx.reps);
+ }
 }
 
-/* ---------- Guide overlay (keeps the builder state underneath) ---------- */
-var guide=null,guideInput=null,guidePrevious=null;
-function openGuide(id,input){
- guideInput=input;
+/* ---------- Guide page (full screen, keeps the builder underneath) ---------- */
+var guide=null,guideRow=null,guidePrevious=null;
+function openGuide(id,row){
+ guideRow=row;
  try{guidePrevious=localStorage.getItem('pulse-last-exercise');localStorage.setItem('pulse-last-exercise',String(id));}catch(_e){}
- if(typeof window.closeExerciseNamePicker==='function')window.closeExerciseNamePicker();
  if(!guide){
   guide=document.createElement('div');guide.className='pbu-guide';guide.setAttribute('role','dialog');guide.setAttribute('aria-label','Övningsguide');
-  guide.innerHTML='<div class="pbu-guide-bar"><button type="button" class="pbu-guide-back" data-pbu-guide-close>← Tillbaka till passet</button><button type="button" class="pbu-guide-pick" data-pbu-guide-pick>Välj övningen</button></div><iframe class="pbu-guide-frame" title="Övningsguide"></iframe>';
+  guide.innerHTML='<div class="pbu-guide-bar"><button type="button" class="pbu-guide-back" data-pbu-guide-close><i class="pbu-chev-left" aria-hidden="true"></i>Tillbaka till passet</button><button type="button" class="pbu-guide-pick" data-pbu-guide-pick>Välj övningen</button></div><iframe class="pbu-guide-frame" title="Övningsguide"></iframe>';
   document.body.appendChild(guide);
-  // The guide's own "Till träningen" link would load the whole app inside the
-  // overlay; treat leaving the guide page as going back to the pass.
   guide.querySelector('iframe').addEventListener('load',function(){
-   try{var path=this.contentWindow.location.pathname;if(guide.classList.contains('show')&&path&&!/pulse-exercise-guide\.html$/.test(path)&&path!=='blank')closeGuide(true);}catch(_e){}
+   // The guide's own "Till träningen" link would load the app inside here.
+   try{var path=this.contentWindow.location.pathname;if(guide.classList.contains('show')&&path!=='blank'&&!/pulse-exercise-guide\.html$/.test(path))closeGuide();}catch(_e){}
   });
   guide.addEventListener('click',function(e){
-   if(e.target.closest('[data-pbu-guide-close]'))closeGuide(true);
+   if(e.target.closest('[data-pbu-guide-close]'))closeGuide();
    else if(e.target.closest('[data-pbu-guide-pick]'))pickFromGuide();
   });
  }
@@ -287,74 +262,116 @@ function openGuide(id,input){
  guide.querySelector('iframe').src='pulse-exercise-guide.html?embedded=builder'+(user==='maja'?'&user=maja':'');
  guide.classList.add('show');
 }
-function closeGuide(reopen){
+function closeGuide(){
  if(!guide)return;
  guide.classList.remove('show');
  guide.querySelector('iframe').src='about:blank';
  try{if(guidePrevious==null)localStorage.removeItem('pulse-last-exercise');else localStorage.setItem('pulse-last-exercise',guidePrevious);}catch(_e){}
- var input=guideInput;guideInput=null;
- if(reopen&&input&&document.body.contains(input)&&typeof window.renderExerciseNamePicker==='function')window.renderExerciseNamePicker(input);
 }
 function pickFromGuide(){
- var p=api(),input=guideInput,id=Number(guide.dataset.id);
- // Follow the exercise the person swiped to inside the guide, if they moved on.
+ var p=api(),row=guideRow,id=Number(guide.dataset.id);
+ // Follow the exercise the person swiped to inside the guide.
  try{var seen=Number(localStorage.getItem('pulse-last-exercise'));if(p&&p.exercises[seen])id=seen;}catch(_e){}
  var e=p&&p.exercises[id];
- closeGuide(false);
- if(!e||!input||!document.body.contains(input))return;
- var row=input.closest('.ex-row-item');
- var kind=e.group==='Kondition'?'cardio':'strength';
- if(row&&rowKind(row)!==kind){var b=Array.prototype.find.call(row.querySelectorAll('.ex-kind-btn'),function(x){return kind==='cardio'?/kondition/i.test(x.textContent):/styrka/i.test(x.textContent);});if(b)window.setExerciseKind(b,kind);}
- write(input,e.name);
- fillFromGuide(row,id);
+ closeGuide();
+ if(e&&row&&document.body.contains(row))choose(row,e.name,e.group==='Kondition'?'cardio':'strength',id);
+}
+
+/* ---------- Pass header: title, meta and folded settings ---------- */
+function buildTop(modal){
+ var modalBox=modal.querySelector('.modal');
+ var kicker=document.createElement('div');kicker.className='pbu-kicker';
+ var bar=document.createElement('button');bar.type='button';bar.className='pbu-settings-toggle';bar.setAttribute('aria-expanded','false');
+ bar.innerHTML='<span class="pbu-settings-meta"></span><span class="pbu-settings-label">Inställningar</span><i class="pbu-chev" aria-hidden="true"></i>';
+ modalBox.insertBefore(kicker,modalBox.firstChild);
+ modalBox.appendChild(bar);
+ bar.addEventListener('click',function(){
+  var open=!modal.classList.contains('pbu-settings-open');
+  modal.classList.toggle('pbu-settings-open',open);
+  this.setAttribute('aria-expanded',String(open));
+ });
+ paintTop(modal);
+}
+function paintTop(modal){
+ var h=byId('day-workout-title'),text=h?h.textContent.trim():'';
+ var kicker=modal.querySelector('.pbu-kicker');if(!kicker)return;
+ var k=/^passupplägg/i.test(text)?text.replace(/^passupplägg\s*·\s*/i,''):text;
+ if(kicker.textContent!==k)kicker.textContent=k;
+ var sel=byId('day-workout-template-select'),tpl=sel&&sel.value&&sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].textContent:'';
+ var type=(byId('day-workout-type')||{}).value||'';
+ var meta=[type,tpl?'Mall: '+tpl:''].filter(Boolean).join(' · ');
+ var m=modal.querySelector('.pbu-settings-meta');if(m.textContent!==meta)m.textContent=meta;
 }
 
 /* ---------- Wiring ---------- */
 function init(){
- var list=byId('day-workout-ex-list');
- if(!list||typeof window.renderExerciseNamePicker!=='function'){return setTimeout(init,120);}
- var modal=byId('day-workout-modal');modal.classList.add('pbu-builder');
- enhanceAll();
- new MutationObserver(function(records){
-  records.forEach(function(r){r.addedNodes.forEach(function(n){if(n.nodeType===1&&n.classList.contains('ex-row-item'))enhanceRow(n);});});
- }).observe(list,{childList:true});
- list.addEventListener('input',function(e){var row=e.target.closest('.ex-row-item');if(row&&!e.target.closest('.per-set-v7'))paintRow(row);});
- list.addEventListener('change',function(e){var row=e.target.closest('.ex-row-item');if(row)paintRow(row);});
- list.addEventListener('click',function(e){
-  var s=e.target.closest('.pbu-summary');if(s){e.preventDefault();openSheet(s.closest('.ex-row-item'));}
- });
-
- var render=window.renderExerciseNamePicker;
- window.renderExerciseNamePicker=function(input){
-  lastPickerInput=input;
-  var out=render.apply(this,arguments);
-  try{decoratePicker(input);}catch(err){if(window.console)console.warn('pbu picker',err);}
-  return out;
- };
- var picker=byId('exercise-name-picker-v1');
- if(picker){
-  picker.addEventListener('click',function(e){
-   var info=e.target.closest('[data-pbu-guide]');
-   var input=window.exerciseNamePickerState?window.exerciseNamePickerState.input:null;
-   if(info){e.stopPropagation();e.preventDefault();openGuide(Number(info.dataset.pbuGuide),input||lastPickerInput);return;}
-   var opt=e.target.closest('[data-pbu-guide-id]');
-   if(opt&&lastPickerInput)fillFromGuide(lastPickerInput.closest('.ex-row-item'),opt.dataset.pbuGuideId);
-  },true);
- }
- /* + Lägg till övning opens the picker for the new row straight away. */
+ var modal=byId('day-workout-modal'),list=byId('day-workout-ex-list');
+ if(!modal||!list||typeof window.parseExerciseRow!=='function')return setTimeout(init,120);
+ modal.classList.add('pbu-builder');
+ if(typeof window.closeExerciseNamePicker==='function')window.closeExerciseNamePicker();
+ buildTop(modal);
+ var nameEl=byId('day-workout-name');if(nameEl)nameEl.placeholder='Namnge passet';
  var addBtn=modal.querySelector('[onclick="addDayWorkoutExRow()"]');
  if(addBtn){
-  addBtn.classList.add('pbu-add');addBtn.textContent='＋ Lägg till övning';
+  addBtn.classList.add('pbu-add');addBtn.innerHTML='<i class="pbu-plus" aria-hidden="true"></i><span>Lägg till övning</span>';
   addBtn.addEventListener('click',function(){
-   setTimeout(function(){
-    var rows=list.querySelectorAll('.ex-row-item'),row=rows[rows.length-1];
-    var input=row&&row.querySelector('.exercise-name-picker-input-v1');
-    if(input&&!input.value){row.scrollIntoView({block:'nearest',behavior:'smooth'});window.renderExerciseNamePicker(input);}
-   },40);
+   setTimeout(function(){var rows=list.querySelectorAll('.pbu-row'),row=rows[rows.length-1];if(row&&!(nameInput(row)||{}).value)openRow(row,{pick:true});},0);
   });
  }
+ enhanceAll();
+ new MutationObserver(function(records){
+  records.forEach(function(r){r.addedNodes.forEach(function(n){if(n.nodeType===1&&n.classList.contains('ex-row-item')){
+   enhanceRow(n);
+   // A freshly copied row should not inherit the open state.
+   if(n.classList.contains('pbu-open'))closeRow(n);
+  }});});
+ }).observe(list,{childList:true});
+ var h=byId('day-workout-title');
+ if(h)new MutationObserver(function(){paintTop(modal);}).observe(h,{childList:true,characterData:true,subtree:true});
+ ['day-workout-type','day-workout-template-select','day-workout-name'].forEach(function(id){var el=byId(id);if(el){el.addEventListener('change',function(){paintTop(modal);});el.addEventListener('input',function(){paintTop(modal);});}});
+ /* Opening another day or template rebuilds the rows; start collapsed. */
+ new MutationObserver(function(){if(!modal.classList.contains('show')){modal.classList.remove('pbu-settings-open');}else paintTop(modal);}).observe(modal,{attributes:true,attributeFilter:['class']});
+
+ list.addEventListener('click',function(e){
+  var t=e.target,row=t.closest('.pbu-row');if(!row)return;
+  if(t.closest('.pbu-head')||t.closest('.pbu-thumb')){
+   if(row.classList.contains('pbu-open')&&(nameInput(row)||{}).value)closeRow(row);else openRow(row);
+   return;
+  }
+  var step=t.closest('[data-pbu-step]');
+  if(step){
+   var spec=SPECS[rowKind(row)].filter(function(s){return s.n===Number(step.dataset.pbuN);})[0];
+   var input=field(row,spec.n),value=num(input.value)+Number(step.dataset.pbuStep)*spec.step;
+   write(input,Math.max(spec.min,Math.round(value*100)/100));
+   var shown=row.querySelector('[data-pbu-value="'+spec.n+'"]');if(shown)shown.value=input.value;
+   paintRow(row);return;
+  }
+  var kind=t.closest('[data-pbu-kind]');
+  if(kind){setKind(row,kind.dataset.pbuKind);renderSteps(row);syncActions(row);paintRow(row);if(!row.querySelector('.pbu-pick').hidden)renderOptions(row,(row.querySelector('[data-pbu-search]')||{}).value||'');return;}
+  if(t.closest('[data-pbu-change]')){if(row.classList.contains('pbu-picking'))hidePicker(row);else{showPicker(row);}return;}
+  if(t.closest('[data-pbu-delete]')){var del=row.querySelector('.ex-del');if(del)del.click();return;}
+  var info=t.closest('[data-pbu-guide]');
+  if(info){openGuide(Number(info.dataset.pbuGuide),row);return;}
+  var pick=t.closest('[data-pbu-pick]');
+  if(pick){choose(row,pick.dataset.pbuPick,pick.dataset.pbuKindPick,pick.dataset.pbuGuideId);return;}
+ });
+ list.addEventListener('input',function(e){
+  var t=e.target,row=t.closest('.pbu-row');if(!row)return;
+  if(t.matches('[data-pbu-search]')){renderOptions(row,t.value);return;}
+  if(t.matches('[data-pbu-value]')){write(field(row,Number(t.dataset.pbuValue)),t.value===''?'':num(t.value));paintRow(row);return;}
+ });
+ list.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  var t=e.target,row=t.closest('.pbu-row');if(!row)return;
+  if(t.matches('[data-pbu-search]')){
+   e.preventDefault();
+   var first=row.querySelector('.pbu-options [data-pbu-pick]');
+   if(first)choose(row,first.dataset.pbuPick,first.dataset.pbuKindPick,first.dataset.pbuGuideId);
+  }else if(t.matches('[data-pbu-value]')){e.preventDefault();t.blur();}
+ });
+ list.addEventListener('focusin',function(e){var t=e.target;if(t.matches&&t.matches('[data-pbu-value]'))setTimeout(function(){try{t.select();}catch(_e){}},0);});
+ list.addEventListener('change',function(e){var row=e.target.closest('.pbu-row');if(row&&!e.target.closest('.pbu-panel'))paintRow(row);});
 }
-var lastPickerInput=null;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-window.PulseBuilderUI={openSheet:openSheet,closeSheet:closeSheet,suggestionsFor:suggestionsFor,musclesFromText:musclesFromText};
+window.PulseBuilderUI={openRow:openRow,closeRow:closeRow,musclesFromText:musclesFromText};
 })();

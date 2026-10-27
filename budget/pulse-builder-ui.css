@@ -1,223 +1,292 @@
-/* Pass builder preview (?ui=mittpass): app-like, card-less builder in the
-   Pulse Flow guide language. Scoped to html.pbu-v1 so the classic builder is
-   untouched without the flag. */
+/* Pass builder preview (?ui=mittpass), option A: calm full-screen list in the
+   Pulse Flow language. Scoped to html.pbu-v1; without the flag the classic
+   builder is untouched. No popups: everything opens in place. */
 html.pbu-v1{
-  --pbu-bg:#080b12;--pbu-line:#ffffff17;--pbu-line-strong:#ffffff26;
-  --pbu-text:#f2eded;--pbu-muted:#a5a0ae;--pbu-dim:#6f6b78;
-  --pbu-accent:#ff806f;--pbu-accent-soft:#dc958f;--pbu-glow:#ff6a5a;
+  --pbu-bg:#080b12;--pbu-line:#ffffff14;--pbu-line-strong:#ffffff24;
+  --pbu-text:#f2eded;--pbu-muted:#a5a0ae;--pbu-dim:#77727f;
+  --pbu-accent:#ff806f;--pbu-accent-soft:#dc958f;--pbu-pale:#ffd4cc;--pbu-glow:#ff6a5a;
 }
 
-/* ---------- Surface: one continuous page, no boxed panels ---------- */
-html.pbu-v1 body #day-workout-modal.pbu-builder .modal{
-  background:radial-gradient(ellipse 90% 30% at 50% 0%,#ff6a5a14,transparent 70%),
-             radial-gradient(ellipse 90% 33% at 55% 13%,#17233255,transparent 88%),var(--pbu-bg)!important;
-  border:0!important;box-shadow:none!important;
+/* ---------- Surface: full screen, layered depth instead of a flat fill ---------- */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder{
+  background:
+    radial-gradient(70% 38% at 88% -4%,#ff6a5a2e,transparent 70%),
+    radial-gradient(60% 34% at 4% 22%,#5a26402e,transparent 72%),
+    radial-gradient(90% 45% at 50% 108%,#173250aa,transparent 70%),
+    radial-gradient(120% 70% at 50% 40%,#0f1622,transparent 80%),
+    var(--pbu-bg)!important;
 }
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-title{
-  font:600 26px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.02em;color:var(--pbu-text)!important;
-  margin:4px 44px 18px 0!important;
+/* Soft vignette, fixed behind the scrolling content. */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(140% 90% at 50% 45%,transparent 55%,#00000080 100%);
 }
-html.pbu-v1 body #day-workout-modal.pbu-builder label,
-html.pbu-v1 body #day-workout-modal.pbu-builder .pretimer-builder-copy strong{
-  font:700 10.5px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase;
-  color:var(--pbu-accent-soft)!important;
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .modal{
+  position:relative;z-index:1;
+  display:flex!important;flex-direction:column;
+  background:transparent!important;border:0!important;box-shadow:none!important;
+  padding:max(18px,env(safe-area-inset-top,0px)) 20px 0!important;
 }
-/* Text fields read as editable text on a hairline, not boxes. */
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-pass-fields input,
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-inline-template-name input{
-  background:transparent!important;border:0!important;border-bottom:1px solid var(--pbu-line-strong)!important;
-  border-radius:0!important;box-shadow:none!important;padding:8px 0!important;
-  font:600 17px/1.3 Inter,system-ui,sans-serif!important;color:var(--pbu-text)!important;
-}
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-pass-fields input:focus{
-  border-bottom-color:var(--pbu-accent)!important;outline:none!important;
-  box-shadow:0 1px 0 var(--pbu-accent),0 10px 18px -14px var(--pbu-glow)!important;
-}
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-template-actions select{
-  background:#ffffff08!important;border:1px solid var(--pbu-line)!important;border-radius:999px!important;padding:0 14px!important;
-}
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-template-actions .btn-sm{border-radius:999px!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-title,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .modal>.form-group:not(.classic-day-calendar):not(.classic-template-group)>label{display:none!important}
 
-/* ---------- Exercise list: rows on the page, separated by hairlines ---------- */
-html.pbu-v1 body #day-workout-modal.pbu-builder .ex-list{gap:0!important;border-top:1px solid var(--pbu-line)}
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .ex-row-item,
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row-item{
-  display:grid!important;
-  grid-template-columns:48px minmax(0,1fr) auto auto!important;
-  grid-template-areas:"thumb name name tools" "thumb sum between between"!important;
-  column-gap:13px!important;row-gap:2px!important;align-items:center;
-  padding:14px 2px 12px!important;margin:0!important;
+/* Own close button replaces the frame's "Redigera pass" header. */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .modal>.modal-close{
+  display:grid!important;place-items:center;position:fixed!important;z-index:5;
+  top:max(14px,env(safe-area-inset-top,0px));right:16px;left:auto;
+  width:40px!important;height:40px!important;padding:0!important;border-radius:50%!important;
+  border:1px solid #ff9a9140!important;background:#0b0f18cc!important;color:var(--pbu-pale)!important;
+  font:400 18px/1 Inter,system-ui,sans-serif!important;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+
+/* Order: kicker, name, settings bar, (settings), exercises, add, footer. */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .pbu-kicker{order:1}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-pass-fields{order:2}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .pbu-settings-toggle{order:3}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-day-calendar,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-group,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-back-to-day,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #pretimer-builder-v2,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #between-exercise-global-editor-v7{order:4}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .modal>.form-group:not(.classic-day-calendar):not(.classic-template-group){display:contents!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-ex-list{order:5}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .pbu-add{order:6}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer{order:9}
+
+/* Settings stay folded until asked for. */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder:not(.pbu-settings-open) :is(.classic-day-calendar,.classic-template-group,#pretimer-builder-v2,#between-exercise-global-editor-v7){display:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder:not(.pbu-settings-open) .classic-pass-fields>.form-group:last-child{display:none!important}
+
+.pbu-v1 .pbu-kicker{
+  margin:2px 56px 6px 0;font:700 10.5px/1.3 Inter,system-ui,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--pbu-accent-soft);
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-pass-fields{
+  display:block!important;margin:0!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-pass-fields .form-group{margin:0!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-pass-fields label{display:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-name{
+  height:auto!important;min-height:0!important;padding:0 0 2px!important;margin:0!important;
+  background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  font:600 30px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.025em;color:var(--pbu-text)!important;-webkit-text-fill-color:var(--pbu-text)!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-name::placeholder{color:#ffffff3d!important;-webkit-text-fill-color:#ffffff3d!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-name:focus{outline:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open .classic-pass-fields>.form-group:last-child{margin-top:16px!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open .classic-pass-fields>.form-group:last-child label{display:block!important}
+
+.pbu-v1 .pbu-settings-toggle{
+  display:flex;align-items:center;gap:10px;width:100%;min-height:44px;margin:6px 0 10px;padding:0;
+  border:0;background:none;color:var(--pbu-muted);cursor:pointer;text-align:left;
+  font:500 13.5px/1.3 Inter,system-ui,sans-serif;
+}
+.pbu-v1 .pbu-settings-meta{flex:1 1 auto;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pbu-v1 .pbu-settings-meta:empty::before{content:"Vecka, mall och timers"}
+.pbu-v1 .pbu-settings-open .pbu-settings-meta{visibility:hidden}
+.pbu-v1 .pbu-settings-label{flex:none;color:var(--pbu-pale);font-weight:600;font-size:13px}
+.pbu-v1 .pbu-chev{flex:none;width:7px;height:7px;margin:-3px 2px 0 0;border-right:1.6px solid var(--pbu-pale);border-bottom:1.6px solid var(--pbu-pale);transform:rotate(45deg);transition:transform .25s ease}
+.pbu-v1 .pbu-settings-open .pbu-chev{transform:rotate(225deg);margin-top:3px}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open .pbu-settings-toggle{margin-bottom:4px}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open :is(.classic-day-calendar,.classic-template-group){
+  margin:0 0 14px!important;padding:0!important;background:none!important;border:0!important;
+  animation:pbu-fade .25s ease both;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open #pretimer-builder-v2{margin:0 0 14px!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder :is(.classic-day-calendar,.classic-template-group)>label,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-pass-fields>.form-group:last-child label{
+  font:700 10px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.18em!important;text-transform:uppercase;color:var(--pbu-dim)!important;margin-bottom:8px!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-type{
+  background:none!important;border:0!important;border-bottom:1px solid var(--pbu-line-strong)!important;border-radius:0!important;padding:6px 0!important;
+  font:500 16px Inter,system-ui,sans-serif!important;color:var(--pbu-text)!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions select,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions .btn-sm,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .week-nav-btn{
+  border-radius:999px!important;border:1px solid var(--pbu-line-strong)!important;background:#ffffff07!important;box-shadow:none!important;
+}
+@keyframes pbu-fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* ---------- Exercise rows: original DOM kept, quiet presentation ---------- */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .ex-list{gap:0!important;border-top:1px solid var(--pbu-line)!important;margin:0!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row{
+  position:relative!important;display:flex!important;flex-direction:column;
+  min-height:76px;padding:14px 0 14px 62px!important;margin:0!important;
   background:none!important;border:0!important;border-bottom:1px solid var(--pbu-line)!important;border-radius:0!important;box-shadow:none!important;
 }
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row-item.is-cardio{background:linear-gradient(90deg,#ff6a5a0d,transparent 55%)!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder .pbu-thumb{grid-area:thumb;align-self:start;margin-top:2px}
+/* Same id weight as the row rule above so the floating drag copy wins. */
+html.pbu-v1[data-field-embedded] body :is(#pbu-id-a #pbu-id-b,.builder-row-floating-v4).pbu-row.pbu-row{
+  background:linear-gradient(90deg,#1a1320f2,#0d121bf2)!important;border-radius:18px!important;border:1px solid #ff806f33!important;
+  box-shadow:0 18px 40px -16px #000,0 0 0 1px #ff806f14!important;padding-right:10px!important;
+}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row>.ex-row{display:none!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row .ex-kind-btn,
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row .builder-row-plus-v3{display:none!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row>.ex-row-head{
+  position:absolute!important;top:16px;right:-6px;display:block!important;margin:0!important;padding:0!important;border:0!important;background:none!important;
+}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row .builder-row-tools-v3{display:block!important;margin:0!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row .builder-row-drag-handle-v3{
+  width:40px!important;height:40px!important;min-width:40px!important;border:0!important;background:none!important;box-shadow:none!important;opacity:.45;
+}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row.is-cardio{background:linear-gradient(90deg,#ff6a5a0c,transparent 50%)!important}
+
 .pbu-v1 .pbu-thumb{
-  display:grid;place-items:center;width:48px;height:48px;border-radius:50%;overflow:hidden;flex:none;
-  background:radial-gradient(circle at 50% 40%,#1b2433,#0c1119);box-shadow:inset 0 0 0 1px #ffffff12,0 6px 18px -10px #ff6a5a66;
-  color:var(--pbu-accent-soft);font:600 17px Inter,system-ui,sans-serif;
+  display:grid;place-items:center;width:46px;height:46px;border-radius:50%;overflow:hidden;flex:none;
+  background:radial-gradient(circle at 50% 38%,#1c2636,#0b1018);
+  box-shadow:inset 0 0 0 1px #ffffff14,0 8px 20px -12px #ff6a5a80;
 }
+.pbu-v1 .pbu-row>.pbu-thumb{position:absolute;left:0;top:15px;cursor:pointer}
 .pbu-v1 .pbu-thumb img{width:100%;height:100%;object-fit:cover;transform:scale(1.12)}
+.pbu-v1 .pbu-thumb.is-small{width:40px;height:40px}
+/* CSS-drawn plus/minus — no glyphs or emoji. */
+.pbu-v1 .pbu-plus,.pbu-v1 .pbu-minus{position:relative;display:block;width:14px;height:14px}
+.pbu-v1 .pbu-plus::before,.pbu-v1 .pbu-plus::after,.pbu-v1 .pbu-minus::before{content:"";position:absolute;left:50%;top:50%;width:14px;height:1.8px;border-radius:2px;background:currentColor;transform:translate(-50%,-50%)}
+.pbu-v1 .pbu-plus::after{transform:translate(-50%,-50%) rotate(90deg)}
+.pbu-v1 .pbu-row.pbu-empty>.pbu-thumb{color:var(--pbu-accent);box-shadow:inset 0 0 0 1px #ff806f55,0 0 22px -6px #ff6a5a66}
 
-/* The head only keeps the copy/drag tools; kind lives in the number sheet. */
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row-head{display:contents!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row-head .ex-kind-btn{display:none!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .builder-row-tools-v3{grid-area:tools;display:flex!important;gap:0!important;margin:0!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .builder-row-plus-v3{display:none!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .builder-row-drag-handle-v3{
-  width:34px!important;height:34px!important;min-width:34px!important;border:0!important;background:none!important;box-shadow:none!important;opacity:.55;
+.pbu-v1 .pbu-head{
+  order:1;display:flex;flex-direction:column;align-items:flex-start;gap:3px;width:100%;min-height:46px;
+  padding:1px 40px 0 0;margin:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;
 }
+.pbu-v1 .pbu-title{max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:600 16.5px/1.25 Inter,system-ui,sans-serif;letter-spacing:-.01em;color:var(--pbu-text)}
+.pbu-v1 .pbu-sum{font:500 14px/1.3 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;color:var(--pbu-pale)}
+.pbu-v1 .pbu-row.pbu-empty .pbu-title{color:var(--pbu-accent)}
+.pbu-v1 .pbu-row.pbu-empty .pbu-sum{color:var(--pbu-dim)}
+.pbu-v1 .pbu-head:focus-visible{outline:2px solid var(--pbu-accent);outline-offset:4px;border-radius:8px}
 
-/* Name input becomes the row title; numbers are hidden (kept for saving). */
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row,
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row{display:contents!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row > :not(.dw-name){display:none!important}
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row input.dw-name{
-  grid-area:name!important;
-  height:auto!important;min-height:30px!important;padding:2px 0!important;margin:0!important;
-  background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;
-  font:600 17px/1.25 Inter,system-ui,sans-serif!important;letter-spacing:-.01em;color:var(--pbu-text)!important;-webkit-text-fill-color:var(--pbu-text)!important;
-  text-overflow:ellipsis;cursor:pointer;
+/* Collapsed: only the head is visible. */
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list .ex-row-item,.builder-row-floating-v4).pbu-row:not(.pbu-open) :is(.pbu-panel,.pbu-actions,.per-set-v7){display:none!important}
+.pbu-v1 .pbu-panel{order:2}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-v7{
+  order:3;margin:14px 0 0!important;padding:0!important;border:0!important;background:none!important;
 }
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row input.dw-name::placeholder{color:var(--pbu-accent-soft)!important;-webkit-text-fill-color:var(--pbu-accent-soft)!important;opacity:1}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .ex-row input.dw-name[data-exercise-name-free-v1="1"]{
-  cursor:text;border-bottom:1px solid var(--pbu-accent)!important;font-size:16px!important;
-}
+.pbu-v1 .pbu-actions{order:4}
+.pbu-v1 .pbu-row.pbu-open .pbu-panel{animation:pbu-fade .22s ease both}
 
-.pbu-v1 .pbu-summary{
-  grid-area:sum;justify-self:start;display:inline-flex;align-items:baseline;gap:10px;
-  min-height:32px;padding:3px 0;margin:0;border:0;background:none;color:var(--pbu-text);cursor:pointer;text-align:left;
-  font:500 15px/1.3 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;
+/* ---------- Expanded: steppers ---------- */
+.pbu-v1 .pbu-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.pbu-v1 .pbu-steps[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pbu-v1 .pbu-row.pbu-picking .pbu-steps{display:none}
+.pbu-v1 .pbu-step{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pbu-v1 .pbu-step-label{font:700 9.5px/1.2 Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--pbu-dim)}
+.pbu-v1 .pbu-step-label small{font-size:9.5px;letter-spacing:.04em;text-transform:none}
+.pbu-v1 .pbu-step-ctrl{display:flex;align-items:center;justify-content:space-between;height:46px;padding:0 3px;border-radius:999px;background:#ffffff07;box-shadow:inset 0 0 0 1px #ffffff12}
+.pbu-v1 .pbu-step-ctrl button{
+  display:grid;place-items:center;flex:none;width:30px;height:30px;padding:0;border:0;border-radius:50%;cursor:pointer;
+  background:#ffffff0c;color:var(--pbu-pale);-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .12s ease,background .15s ease;
 }
-.pbu-v1 .pbu-summary-value{color:#ffd4cc;white-space:nowrap}
+.pbu-v1 .pbu-step-ctrl button .pbu-plus,.pbu-v1 .pbu-step-ctrl button .pbu-minus{width:11px;height:11px}
+.pbu-v1 .pbu-step-ctrl button .pbu-plus::before,.pbu-v1 .pbu-step-ctrl button .pbu-plus::after,.pbu-v1 .pbu-step-ctrl button .pbu-minus::before{width:11px}
+.pbu-v1 .pbu-step-ctrl button:active{transform:scale(.88);background:#ff806f30}
+html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-step-value{
+  flex:1 1 auto;width:100%!important;min-width:0!important;height:30px!important;min-height:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;text-align:center;
+  color:#fff;-webkit-text-fill-color:#fff;font:600 18px/1 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;
+}
+.pbu-v1 .pbu-step-value::placeholder{color:#ffffff33;-webkit-text-fill-color:#ffffff33}
+.pbu-v1 .pbu-step-value:focus{outline:none;text-shadow:0 0 18px #ff6a5a99}
+/* Narrow phones: value on top, buttons underneath, so numbers never clip. */
 @media(max-width:379px){
-  .pbu-v1 .pbu-summary-edit{display:none}
-  html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .per-set-label-v7{display:inline-block!important;width:min-content;text-align:right;line-height:1.25!important}
-}
-.pbu-v1 .pbu-summary-edit{font-size:10px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--pbu-accent);opacity:.6}
-.pbu-v1 .pbu-summary.is-empty .pbu-summary-value{color:var(--pbu-muted);font-weight:450;font-size:14px}
-.pbu-v1 .pbu-summary.is-empty .pbu-summary-edit{display:none}
-.pbu-v1 .pbu-summary:focus-visible{outline:2px solid var(--pbu-accent);outline-offset:3px;border-radius:6px}
-
-/* Between-sets switch: a quiet inline line under the numbers. */
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .per-set-v7{
-  grid-area:between;justify-self:end;margin:0!important;padding:0!important;border:0!important;background:none!important;
-  display:flex!important;flex-direction:column;align-items:flex-end;gap:6px;
-}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .per-set-toggle-wrap-v7{gap:7px!important;margin:0!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .per-set-label-v7{color:var(--pbu-dim)!important;letter-spacing:.1em!important;font-size:9.5px!important}
-/* When "Mellan set" is on, its fields need the full row width. */
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .per-set-v7:has(.per-set-fields-v7:not([hidden])){grid-area:auto;grid-column:2/-1;grid-row:3;justify-self:stretch;align-items:stretch}
-
-html.pbu-v1 body #day-workout-modal.pbu-builder #day-workout-ex-list .per-set-fields-v7 :is(select,input){
-  height:38px!important;min-height:38px!important;border-radius:999px!important;padding:0 14px!important;
-  background:#ffffff08!important;border:1px solid var(--pbu-line-strong)!important;font-size:14px!important;
+  .pbu-v1 .pbu-steps{gap:6px}
+  .pbu-v1 .pbu-step-ctrl{display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"v v" "m p";height:auto;padding:6px;row-gap:6px;border-radius:18px;justify-items:center}
+  .pbu-v1 .pbu-step-ctrl [data-pbu-step="-1"]{grid-area:m}
+  .pbu-v1 .pbu-step-ctrl [data-pbu-step="1"]{grid-area:p}
+  html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-step-value{grid-area:v}
 }
 
-/* Add + footer */
-html.pbu-v1 body #day-workout-modal.pbu-builder .pbu-add{
-  display:flex!important;align-items:center;justify-content:center;width:100%!important;min-height:52px!important;margin:14px 0 4px!important;
-  border:1px dashed #ff806f55!important;border-radius:16px!important;background:#ff806f08!important;
-  color:#ffc9bf!important;font:600 15px Inter,system-ui,sans-serif!important;
-}
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-builder-footer{border-top:0!important}
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-builder-footer .classic-save-pass{
-  min-height:54px!important;border-radius:999px!important;border:0!important;
-  background:linear-gradient(135deg,#ff8a74,#e5484d)!important;color:#1d0806!important;font-weight:700!important;font-size:15px!important;
-  box-shadow:0 14px 34px -12px #ff5a4acc,inset 0 1px 0 #ffffff55!important;
-}
-html.pbu-v1 body #day-workout-modal.pbu-builder .classic-builder-footer button:not(.classic-save-pass){
-  background:none!important;border:1px solid var(--pbu-line-strong)!important;border-radius:999px!important;
+/* ---------- Expanded: actions ---------- */
+.pbu-v1 .pbu-actions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px}
+.pbu-v1 .pbu-seg{display:inline-flex;flex:none;align-self:flex-start;padding:2px;margin-top:12px;border-radius:999px;box-shadow:inset 0 0 0 1px #ffffff14}
+.pbu-v1 .pbu-panel{display:flex;flex-direction:column}
+.pbu-v1 .pbu-row.pbu-picking .pbu-seg{display:none}
+.pbu-v1 .pbu-seg button{min-height:30px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--pbu-dim);font:600 11.5px Inter,system-ui,sans-serif;cursor:pointer}
+.pbu-v1 .pbu-actions .pbu-link{flex:none;white-space:nowrap;font-size:12.5px}
+.pbu-v1 .pbu-seg button[aria-pressed="true"]{background:#ff806f1f;color:var(--pbu-pale)}
+.pbu-v1 .pbu-link{min-height:36px;padding:0 2px;border:0;background:none;color:var(--pbu-muted);font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+.pbu-v1 .pbu-link.is-danger{color:#ff9a9a}
+.pbu-v1 .pbu-row.pbu-empty [data-pbu-change]{display:none}
+
+/* Between sets: one quiet line, fields wrap below without moving the row. */
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-toggle-wrap-v7{gap:10px!important;margin:0!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-label-v7{color:var(--pbu-muted)!important;font:600 12px Inter,system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7:not([hidden]){display:grid!important;grid-template-columns:minmax(0,1fr) 84px!important;gap:8px!important;margin-top:10px!important;width:100%!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 .per-set-name-v7{grid-column:1/-1!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list .pbu-row .per-set-fields-v7 :is(select,input){
+  height:40px!important;min-height:40px!important;border-radius:999px!important;padding:0 14px!important;
+  background:#ffffff07!important;border:1px solid var(--pbu-line-strong)!important;font-size:16px!important;
 }
 
-/* ---------- Number sheet ---------- */
-.pbu-sheet{position:fixed;inset:0;z-index:2147483605;visibility:hidden;pointer-events:none}
-.pbu-sheet.show{visibility:visible;pointer-events:auto}
-.pbu-sheet-scrim{position:absolute;inset:0;background:#03050acc;opacity:0;transition:opacity .2s ease;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.pbu-sheet.show .pbu-sheet-scrim{opacity:1}
-.pbu-sheet-panel{
-  position:absolute;left:0;right:0;bottom:0;max-height:calc(100dvh - 24px);overflow:auto;
-  padding:10px 20px calc(18px + env(safe-area-inset-bottom,0px));
-  border-radius:26px 26px 0 0;
-  background:radial-gradient(ellipse 80% 45% at 50% 0%,#ff6a5a1c,transparent 70%),#0d121b;
-  box-shadow:0 -1px 0 #ffffff14,0 -30px 60px -20px #000;
-  transform:translateY(105%);transition:transform .32s cubic-bezier(.22,1,.36,1);
-  font-family:Inter,system-ui,sans-serif;color:var(--pbu-text);
+/* ---------- Expanded: inline exercise choice ---------- */
+.pbu-v1 .pbu-pick{margin-top:10px}
+.pbu-v1 .pbu-pick[hidden]{display:none!important}
+.pbu-v1 .pbu-search{display:flex;align-items:center;gap:10px;height:46px;padding:0 16px;border-radius:999px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff14}
+.pbu-v1 .pbu-search:focus-within{box-shadow:inset 0 0 0 1px #ff806f66,0 0 24px -10px #ff6a5a}
+.pbu-v1 .pbu-search-icon{position:relative;flex:none;width:12px;height:12px;border:1.6px solid var(--pbu-muted);border-radius:50%;margin-top:-2px}
+.pbu-v1 .pbu-search-icon::after{content:"";position:absolute;right:-5px;bottom:-4px;width:6px;height:1.6px;background:var(--pbu-muted);transform:rotate(45deg)}
+html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-search input{
+  flex:1 1 auto;min-width:0;height:44px!important;min-height:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;
+  color:var(--pbu-text)!important;-webkit-text-fill-color:var(--pbu-text)!important;font:500 16px Inter,system-ui,sans-serif!important;
 }
-.pbu-sheet.show .pbu-sheet-panel{transform:none}
-.pbu-sheet-grip{width:38px;height:4px;border-radius:4px;background:#ffffff26;margin:0 auto 14px}
-.pbu-sheet-kicker{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--pbu-accent-soft)}
-.pbu-sheet-title{margin:4px 0 14px;font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.2;color:var(--pbu-text)}
-.pbu-seg{display:inline-flex;padding:3px;border-radius:999px;background:#ffffff0a;box-shadow:inset 0 0 0 1px #ffffff12;margin-bottom:18px}
-.pbu-seg button{min-height:34px;padding:0 16px;border:0;border-radius:999px;background:none;color:var(--pbu-muted);font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
-.pbu-seg button[aria-pressed="true"]{background:#ff806f22;color:#ffd4cc;box-shadow:inset 0 0 0 1px #ff806f55}
-.pbu-steppers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.pbu-steppers[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
-.pbu-stepper{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px 10px;border-radius:20px;background:#ffffff06;box-shadow:inset 0 0 0 1px #ffffff0d}
-.pbu-stepper-label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pbu-muted)}
-.pbu-stepper-label small{font-size:10px;letter-spacing:.06em;text-transform:none;color:var(--pbu-dim)}
-.pbu-stepper-value{
-  width:100%;min-width:0;border:0;background:none;text-align:center;color:#fff;-webkit-text-fill-color:#fff;
-  font:600 38px/1.1 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.03em;padding:2px 0;
-  text-shadow:0 0 24px #ff6a5a66;
-}
-.pbu-stepper-value::placeholder{color:#ffffff33;-webkit-text-fill-color:#ffffff33}
-.pbu-stepper-value:focus{outline:none;text-shadow:0 0 28px #ff6a5aaa}
-.pbu-stepper-btns{display:flex;gap:8px}
-.pbu-stepper-btns button{
-  width:42px;height:42px;border-radius:50%;border:0;cursor:pointer;
-  background:#ffffff0d;color:#ffd4cc;font:500 22px/1 Inter,system-ui,sans-serif;box-shadow:inset 0 0 0 1px #ffffff14;
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .12s ease,background .15s ease;
-}
-.pbu-stepper-btns button:active{transform:scale(.9);background:#ff806f2e}
-.pbu-sheet-actions{display:flex;justify-content:space-between;margin:16px 2px 12px}
-.pbu-text-btn{min-height:40px;padding:0 4px;border:0;background:none;color:var(--pbu-muted);font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
-.pbu-text-btn.is-danger{color:#ff8b8b}
-.pbu-primary{
-  width:100%;min-height:54px;border:0;border-radius:999px;cursor:pointer;
-  background:linear-gradient(135deg,#ff8a74,#e5484d);color:#1d0806;font:700 16px Inter,system-ui,sans-serif;
-  box-shadow:0 14px 34px -12px #ff5a4acc,inset 0 1px 0 #ffffff55;
-}
-@media(max-width:350px){.pbu-stepper-value{font-size:30px}.pbu-stepper-btns button{width:36px;height:36px}}
+html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-search input::placeholder{color:var(--pbu-dim)!important;-webkit-text-fill-color:var(--pbu-dim)!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-search input:focus{outline:none!important}
+.pbu-v1 .pbu-options{margin-top:6px}
+.pbu-v1 .pbu-group{padding:14px 0 6px;font:700 10px/1.2 Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--pbu-accent-soft)}
+.pbu-v1 .pbu-opt{display:flex;align-items:center;gap:6px;border-bottom:1px solid #ffffff0a}
+.pbu-v1 .pbu-opt:last-child{border-bottom:0}
+.pbu-v1 .pbu-opt-main{display:flex;align-items:center;gap:12px;flex:1 1 auto;min-width:0;min-height:54px;padding:6px 0;border:0;background:none;color:inherit;text-align:left;cursor:pointer}
+.pbu-v1 .pbu-opt.is-own .pbu-opt-main{min-height:46px}
+.pbu-v1 .pbu-opt-main:active .pbu-opt-name{color:var(--pbu-accent)}
+.pbu-v1 .pbu-opt-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pbu-v1 .pbu-opt-name{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:600 15px/1.25 Inter,system-ui,sans-serif;color:var(--pbu-text)}
+.pbu-v1 .pbu-opt-copy small{font:450 12px/1.3 Inter,system-ui,sans-serif;color:var(--pbu-dim)}
+.pbu-v1 .pbu-opt.is-used{opacity:.5}
+.pbu-v1 .pbu-opt.is-current .pbu-opt-name{color:var(--pbu-accent)}
+.pbu-v1 .pbu-opt .pbu-link{flex:none;padding:0 4px;color:var(--pbu-accent-soft);font-size:12.5px}
+.pbu-v1 .pbu-new{display:block;width:100%;min-height:48px;margin-top:8px;padding:0 4px;border:0;border-top:1px solid var(--pbu-line);background:none;color:var(--pbu-muted);text-align:left;font:500 14px Inter,system-ui,sans-serif;cursor:pointer}
+.pbu-v1 .pbu-new b{color:var(--pbu-pale);font-weight:600}
+.pbu-v1 .pbu-hint{margin:12px 0 4px;color:var(--pbu-muted);font:450 13px/1.5 Inter,system-ui,sans-serif}
+.pbu-v1 .pbu-hint b{color:var(--pbu-pale);font-weight:600}
 
-/* ---------- Picker as a bottom sheet with guide suggestions ---------- */
-html.pbu-v1 .exercise-name-picker-v1.pbu-picker{
-  left:0!important;right:0!important;top:auto!important;bottom:0!important;width:auto!important;
-  max-height:min(78dvh,640px)!important;border-radius:26px 26px 0 0!important;
-  border:0!important;padding-bottom:env(safe-area-inset-bottom,0px);
-  background:radial-gradient(ellipse 80% 40% at 50% 0%,#ff6a5a18,transparent 70%),#0d121b!important;
-  box-shadow:0 -1px 0 #ffffff14,0 -30px 60px -10px #000d!important;
-  transform:translateY(24px);transition:opacity .18s ease,transform .3s cubic-bezier(.22,1,.36,1),visibility 0s .3s!important;
+/* ---------- Add row ---------- */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .pbu-add{
+  display:flex!important;align-items:center;gap:16px;width:100%!important;min-height:76px!important;margin:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  color:var(--pbu-pale)!important;font:600 16px Inter,system-ui,sans-serif!important;text-align:left;
 }
-html.pbu-v1 .exercise-name-picker-v1.pbu-picker.show{transform:none;transition:opacity .18s ease,transform .3s cubic-bezier(.22,1,.36,1),visibility 0s!important}
-html.pbu-v1 .pbu-picker .exercise-name-picker-head-v1{padding:16px 20px 8px!important;border:0!important}
-html.pbu-v1 .pbu-picker .exercise-name-picker-head-v1::before{content:"";display:block;width:38px;height:4px;border-radius:4px;background:#ffffff26;margin:-6px auto 12px}
-html.pbu-v1 .pbu-picker .exercise-name-picker-kicker-v1{font-size:20px!important;font-weight:600!important;letter-spacing:-.01em!important;text-transform:none!important;color:var(--pbu-text)!important}
-html.pbu-v1 .pbu-picker .exercise-name-picker-options-v1{padding:4px 12px 8px!important}
-html.pbu-v1 .pbu-picker .exercise-name-picker-option-v1{min-height:48px!important;font-size:15px!important;border-radius:14px!important}
-html.pbu-v1 .pbu-picker .exercise-name-picker-new-v1{margin:6px 12px 12px!important;min-height:50px!important;border-radius:999px!important;font-size:15px!important}
-.pbu-suggest-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 8px 6px}
-.pbu-suggest-head span{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--pbu-accent-soft)}
-.pbu-suggest-head strong{font-size:12px;font-weight:600;color:var(--pbu-muted)}
-.pbu-suggest-head.is-own{margin-top:6px;border-top:1px solid var(--pbu-line);padding-top:14px}
-.pbu-suggest-hint{margin:8px 8px 2px;padding:10px 12px;border-radius:14px;background:#ffffff06;color:var(--pbu-muted);font-size:12.5px;line-height:1.45}
-.pbu-suggest-hint b{color:#ffd4cc;font-weight:600}
-html.pbu-v1 .pbu-picker .pbu-suggest-row{grid-template-columns:minmax(0,1fr) 44px!important}
-html.pbu-v1 .pbu-picker .pbu-suggest-row .exercise-name-picker-option-v1{display:flex!important;align-items:center;gap:12px;min-height:60px!important;padding:6px 6px!important;text-align:left}
-.pbu-suggest-row .pbu-thumb{width:44px;height:44px}
-.pbu-suggest-copy{display:flex;flex-direction:column;min-width:0;gap:2px}
-.pbu-suggest-name{font-weight:600;color:var(--pbu-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pbu-suggest-copy small{font-size:12px;color:var(--pbu-muted);font-weight:450}
-.pbu-suggest-row.is-used{opacity:.55}
-.pbu-info{
-  width:32px;height:32px;margin:auto;border-radius:50%;border:1px solid #ff806f55;background:none;cursor:pointer;
-  color:#ffc9bf;font:italic 600 14px/1 Georgia,serif;
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .pbu-add .pbu-plus{
+  box-sizing:content-box;width:14px;height:14px;padding:15px;border-radius:50%;color:var(--pbu-accent);
+  background:radial-gradient(circle at 50% 38%,#1c2636,#0b1018);box-shadow:inset 0 0 0 1px #ff806f55,0 0 22px -6px #ff6a5a66;
 }
-.pbu-info:hover,.pbu-info:focus-visible{background:#ff806f1f;outline:none}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .pbu-add .pbu-plus::before,
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .pbu-add .pbu-plus::after{left:50%;top:50%}
 
-/* ---------- Guide overlay ---------- */
-.pbu-guide{position:fixed;inset:0;z-index:2147483610;display:flex;flex-direction:column;background:#080b12;visibility:hidden;opacity:0;transform:translateY(16px);transition:opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1),visibility 0s .3s}
+/* ---------- Footer: one main action ---------- */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer{
+  position:sticky!important;bottom:0;z-index:3;margin:auto -20px 0!important;width:auto!important;
+  display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:2px 22px!important;
+  padding:28px 20px max(14px,env(safe-area-inset-bottom,0px))!important;border:0!important;
+  background:linear-gradient(180deg,transparent,#080b12e6 34%,#080b12)!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer .classic-save-pass{
+  order:-1;flex:1 0 100%;width:100%!important;min-height:54px!important;margin:0 0 6px!important;
+  border:0!important;border-radius:999px!important;color:#1d0806!important;font:700 15.5px Inter,system-ui,sans-serif!important;
+  background:linear-gradient(135deg,#ff8a74,#e5484d)!important;box-shadow:0 14px 34px -12px #ff5a4acc,inset 0 1px 0 #ffffff55!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer .btn-ghost{display:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer :is(.classic-start-pass,.classic-save-as-template){
+  flex:0 0 auto;width:auto!important;min-height:40px!important;padding:0 4px!important;margin:0!important;
+  border:0!important;background:none!important;box-shadow:none!important;color:var(--pbu-muted)!important;font:600 13.5px Inter,system-ui,sans-serif!important;
+}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer .classic-start-pass{color:var(--pbu-pale)!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-inline-template-name input{font-size:16px!important}
+
+/* ---------- Guide page over the builder (full screen, not a menu) ---------- */
+.pbu-guide{position:fixed;inset:0;z-index:2147483610;display:flex;flex-direction:column;background:#080b12;visibility:hidden;opacity:0;transform:translateX(24px);transition:opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1),visibility 0s .3s}
 .pbu-guide.show{visibility:visible;opacity:1;transform:none;transition:opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1),visibility 0s}
-.pbu-guide-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid #ffffff14}
-.pbu-guide-back{min-height:40px;border:0;background:none;color:#ffc9bf;font:600 14px Inter,system-ui,sans-serif;cursor:pointer;padding:0 4px}
+.pbu-guide-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:max(10px,env(safe-area-inset-top,0px)) 14px 10px;border-bottom:1px solid #ffffff14}
+.pbu-guide-back{display:inline-flex;align-items:center;gap:8px;min-height:40px;border:0;background:none;color:#ffc9bf;font:600 14px Inter,system-ui,sans-serif;cursor:pointer;padding:0 4px}
+.pbu-chev-left{width:8px;height:8px;border-left:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg)}
 .pbu-guide-pick{min-height:40px;padding:0 18px;border:0;border-radius:999px;background:linear-gradient(135deg,#ff8a74,#e5484d);color:#1d0806;font:700 14px Inter,system-ui,sans-serif;cursor:pointer}
 .pbu-guide-frame{flex:1;width:100%;border:0;background:#080b12}
