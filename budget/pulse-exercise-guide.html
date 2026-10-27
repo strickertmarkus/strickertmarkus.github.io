@@ -367,7 +367,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261027-scene-10"><script src="pulse-stories-ui.js?v=20261027-scene-14"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261027-gym-3"><script src="pulse-map-ui.js?v=20261027-gym-6"></script>
+<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-body-ui.css?v=20261026-kropp-3"><script src="pulse-body-ui.js?v=20261026-kropp-3"></script><link rel="stylesheet" href="pulse-stories-ui.css?v=20261027-scene-15"><script src="pulse-stories-ui.js?v=20261027-scene-15"></script><link rel="stylesheet" href="pulse-map-ui.css?v=20261027-gym-3"><script src="pulse-map-ui.js?v=20261027-gym-6"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261027-tissue-4">
 </head>
 <body>
@@ -872,7 +872,7 @@ function draw(t,cycle=phase){
  if(silver){
   const motion=cfg.kind==='chestMachine'?null:makeScene(active,t,cycle,true);
   rendered=window.PulseSilverPress?.update({t,cycle,index:active,kind:cfg.kind,
-   viewIndex:cameraIndex,view,bounds:sceneFrame(active,cameraIndex,!!preview?.figureOnly,view),
+   viewIndex:cameraIndex,view,bounds:sceneFrame(active,cameraIndex,typeof preview?.figureOnly==='function'?!!preview.figureOnly(cfg.kind):!!preview?.figureOnly,view),
    activation:preview?.activation?preview.activation(t,cfg.kind):1,pilotDistance:preview?.pilotDistance||1,
    motion,muscles:exercises[active].muscles})===true;
  }

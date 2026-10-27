@@ -118,7 +118,7 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 @keyframes stSceneIn{from{opacity:0}to{opacity:1}}
 @keyframes stHeroIn{from{transform:scale(1.18)}to{transform:none}}
 /* The title sits top-left, over the head and shoulders, so the muscle at the artwork's focus stays clear. */
-.st-hero{position:absolute;left:20px;right:20px;top:calc(var(--gy-hero) - 74px);z-index:4;pointer-events:none}
+.st-hero{position:absolute;left:20px;right:20px;top:calc(var(--gy-hero) - 64px);z-index:4;pointer-events:none}
 .st-hero h1{margin:5px 0 0;font-size:32px;line-height:1;letter-spacing:-.045em;font-weight:600;text-shadow:0 2px 20px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st-hero p{margin:6px 0 0;color:var(--st-soft);font-size:12px;text-shadow:0 1px 8px #000}
 .st-root.is-gym .st-stage{background:radial-gradient(ellipse 70% 30% at 50% 78%,#35130f 0%,#140b0d 45%,#05070b 80%)}
