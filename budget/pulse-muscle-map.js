@@ -35,6 +35,10 @@
  const alternatives=document.getElementById('muscle-map-exercises');
  function select(name){
   selected=name;
+  // Semantic areas only gate the effect. Visible color and glow come from
+  // the artwork's own red tissue pixels, retaining fibers and dark creases.
+  const paths=regions[side].find(([muscle])=>muscle===name)[1];
+  svg.querySelector('#muscle-map-tissue-window').innerHTML=paths.map(d=>`<path d="${d}"/>`).join('');
   root.querySelectorAll('[data-map-muscle]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.mapMuscle===name)));
   root.querySelectorAll('[data-map-label]').forEach(el=>el.classList.toggle('is-selected',el.dataset.mapLabel===name));
   document.getElementById('muscle-map-name').textContent=name;
@@ -56,7 +60,19 @@
    const [anchor,y,edge,percent]=leaders[side][name],x=anchor+offset,end=edge==='left'?164:560,level=1086*percent/100;
    return `<g class="muscle-map-leader" data-map-label="${name}" aria-hidden="true"><path d="M${x} ${y} L${(x+end)/2} ${level} H${end}"/><circle cx="${x}" cy="${y}" r="4"/></g>`;
   }).join('');
-  svg.innerHTML=regions[side].map(([name,paths])=>`<g class="muscle-map-region" transform="translate(${offset} 0)" data-map-muscle="${name}" role="button" tabindex="0" aria-label="Välj ${name}">${name==='Mage'?'<path class="muscle-map-hit" d="M315 286L490 286 475 421 420 473 388 473 327 420Z"/>':''}${paths.map(d=>`<path d="${d}"/>`).join('')}</g>`).join('')+lines;
+  const effects=`<defs>
+   <filter id="muscle-map-feather" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feMorphology operator="dilate" radius="7"/><feGaussianBlur stdDeviation="7"/></filter>
+   <mask id="muscle-map-selection-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="724" height="1086"><g id="muscle-map-tissue-window" transform="translate(${offset} 0)" fill="white" filter="url(#muscle-map-feather)"></g></mask>
+   <filter id="muscle-map-tissue-color" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+    <feColorMatrix type="matrix" values="1.45 0 0 0 0.03  0 0.30 0 0 0  0 0 0.26 0 0  4 -2 -2 0 -0.10"/>
+   </filter>
+   <filter id="muscle-map-tissue-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="halo"/>
+    <feComponentTransfer in="halo"><feFuncA type="linear" slope="0.45"/></feComponentTransfer>
+    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+   </filter>
+  </defs><g class="muscle-map-tissue" aria-hidden="true" filter="url(#muscle-map-tissue-glow)"><g mask="url(#muscle-map-selection-mask)"><image href="${window.PulseMuscleMap.image}" x="${side==='front'?-41:-683}" y="0" width="1448" height="1086" filter="url(#muscle-map-tissue-color)"/></g></g>`;
+  svg.innerHTML=effects+regions[side].map(([name,paths])=>`<g class="muscle-map-region" transform="translate(${offset} 0)" data-map-muscle="${name}" role="button" tabindex="0" aria-label="Välj ${name}">${name==='Mage'?'<path class="muscle-map-hit" d="M315 286L490 286 475 421 420 473 388 473 327 420Z"/>':''}${paths.map(d=>`<path d="${d}"/>`).join('')}</g>`).join('')+lines;
   labels.innerHTML=regions[side].map(([name])=>{
    const [,,edge,percent]=leaders[side][name];
    return `<button type="button" class="muscle-map-label ${edge}" style="top:${percent}%" data-map-label="${name}" data-map-guide="${name}" aria-label="Öppna animerade övningar för ${name}"><span>${name}</span><span aria-hidden="true">↗</span></button>`;

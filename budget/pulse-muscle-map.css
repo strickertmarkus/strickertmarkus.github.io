@@ -15,11 +15,9 @@ body.muscle-map-active main{padding-top:8px}
 .muscle-map-figure[data-side=back] img{left:-94.33702%}
 #muscle-map-regions{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:2}
 .muscle-map-figure::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#090d13,transparent 17%,transparent 83%,#090d13),linear-gradient(0deg,#090d13,transparent 9%,transparent 96%,#090d13)}
-.muscle-map-region{cursor:pointer;outline:none;fill:transparent;stroke:transparent;stroke-width:2;transition:fill .18s,stroke .18s,filter .18s}
-.muscle-map-region .muscle-map-hit{fill:transparent;stroke:none}
-.muscle-map-region:hover{fill:#ff241c30;stroke:#ff4b40}
-.muscle-map-region[aria-pressed=true]{fill:#ff1b155f;stroke:#ff3829;filter:drop-shadow(0 0 7px #ff1800) drop-shadow(0 0 18px #ff1400a8)}
-.muscle-map-region:focus-visible{stroke:#ffb4a5;stroke-width:2.5}
+.muscle-map-region{cursor:pointer;outline:none;fill:transparent;stroke:none;pointer-events:all}
+.muscle-map-tissue{pointer-events:none}
+#muscle-map-page:has(.muscle-map-region:focus-visible) .muscle-map-label.is-selected{outline:2px solid #ffb4a5;outline-offset:3px}
 .muscle-map-leader{pointer-events:none;fill:#ff483c;stroke:#f7473b;stroke-width:1.8;opacity:.56;filter:drop-shadow(0 0 4px #ff3020)}
 .muscle-map-leader path{fill:none}
 .muscle-map-leader.is-selected{opacity:1;stroke:#ff6253;stroke-width:2.6;filter:drop-shadow(0 0 5px #ff2818) drop-shadow(0 0 10px #ff2818)}
@@ -51,4 +49,3 @@ body.muscle-map-active main{padding-top:8px}
  .muscle-map-result .eyebrow{display:none}
  .muscle-map-result p{font-size:11px}
 }
-@media(prefers-reduced-motion:reduce){.muscle-map-region{transition:none}}
