@@ -305,7 +305,11 @@
 
     /* Gym mode: opened for one muscle by the muscle map, closed back to it. */
     var onLeave = null;
+    /* How the explorer's figure is presented inside the scene: framed on the
+       body alone so every exercise shows the person at the same size. */
+    var preview = { figureOnly: true, pilotDistance: 1.25 };
     function enter(group, id, wall) {
+      window.PulseGuidePreview = preview;
       state.group = group; state.program = null; state.list = listFor(group);
       root.hidden = false;
       root.classList.remove('is-entering');
@@ -328,6 +332,7 @@
       if (sheetOpen) closeSheet();
       ui.setPaused(true);
       root.hidden = true; root.classList.remove('is-entering');
+      if (window.PulseGuidePreview === preview) delete window.PulseGuidePreview;
       if (!silent && onLeave) onLeave();
     }
     if (GYM) {
