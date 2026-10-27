@@ -144,14 +144,33 @@
       passBtn.querySelector('small').textContent = n ? 'Mitt pass · ' + n : 'Mitt pass';
       passBtn.dataset.count = n || '';
     }
+    /* Gym mode: the figure and its text slide out a little toward where they
+       came from, swap while hidden, then settle in from the other side. */
+    var swapTimer = 0;
     function go(index) {
+      var target = Math.max(0, Math.min(state.list.length - 1, index));
+      if (GYM && !root.hidden && target !== state.index && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        clearTimeout(swapTimer);
+        root.classList.remove('is-swap-in', 'is-back');
+        root.classList.toggle('is-back', target < state.index);
+        root.classList.add('is-swap-out');
+        state.index = target;
+        swapTimer = setTimeout(function () {
+          show(target);
+          root.classList.remove('is-swap-out'); void root.offsetWidth; root.classList.add('is-swap-in');
+        }, 170);
+        return;
+      }
+      show(target);
+    }
+    function show(index) {
       end.hidden = true;
       state.index = Math.max(0, Math.min(state.list.length - 1, index));
       state.elapsed = 0; state.started = performance.now();
       ui.select(state.list[state.index]);
       renderBars(); renderInfo();
       if (GYM) { renderTabs(); navPrev.hidden = state.index === 0; navNext.hidden = state.index === state.list.length - 1 && !state.program; }
-      root.classList.remove('is-next'); void root.offsetWidth; root.classList.add('is-next');
+      if (!GYM) { root.classList.remove('is-next'); void root.offsetWidth; root.classList.add('is-next'); }
       if (!sheetOpen) ui.setPaused(false);
       sync();
     }

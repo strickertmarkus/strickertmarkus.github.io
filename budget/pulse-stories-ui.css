@@ -165,3 +165,13 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 .st-root.is-gym .st-dose strong.is-rep{animation:stRep .6s cubic-bezier(.2,.8,.2,1)}
 @keyframes stRep{30%{transform:scale(1.06);color:#fff;text-shadow:0 0 22px #ff6a5a99}}
 @media(prefers-reduced-motion:reduce){.st-root.is-gym .st-dose strong.is-rep{animation:none}}
+.st-root.is-gym #studio-stage,.st-root.is-gym .st-info{transition:opacity .17s ease-in,transform .17s ease-in}
+.st-root.is-gym.is-swap-out #studio-stage{opacity:0;transform:translateX(-7%) scale(.97)}
+.st-root.is-gym.is-swap-out.is-back #studio-stage{transform:translateX(7%) scale(.97)}
+.st-root.is-gym.is-swap-out .st-info{opacity:0;transform:translateY(6px)}
+.st-root.is-gym.is-swap-in #studio-stage{animation:stSwapIn .42s cubic-bezier(.2,.8,.2,1)}
+.st-root.is-gym.is-swap-in.is-back #studio-stage{animation-name:stSwapInBack}
+.st-root.is-gym.is-swap-in .st-info{animation:stInfoIn .42s .06s cubic-bezier(.2,.8,.2,1) backwards}
+@keyframes stSwapIn{from{opacity:0;transform:translateX(7%) scale(.97)}}
+@keyframes stSwapInBack{from{opacity:0;transform:translateX(-7%) scale(.97)}}
+@keyframes stInfoIn{from{opacity:0;transform:translateY(6px)}}
