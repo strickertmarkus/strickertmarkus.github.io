@@ -2,6 +2,9 @@
    styled in pulse-stories-ui.css. See pulse-map-ui.js. */
 html.ui-gym header,html.ui-gym #living-dock,html.ui-gym .guide-about,html.ui-gym #explore-status{display:none!important}
 html.ui-gym body{background:#090d13}
+/* While the scene is open the exercise view behind it stays out of sight,
+   so its fade-in reveals only the dark backdrop. */
+html.ui-gym.gm-scene-open main{visibility:hidden}
 html.ui-gym #muscle-map-page{position:relative;padding-top:calc(14px + env(safe-area-inset-top))}
 .gm-exit{position:absolute;right:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ffffff12;color:#f6ece9}
 .gm-exit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}

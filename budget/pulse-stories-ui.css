@@ -110,8 +110,12 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 .st-root.is-gym{--gy-hero:min(31svh,280px)}
 .st-root.is-gym .st-flash{z-index:1;height:var(--gy-hero);opacity:1;
   -webkit-mask-image:linear-gradient(#000 50%,transparent);mask-image:linear-gradient(#000 50%,transparent)}
-.st-root.is-gym.is-entering .st-flash{animation:stHeroIn .9s cubic-bezier(.2,.8,.2,1)}
-@keyframes stHeroIn{from{transform:scale(1.25);filter:brightness(1.4)}to{transform:none;filter:none}}
+/* Same hand-off as the zoom on the body: the scene fades in while the
+   artwork settles from a close crop into its place as the wall. */
+.st-root.is-gym.is-entering{animation:stSceneIn .4s ease-out}
+.st-root.is-gym.is-entering .st-flash{animation:stHeroIn 1.2s cubic-bezier(.2,.8,.2,1)}
+@keyframes stSceneIn{from{opacity:0}to{opacity:1}}
+@keyframes stHeroIn{from{transform:scale(1.18)}to{transform:none}}
 .st-hero{position:absolute;left:20px;right:20px;top:calc(var(--gy-hero) - 92px);z-index:4;pointer-events:none}
 .st-hero h1{margin:5px 0 0;font-size:36px;line-height:1;letter-spacing:-.045em;font-weight:600;text-shadow:0 2px 20px #000}
 .st-hero p{margin:6px 0 0;color:var(--st-soft);font-size:12px;text-shadow:0 1px 8px #000}
@@ -135,4 +139,4 @@ html.ui-stories header,html.ui-stories main,html.ui-stories #living-dock,html.ui
 .st-root.is-gym .st-rail-btn{width:auto;flex:1}
 .st-root.is-gym .st-ico{width:44px;height:44px}
 .st-root.is-gym .st-pause,.st-root.is-gym .st-burst,.st-root.is-gym .st-hint{top:calc(var(--gy-hero) + 30%)}
-@media(prefers-reduced-motion:reduce){.st-root.is-gym.is-entering .st-flash{animation:none}}
+@media(prefers-reduced-motion:reduce){.st-root.is-gym.is-entering,.st-root.is-gym.is-entering .st-flash{animation:none}}

@@ -29,6 +29,7 @@
     function open(name, id) {
       // The page's own route opens the exercise view, which drives the figure.
       openExercise(name, id);
+      document.documentElement.classList.add('gm-scene-open');
       scene.enter(name, id, ART[name] ? 'assets/atlas-art-v1/' + ART[name] + '.webp' : '');
       setTimeout(function () { figure.classList.remove('gm-zooming'); figure.style.transformOrigin = ''; }, 500);
     }
@@ -47,9 +48,9 @@
       if (ART[name]) new Image().src = 'assets/atlas-art-v1/' + ART[name] + '.webp';
       setTimeout(function () { ui.openMuscleExercise(name); }, 380);
     });
-    scene.onLeave(function () { showBody(); });
+    scene.onLeave(function () { document.documentElement.classList.remove('gm-scene-open'); showBody(); });
     // Browser back from the exercise view returns to the body as well.
-    new MutationObserver(function () { if ($('guide-page').hidden && scene.isOpen()) scene.leave(true); })
+    new MutationObserver(function () { if ($('guide-page').hidden && scene.isOpen()) { scene.leave(true); document.documentElement.classList.remove('gm-scene-open'); } })
       .observe($('guide-page'), { attributes: true, attributeFilter: ['hidden'] });
   }
 
