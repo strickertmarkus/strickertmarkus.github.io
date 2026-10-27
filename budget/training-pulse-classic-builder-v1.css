@@ -62,6 +62,7 @@ html[data-field-embedded] body #day-workout-modal .classic-back-to-day{
   display:inline-flex;min-height:34px;padding:6px 0;border:0;background:none;color:#f5b6a9;
   font:650 12px Inter,system-ui,sans-serif;cursor:pointer;
 }
+html[data-field-embedded] body #day-workout-modal .classic-back-to-day[hidden]{display:none!important}
 html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-day-calendar,
 html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-start-pass,
 html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-save-as-template{
