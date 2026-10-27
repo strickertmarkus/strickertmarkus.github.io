@@ -13,36 +13,37 @@ html.ui-gym .muscle-map-figure{transition:transform .4s cubic-bezier(.4,0,.2,1),
 html.ui-gym .muscle-map-figure.gm-zooming{transform:scale(2.6);opacity:0}
 @media(prefers-reduced-motion:reduce){html.ui-gym .muscle-map-figure{transition:none}}
 
-/* Programme view in the scene (pulse-stories-ui.js): the route through the
-   gym floor (pulse-gym-floor.js) above the exercise timeline. */
+/* Programme view in the scene (pulse-stories-ui.js): the exercises as stops
+   on a glowing road. */
 .st-sheet.is-program{max-height:90%}
 .st-sheet-back{display:inline-flex;align-items:center;gap:4px;margin:0 0 6px -6px;padding:6px 8px;border:0;border-radius:14px;background:none;color:var(--st-soft);font:inherit;font-size:13px;cursor:pointer}
 .st-sheet-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.st-route{position:relative;height:230px;margin:4px -18px 6px;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 85%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 85%,transparent)}
-.gf-world{position:absolute;left:0;top:0;transform-origin:0 0}
-.gf-floor{position:absolute;left:0;top:0;overflow:visible}
-.gf-slab{fill:url(#gf-glow);stroke:#ff6a5a26;stroke-width:1}
-.gf-grid polyline{fill:none;stroke:#ffffff0d;stroke-width:1}
-.gf-area{fill:#ff5a4806;stroke:#ff6a5a33;stroke-width:1;stroke-dasharray:4 5}
-.gf-route-glow{fill:none;stroke:#ff3b2b55;stroke-width:9;stroke-linejoin:round;stroke-linecap:round;filter:blur(4px)}
-.gf-route-line{fill:none;stroke:#ff5a48;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;animation:gfDraw 1.4s .25s cubic-bezier(.4,0,.2,1) forwards}
-@keyframes gfDraw{to{stroke-dashoffset:0}}
-.gf-st{position:absolute;width:76px;height:96px;margin:-84px 0 0 -38px;pointer-events:none;opacity:.35}
-.gf-st.is-on{opacity:1}
-.gf-pad{position:absolute;left:50%;bottom:4px;width:46px;height:46px;margin-left:-23px;transform:scaleY(.5) rotate(45deg);border-radius:6px;background:linear-gradient(135deg,#262a36,#14161e);box-shadow:inset 0 0 0 1px #ffffff14}
-.gf-st.is-zone .gf-pad{width:60px;height:60px;margin-left:-30px;bottom:0}
-.gf-st.is-on .gf-pad{background:linear-gradient(135deg,#5a211c,#2a1216);box-shadow:0 0 0 1.5px #ff8a78,0 0 22px #ff3b2b88}
-.gf-st img{position:absolute;left:50%;bottom:12px;width:74px;margin-left:-37px;clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 44% at 50% 52%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 46% 44% at 50% 52%,#000 58%,transparent 100%)}
-.gf-num{position:absolute;left:50%;top:8px;z-index:1;transform:translateX(-50%);min-width:24px;height:24px;padding:0 7px;box-sizing:border-box;border-radius:12px;display:grid;place-items:center;background:#ff5a48;color:#fff;font-size:12px;font-weight:700;box-shadow:0 4px 14px #ff3b2b66}
-.st-timeline{list-style:none;margin:0 0 18px;padding:0;counter-reset:none}
-.st-timeline li{position:relative}
-.st-timeline li+li::before{content:'';position:absolute;left:15px;top:-10px;height:20px;width:1.5px;background:linear-gradient(#ff5a4800,#ff5a4888,#ff5a4800)}
-.st-timeline button{display:flex;align-items:center;gap:12px;width:100%;padding:8px 0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
-.st-tl-num{flex:0 0 32px;font-size:12px;font-weight:600;color:var(--st-soft);font-variant-numeric:tabular-nums;text-align:center}
-.st-tl-art{flex:0 0 112px;display:flex;height:62px;border-radius:14px;background:radial-gradient(ellipse at 50% 70%,#2b1517,#10121a);overflow:hidden}
-.st-tl-art img{width:50%;height:100%;object-fit:cover;clip-path:inset(11% 0 9% 0);transform:scale(1.25)}
-.st-tl-none{flex:1}
-.st-tl-copy{flex:1;min-width:0}.st-tl-copy b{display:block;font-size:14px;font-weight:600}.st-tl-copy small{color:var(--st-muted);font-size:12px}
+.st-path{position:relative;list-style:none;margin:6px 0 18px;padding:8px 0 0}
+/* A faint floor under the road gives it depth. */
+.st-path::before{content:'';position:absolute;left:-30%;right:-30%;top:0;bottom:0;z-index:0;background:repeating-linear-gradient(90deg,#ff6a5a10 0 1px,transparent 1px 44px),repeating-linear-gradient(0deg,#ff6a5a0c 0 1px,transparent 1px 44px);transform:perspective(520px) rotateX(38deg);transform-origin:50% 0;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000,transparent);mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000,transparent);pointer-events:none}
+.st-road{position:absolute;left:0;top:0;z-index:0;overflow:visible;pointer-events:none}
+.st-road path{fill:none;stroke-linecap:round}
+.st-road-bed{stroke:#0b0d13;stroke-width:26}
+.st-road-edge{stroke:#ff6a5a22;stroke-width:28;stroke-dasharray:2 10}
+.st-road-glow{stroke:#ff3b2b66;stroke-width:12;filter:blur(7px)}
+.st-road-line{stroke:url(#st-road-fade);stroke-width:2.6;stroke-dasharray:100;stroke-dashoffset:100;animation:stRoadDraw 1.6s .15s cubic-bezier(.4,0,.2,1) forwards;filter:drop-shadow(0 0 4px #ff3b2b)}
+.st-road-spark{stroke:#fff;stroke-width:3.4;stroke-dasharray:3 97;stroke-dashoffset:100;opacity:0;animation:stRoadSpark 4.8s 1.8s linear infinite;filter:drop-shadow(0 0 6px #ff8a78)}
+@keyframes stRoadDraw{to{stroke-dashoffset:0}}
+@keyframes stRoadSpark{0%{stroke-dashoffset:100;opacity:0}6%{opacity:1}94%{opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.st-stop{position:relative;z-index:1;height:150px}
+.st-stop button{position:relative;display:flex;align-items:center;gap:6px;width:100%;height:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.st-stop.is-right button{flex-direction:row-reverse;text-align:right}
+.st-stop-pad{position:relative;flex:0 0 46%;height:100%;opacity:0;animation:stStopIn .6s calc(.25s + var(--i) * .16s) cubic-bezier(.2,.8,.2,1) forwards}
+.st-stop-tile{position:absolute;left:50%;bottom:22px;width:62px;height:62px;margin-left:-31px;transform:scaleY(.5) rotate(45deg);border-radius:9px;background:linear-gradient(135deg,#5a211c,#21101a);box-shadow:0 0 0 1.5px #ff8a78,0 0 26px #ff3b2b99}
+.st-stop-pad img{position:absolute;left:50%;bottom:36px;width:118px;margin-left:-59px;clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%)}
+/* Each figure moves between its start and end pose. */
+.st-stop-pad img.is-b{animation:stPose 2.8s calc(var(--i) * .35s) ease-in-out infinite}
+@keyframes stPose{0%,30%{opacity:0}50%,80%{opacity:1}100%{opacity:0}}
+.st-stop-num{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);min-width:24px;height:24px;padding:0 7px;box-sizing:border-box;border-radius:12px;display:grid;place-items:center;background:#ff5a48;color:#fff;font-size:12px;font-weight:700;box-shadow:0 4px 14px #ff3b2b77}
+.st-stop-copy{flex:1;min-width:0;opacity:0;animation:stStopIn .6s calc(.35s + var(--i) * .16s) cubic-bezier(.2,.8,.2,1) forwards}
+.st-stop-copy b{display:block;margin:3px 0 4px;font-size:16px;font-weight:600;letter-spacing:-.015em;line-height:1.2}
+.st-stop-copy>span{color:var(--st-soft);font-size:13px}
+@keyframes stStopIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.st-road-line{animation:none;stroke-dashoffset:0}.st-road-spark{display:none}.st-stop-pad,.st-stop-copy{animation:none;opacity:1}.st-stop-pad img.is-b{animation:none;opacity:1}}
 .st-start{position:sticky;bottom:0;background:var(--st-accent);border-color:transparent;color:#fff;box-shadow:0 8px 26px #ff4a3a55;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
 .st-start svg{width:16px;height:16px;fill:currentColor;stroke:none}
-@media(prefers-reduced-motion:reduce){.gf-route-line{animation:none;stroke-dashoffset:0}}

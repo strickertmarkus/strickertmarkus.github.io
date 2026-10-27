@@ -330,16 +330,37 @@
       sheet.classList.add('is-program');
       sheet.innerHTML = '<div class="st-grip"></div><button type="button" class="st-sheet-back" data-programs>' + ICON.back + '<span>Program</span></button>' +
         '<span class="st-eyebrow">' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</span><h3>' + p.name + '</h3>' +
-        '<div class="st-route" aria-hidden="true"></div>' +
-        '<ol class="st-timeline">' + p.ids.map(function (id, i) {
+        '<ol class="st-path">' + p.ids.map(function (id, i) {
           var d = splitDose(explore.prescription(id, p).label), a = pose(id, false), b = pose(id, true);
-          return '<li><button type="button" data-start-at="' + i + '" aria-label="Starta vid ' + all[id].name + '"><span class="st-tl-num">' + String(i + 1).padStart(2, '0') + '</span>' +
-            '<span class="st-tl-art">' + (a ? '<img src="' + a + '" alt="" loading="lazy"><img src="' + b + '" alt="" loading="lazy">' : '<span class="st-tl-none"></span>') + '</span>' +
-            '<span class="st-tl-copy"><b>' + all[id].name + '</b><small>' + d.big + ' ' + d.unit + ' · ' + all[id].muscles[0] + '</small></span></button></li>';
+          return '<li class="st-stop' + (i % 2 ? ' is-right' : '') + '" style="--i:' + i + '"><button type="button" data-start-at="' + i + '" aria-label="Starta vid ' + all[id].name + '">' +
+            '<span class="st-stop-pad"><span class="st-stop-tile"></span>' + (a ? '<img class="is-a" src="' + a + '" alt="" loading="lazy"><img class="is-b" src="' + b + '" alt="" loading="lazy">' : '') +
+            '<span class="st-stop-num">' + (i + 1) + '</span></span>' +
+            '<span class="st-stop-copy"><small class="st-eyebrow">' + all[id].muscles[0] + '</small><b>' + all[id].name + '</b><span>' + d.big + ' ' + d.unit + '</span></span></button></li>';
         }).join('') + '</ol>' +
         '<button type="button" class="st-cta st-start" data-start-at="0">' + ICON.play + '<span>Starta programmet</span></button>';
       sheet.scrollTop = 0;
-      requestAnimationFrame(function () { if (window.PulseGymFloor) window.PulseGymFloor.route(sheet.querySelector('.st-route'), p.ids); });
+      requestAnimationFrame(function () { drawPath(sheet.querySelector('.st-path')); });
+    }
+    /* The glowing road through the stops: a smooth curve from pad to pad with
+       a soft glow, a darker road bed, the drawn-in line and a light that
+       travels along it. */
+    function drawPath(list) {
+      if (!list) return;
+      var box = list.getBoundingClientRect(), pts = [].map.call(list.querySelectorAll('.st-stop-tile'), function (t) {
+        var r = t.getBoundingClientRect(); return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top];
+      });
+      if (pts.length < 2) return;
+      var d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+      for (var i = 1; i < pts.length; i++) {
+        var a = pts[i - 1], b = pts[i], h = (b[1] - a[1]) * 0.55;
+        d += ' C' + a[0].toFixed(1) + ' ' + (a[1] + h).toFixed(1) + ' ' + b[0].toFixed(1) + ' ' + (b[1] - h).toFixed(1) + ' ' + b[0].toFixed(1) + ' ' + b[1].toFixed(1);
+      }
+      var svg = '<svg class="st-road" width="' + box.width + '" height="' + box.height + '" viewBox="0 0 ' + box.width + ' ' + box.height + '" aria-hidden="true">' +
+        '<defs><linearGradient id="st-road-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a48"/><stop offset="1" stop-color="#ff8a5a"/></linearGradient></defs>' +
+        '<path class="st-road-bed" d="' + d + '"/><path class="st-road-edge" d="' + d + '"/><path class="st-road-glow" d="' + d + '"/>' +
+        '<path class="st-road-line" pathLength="100" d="' + d + '"/><path class="st-road-spark" pathLength="100" d="' + d + '"/></svg>';
+      var old = list.querySelector('.st-road'); if (old) old.remove();
+      list.insertAdjacentHTML('afterbegin', svg);
     }
     function closeSheet() {
       viewing = null; sheet.classList.remove('is-program');

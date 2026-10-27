@@ -73,7 +73,7 @@ with sync_playwright() as pw:
     check('swipes change exercise', len(set(names)) == 2, ', '.join(names))
     p.locator('.st-rail-btn[aria-label="Program"], .st-rail-btn:has-text("Program")').first.click(); p.wait_for_timeout(600); shot(p, '08-programs')
     p.locator('.st-program').first.click(); p.wait_for_timeout(1800); shot(p, '08b-program-view')
-    check('programme view shows route and timeline', p.evaluate("()=>document.querySelectorAll('.st-route .gf-st.is-on').length>0&&document.querySelectorAll('.st-timeline li').length>0"))
+    check('programme view shows route and timeline', p.evaluate("()=>document.querySelector('.st-path .st-road path')&&document.querySelectorAll('.st-path .st-stop').length>1"))
     p.locator('.st-start').click(); p.wait_for_timeout(900); shot(p, '09-program-playing')
     p.locator('.st-close').click(); p.wait_for_timeout(900); shot(p, '10-back-to-body')
     check('back returns to the body', p.evaluate("()=>!document.getElementById('muscle-map-page').hidden&&document.querySelector('.st-root').hidden"))
