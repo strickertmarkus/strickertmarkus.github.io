@@ -20,7 +20,9 @@
 .st-close svg,.st-ico svg,.st-program-exit svg,.st-nav svg{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}
 .st-close svg{width:22px;height:22px;stroke-width:1.7}
 .st-title{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:8px}
-.st-title small{padding:4px 10px;border-radius:999px;background:#05070b99;color:#ffe1db;font-size:11px;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+.st-count{display:flex;align-items:center;gap:7px;height:36px;padding:0 13px 0 11px;border:0;border-radius:999px;background:#05070b99;color:#ffe1db;font:inherit;font-size:11px;letter-spacing:.12em;font-variant-numeric:tabular-nums;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.st-count svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7}
+.st-count:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
 .st-program-exit{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:#ffffff14;color:#f6ece9;cursor:pointer}
 .st-program-exit svg{width:18px;height:18px;stroke-width:1.8}
 
@@ -121,6 +123,14 @@
 .st-pass img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#1a1b24}
 .st-pass span{flex:1;min-width:0}.st-pass b{display:block;font-size:14px}.st-pass small{color:#ffb9ad;font-size:12px}
 .st-pass button{width:40px;height:40px;border:0;border-radius:50%;background:none;color:#8f929d;font-size:20px;cursor:pointer}
+.st-list{list-style:none;margin:0;padding:0}
+.st-list button{display:flex;align-items:center;gap:12px;width:100%;padding:6px 8px;margin:0 -8px;border:0;border-radius:16px;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;box-sizing:content-box}
+.st-list button[aria-current="true"]{background:#ff5a481a;box-shadow:inset 0 0 0 1px #ff6a5a55}
+.st-list-art{flex:0 0 56px;height:56px;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 60%,#2b1517,#0f1118)}
+.st-list-art img{width:100%;height:100%;object-fit:cover;transform:scale(1.3)}
+.st-list-copy{flex:1;min-width:0}.st-list-copy b{display:block;font-size:15px;font-weight:600}.st-list-copy small{color:var(--st-muted);font-size:12px}
+.st-list-on{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--st-accent);color:#fff}
+.st-list-on svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .st-programs{display:grid;gap:10px}
 .st-program{display:flex;align-items:center;gap:14px;padding:8px;border:0;border-radius:18px;background:#161822;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .st-program-art{position:relative;flex:0 0 76px;height:76px;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 60%,#2b1517,#0f1118)}

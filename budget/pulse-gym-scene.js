@@ -25,7 +25,8 @@
     play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
     back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
     fwd: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
-    close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+    close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    grid: '<svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="4.5" y="13.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="13.5" width="6" height="6" rx="1.5"/></svg>'
   };
 
   /* How the explorer's figure is presented in the scene (read by the page's
@@ -93,14 +94,18 @@
         .map(function (e) { return e.id; });
     }
     function renderTitle() {
-      counter.innerHTML = '<small>' + String(state.index + 1).padStart(2, '0') + ' / ' + state.list.length + '</small>' +
+      // The counter opens the whole list, so nobody has to page through with the arrows.
+      counter.innerHTML = '<button type="button" class="st-count" data-list aria-label="Alla ' + state.list.length + ' övningar">' + ICON.grid + '<span>' + String(state.index + 1).padStart(2, '0') + ' / ' + state.list.length + '</span></button>' +
         (state.program ? '<button type="button" class="st-program-exit" data-exit-program aria-label="Avsluta programmet">' + ICON.close + '</button>' : '');
       var count = listFor(state.group).length;
       heroCopy.innerHTML = state.program
         ? '<span class="st-eyebrow">Program · ' + state.group + '</span><h1>' + state.program.name + '</h1><p>' + state.program.ids.length + ' övningar · ' + explore.durationLabel(state.program) + '</p>'
         : '<span class="st-eyebrow">Muskelgrupp</span><h1>' + state.group + '</h1><p>' + count + (count === 1 ? ' övning' : ' övningar') + '</p>';
     }
-    counter.addEventListener('click', function (event) { if (event.target.closest('[data-exit-program]')) playGroup(state.group); });
+    counter.addEventListener('click', function (event) {
+      if (event.target.closest('[data-exit-program]')) playGroup(state.group);
+      else if (event.target.closest('[data-list]')) openSheet('list');
+    });
     function playGroup(group) { state.group = group; state.program = null; state.list = listFor(group); go(0); }
     function playProgram(program, at) { state.program = program; state.list = program.ids.slice(); go(at || 0); }
 
@@ -237,6 +242,18 @@
         sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Teknik</span><h3>' + all[state.list[state.index]].name + '</h3><ol class="st-steps">' + $('steps').innerHTML + '</ol><div class="st-tip">' + $('tip').innerHTML + '</div>';
       } else if (kind === 'pass') {
         sheet.setAttribute('aria-label', 'Mitt pass'); renderPassSheet();
+      } else if (kind === 'list') {
+        // Every exercise in what is playing: tap one to go straight to it.
+        var title = state.program ? state.program.name : state.group;
+        sheet.setAttribute('aria-label', 'Alla övningar · ' + title);
+        sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">' + (state.program ? 'Programmet' : 'Alla övningar') + '</span><h3>' + title + ' <em>' + state.list.length + '</em></h3><ul class="st-list">' +
+          state.list.map(function (id, i) {
+            var e = all[id], d = splitDose(explore.prescription(id, state.program || undefined).label), still = pose(id, true), on = ui.selection().indexOf(id) >= 0;
+            return '<li><button type="button" data-goto="' + i + '"' + (i === state.index ? ' aria-current="true"' : '') + '>' +
+              '<span class="st-list-art">' + (still ? '<img src="' + still + '" alt="" loading="lazy">' : '') + '</span>' +
+              '<span class="st-list-copy"><b>' + e.name + '</b><small>' + e.equipment + ' · ' + d.big + ' ' + d.unit + '</small></span>' +
+              (on ? '<span class="st-list-on" aria-label="I Mitt pass">' + ICON.added + '</span>' : '') + '</button></li>';
+          }).join('') + '</ul>';
       } else {
         sheet.setAttribute('aria-label', 'Program');
         var programs = explore.programs.filter(function (p) { return p.ids.some(function (id) { return all[id].muscles.indexOf(state.group) >= 0; }); });
@@ -247,7 +264,10 @@
         }).join('') + '</div>';
       }
       scrim.hidden = false; sheet.hidden = false;
-      requestAnimationFrame(function () { root.classList.add('sheet-open'); });
+      requestAnimationFrame(function () {
+        root.classList.add('sheet-open');
+        var current = sheet.querySelector('[aria-current="true"]'); if (current) current.scrollIntoView({ block: 'center' });
+      });
       sheet.tabIndex = -1; sheet.focus({ preventScroll: true });
     }
     /* A programme before it plays: its exercises as stops on a glowing road.
@@ -355,6 +375,8 @@
       var remove = t.closest('[data-remove]'); if (remove) { ui.toggle(Number(remove.dataset.remove)); return; }
       if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
       if (t.closest('[data-programs]')) { openSheet('programs'); return; }
+      var goTo = t.closest('[data-goto]');
+      if (goTo) { closeSheet(); go(Number(goTo.dataset.goto)); return; }
       if (t.closest('[data-train]') && viewing) { train(viewing); return; }
       var zoomAt = t.closest('[data-zoom]');
       if (zoomAt && viewing) { openZoom(viewing, Number(zoomAt.dataset.zoom), zoomAt); return; }
@@ -400,7 +422,7 @@
 
     /* ---- Opened for one muscle by the body, closed back to it ---- */
     var onLeave = null;
-    function enter(group, id, wall) {
+    function enter(group, id, wall, withList) {
       window.PulseGuideStage = stage;
       state.group = group; state.program = null; state.list = listFor(group);
       root.hidden = false;
@@ -423,7 +445,9 @@
       state.index = -1;
       show(Math.max(0, state.list.indexOf(id != null ? id : ui.active())));
       close.focus({ preventScroll: true });
-      setTimeout(showHint, 900);
+      // "Alla övningar" on the body opens the scene with its list already up.
+      if (withList) setTimeout(function () { openSheet('list'); }, 650);
+      else setTimeout(showHint, 900);
     }
     /* The artwork is born from the tapped muscle: it starts as a glowing tile
        where the muscle sat on the body and opens out into the wall; then the

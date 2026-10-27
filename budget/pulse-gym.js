@@ -28,17 +28,17 @@
       Object.keys(m.groups || {}).forEach(function (k) { focus[k] = m.groups[k].origin; });
     }).catch(function () {});
     var from = null;
-    function open(name, id) {
+    function open(name, id, withList) {
       // The page's own route opens the exercise view, which drives the figure.
       openExercise(name, id);
       document.documentElement.classList.add('gm-scene-open');
-      scene.enter(name, id, ART[name] ? { src: 'assets/atlas-art-v1/' + ART[name] + '.webp', focus: focus[name], from: from } : null);
+      scene.enter(name, id, ART[name] ? { src: 'assets/atlas-art-v1/' + ART[name] + '.webp', focus: focus[name], from: from } : null, withList);
       from = null;
       setTimeout(function () { figure.classList.remove('gm-zooming'); figure.style.transformOrigin = ''; }, 500);
     }
     var openExercise = ui.openMuscleExercise;
     ui.openMuscleExercise = function (name, id) { open(name, id == null ? null : id); };
-    ui.browseMuscle = function (name) { open(name, null); };
+    ui.browseMuscle = function (name) { open(name, null, true); };
 
     /* Tapping a muscle on the body zooms into it before the scene opens. */
     map.addEventListener('click', function (event) {

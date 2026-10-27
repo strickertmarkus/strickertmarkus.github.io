@@ -12,3 +12,6 @@ html.gm-scene-open main{visibility:hidden}
 .muscle-map-figure{transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s cubic-bezier(.3,0,.6,1)}
 .muscle-map-figure.gm-zooming{transform:scale(2.6);opacity:0}
 @media(prefers-reduced-motion:reduce){.muscle-map-figure{transition:none}}
+/* The summary below the body sits tucked under it; keep it painted above the
+   body's layers so "Alla övningar" is never clipped. */
+.muscle-map-options{position:relative;z-index:4}
