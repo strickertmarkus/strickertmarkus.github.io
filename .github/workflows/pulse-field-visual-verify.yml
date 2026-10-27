@@ -602,10 +602,12 @@ jobs:
             await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-name').evaluate(input=>{
               input.value='Testpress';input.dispatchEvent(new Event('input',{bubbles:true}));
             });
-            await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-metric1').fill('2');
-            await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-metric2').fill('8');
-            await embedded.locator('#day-workout-ex-list .ex-row-item').first().locator('.dw-metric3').fill('20');
-            await embedded.locator('#day-workout-ex-list .ex-row-item').last().locator('.ex-del').click();
+            // Mitt pass keeps the original inputs as the saved source but hides them behind the row summary.
+            await embedded.locator('#day-workout-ex-list .ex-row-item').first().evaluate(row=>{
+              [['.dw-metric1','2'],['.dw-metric2','8'],['.dw-metric3','20']].forEach(([sel,value])=>{const input=row.querySelector(sel);input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));});
+            });
+            await embedded.locator('#day-workout-ex-list .ex-row-item').last().locator('.pbu-head').click();
+            await embedded.locator('#day-workout-ex-list .ex-row-item').last().locator('[data-pbu-delete]').click();
             await embedded.locator('#day-workout-modal [onclick="saveDayWorkoutPlan()"]').click();
             await embedded.locator('#exercise-plan-preview-v7.show [data-preview-save-v7]').click();
             await page.waitForFunction(()=>!document.getElementById('field-workspace')?.open,null,{timeout:5000});

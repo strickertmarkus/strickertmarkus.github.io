@@ -1,5 +1,5 @@
-/* Keep the familiar Maja/Markus pass builder. Only add compact mallpass controls
-   and constrain its existing fields (including 320–390 px mobile widths). */
+/* Base sizing for the Maja/Markus pass builder modal and its mallpass
+   controls. Rows, header and footer are styled by pulse-builder-ui.css. */
 html[data-field-embedded] body #day-workout-modal,
 html[data-field-embedded] body #day-workout-modal *{box-sizing:border-box}
 html[data-field-embedded] body #day-workout-modal .modal{
@@ -11,12 +11,6 @@ html[data-field-embedded] body #day-workout-modal .modal{
 html[data-field-embedded] body #day-workout-modal .form-group{
   min-width:0!important;
   margin-bottom:10px!important;
-}
-html[data-field-embedded] body #day-workout-modal .form-row.classic-pass-fields{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) minmax(0,.85fr)!important;
-  gap:9px!important;
-  width:100%;min-width:0;
 }
 html[data-field-embedded] body #day-workout-modal input,
 html[data-field-embedded] body #day-workout-modal select{
@@ -68,64 +62,6 @@ html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .cl
 html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-save-as-template{
   display:none!important;
 }
-html[data-field-embedded] body #day-workout-modal .ex-list{
-  min-width:0;max-width:100%;overflow:visible;
-  gap:8px;
-}
-html[data-field-embedded] body #day-workout-modal .ex-row-item{
-  min-width:0;max-width:100%;
-  padding:8px 7px;
-  border:1px solid rgba(255,154,145,.14);
-  border-radius:10px;
-  background:rgba(255,154,145,.025);
-}
-html[data-field-embedded] body #day-workout-modal .ex-row{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) minmax(0,61px) minmax(0,61px) minmax(0,65px) 26px!important;
-  gap:5px!important;
-  align-items:center!important;
-  min-width:0!important;width:100%!important;
-}
-html[data-field-embedded] body #day-workout-modal .ex-row-item.is-cardio .ex-row{
-  grid-template-columns:minmax(0,1fr) minmax(0,86px) minmax(0,86px) 26px!important;
-}
-html[data-field-embedded] body #day-workout-modal .ex-row input{
-  min-width:0!important;max-width:100%!important;width:100%!important;
-  height:35px!important;min-height:35px!important;
-  font-size:13px!important;
-  padding:6px 5px!important;
-}
-html[data-field-embedded] body #day-workout-modal .ex-row input.dw-name{
-  padding:6px 8px!important;
-  font-size:13px!important;
-}
-html[data-field-embedded] body #day-workout-modal .ex-row .ex-del{
-  min-width:24px!important;width:24px!important;min-height:35px!important;
-  padding:2px!important;justify-self:center;
-}
-html[data-field-embedded] body #day-workout-modal .ex-kind-btn{
-  min-height:28px;padding:4px 9px;font-size:10px;
-}
-html[data-field-embedded] body #day-workout-modal .modal-footer.classic-builder-footer{
-  display:flex!important;
-  flex-wrap:wrap!important;
-  justify-content:flex-end!important;
-  align-items:center!important;
-  gap:7px!important;
-  min-width:0!important;width:100%!important;
-  padding:11px 0 3px!important;
-}
-html[data-field-embedded] body #day-workout-modal .classic-builder-footer button{
-  min-width:0!important;
-  width:auto!important;
-  padding:9px 11px!important;
-  min-height:40px!important;
-  height:auto!important;
-  font-size:12px!important;
-  line-height:1.3!important;
-  white-space:normal;
-  text-align:center;
-}
 @media(max-width:600px){
  html[data-field-embedded] body #day-workout-modal .modal{
    padding:13px 12px max(10px,env(safe-area-inset-bottom))!important;
@@ -135,39 +71,6 @@ html[data-field-embedded] body #day-workout-modal .classic-builder-footer button
  html[data-field-embedded] body #day-workout-modal input[type="text"],
  html[data-field-embedded] body #day-workout-modal input[type="date"],
  html[data-field-embedded] body #day-workout-modal select{font-size:16px!important}
- html[data-field-embedded] body #day-workout-modal .form-row.classic-pass-fields{
-   grid-template-columns:repeat(2,minmax(0,1fr))!important;
- }
- html[data-field-embedded] body #day-workout-modal .ex-row,
- html[data-field-embedded] body #day-workout-modal .ex-row-item.is-cardio .ex-row{
-   grid-template-columns:repeat(3,minmax(0,1fr)) 27px!important;
-   gap:5px!important;
- }
- html[data-field-embedded] body #day-workout-modal .ex-row input.dw-name{
-   grid-column:1/-1!important;
-   width:100%!important;
-   height:37px!important;
-   min-height:37px!important;
-   grid-row:1!important;
-   font-size:16px!important;
- }
- html[data-field-embedded] body #day-workout-modal .ex-row .ex-del{grid-column:4!important;grid-row:2!important}
- html[data-field-embedded] body #day-workout-modal .ex-row-item.is-cardio .ex-row .dw-metric1{grid-column:1/3!important}
- html[data-field-embedded] body #day-workout-modal .ex-row-item.is-cardio .ex-row .dw-metric2{grid-column:3!important}
- html[data-field-embedded] body #day-workout-modal .ex-row input[type="number"]{font-size:14px!important;padding:7px 6px!important}
- html[data-field-embedded] body #day-workout-modal .modal-footer.classic-builder-footer{
-   display:grid!important;
-   grid-template-columns:repeat(2,minmax(0,1fr))!important;
-   gap:7px!important;
-   justify-content:stretch!important;
- }
- html[data-field-embedded] body #day-workout-modal .classic-builder-footer button{
-   width:100%!important;margin:0!important;
-   min-height:40px!important;padding:8px 7px!important;
- }
- html[data-field-embedded] body #day-workout-modal .classic-builder-footer .classic-save-pass{
-   grid-column:span 2!important;
- }
 }
 @media(max-width:385px){
  html[data-field-embedded] body #day-workout-modal .classic-template-actions{
@@ -178,9 +81,6 @@ html[data-field-embedded] body #day-workout-modal .classic-builder-footer button
  }
  html[data-field-embedded] body #day-workout-modal .classic-template-actions button{
    width:100%!important;min-width:0!important;
- }
- html[data-field-embedded] body #day-workout-modal .form-row.classic-pass-fields{
-   grid-template-columns:minmax(0,1fr)!important;gap:0!important;
  }
 }
 /* Week planner template dropdown remains compact without horizontal clipping. */

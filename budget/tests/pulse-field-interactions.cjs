@@ -28,18 +28,21 @@ async function verify(browser,mobile){
  const before=await page.evaluate(()=>scrollY);await day.click();
  const frame=page.frames().find(f=>f.url().includes('embedded=1'));
  await frame.waitForSelector('#day-workout-modal.show');
- await frame.waitForSelector('#between-exercise-toggle-panel-v7.builder-toggle-cluster-v13');
+ await frame.waitForSelector('#between-exercise-toggle-panel-v7.builder-toggle-cluster-v13',{state:'attached'}); // folded under Inställningar
  await page.waitForTimeout(600);
  await frame.evaluate(()=>{window.idleWrites=0;window.idleObserver=new MutationObserver(rs=>idleWrites+=rs.length);idleObserver.observe(document.getElementById('day-workout-modal'),{subtree:true,attributes:true,childList:true});});
  await page.waitForTimeout(450);
  const idleWrites=await frame.evaluate(()=>{idleObserver.disconnect();return idleWrites;});
  assert.ok(idleWrites<8,'An idle builder must stop rewriting the DOM: '+idleWrites);
  console.log((mobile?'mobile':'desktop')+' idle mutations: '+idleWrites);
- await frame.locator('.dw-name').first().click();await frame.locator('.exercise-name-picker-new-v1').click();await frame.locator('.dw-name').first().fill('Testpress');
- await frame.locator('.dw-metric1').first().fill('2');await frame.locator('.dw-metric2').first().fill('8');await frame.locator('.dw-metric3').first().fill('20');
- await frame.locator('.builder-row-plus-v3').first().click();assert.equal(await frame.locator('#day-workout-ex-list .ex-row-item').count(),2);
- await frame.locator('#day-workout-ex-list .ex-row-item').last().locator('.ex-del').click();
- await frame.locator('[data-per-set-toggle-v7]').click();await frame.locator('[data-per-set-seconds-v7]').fill('30');
+ // Mitt pass: tapping an empty row opens the inline picker; free text adds a new exercise.
+ await frame.locator('#day-workout-ex-list .pbu-row .pbu-head').first().click();
+ await frame.locator('.pbu-row.pbu-open [data-pbu-search]').fill('Testpress');await frame.locator('.pbu-row.pbu-open .pbu-new').click();
+ await frame.locator('.pbu-row.pbu-open [data-pbu-value="1"]').fill('2');await frame.locator('.pbu-row.pbu-open [data-pbu-value="2"]').fill('8');await frame.locator('.pbu-row.pbu-open [data-pbu-value="3"]').fill('20');
+ await frame.locator('#day-workout-modal .pbu-add').click();assert.equal(await frame.locator('#day-workout-ex-list .ex-row-item').count(),2);
+ await frame.locator('#day-workout-ex-list .pbu-row.pbu-open [data-pbu-delete]').click();
+ await frame.locator('.pbu-between-btn').first().click(); await frame.locator('[data-per-set-toggle-v7]').click();await frame.locator('[data-per-set-seconds-v7]').fill('30');
+ await frame.locator('.pbu-settings-toggle').click();
  const timer=frame.locator('#pretimer-builder-switch-v2'),initial=await timer.getAttribute('aria-pressed');await timer.click();assert.notEqual(await timer.getAttribute('aria-pressed'),initial);
  await frame.locator('[onclick="saveDayWorkoutPlan()"]').click();await frame.waitForSelector('#exercise-plan-preview-v7.show');
  assert.equal(await frame.locator('#day-workout-modal').evaluate(el=>el.inert),true,'Underlying builder must be inert during preview');

@@ -2,7 +2,7 @@
 <html lang="sv" id="pulse-document" data-training-overview="observatory">
 <head>
   <base href="../">
-  <script>(function(){var embedded=new URLSearchParams(location.search).get('embedded')==='1';window.__FIELD_EMBEDDED__=embedded;if(embedded)document.documentElement.dataset.fieldEmbedded='1';})();</script>
+  <script>(function(){var embedded=new URLSearchParams(location.search).get('embedded')==='1';window.__FIELD_EMBEDDED__=embedded;if(embedded){document.documentElement.dataset.fieldEmbedded='1';document.documentElement.classList.add('pbu-v1');}})();</script>
   <meta name="robots" content="noindex">
   <script>(function(){var p=new URLSearchParams(location.search);if(p.get("wellness")==="stretch"||p.get("wellness")==="meditation"){location.replace(new URL("zen.html"+location.search+location.hash,document.baseURI).href);}})();</script>
   <meta charset="utf-8">
@@ -554,23 +554,10 @@ if(!window.__FIELD_EMBEDDED__){
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261020-cardio-editor-v2">
-<link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-classic-builder-3">
-<script>
-/* Preview flags: exercise.html?ui=mittpass (A, calm list) or ?ui=kompakt
-   (B, compact rows) load the app-style pass builder. */
-(function(){
-  var q=location.search;
-  try{if(window.parent!==window)q+='&'+window.parent.location.search.slice(1);}catch(e){}
-  var m=/(?:^|[?&])ui=[^&]*(mittpass|kompakt)/.exec(q);
-  if(!m)return;
-  document.documentElement.classList.add('pbu-v1');
-  if(m[1]==='kompakt')document.documentElement.classList.add('pbu-b');
-  var css=document.createElement('link');css.rel='stylesheet';css.href='pulse-builder-ui.css?v=20261027-builder-7';document.head.appendChild(css);
-  ['pulse-explore.js?v=20261023-full-library-v2','pulse-builder-ui.js?v=20261027-builder-7'].forEach(function(src){
-    var s=document.createElement('script');s.src=src;s.async=false;document.head.appendChild(s);
-  });
-})();
-</script>
+<link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261027-passbyggare-1">
+<script defer src="pulse-explore.js?v=20261023-full-library-v2"></script>
+<script defer src="pulse-builder-ui.js?v=20261027-passbyggare-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
