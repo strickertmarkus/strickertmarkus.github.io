@@ -1,7 +1,7 @@
 /* The explorer's body (pulse-gym.js): the muscle map fills the page and zooms
    into the tapped muscle; the scene is styled in pulse-gym-scene.css. */
 header,#living-dock,.guide-about,#explore-status{display:none!important}
-body{background:#090d13}
+body{background:var(--pk-sky),#090d13;background-attachment:fixed}
 /* While the scene is open the exercise view behind it stays out of sight,
    so its fade-in reveals only the dark backdrop. */
 html.gm-scene-open main{visibility:hidden}

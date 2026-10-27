@@ -34,12 +34,14 @@
 .pk-close svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .pk-close:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
 
-/* A faint starfield for full-screen surfaces, echoing the home page sky. */
-.pk-sky{background:
+/* A faint starfield for full-screen surfaces, echoing the home page sky.
+   Used as the first background layer: background:var(--pk-sky),<base colour>. */
+:root{--pk-sky:
   radial-gradient(circle at 18% 22%,#ffe7dc40 0 .7px,transparent 1.5px),
   radial-gradient(circle at 74% 14%,#ff9a9140 0 .75px,transparent 1.6px),
   radial-gradient(circle at 42% 62%,#ffe7dc30 0 .6px,transparent 1.4px),
   radial-gradient(circle at 86% 48%,#ffd2bd38 0 .7px,transparent 1.5px),
   radial-gradient(circle at 12% 80%,#ff9a9130 0 .6px,transparent 1.4px),
-  radial-gradient(ellipse 60% 40% at 82% 8%,#a83e5f1f,transparent 70%),
-  radial-gradient(ellipse 50% 35% at 10% 30%,#6f294814,transparent 70%)}
+  radial-gradient(circle at 63% 88%,#ffe7dc28 0 .6px,transparent 1.4px),
+  radial-gradient(ellipse 70% 38% at 88% -4%,#a83e5f26,transparent 70%),
+  radial-gradient(ellipse 60% 34% at 4% 22%,#5a264024,transparent 72%)}

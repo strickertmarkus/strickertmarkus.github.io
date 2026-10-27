@@ -10,6 +10,7 @@ html.pbu-v1{
 /* ---------- Surface: full screen, layered depth instead of a flat fill ---------- */
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder{
   background:
+    var(--pk-sky),
     radial-gradient(70% 38% at 88% -4%,#ff6a5a2e,transparent 70%),
     radial-gradient(60% 34% at 4% 22%,#5a26402e,transparent 72%),
     radial-gradient(90% 45% at 50% 108%,#173250aa,transparent 70%),
@@ -35,7 +36,7 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .modal>.mod
   display:grid!important;place-items:center;position:fixed!important;z-index:5;
   top:max(14px,env(safe-area-inset-top,0px));right:16px;left:auto;
   width:40px!important;height:40px!important;padding:0!important;border-radius:50%!important;
-  border:1px solid #ff9a9140!important;background:#0b0f18cc!important;color:var(--pbu-pale)!important;
+  border:0!important;background:#ffffff12!important;color:#f6ece9!important;
   font:400 18px/1 Inter,system-ui,sans-serif!important;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }

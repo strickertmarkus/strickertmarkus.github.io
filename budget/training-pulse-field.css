@@ -693,16 +693,10 @@ main{position:relative;z-index:2;display:block}
 }
 .chart-period-row--volume{margin:8px 0 11px}
 .chart-period-toggle{flex:0 1 auto;min-width:0}
-.chart-period-toggle button{
-  min-width:0;
-  padding:8px 11px;
-  font:500 11px/1.25 var(--field-ui);
-  white-space:nowrap;
-}
+.chart-period-toggle button{min-width:0;white-space:nowrap}
 .metric-data-point{stroke:#09131a;stroke-width:1.45}
 @media(max-width:560px){
   .chart-period-row{gap:7px;margin:9px 0 3px}
-  .chart-period-toggle button{padding:7px 9px;font-size:10px}
   .chart-period-row--volume{margin:7px 0 9px}
 }
 

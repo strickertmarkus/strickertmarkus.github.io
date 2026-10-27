@@ -553,9 +553,11 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return:hover{background:#28202a}
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20261020-cardio-editor-v2">
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20261027-kit-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261027-passbyggare-4">
+<link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261027-kit-1">
+<link rel="stylesheet" href="pulse-tools-ui.css?v=20261027-kit-7">
 <script defer src="pulse-explore.js?v=20261023-full-library-v2"></script>
 <script defer src="pulse-builder-ui.js?v=20261027-passbyggare-3"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -806,7 +808,7 @@ if(!window.__FIELD_EMBEDDED__){
     <div class="form-group">
       <label>Övningar</label>
       <div class="ex-list" id="ex-list"></div>
-      <button class="btn-sm" style="margin-top:8px" onclick="addExRow()">+ Lägg till övning</button>
+      <button class="btn-sm pt-add" style="margin-top:8px" onclick="addExRow()">Lägg till övning</button>
     </div>
     <div class="form-group"><label>Anteckningar</label><textarea id="wk-notes" rows="2" placeholder="Hur kändes det?"></textarea></div>
     <div class="modal-footer">
@@ -1172,15 +1174,9 @@ function pulsePlanKindV2(value){
   return 'strength';
 }
 function pulsePlanColorV2(type){
-  var t=String(type||'').trim().toLocaleLowerCase('sv-SE');
-  if(pulsePlanKindV2(type)==='rest')return 'rest';
-  if(pulsePlanKindV2(type)==='cardio')return 'orange';
-  if(/bröst|triceps/.test(t))return 'coral';
-  if(/rygg|biceps/.test(t))return 'cyan';
-  if(/ben|underkropp/.test(t))return 'gold';
-  if(/axlar|mage/.test(t))return 'violet';
-  if(/rörlighet|stretch/.test(t))return 'mint';
-  return ['coral','cyan','gold','violet','mint'][Array.from(t).reduce(function(n,c){return n+c.charCodeAt(0);},0)%5];
+  // One colour meaning across the training pages: red strength, cyan cardio, grey rest.
+  var kind=pulsePlanKindV2(type);
+  return kind==='rest'?'rest':kind==='cardio'?'cyan':'red';
 }
 function pulsePlanWeekDraftV2(monday){
   if(!pulsePlanDraftsV2[monday]){
