@@ -199,19 +199,51 @@ function hidePicker(row){
  var pick=row.querySelector('.pbu-pick');if(!pick)return;
  pick.hidden=true;pick.innerHTML='';row.classList.remove('pbu-picking');
 }
+function searchQuery(query){
+ var q=key(query),muscles=musclesFromText(query);
+ // Also match muscle names directly, e.g. "lår" or "mage".
+ Object.keys(MUSCLE_IMAGE).forEach(function(m){if(q.length>=3&&key(m).indexOf(q)>=0&&muscles.indexOf(m)<0)muscles.push(m);});
+ return {q:q,muscles:muscles};
+}
+/* Lower is better: name 0, primary muscle 1, other muscle 2, category or
+   equipment 3; -1 means no match. */
+function guideScore(e,sq){
+ if(key(e.name).indexOf(sq.q)>=0)return 0;
+ if(sq.muscles.indexOf(e.muscles[0])>=0)return 1;
+ if(e.muscles.some(function(m){return sq.muscles.indexOf(m)>=0;}))return 2;
+ // Compare on a short stem so "hantel" also finds "Hantlar" and "kabel" "Kabel & maskin".
+ var stem=sq.q.length>=4?sq.q.slice(0,4):sq.q;
+ if(sq.q.length>=3&&(key(e.group).indexOf(stem)>=0||key(e.equipment).indexOf(stem)>=0))return 3;
+ return -1;
+}
+function ownMatches(name,sq){
+ if(key(name).indexOf(sq.q)>=0)return true;
+ var g=guideByName(name),muscles=g?g.muscles:musclesFromText(name);
+ return muscles.some(function(m){return sq.muscles.indexOf(m)>=0;});
+}
 function renderOptions(row,query){
  var box=row.querySelector('.pbu-options');if(!box)return;
  var ctx=passContext(row),q=key(query),used=usedNames(row),current=key((nameInput(row)||{}).value);
- var match=function(n){return !q||key(n).indexOf(q)>=0;};
- var guide=guideSuggestions(ctx).filter(function(e){return match(e.name);});
- var gk={};guide.forEach(function(e){gk[key(e.name)]=1;});
- var own=ownExercises(ctx,row).filter(function(e){return !gk[key(e.name)]&&match(e.name);});
- // Searching reaches the whole guide, not only the pass's muscle groups.
- if(q&&api())api().exercises.forEach(function(e){if(!gk[key(e.name)]&&match(e.name)&&!own.some(function(o){return key(o.name)===key(e.name);})){guide.push(e);gk[key(e.name)]=1;}});
+ var guide,own,gk={};
+ if(q){
+  // Search covers the whole guide: names, muscle groups (also stems such as
+  // "axl" or "ben"), category (Push/Pull/Ben/Kondition) and equipment.
+  var sq=searchQuery(query);
+  guide=(api()?api().exercises:[]).map(function(e,i){return {e:e,score:guideScore(e,sq),i:i};})
+   .filter(function(x){return x.score>=0;})
+   .sort(function(a,b){return a.score-b.score||a.i-b.i;})
+   .map(function(x){return x.e;});
+  guide.forEach(function(e){gk[key(e.name)]=1;});
+  own=ownExercises(ctx,row).filter(function(e){return !gk[key(e.name)]&&ownMatches(e.name,sq);});
+ }else{
+  guide=guideSuggestions(ctx);
+  guide.forEach(function(e){gk[key(e.name)]=1;});
+  own=ownExercises(ctx,row).filter(function(e){return !gk[key(e.name)];});
+ }
  var html='';
  if(guide.length){
-  html+='<div class="pbu-group">'+(q?'Övningsguiden':'Förslag · '+esc(ctx.label))+'</div>';
-  html+=guide.slice(0,q?12:10).map(function(e){
+  html+='<div class="pbu-group">'+(q?'Övningsguiden'+(sq.muscles.length&&sq.muscles.length<=4?' · '+esc(sq.muscles.join(' + ')):''):'Förslag · '+esc(ctx.label))+'</div>';
+  html+=guide.slice(0,q?16:10).map(function(e){
    var img=MUSCLE_IMAGE[e.muscles[0]],isUsed=used[key(e.name)];
    return '<div class="pbu-opt'+(isUsed?' is-used':'')+(key(e.name)===current?' is-current':'')+'">'
     +'<button type="button" class="pbu-opt-main" data-pbu-pick="'+esc(e.name)+'" data-pbu-kind-pick="'+(e.group==='Kondition'?'cardio':'strength')+'" data-pbu-guide-id="'+e.id+'">'
