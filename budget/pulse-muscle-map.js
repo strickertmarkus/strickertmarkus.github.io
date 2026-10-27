@@ -64,11 +64,13 @@
    <filter id="muscle-map-feather" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feMorphology operator="dilate" radius="7"/><feGaussianBlur stdDeviation="7"/></filter>
    <mask id="muscle-map-selection-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="724" height="1086"><g id="muscle-map-tissue-window" transform="translate(${offset} 0)" fill="white" filter="url(#muscle-map-feather)"></g></mask>
    <filter id="muscle-map-tissue-color" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
-    <feColorMatrix type="matrix" values="1.45 0 0 0 0.03  0 0.30 0 0 0  0 0 0.26 0 0  4 -2 -2 0 -0.10"/>
+    <feColorMatrix type="matrix" values="1.02 0.12 0.04 0 0  -0.42 1.32 0.10 0 0  -0.36 0.10 1.26 0 0  4 -2 -2 0 -0.10"/>
    </filter>
    <filter id="muscle-map-tissue-glow" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
-    <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="halo"/>
-    <feComponentTransfer in="halo"><feFuncA type="linear" slope="0.45"/></feComponentTransfer>
+    <feGaussianBlur in="SourceAlpha" stdDeviation="22" result="halo"/>
+    <feFlood flood-color="#ff2815" flood-opacity="0.95"/>
+    <feComposite in2="halo" operator="in"/>
+    <feComposite in2="SourceAlpha" operator="out"/>
     <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
    </filter>
   </defs><g class="muscle-map-tissue" aria-hidden="true" filter="url(#muscle-map-tissue-glow)"><g mask="url(#muscle-map-selection-mask)"><image href="${window.PulseMuscleMap.image}" x="${side==='front'?-41:-683}" y="0" width="1448" height="1086" filter="url(#muscle-map-tissue-color)"/></g></g>`;
