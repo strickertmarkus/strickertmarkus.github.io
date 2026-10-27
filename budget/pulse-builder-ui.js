@@ -106,8 +106,8 @@ function paintRow(row){
   if(quick&&quick.dataset.kind!==rowKind(row))renderQuick(row);
   var g=row.querySelector('[data-pbu-guide-row]'),ge=guideByName(name);
   if(g){g.hidden=!ge;if(ge)g.dataset.pbuGuide=String(ge.id);}
-  syncBetween(row);
  }
+ syncBetween(row);
 }
 function enhanceRow(row){
  if(!row||row.dataset.pbu==='1'||!row.querySelector('.ex-row'))return;
@@ -128,11 +128,12 @@ function enhanceRow(row){
  if(COMPACT){
   var quick=document.createElement('div');quick.className='pbu-quick';
   head.insertAdjacentElement('afterend',quick);
-  var clock=document.createElement('button');clock.type='button';clock.className='pbu-between-btn';
-  clock.setAttribute('aria-label','Mellan set');clock.setAttribute('aria-pressed','false');
-  clock.innerHTML='<i class="pbu-clock" aria-hidden="true"></i>';
-  row.appendChild(clock);
  }
+ // Clock: shows/hides this row's between-sets settings; lit when they are on.
+ var clock=document.createElement('button');clock.type='button';clock.className='pbu-between-btn';
+ clock.setAttribute('aria-label','Mellan set');clock.setAttribute('aria-pressed','false');
+ clock.innerHTML='<i class="pbu-clock" aria-hidden="true"></i>';
+ row.appendChild(clock);
  row.appendChild(panel);row.appendChild(actions);
  if(COMPACT)renderQuick(row);
  paintRow(row);
