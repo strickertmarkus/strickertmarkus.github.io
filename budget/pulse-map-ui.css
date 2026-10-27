@@ -15,11 +15,11 @@ html.ui-gym .muscle-map-figure.gm-zooming{transform:scale(2.6);opacity:0}
 
 /* Programme view in the scene (pulse-stories-ui.js): the exercises as stops
    on a glowing road. */
-.st-sheet.is-program{top:0;max-height:none;border-radius:0;padding-top:calc(18px + env(safe-area-inset-top))}
+.st-sheet.is-program{top:0;overflow-x:hidden;touch-action:pan-y;max-height:none;border-radius:0;padding-top:calc(18px + env(safe-area-inset-top))}
 .st-sheet.is-program .st-grip{display:none}
 .st-sheet-back{display:inline-flex;align-items:center;gap:4px;margin:0 0 6px -6px;padding:6px 8px;border:0;border-radius:14px;background:none;color:var(--st-soft);font:inherit;font-size:13px;cursor:pointer}
 .st-sheet-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.st-path{position:relative;list-style:none;margin:6px 0 28px;padding:8px 0 0}
+.st-path{position:relative;overflow:hidden;list-style:none;margin:6px 0 28px;padding:8px 0 0}
 /* A faint floor under the road gives it depth. */
 .st-path::before{content:'';position:absolute;left:-30%;right:-30%;top:0;bottom:0;z-index:0;background:repeating-linear-gradient(90deg,#ff6a5a10 0 1px,transparent 1px 44px),repeating-linear-gradient(0deg,#ff6a5a0c 0 1px,transparent 1px 44px);transform:perspective(520px) rotateX(38deg);transform-origin:50% 0;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000,transparent);mask-image:radial-gradient(ellipse 60% 55% at 50% 50%,#000,transparent);pointer-events:none}
 .st-road{position:absolute;left:0;top:0;z-index:0;overflow:visible;pointer-events:none}
@@ -31,16 +31,17 @@ html.ui-gym .muscle-map-figure.gm-zooming{transform:scale(2.6);opacity:0}
 .st-road-spark{stroke:#fff;stroke-width:3.4;stroke-dasharray:3 97;stroke-dashoffset:100;opacity:0;animation:stRoadSpark 4.8s 1.8s linear infinite;filter:drop-shadow(0 0 6px #ff8a78)}
 @keyframes stRoadDraw{to{stroke-dashoffset:0}}
 @keyframes stRoadSpark{0%{stroke-dashoffset:100;opacity:0}6%{opacity:1}94%{opacity:1}100%{stroke-dashoffset:0;opacity:0}}
-.st-stop{position:relative;z-index:1;display:flex;align-items:center;gap:6px;height:188px}
+.st-stop{position:relative;z-index:1;display:flex;align-items:center;gap:6px;height:146px}
 .st-stop.is-right{flex-direction:row-reverse;text-align:right}
 .st-stop>button{padding:0;border:0;background:none;color:inherit;font:inherit;text-align:inherit;cursor:pointer}
 .st-stop-pad{position:relative;flex:0 0 52%;height:100%;opacity:0;animation:stStopIn .6s calc(.25s + var(--i) * .16s) cubic-bezier(.2,.8,.2,1) forwards}
-.st-stop-tile{position:absolute;left:50%;bottom:22px;width:74px;height:74px;margin-left:-37px;transform:scaleY(.5) rotate(45deg);border-radius:9px;background:linear-gradient(135deg,#5a211c,#21101a);box-shadow:0 0 0 1.5px #ff8a78,0 0 26px #ff3b2b99}
-.st-stop-pad img{position:absolute;left:50%;bottom:34px;width:172px;margin-left:-86px;transition:transform .25s;clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%)}
+.st-stop-tile{position:absolute;left:50%;bottom:14px;width:74px;height:74px;margin-left:-37px;transform:scaleY(.5) rotate(45deg);border-radius:9px;background:linear-gradient(135deg,#5a211c,#21101a);box-shadow:0 0 0 1.5px #ff8a78,0 0 26px #ff3b2b99}
+.st-stop-pad img{position:absolute;left:50%;bottom:24px;width:164px;margin-left:-82px;transition:transform .25s;clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 46% 46% at 50% 50%,#000 60%,transparent 100%)}
 /* Each figure moves between its start and end pose. */
 .st-stop-pad img.is-b{animation:stPose 2.8s calc(var(--i) * .35s) ease-in-out infinite}
 @keyframes stPose{0%,30%{opacity:0}50%,80%{opacity:1}100%{opacity:0}}
-.st-stop-num{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);min-width:24px;height:24px;padding:0 7px;box-sizing:border-box;border-radius:12px;display:grid;place-items:center;background:#ff5a48;color:#fff;font-size:12px;font-weight:700;box-shadow:0 4px 14px #ff3b2b77}
+.st-stop-num{position:absolute;left:calc(50% - 74px);bottom:22px;z-index:1;min-width:24px;height:24px;padding:0 7px;box-sizing:border-box;border-radius:12px;display:grid;place-items:center;background:#ff5a48;color:#fff;font-size:12px;font-weight:700;box-shadow:0 4px 14px #ff3b2b77}
+.st-stop.is-right .st-stop-num{left:auto;right:calc(50% - 74px)}
 .st-stop-pad:active img{transform:scale(.96)}
 .st-stop-pad:focus-visible,.st-stop-copy:focus-visible{outline:2px solid #ffb9ad;outline-offset:2px;border-radius:14px}
 .st-stop-copy{flex:1;min-width:0;align-self:center;opacity:0;animation:stStopIn .6s calc(.35s + var(--i) * .16s) cubic-bezier(.2,.8,.2,1) forwards}
