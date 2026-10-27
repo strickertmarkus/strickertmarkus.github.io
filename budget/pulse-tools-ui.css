@@ -20,7 +20,7 @@ html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-te
 /* Titles and labels */
 html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal h2,
 html[data-field-embedded] body#pulse-page #pulse-goals .section-hdr h2,html[data-field-embedded] body#pulse-page #pulse-goals h2{
-  font:600 28px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.03em!important;color:var(--pt-text)!important;
+  font:400 36px/1.05 "Cormorant Garamond",Georgia,serif!important;letter-spacing:-.5px!important;color:var(--pt-text)!important;
 }
 html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal :is(label,.form-group>label,.single-exercise-kicker-v9,.single-exercise-field-title-v10),
 html[data-field-embedded] body#pulse-page #pulse-goals :is(.goal-lbl,.vo2-chart-title-v37,.run-pace-chart-title-v34){
@@ -136,7 +136,6 @@ html[data-field-embedded] body#pulse-page #exercise-edit-modal-v9 .modal select{
 /* Goals: compact number tiles, a drawn disclosure, cardio measures cyan, no side bar on the title. */
 html[data-field-embedded] body#pulse-page #pulse-goals input[type=number]{min-width:56px!important;min-height:44px!important;padding:0 8px!important;text-align:center!important;border-radius:14px!important}
 html[data-field-embedded] body#pulse-page #pulse-goals .section-hdr h2::before{display:none!important}
-html[data-field-embedded][data-field-workspace="goals"] body#pulse-page #pulse-goals .section-hdr h2{font:600 28px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.03em!important}
 html[data-field-embedded] body#pulse-page #pulse-goals summary{list-style:none!important;display:flex!important;align-items:center;gap:8px;font:600 14px Inter,system-ui,sans-serif!important;color:var(--pt-muted)!important}
 html[data-field-embedded] body#pulse-page #pulse-goals summary::-webkit-details-marker{display:none}
 html[data-field-embedded] body#pulse-page #pulse-goals summary::before{content:"";width:16px;height:16px;background:currentColor;transition:transform .25s;

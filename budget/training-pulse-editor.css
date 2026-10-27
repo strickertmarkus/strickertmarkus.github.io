@@ -10,8 +10,8 @@
 body.field-workspace-active{overflow:hidden}
 body.field-workspace-active .field-canvas,body.field-workspace-active .space-scene{display:none!important}
 .field-workspace-header{display:flex;flex:0 0 auto;justify-content:space-between;align-items:center;gap:14px;min-height:57px;padding:max(6px,env(safe-area-inset-top,0px)) max(13px,env(safe-area-inset-right,0px)) 6px max(13px,env(safe-area-inset-left,0px));border-bottom:0;background:#080b12;color:#f2eded}
-.field-workspace-header strong{font:600 18px/1.2 Inter,system-ui,sans-serif;letter-spacing:-.02em}
-.field-workspace-header small{display:block;margin-top:3px;color:#ff8a78;font:600 10px var(--field-ui);letter-spacing:.18em;text-transform:uppercase}
+.field-workspace-header strong{font:400 23px/1.1 var(--field-serif)}
+.field-workspace-header small{display:block;margin-top:3px;color:#a6afb9;font:500 10px var(--field-ui);letter-spacing:.8px;text-transform:uppercase}
 /* Same round close button as the pass builder and the explorer. */
 .field-workspace-close{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#ffffff12;color:#f6ece9;cursor:pointer}
 .field-workspace-close svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
@@ -22,5 +22,5 @@ body.field-workspace-active .field-canvas,body.field-workspace-active .space-sce
 .field-workspace-status::before{content:"";position:absolute;left:12px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:#ff9a91;box-shadow:0 0 4px #ffd2bd,0 0 12px #ff657a;animation:workspaceStatusPulse 1.35s ease-in-out infinite}
 .field-workspace-status[hidden]{display:none}
 @keyframes workspaceStatusPulse{0%,100%{opacity:.45;transform:scale(.78)}50%{opacity:1;transform:scale(1.18)}}
-@media(max-width:560px){.field-workspace-header strong{font-size:17px}.field-workspace-header{padding-left:14px;padding-right:14px}}
+@media(max-width:560px){.field-workspace-header strong{font-size:20px}.field-workspace-header{padding-left:14px;padding-right:14px}}
 @media(prefers-reduced-motion:reduce){.field-workspace::backdrop{backdrop-filter:none}}

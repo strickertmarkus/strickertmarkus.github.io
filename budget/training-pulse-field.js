@@ -479,8 +479,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
   }
   function groupVolumeColor(index) {
-    // Every group here is strength, so the lines share the strength reds in distinct tones.
-    return ['#ff5a48','#ffd4cc','#ff9b6a','#d8435e','#ffb4a6','#c96a50','#ff7f9a','#f2a48f'][index%8];
+    return ['#ff657a','#67d4e4','#ffd2bd','#65d7a5','#a78bfa','#f6c977','#ff9a91','#8ab4f8'][index%8];
   }
   function groupVolumeChart(series) {
     var chart=byId('volume-chart');
@@ -793,7 +792,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     [0,.5,1].forEach(function(ratio){var value=min+(max-min)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(value)+'</text>';});
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0)){groups.cardio.push([]);groups.strength.push([]);return;}
-      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#7fe3ef':'#ff5a48';
+      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
       groups[entry.kind][groups[entry.kind].length-1].push([px,py]);
       if(entry.min>0&&entry.max>=entry.min){
         var y1=y(entry.max),y2=y(entry.min);
@@ -801,7 +800,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
         svg+='<line class="range-bar" x1="'+px+'" y1="'+y1+'" x2="'+px+'" y2="'+y2+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-cap)+'" y1="'+y1+'" x2="'+(px+cap)+'" y2="'+y1+'" stroke="'+color+'"/><line class="range-cap" x1="'+(px-cap)+'" y1="'+y2+'" x2="'+(px+cap)+'" y2="'+y2+'" stroke="'+color+'"/>';
       }
     });
-    [['cardio','#7fe3ef'],['strength','#ff5a48']].forEach(function(config){
+    [['cardio','#ff657a'],['strength','#67d4e4']].forEach(function(config){
       groups[config[0]].forEach(function(points){
         if(points.length>1)svg+=glowingLine(seriesPath(points),config[1],'');
       });
@@ -809,7 +808,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var previouslyLabelled=[],heartLabels='',heartMarkers='',heartHits='';
     entries.forEach(function(entry,index){
       if(entry.value==null||!(entry.value>0))return;
-      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#7fe3ef':'#ff5a48';
+      var px=x(index),py=y(entry.value),color=entry.kind==='cardio'?'#ff657a':'#67d4e4';
       // Always render a visible marker for every saved heart-rate measurement.
       // Keep labels and transparent hit zones on separate layers so labels never cover the markers.
       heartMarkers+=glowingPoint(px,py,4,color,'heart-point');
