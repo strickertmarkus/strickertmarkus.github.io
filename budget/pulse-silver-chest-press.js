@@ -3,12 +3,12 @@ import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createEquipment} from './pulse-silver-equipment.js?v=21';
 import {applyMotion,frameCamera} from './pulse-silver-rig.js?v=21';
-import {createTissueMaterial,muscleNames} from './pulse-silver-material.js?v=21';
+import {createTissueMaterial,muscleNames} from './pulse-silver-material.js?v=22';
 const host=document.getElementById('exercise-silver-3d'),stage=document.getElementById('studio-stage');
 const api={ready:false,loading:false,failed:false,update:()=>false};
 window.PulseSilverPress=api;
 const v=p=>new THREE.Vector3(...p),Y=new THREE.Vector3(0,1,0);
-const pressContraction={value:0},muscleUniform={value:new Float32Array(10)},pilotUniform={value:1};
+const pressContraction={value:0},muscleUniform={value:new Float32Array(10)},pilotUniform={value:1},activationUniform={value:1};
 let pilotObjects=[],equipment,ortho,lastMuscles='';
 const tissueLight={value:new THREE.Vector3()};
 const tissueLightWorld=new THREE.Vector3(-2,4,3).normalize();
@@ -163,7 +163,7 @@ async function initialize(){
   });
   geo.morphAttributes.position=shapes.map(s=>s.positions);
   geo.morphAttributes.normal=shapes.map(s=>s.normals);
-  const mat=createTissueMaterial(materials.skin,{pressContraction,tissueLight,muscleUniform,pilotUniform});
+  const mat=createTissueMaterial(materials.skin,{pressContraction,tissueLight,muscleUniform,pilotUniform,activationUniform});
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
@@ -198,13 +198,15 @@ api.update=frame=>{
  pilotUniform.value=pilot?1:0;
  for(const obj of pilotObjects)obj.visible=pilot;
  equipment.group.visible=!pilot;
+ activationUniform.value=Number.isFinite(frame.activation)?frame.activation:1;
  const muscles=frame.muscles||['Bröst','Triceps','Axlar'],muscleKey=muscles.join('|');
  if(lastMuscles!==muscleKey){lastMuscles=muscleKey;muscleUniform.value.fill(0);muscles.forEach((name,i)=>{const n=muscleNames.indexOf(name);if(n>=0)muscleUniform.value[n]=i===0?2:1;});}
  let activeCamera=camera;
  if(pilot){
   pose(frame.t);
   const alternate=frame.viewIndex===1;
-  camera.position.set(alternate?-1.95:1.9,1.5,alternate?2.65:2.75);camera.lookAt(-.08,.83,.12);
+  // pilotDistance (default 1) moves the camera back along its line of sight.
+  const d=frame.pilotDistance||1;camera.position.set(-.08+((alternate?-1.95:1.9)+.08)*d,.83+(1.5-.83)*d,.12+((alternate?2.65:2.75)-.12)*d);camera.lookAt(-.08,.83,.12);
  }else{
   pressContraction.value=frame.t;
   api.pose=applyMotion({motion:frame.motion,rest,bones,body,hands,shoes,t:frame.t,chestActive:muscles.includes('Bröst')});

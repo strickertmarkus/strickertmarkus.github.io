@@ -850,12 +850,15 @@ function cameraPoint(p,view){
  const depth=p[0]*s+p[2]*c;
  return [p[0]*c-p[2]*s,-p[1]*cp+depth*sp,depth*cp+p[1]*sp];
 }
-function sceneFrame(index,viewIndex){
- const key=index+':'+viewIndex;if(frameCache.has(key))return frameCache.get(key);
- const view=guideScenes[index].views[viewIndex],bounds=[];
+/* figureOnly frames the body joints alone, so previews can keep the figure at
+   one size while larger equipment runs past the frame. */
+function sceneFrame(index,viewIndex,figureOnly=false,viewOverride=null){
+ const view=viewOverride||guideScenes[index].views[viewIndex];
+ const key=index+':'+viewIndex+':'+(figureOnly?'f':'s')+':'+view.yaw+':'+view.pitch;if(frameCache.has(key))return frameCache.get(key);
+ const bounds=[];
  for(const phase of [0,.125,.25,.375,.5,.625,.75,.875]){
   const t=(1-Math.cos(phase*TAU))/2;
-  for(const s of [...makeScene(index,t,phase,true).shapes,...Object.values(makeScene(index,t,phase,true).joints).flatMap(p=>typeof p[0]==='number'?[{points:[p],r:.22}]:p.map(q=>({points:[q],r:.22})))])for(const p of s.points){const q=cameraPoint(p,view),r=s.r||0;bounds.push([q[0]-r,q[1]-r],[q[0]+r,q[1]+r]);}
+  for(const s of [...(figureOnly?[]:makeScene(index,t,phase,true).shapes),...Object.values(makeScene(index,t,phase,true).joints).flatMap(p=>typeof p[0]==='number'?[{points:[p],r:.22}]:p.map(q=>({points:[q],r:.22})))])for(const p of s.points){const q=cameraPoint(p,view),r=s.r||0;bounds.push([q[0]-r,q[1]-r],[q[0]+r,q[1]+r]);}
  }
  const minX=Math.min(...bounds.map(p=>p[0])),maxX=Math.max(...bounds.map(p=>p[0])),minY=Math.min(...bounds.map(p=>p[1])),maxY=Math.max(...bounds.map(p=>p[1]));
  const scale=Math.min(368/(maxX-minX),272/(maxY-minY)),frame={scale,x:210-(minX+maxX)*scale/2,y:178-(minY+maxY)*scale/2};frameCache.set(key,frame);return frame;
@@ -863,11 +866,14 @@ function sceneFrame(index,viewIndex){
 function draw(t,cycle=phase){
  if(!studioOpen||listOpen||document.visibilityState!=='visible')return;
  const cfg=guideScenes[active],silver=studioOpen;
+ // Optional preview presentation (pulse-stories-ui.js ?ui=gym): view, framing and muscle activation.
+ const preview=window.PulseGuidePreview,view=preview?.view?preview.view(cfg.kind,cfg.views[cameraIndex],cameraIndex):cfg.views[cameraIndex];
  let rendered=false;
  if(silver){
   const motion=cfg.kind==='chestMachine'?null:makeScene(active,t,cycle,true);
   rendered=window.PulseSilverPress?.update({t,cycle,index:active,kind:cfg.kind,
-   viewIndex:cameraIndex,view:cfg.views[cameraIndex],bounds:sceneFrame(active,cameraIndex),
+   viewIndex:cameraIndex,view,bounds:sceneFrame(active,cameraIndex,!!preview?.figureOnly,view),
+   activation:preview?.activation?preview.activation(t,cfg.kind):1,pilotDistance:preview?.pilotDistance||1,
    motion,muscles:exercises[active].muscles})===true;
  }
  $('studio-stage').classList.toggle('silver-press-ready',rendered);
@@ -883,7 +889,7 @@ function animate(now){
  if(!last)last=now;const dt=Math.min(80,now-last);last=now;
  if(!paused&&studioOpen&&!listOpen&&document.visibilityState==='visible'&&!$('detail').hidden&&!$('guide-page').hidden){
   phase=(phase+dt/(['treadmill','bike','elliptical','stepper','farmerCarry'].includes(guideScenes[active].kind)?2200:['deadBug','birdDog'].includes(guideScenes[active].kind)?8000:4400))%1;
-  if(now-lastPaint>=32){draw((1-Math.cos(phase*TAU))/2,phase);lastPaint=now;}
+  if(now-lastPaint>=32){const tempo=window.PulseGuidePreview?.tempo;draw(tempo?tempo(phase,guideScenes[active].kind):(1-Math.cos(phase*TAU))/2,phase);lastPaint=now;}
  }
  requestAnimationFrame(animate);
 }
@@ -1088,7 +1094,7 @@ renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='S
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 
 
-<script type="module" src="pulse-silver-chest-press.js?v=20261026-still-timeline-v23"></script>
+<script type="module" src="pulse-silver-chest-press.js?v=20261027-activation-v24"></script>
 
 </body></html>
 

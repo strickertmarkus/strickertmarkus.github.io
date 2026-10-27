@@ -1,6 +1,7 @@
 /** Shared approved pearl / fibre tissue material. Primary=2, secondary=1, inactive=0. */
 export const muscleNames=['Bröst','Rygg','Axlar','Biceps','Triceps','Mage','Säte','Framsida lår','Baksida lår','Vader'];
-export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUniform,pilotUniform}){
+/* activationUniform (optional, default 1) scales the muscle glow, so a preview can let it follow the lift. */
+export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUniform,pilotUniform,activationUniform={value:1}}){
   const mat=skin.clone();mat.vertexColors=true;
   // A translucent centre and a denser silhouette keep the moving body readable.
   // Rest-space fibres stay attached to the pectorals throughout the animation.
@@ -9,13 +10,14 @@ export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUn
    shader.uniforms.uPressContraction=pressContraction;
    shader.uniforms.uMuscles=muscleUniform;
    shader.uniforms.uPilot=pilotUniform;
+   shader.uniforms.uActivation=activationUniform;
    shader.uniforms.uTissueLight=tissueLight;
    shader.vertexShader=shader.vertexShader.replace('#include <common>',
     '#include <common>\nvarying vec3 vAnatomyPosition;');
    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
     '#include <begin_vertex>\nvAnatomyPosition = position;');
    shader.fragmentShader=shader.fragmentShader.replace('#include <common>',
-    '#include <common>\nvarying vec3 vAnatomyPosition;\nuniform float uPressContraction;\nuniform vec3 uTissueLight;\nuniform float uMuscles[10];\nuniform float uPilot;');
+    '#include <common>\nvarying vec3 vAnatomyPosition;\nuniform float uPressContraction;\nuniform vec3 uTissueLight;\nuniform float uMuscles[10];\nuniform float uPilot;\nuniform float uActivation;');
    shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>', `
     #include <color_fragment>
     float clothingMask = 1.0 - smoothstep(0.18, 0.65, max(vColor.r, max(vColor.g, vColor.b)));
@@ -145,6 +147,7 @@ export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUn
      generalGlow=region*(tissueRed*volume*mix(0.075,0.18,primary)
        +vec3(1.0,0.42,0.20)*volume*reflection*mix(0.13,0.70,primary)
        +tissueFibre*silk*mix(0.05,0.12,primary));
+     generalGlow*=uActivation;
     }
 
 
@@ -153,11 +156,11 @@ export function createTissueMaterial(skin,{pressContraction,tissueLight,muscleUn
     #include <emissivemap_fragment>
     if(uPilot > 0.5){
     // Keep the valleys dark. Concentrate glow on the upper muscle belly.
-    totalEmissiveRadiance += chest * (
+    totalEmissiveRadiance += uActivation * chest * (
       vec3(0.65, 0.008, 0.012) * chestVolume * 0.18
       + vec3(1.0, 0.42, 0.20) * chestSpot * 0.95
       + tissueFibre * filament * 0.12);
-    totalEmissiveRadiance += secondary * (1.0 - chest)
+    totalEmissiveRadiance += uActivation * secondary * (1.0 - chest)
       * (tissueRed * secondaryVolume * 0.075
       + vec3(1.0, 0.42, 0.20) * secondaryVolume * reflection * 0.13
       + tissueFibre * armFilament * 0.05);
