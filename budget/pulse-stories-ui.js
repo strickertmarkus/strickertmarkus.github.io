@@ -317,7 +317,11 @@
     var onLeave = null;
     /* How the explorer's figure is presented inside the scene: framed on the
        body alone so every exercise shows the person at the same size. */
-    var preview = { figureOnly: true, pilotDistance: 1.25, tempo: tempo, activation: activation };
+    var preview = { figureOnly: true, pilotDistance: 1.25, tempo: tempo, activation: activation, view: view };
+    // Fly movements read best straight on: both arms sweep symmetrically
+    // (the reverse fly from behind, where its muscles are).
+    var SQUARE = { pecDeck: { yaw: -10, pitch: 16 }, cableFly: { yaw: -10, pitch: 16 }, reverseDeck: { yaw: 170, pitch: 18 } };
+    function view(kind, base, index) { return index === 0 && SQUARE[kind] ? SQUARE[kind] : base; }
     /* Training tempo for strength moves over the explorer's 4.4 s cycle:
        ~1 s lift, a short squeeze, ~2 s controlled lowering, a breath at the
        bottom. Cardio and slow core moves keep their even rhythm. Each lift
