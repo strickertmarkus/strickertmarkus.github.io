@@ -16,7 +16,7 @@ You verify one change to the gym preview. You do not edit files.
    - `02`–`05`: the hand-off from the body into the scene is continuous; no frame shows the ordinary explorer page behind it.
    - `06-scene`: the muscle artwork spans the full width at the top, its title does not cover the muscle, the figure sits right below it without a large empty band, and the action row is readable.
    - `07-swipe-*`: a different exercise each time, with the figure at a similar size to `06`.
-   - `08`/`09`: the programme sheet lists the muscle's programmes; a playing programme shows its name.
+   - `08`/`08b`/`09`: the programme sheet lists the muscle's programmes; tapping one shows its route on the gym floor (numbered stops) above a start-and-end timeline with a Starta button; a playing programme shows its name.
    - `10`: back on the body.
    Also look for clipping, overlap, text over important artwork and stray elements.
 6. Report in at most 15 lines: PASS or FAIL per item above with the screenshot path, every page error, and the script's check results. Quote what you see; do not guess about states you did not capture.

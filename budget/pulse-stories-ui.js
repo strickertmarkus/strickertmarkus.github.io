@@ -121,7 +121,7 @@
       playGroup(b.dataset.group);
     });
     function playGroup(group) { state.group = group; state.program = null; state.list = listFor(group); go(0); renderTabs(); }
-    function playProgram(program) { state.program = program; state.list = program.ids.slice(); go(0); renderTabs(); }
+    function playProgram(program, at) { state.program = program; state.list = program.ids.slice(); go(at || 0); renderTabs(); }
 
     function renderBars() {
       var n = state.list.length;
@@ -306,6 +306,7 @@
       } else if (kind === 'pass') {
         sheet.setAttribute('aria-label', 'Mitt pass'); renderPassSheet();
       } else {
+        viewing = null; sheet.classList.remove('is-program');
         sheet.setAttribute('aria-label', 'Program');
         var programs = GYM ? explore.programs.filter(function (p) { return p.ids.some(function (id) { return all[id].muscles.indexOf(state.group) >= 0; }); }) : explore.programs;
         sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Spela ett program</span><h3>' + (GYM ? 'Program för ' + state.group.toLowerCase() : 'Program') + '</h3><div class="st-programs">' + programs.map(function (p) {
@@ -319,7 +320,29 @@
       sheet.tabIndex = -1; sheet.focus({ preventScroll: true });
       sync();
     }
+    /* Gym mode: a programme before it plays: the route it takes through the
+       gym, then every exercise as a start-and-end timeline. Tap a step to start
+       there, or start from the top. */
+    var viewing = null;
+    function showProgram(p) {
+      viewing = p;
+      sheet.setAttribute('aria-label', p.name);
+      sheet.classList.add('is-program');
+      sheet.innerHTML = '<div class="st-grip"></div><button type="button" class="st-sheet-back" data-programs>' + ICON.back + '<span>Program</span></button>' +
+        '<span class="st-eyebrow">' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</span><h3>' + p.name + '</h3>' +
+        '<div class="st-route" aria-hidden="true"></div>' +
+        '<ol class="st-timeline">' + p.ids.map(function (id, i) {
+          var d = splitDose(explore.prescription(id, p).label), a = pose(id, false), b = pose(id, true);
+          return '<li><button type="button" data-start-at="' + i + '" aria-label="Starta vid ' + all[id].name + '"><span class="st-tl-num">' + String(i + 1).padStart(2, '0') + '</span>' +
+            '<span class="st-tl-art">' + (a ? '<img src="' + a + '" alt="" loading="lazy"><img src="' + b + '" alt="" loading="lazy">' : '<span class="st-tl-none"></span>') + '</span>' +
+            '<span class="st-tl-copy"><b>' + all[id].name + '</b><small>' + d.big + ' ' + d.unit + ' · ' + all[id].muscles[0] + '</small></span></button></li>';
+        }).join('') + '</ol>' +
+        '<button type="button" class="st-cta st-start" data-start-at="0">' + ICON.play + '<span>Starta programmet</span></button>';
+      sheet.scrollTop = 0;
+      requestAnimationFrame(function () { if (window.PulseGymFloor) window.PulseGymFloor.route(sheet.querySelector('.st-route'), p.ids); });
+    }
     function closeSheet() {
+      viewing = null; sheet.classList.remove('is-program');
       sheetOpen = false; sheetKind = ''; root.classList.remove('sheet-open');
       setTimeout(function () { if (!sheetOpen) { scrim.hidden = true; sheet.hidden = true; } }, 280);
       sync();
@@ -331,7 +354,15 @@
       var remove = t.closest('[data-remove]'); if (remove) { ui.toggle(Number(remove.dataset.remove)); return; }
       if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
       var program = t.closest('[data-program]');
-      if (program) { var p = explore.programs.find(function (x) { return x.id === program.dataset.program; }); closeSheet(); playProgram(p); }
+      if (t.closest('[data-programs]')) { openSheet('programs'); return; }
+      var startAt = t.closest('[data-start-at]');
+      if (startAt && viewing) { var chosen = viewing; closeSheet(); playProgram(chosen, Number(startAt.dataset.startAt)); return; }
+      if (program) {
+        var p = explore.programs.find(function (x) { return x.id === program.dataset.program; });
+        // Gym mode: look at the programme first: its route through the gym and its timeline.
+        if (GYM) { showProgram(p); return; }
+        closeSheet(); playProgram(p);
+      }
     });
     var sheetY = null;
     sheet.addEventListener('pointerdown', function (event) { if (event.target.closest('.st-grip')) sheetY = event.clientY; });
