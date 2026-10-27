@@ -385,7 +385,14 @@ function init(){
  }).observe(list,{childList:true});
  var h=byId('day-workout-title');
  if(h)new MutationObserver(function(){paintTop(modal);}).observe(h,{childList:true,characterData:true,subtree:true});
- ['day-workout-type','day-workout-template-select','day-workout-name'].forEach(function(id){var el=byId(id);if(el){el.addEventListener('change',function(){paintTop(modal);});el.addEventListener('input',function(){paintTop(modal);});}});
+ // Suggestions follow the pass name and type, also while a picker is open.
+ var refreshPickers=function(){list.querySelectorAll('.pbu-row.pbu-picking').forEach(function(r){renderOptions(r,(r.querySelector('[data-pbu-search]')||{}).value||'');});};
+ ['day-workout-type','day-workout-template-select','day-workout-name'].forEach(function(id){var el=byId(id);if(el){
+  // Not on change: that fires on blur, i.e. mid-tap on a suggestion, and a
+  // re-render would remove the tapped button before its click lands.
+  el.addEventListener('change',function(){paintTop(modal);});
+  el.addEventListener('input',function(){paintTop(modal);refreshPickers();});
+ }});
  /* Opening another day or template rebuilds the rows; start collapsed. */
  // Only write the class when it actually changes: classList.remove() on an
  // absent token still rewrites the attribute and would re-trigger this observer.
