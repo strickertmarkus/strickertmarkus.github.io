@@ -412,7 +412,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(focus&&svg){
       var box=svg.getBoundingClientRect();
       focus.style.setProperty('--tip-color',color);
-      focus.style.left=x+'px';focus.style.top=y+'px';
+      focus.style.left=(x+window.scrollX)+'px';focus.style.top=(y+window.scrollY)+'px';
       focus.style.setProperty('--guide',Math.max(0,box.bottom-28-y)+'px');
       focus.classList.toggle('is-point',isPoint);
       focus.hidden=false;
@@ -423,7 +423,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     x=clamp(x,half+8,window.innerWidth-half-8);
     tip.style.setProperty('--arrow-x',clamp(anchorX-(x-tip.offsetWidth/2),16,tip.offsetWidth-16)+'px');
     y=clamp(y-18,52,window.innerHeight-24);
-    tip.style.left=x+'px';tip.style.top=y+'px';
+    // Placed in page coordinates so the bubble scrolls with its chart.
+    tip.style.left=(x+window.scrollX)+'px';tip.style.top=(y+window.scrollY)+'px';
     clearTimeout(showChartTooltip.timer);
     if(pinned)showChartTooltip.timer=setTimeout(hideChartTooltip,2600);
   }
