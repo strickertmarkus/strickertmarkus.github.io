@@ -199,3 +199,20 @@ html[data-field-embedded] body#pulse-page .exercise-name-picker-new-v1::before{c
   -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center/contain no-repeat;
   mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") center/contain no-repeat}
 @media(prefers-reduced-motion:reduce){html[data-field-embedded] body#pulse-page #exercise-name-picker-v1{transform:none;transition:none!important}}
+
+/* ---------- Training mode: no dead space ---------- */
+/* Rest between sets: the ring, the skip button and the overview sit together
+   from the top, so the overview gets the room instead of empty gaps. */
+html body #session-between-overlay-v2 .bs-overlay-wrap{align-self:start!important;justify-content:flex-start!important;margin-top:max(56px,env(safe-area-inset-top,0px))!important}
+html body #session-between-overlay-v2 .bs-ring{margin-bottom:-44px!important}
+html body #session-between-overlay-v2 #pulse-flow-rest-band-v58,html body #session-between-overlay-v2 .bs-skip{display:none!important}
+html body #session-between-overlay-v2 .bs-start-next-v20{margin-top:0!important}
+html body #session-between-overlay-v2 .bs-rest-overview{margin-top:22px!important}
+/* Pass done: the set details, the empty button row and the empty set log
+   have nothing to show, so the summary moves straight up under the progress. */
+html body #session-modal.pulse-flow-complete-v58 :is(#session-stable-details,#session-controls,.session-log-section){display:none!important}
+/* The live detail row is set by stronger rules in the session scripts. */
+html body #session-modal#session-modal.pulse-flow-v58.pulse-flow-complete-v58.show #session-stable-details#session-stable-details{display:none!important}
+html body #session-modal.pulse-flow-complete-v58 .session-main{min-height:0!important}
+html body #session-modal.pulse-flow-complete-v58 #session-complete-box{margin-top:18px!important}
+html body #session-modal.pulse-flow-complete-v58 #session-complete-box .session-cta-row .session-cta{flex:1;min-height:48px!important;border-radius:999px!important}

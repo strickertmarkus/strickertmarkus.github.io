@@ -244,9 +244,12 @@ main{position:relative;z-index:2;display:block}
 /* Tapping a chart: a soft speech bubble with a tip down to the point, the value
    large in serif, date and pass as a small coral line above it, and an edge in
    the colour of the line that was tapped. */
-.field-chart-tooltip{--tip-color:#ff9a91;position:absolute;z-index:120;width:max-content;max-width:min(240px,calc(100vw - 28px));padding:8px 16px 10px;border:0;border-radius:0;text-align:center;
-  background:radial-gradient(closest-side,#07090fe6 30%,#07090f99 65%,transparent);
-  opacity:0;transform:translate(-50%,-100%) translateY(-6px);transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.field-chart-tooltip{--tip-color:#ff9a91;position:absolute;z-index:120;width:max-content;max-width:min(240px,calc(100vw - 28px));padding:8px 16px 10px;border:0;border-radius:0;text-align:center;background:none;
+  opacity:0;transform:translate(-50%,-100%) translateY(-6px);transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.2,1);pointer-events:none;isolation:isolate}
+/* A frosted patch with no edges: blurs and darkens what is behind the text,
+   fading out all round so it never reads as a card. */
+.field-chart-tooltip::before{content:"";position:absolute;z-index:-1;inset:-20px -34px;background:radial-gradient(closest-side,#07090ff0 40%,#07090fa6 72%,transparent);
+  -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent)}
 .field-chart-tooltip::after{content:none}
 .field-chart-tooltip.is-visible{opacity:1;transform:translate(-50%,-100%) translateY(-12px)}
 .field-chart-tooltip strong,.field-chart-tooltip span,.field-chart-tooltip small{display:block}
@@ -628,8 +631,10 @@ main{position:relative;z-index:2;display:block}
 .week-selected-session-v3[data-kind="rest"]::before{background:linear-gradient(#ffffff00,#ffffff40);box-shadow:none}
 .today-open{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer}
 .today-thumb .pk-thumb{width:48px;height:48px}
-.pk-thumb.is-rest{display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#1c2330,#0d1118);color:#a6afb9;box-shadow:0 0 0 1px #ffffff14}
-.pk-thumb.is-rest .pk-thumb-icon{filter:none}
+.pk-thumb.is-rest{display:grid;place-items:center;overflow:visible;background:none;color:#dfe6ee;box-shadow:none}
+.pk-thumb.is-rest .pk-thumb-icon{width:62%;height:62%;fill:currentColor;fill-opacity:.18;stroke-width:1.6;filter:drop-shadow(0 0 4px #e8f1ffcc) drop-shadow(0 0 12px #9fb7d899);animation:restMoonGlow 4.5s ease-in-out infinite}
+@keyframes restMoonGlow{0%,100%{opacity:.85}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.pk-thumb.is-rest .pk-thumb-icon{animation:none}}
 .today-copy{display:grid;gap:2px;min-width:0}
 .today-copy span{color:var(--field-coral);font-size:9px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
 .today-copy strong{overflow:hidden;color:#f6efeb;font:400 25px/1.1 var(--field-serif);white-space:nowrap;text-overflow:ellipsis}
