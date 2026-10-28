@@ -1,8 +1,8 @@
 /* The way into the exercise explorer: a glowing star in the hero's lower
    right corner, across the road from the Starta pass orb. */
-.field-hero{margin-bottom:40px}
-.field-explore-entry{position:absolute;z-index:7;right:-4px;bottom:-34px;display:flex;flex-direction:row-reverse;align-items:center;gap:6px;max-width:calc(100% - 40px);color:var(--field-text);text-align:right;text-decoration:none;-webkit-tap-highlight-color:transparent}
-.field-explore-copy{display:grid;justify-items:end;gap:5px;min-width:0}
+.field-hero{margin-bottom:28px}
+.field-explore-entry{position:absolute;z-index:7;right:-4px;bottom:-22px;display:flex;flex-direction:row-reverse;align-items:center;gap:12px;max-width:calc(100% - 40px);color:var(--field-text);text-align:right;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.field-explore-copy{display:grid;justify-items:end;gap:5px;flex:none}
 .field-explore-copy strong{color:var(--field-text);font:400 22px/1.02 var(--field-serif);white-space:nowrap;letter-spacing:-.2px;text-shadow:0 0 10px #0a0d15,0 0 24px #ff657a33}
 .field-explore-copy .eyebrow{margin:0;font-size:8px;line-height:1.5;letter-spacing:1.5px;white-space:nowrap}
 .field-explore-entry:hover .field-explore-copy strong,.field-explore-entry:focus-visible .field-explore-copy strong{color:var(--field-peach)}
