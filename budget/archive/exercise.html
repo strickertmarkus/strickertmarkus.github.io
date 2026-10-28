@@ -557,7 +557,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261028-del-1">
-<link rel="stylesheet" href="pulse-tools-ui.css?v=20261028-space-2">
+<link rel="stylesheet" href="pulse-tools-ui.css?v=20261028-guide-1">
 <script defer src="pulse-explore.js?v=20261023-full-library-v2"></script>
 <script defer src="pulse-builder-ui.js?v=20261028-del-2"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -1902,7 +1902,8 @@ function ensureExerciseNamePicker(){
     if(event.target.closest('.exercise-name-picker-close-v1')){closeExerciseNamePicker();return;}
     var edit=event.target.closest('.exercise-name-picker-edit-v1');
     if(edit){var on=!picker.classList.contains('is-editing');picker.classList.toggle('is-editing',on);edit.setAttribute('aria-pressed',String(on));edit.textContent=on?'Klar':'Redigera lista';return;}
-    var newKind=event.target.closest('[data-new-kind]');
+    // Only the Styrka/Kondition buttons: the sheet itself carries data-new-kind too.
+    var newKind=event.target.closest('button[data-new-kind]');
     if(newKind){picker.dataset.newKind=newKind.dataset.newKind;syncExerciseNamePickerKind(picker);return;}
     var remove=event.target.closest('.exercise-name-picker-remove-v1');
     var input=exerciseNamePickerState.input;
@@ -1959,13 +1960,13 @@ function positionExerciseNamePicker(){
 var EXERCISE_MUSCLE_WORDS_V2={
   'bröst':/bröst|bänk|press|fly|flyes|pec|armhäv|dips|push/,
   'axlar':/axl|axel|militär|sidolyft|lateral|face ?pull|shoulder|arnold|upright/,
-  'rygg':/rygg|rodd|lats|latsdrag|pull|marklyft|chins|row|deadlift/,
+  'rygg':/rygg|rodd|lats|latsdrag|pull|mark|chins|row|deadlift/,
   'biceps':/biceps|curl|hammer/,
   'triceps':/triceps|dips|pushdown|french|extension|skull|kickback/,
   'ben':/ben|knäböj|squat|utfall|lunge|benpress|lår|leg|vad|calf|step/,
-  'lår':/lår|knäböj|squat|utfall|benpress|leg|marklyft/,
+  'lår':/lår|knäböj|squat|utfall|benpress|leg|mark/,
   'mage':/mage|plank|crunch|sit|core|ab|rull|dead ?bug|hollow/,
-  'säte':/säte|höft|hip|glute|bridge|thrust/,
+  'säte':/säte|höft|hip|glute|bridge|thrust|mark|sumo/,
   'vader':/vad|calf/,
   'kondition':/löp|jogg|cykel|rodd|hopprep|cross|gång|trapp|simn|spin|run|bike/
 };
@@ -2054,8 +2055,65 @@ function renderExerciseNamePickerOptions(input){
     row.appendChild(removeButton);
     options.appendChild(row);
   });
+  renderExerciseNamePickerGuideV2(options,input,q,shown);
   var newLabel=picker.querySelector('.exercise-name-picker-new-v1 span');
   if(newLabel)newLabel.textContent=q?'Lägg till "'+q+'"':'Ny övning';
+}
+/* The exercise guide's names, so a logged exercise can take the guide's name.
+   Only the name changes: sets, reps, weight and time stay as logged. */
+var EXERCISE_GUIDE_MUSCLES_V2={'bröst':['Bröst'],'axlar':['Axlar'],'rygg':['Rygg'],'biceps':['Biceps'],'triceps':['Triceps'],'ben':['Framsida lår','Baksida lår','Säte','Vader'],'lår':['Framsida lår','Baksida lår'],'mage':['Mage'],'säte':['Säte'],'vader':['Vader']};
+var EXERCISE_GUIDE_ART_V2={'Bröst':'chest','Axlar':'shoulders','Rygg':'back','Biceps':'biceps','Triceps':'triceps','Mage':'abs','Framsida lår':'quads','Säte':'glutes','Baksida lår':'hamstrings','Vader':'calves'};
+function exerciseGuideMusclesFor(name){
+  var n=String(name||'').toLocaleLowerCase('sv-SE'),explore=window.PulseExplore&&window.PulseExplore.exercises||[];
+  var known=explore.find(function(e){return String(e.name).toLocaleLowerCase('sv-SE')===n;});
+  if(known)return known.muscles.slice();
+  var out=[];
+  Object.keys(EXERCISE_GUIDE_MUSCLES_V2).forEach(function(word){if(EXERCISE_MUSCLE_WORDS_V2[word].test(n))EXERCISE_GUIDE_MUSCLES_V2[word].forEach(function(m){if(out.indexOf(m)<0)out.push(m);});});
+  return out;
+}
+function renderExerciseNamePickerGuideV2(options,input,q,ownShown){
+  var explore=window.PulseExplore&&window.PulseExplore.exercises;
+  if(!explore||!explore.length)return;
+  var own={};(ownShown||[]).forEach(function(e){own[exerciseNameKey(e.name)]=1;});
+  var current=exerciseNameKey(input.value),list,title,hint;
+  if(q){
+    list=explore.filter(function(e){
+      var lower=q.toLocaleLowerCase('sv-SE');
+      // Guide exercises know their muscles, so no word guessing here.
+      return e.name.toLocaleLowerCase('sv-SE').indexOf(lower)>=0||e.muscles.some(function(m){return m.toLocaleLowerCase('sv-SE').indexOf(lower)===0;})||String(e.equipment||'').toLocaleLowerCase('sv-SE').indexOf(lower)===0;
+    });
+    title='Övningsguiden';
+  }else{
+    var muscles=exerciseGuideMusclesFor(input.value);
+    if(!muscles.length)return;
+    list=explore.map(function(e){return {e:e,hits:e.muscles.filter(function(m){return muscles.indexOf(m)>=0;}).length,lead:muscles.indexOf(e.muscles[0])>=0};})
+      .filter(function(x){return x.hits&&x.lead;}).sort(function(a,b){return b.hits-a.hits;}).slice(0,10).map(function(x){return x.e;});
+    title='Liknande i övningsguiden';
+  }
+  list=list.filter(function(e){return !own[exerciseNameKey(e.name)];}).sort(function(a,b){return a.name.localeCompare(b.name,'sv-SE',{sensitivity:'base'});});
+  if(!list.length)return;
+  var empty=options.querySelector('.exercise-name-picker-empty-v1');if(empty&&q)empty.remove();
+  var head=document.createElement('div');head.className='exercise-name-picker-group-v1';
+  head.textContent=title;
+  var sub=document.createElement('small');sub.textContent='Byter bara namnet. Set, reps, vikt och tid behålls.';head.appendChild(sub);
+  options.appendChild(head);
+  list.forEach(function(e){
+    var row=document.createElement('div');row.className='exercise-name-picker-row-v1 is-guide';
+    var button=document.createElement('button');button.type='button';
+    button.className='exercise-name-picker-option-v1'+(exerciseNameKey(e.name)===current?' is-current':'');
+    button.setAttribute('role','option');
+    button.dataset.exerciseName=e.name;button.dataset.exerciseKind=e.group==='Kondition'?'cardio':'strength';
+    var badge=document.createElement('span');badge.className='exercise-name-picker-badge-v1 is-art'+(e.group==='Kondition'?' is-cardio':'');badge.setAttribute('aria-hidden','true');
+    var art=EXERCISE_GUIDE_ART_V2[e.muscles[0]];
+    if(art){var img=document.createElement('img');img.alt='';img.loading='lazy';img.decoding='async';img.src='assets/atlas-art-v1/'+art+'.webp';badge.appendChild(img);}
+    else badge.textContent=(e.name[0]||'?').toLocaleUpperCase('sv-SE');
+    var label=document.createElement('span');label.className='exercise-name-picker-label-v1';
+    label.textContent=e.name;
+    var small=document.createElement('span');small.className='exercise-name-picker-sub-v1';small.textContent=e.muscles.slice(0,3).join(' · ');
+    label.appendChild(small);
+    button.appendChild(badge);button.appendChild(label);
+    row.appendChild(button);options.appendChild(row);
+  });
 }
 function closeExerciseNamePicker(){
   var input=exerciseNamePickerState.input,picker=exerciseNamePickerState.picker;
