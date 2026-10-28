@@ -170,19 +170,31 @@ async function initialize(){
   if(meta.texture){
    const map=await new THREE.TextureLoader().loadAsync(new URL(meta.texture,base).href);
    map.flipY=false;map.colorSpace=THREE.NoColorSpace;map.anisotropy=4;
-   Object.assign(mat,{map,opacity:1,transparent:false,depthWrite:true,roughness:.42,metalness:.38});mat.color.set(0xffffff);
-   Object.assign(materials.skin,{roughness:.42,metalness:.38});materials.skin.color.set(0x9aa3ad);
+   Object.assign(mat,{map,opacity:1,transparent:false,depthWrite:true,roughness:.30,metalness:.78});mat.color.set(0xffffff);
+   Object.assign(materials.skin,{roughness:.30,metalness:.78});materials.skin.color.set(0x8a929c);
    const compile=mat.onBeforeCompile;
-   // Textured figure: cool silver-grey skin that keeps the model's own shading,
-   // a red tissue flow on the primary muscle and a quieter tint on secondary ones.
+   // Textured figure, styled like the explorer's body map: dark chrome skin that
+   // keeps the model's shading, dark shorts, and red tissue only on the painted
+   // muscle shapes of the worked muscles (primary strong, secondary quieter).
    const textured=[
-    ['clothingMask=max(clothingMask,shortsExtension);',''],
     ['vec3 pearl = mix(vec3(0.86, 0.90, 0.95), mix(diffuseColor.rgb,vec3(0.055,0.085,0.13),shortsExtension), clothingMask);',
-     'float modelShade = clamp(dot(diffuseColor.rgb, vec3(0.299,0.587,0.114)) * 1.9, 0.0, 1.25);\n    vec3 pearl = vec3(0.50,0.54,0.59) * (0.42 + 0.62 * modelShade);'],
-    ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.42;'],
-    ['muscleMask=region*mix(0.85,0.99,primary);','muscleMask=region*mix(0.45,1.0,primary);'],
-    ['diffuseColor.rgb=mix(pearl,red,muscleMask);','diffuseColor.rgb=mix(pearl,red*(0.80+0.50*modelShade),muscleMask);'],
-    ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','diffuseColor.rgb = mix(pearl, muscleColor*(0.62+0.55*modelShade), muscleMask);']
+     `vec3 modelTex = diffuseColor.rgb;
+    float modelShade = clamp(dot(modelTex, vec3(0.299,0.587,0.114)) * 1.9, 0.0, 1.3);
+    float muscleTex = smoothstep(0.015, 0.08, modelTex.r - modelTex.b) * (1.0 - clothingMask);
+    float muscleShape = max(muscleTex, 0.35) * (1.0 - clothingMask);
+    vec3 chrome = vec3(0.34,0.37,0.41) * (0.28 + 0.95 * modelShade);
+    chrome = mix(chrome, chrome * vec3(1.04,0.98,0.96), muscleTex * 0.35);
+    vec3 pearl = mix(chrome, vec3(0.040,0.052,0.075), clothingMask);`],
+    ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, muscleColor * (0.50 + 0.85 * modelShade), muscleMask);'],
+    ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.45;'],
+    ['muscleMask=region*mix(0.85,0.99,primary);','muscleMask=region*muscleShape*mix(0.45,1.0,primary);'],
+    ['diffuseColor.rgb=mix(pearl,red,muscleMask);',`vec3 flesh = mix(vec3(0.17,0.004,0.006), vec3(0.88,0.07,0.04), clamp(modelShade * 1.2 + silk * 0.25, 0.0, 1.0));
+     diffuseColor.rgb=mix(pearl,flesh,muscleMask);`],
+    ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.85,0.10,0.05)*volume*reflection'],
+    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.95,0.10,0.05) * muscleMask * (0.10 + 0.20 * modelShade) * uActivation;'],
+    ['generalGlow=region*(','generalGlow=region*muscleShape*mix(0.45,1.0,primary)*('],
+    ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.48, max(muscleMask, clothingMask));'],
+    ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.04, max(muscleMask, clothingMask));']
    ];
    mat.onBeforeCompile=(shader,renderer)=>{compile(shader,renderer);for(const [a,b] of textured){if(!shader.fragmentShader.includes(a))console.warn('pulse figure: shader text not found',a.slice(0,40));shader.fragmentShader=shader.fragmentShader.replace(a,b);}};
    mat.customProgramCacheKey=()=>'pulse-tissue-textured';
