@@ -1,12 +1,14 @@
-/* The way into the exercise explorer: one glowing star. */
+/* The way into the exercise explorer: one glowing star with its title right
+   beside it, set like the page's section headings. */
 .field-explore-section{position:relative;z-index:3;margin:12px 0 18px}
-.field-explore-entry{display:flex;align-items:center;gap:14px;min-height:96px;padding:0 4px 0 2px;color:var(--pk-text);text-decoration:none;-webkit-tap-highlight-color:transparent}
-.field-explore-copy{display:grid;gap:3px;flex:1;min-width:0;padding-left:20px}
-.field-explore-copy strong{color:var(--pk-text);font:600 18px/1.3 var(--pk-ui);letter-spacing:-.02em}
-.field-explore-copy small{color:var(--pk-muted);font:400 12px/1.5 var(--pk-ui)}
-.field-explore-star{position:relative;display:grid;place-items:center;flex:0 0 76px;height:76px;margin-right:12px;border-radius:50%;
+.field-explore-entry{display:flex;align-items:center;gap:6px;min-height:96px;padding:0 2px;color:var(--field-text);text-decoration:none;-webkit-tap-highlight-color:transparent}
+.field-explore-copy{display:grid;gap:4px;min-width:0}
+.field-explore-copy strong{color:var(--field-text);font:400 30px/1.05 var(--field-serif);letter-spacing:-.5px;text-shadow:0 0 24px #ff657a22}
+.field-explore-entry:hover .field-explore-copy strong,.field-explore-entry:focus-visible .field-explore-copy strong{color:var(--field-peach)}
+.field-explore-star{position:relative;display:grid;place-items:center;flex:0 0 76px;height:76px;border-radius:50%;
   background:radial-gradient(circle,#ff657a24 0,#ff657a0a 45%,transparent 70%)}
 .field-explore-star::before{content:"";position:absolute;inset:8px;border-radius:50%;box-shadow:inset 0 0 0 1px #ff9a9133,0 0 30px #ff657a22}
 .field-explore-star svg{width:44px;height:44px;filter:drop-shadow(0 0 6px #ffb3a5cc) drop-shadow(0 0 16px #ff657a88);animation:exploreStarGlow 4.2s ease-in-out infinite}
 @keyframes exploreStarGlow{0%,100%{transform:scale(.94) rotate(0deg);opacity:.86}50%{transform:scale(1.06) rotate(8deg);opacity:1}}
+.field-explore-entry:active .field-explore-star{transform:scale(.95)}
 @media(prefers-reduced-motion:reduce){.field-explore-star svg{animation:none}}

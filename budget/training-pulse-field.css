@@ -207,10 +207,11 @@ main{position:relative;z-index:2;display:block}
 
 .activity-section{padding-top:34px;padding-bottom:30px}
 .activity-heading,.insight-section>.section-head{margin-bottom:10px}
-/* Every choice on the page is the same segmented control as Styrka/Kondition in the pass builder. */
-.segmented,.view-tabs{display:inline-flex;align-items:center;gap:0;padding:2px;border:0;border-radius:999px;background:none;box-shadow:inset 0 0 0 1px #ffffff14}
-.segmented button,.view-tabs button{min-height:32px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--pk-dim);cursor:pointer;font:600 12px var(--pk-ui)}
-.segmented button[aria-pressed=true],.view-tabs button[aria-selected=true]{background:#ff806f1f;color:var(--pk-pale)}
+/* View choices read like the home page's section tabs: plain text, the chosen one lit with a faint rounded glow. */
+.segmented,.view-tabs{display:inline-flex;align-items:center;gap:2px;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.segmented button,.view-tabs button{min-height:38px;padding:0 13px;border:0;border-radius:12px;background:none;color:var(--field-muted);cursor:pointer;font:500 13px var(--pk-ui);transition:background .18s,color .18s}
+.segmented button:hover,.view-tabs button:hover{color:var(--field-peach)}
+.segmented button[aria-pressed=true],.view-tabs button[aria-selected=true]{background:#ff9a9110;color:var(--field-coral)}
 .section-controls{display:flex;align-items:center;gap:14px;min-width:0;border-bottom:1px solid var(--field-line)}
 .section-controls .view-tabs{flex:0 1 auto;min-width:0}
 .section-controls>.segmented{flex:0 0 auto}
@@ -693,7 +694,8 @@ main{position:relative;z-index:2;display:block}
 .chart-period-toggle{flex:0 1 auto;min-width:0}
 .chart-period-toggle button{min-width:0;white-space:nowrap}
 /* The period choice keeps its own glowing look. */
-.segmented.chart-period-toggle{padding:3px;border:1px solid var(--field-line);background:#0c1218;box-shadow:none}
+.segmented.chart-period-toggle{padding:3px;border:1px solid var(--field-line);border-radius:999px;background:#0c1218;box-shadow:none}
+.chart-period-toggle button{border-radius:999px}
 .chart-period-toggle button{color:var(--field-muted)}
 .chart-period-toggle button[aria-pressed=true]{background:#ff657a10;color:var(--field-peach);box-shadow:inset 0 0 0 1px #ff9a9160,0 0 12px #ff657a35,0 0 25px #ff657a18;text-shadow:0 0 10px #ff9a9160}
 .metric-data-point{stroke:#09131a;stroke-width:1.45}

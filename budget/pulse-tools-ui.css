@@ -148,3 +148,10 @@ html[data-field-embedded] body#pulse-page #pulse-goals :is(.run-goal-stat-v34,.v
 html[data-field-embedded] body#pulse-page #pulse-goals .goal-card-run-v34 .progress-marker{background:var(--pt-cyan)!important;box-shadow:0 0 10px #7fe3ef!important}
 html[data-field-embedded] body#pulse-page #pulse-goals .goal-card-run-v34 .progress-wrap{background:#7fe3ef1f!important}
 html[data-field-embedded] body#pulse-page #pulse-goals .goal-card-vo2-v37 .progress-wrap{background:#7fe3ef1f!important}
+
+/* Full screen without the tool bar: the content starts at the safe area and
+   keeps the top-right corner free for the floating close button. */
+html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal{padding-top:max(18px,env(safe-area-inset-top,0px))!important}
+html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal>h2{padding-right:56px!important}
+html[data-field-embedded] body#pulse-page #plan-modal .modal{padding-top:calc(max(18px,env(safe-area-inset-top,0px)) + 52px)!important}
+html[data-field-embedded] body#pulse-page #pulse-goals{padding-top:calc(max(18px,env(safe-area-inset-top,0px)) + 52px)!important}
