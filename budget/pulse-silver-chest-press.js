@@ -134,7 +134,9 @@ async function initialize(){
   key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-2,right:2,top:2,bottom:-2,near:.1,far:10});key.shadow.bias=-.0007;key.shadow.normalBias=.02;scene.add(key);
   const rim=new THREE.DirectionalLight(0xb3d8ff,1.6);rim.position.set(2,2,-2);scene.add(rim);
   const floor=mesh(new THREE.PlaneGeometry(8,8),new THREE.ShadowMaterial({opacity:.20}));floor.rotation.x=-Math.PI/2;floor.position.y=-.012;floor.castShadow=false;
-  const base=new URL('./assets/silver-mannequin-v1/',import.meta.url);
+  // Preview of the new body: add ?figur=ny to the page address.
+  const figure=new URLSearchParams(location.search).get('figur')==='ny'?'silver-mannequin-v2':'silver-mannequin-v1';
+  const base=new URL('./assets/'+figure+'/',import.meta.url);
   const [metaResponse,binaryResponse]=await Promise.all([fetch(new URL('body.json',base)),fetch(new URL('body.bin',base))]);
   if(!metaResponse.ok||!binaryResponse.ok)throw new Error('Mannequin asset unavailable');
   const meta=await metaResponse.json(),buffer=await binaryResponse.arrayBuffer(),geo=new THREE.BufferGeometry();rest=meta.rest;
