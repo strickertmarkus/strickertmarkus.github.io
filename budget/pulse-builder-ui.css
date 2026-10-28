@@ -36,8 +36,9 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .modal>.mod
   display:grid!important;place-items:center;position:fixed!important;z-index:5;
   top:max(14px,env(safe-area-inset-top,0px));right:16px;left:auto;
   width:40px!important;height:40px!important;padding:0!important;border-radius:50%!important;
-  border:0!important;background:#ffffff12!important;color:#f6ece9!important;
-  font:400 18px/1 Inter,system-ui,sans-serif!important;
+  border:0!important;color:transparent!important;
+  font-size:0!important;line-height:0!important;
+  background:#ffffff12 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f6ece9' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center/18px no-repeat!important;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
 
@@ -331,3 +332,25 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-in
 .pbu-chev-left{width:8px;height:8px;border-left:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg)}
 .pbu-guide-pick{min-height:40px;padding:0 18px;border:0;border-radius:999px;background:linear-gradient(135deg,#ff8a74,#e5484d);color:#1d0806;font:700 14px Inter,system-ui,sans-serif;cursor:pointer}
 .pbu-guide-frame{flex:1;width:100%;border:0;background:#080b12}
+
+/* Quick remove: a quiet cross beside the clock on chosen exercises. */
+.pbu-v1 .pbu-row>.pbu-quick-del{position:absolute;top:16px;right:74px;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:var(--pbu-dim);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pbu-v1 .pbu-row>.pbu-quick-del:active{background:#ff806f14;color:#ff8a78}
+.pbu-v1 .pbu-row.pbu-empty>.pbu-quick-del{display:none}
+.pbu-v1 .pbu-row:not(.pbu-empty) .pbu-head{padding-right:118px}
+.pbu-v1 .pbu-cross{position:relative;display:block;width:14px;height:14px}
+.pbu-v1 .pbu-cross::before,.pbu-v1 .pbu-cross::after{content:"";position:absolute;left:50%;top:50%;width:16px;height:1.6px;border-radius:2px;background:currentColor;transform:translate(-50%,-50%) rotate(45deg)}
+.pbu-v1 .pbu-cross::after{transform:translate(-50%,-50%) rotate(-45deg)}
+/* The confirm sheet. */
+.pbu-v1 .pbu-confirm{position:fixed;inset:0;z-index:40;display:grid;align-items:end;padding:16px 16px max(16px,env(safe-area-inset-bottom,0px));background:#04060acc;opacity:0;transition:opacity .18s ease}
+.pbu-v1 .pbu-confirm.show{opacity:1}
+.pbu-v1 .pbu-confirm-card{padding:22px 20px 18px;border-radius:26px;background:radial-gradient(120% 90% at 50% 0%,#2a151a,#0e1219 70%);box-shadow:0 0 0 1px #ff806f22,0 24px 60px -20px #000;transform:translateY(18px);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.pbu-v1 .pbu-confirm.show .pbu-confirm-card{transform:none}
+.pbu-v1 .pbu-confirm-title{margin:0;color:#f6ece9;font:600 18px/1.3 Inter,system-ui,sans-serif}
+.pbu-v1 .pbu-confirm-title b{color:#ffb4a6;font-weight:700}
+.pbu-v1 .pbu-confirm-text{margin:8px 0 18px;color:#a5a0ae;font:400 13px/1.5 Inter,system-ui,sans-serif}
+.pbu-v1 .pbu-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pbu-v1 .pbu-confirm-actions button{min-height:48px;border:0;border-radius:999px;font:700 15px Inter,system-ui,sans-serif;cursor:pointer}
+.pbu-v1 .pbu-confirm-cancel{background:#ffffff10;color:#f2eded}
+.pbu-v1 .pbu-confirm-ok{background:linear-gradient(135deg,#ff8a74,#e5484d);color:#1d0806;box-shadow:0 12px 30px -12px #ff5a4acc}
+@media(prefers-reduced-motion:reduce){.pbu-v1 .pbu-confirm,.pbu-v1 .pbu-confirm-card{transition:none}}

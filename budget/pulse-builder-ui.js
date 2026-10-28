@@ -121,9 +121,29 @@ function enhanceRow(row){
  clock.setAttribute('aria-label','Mellan set');clock.setAttribute('aria-pressed','false');
  clock.innerHTML='<i class="pbu-clock" aria-hidden="true"></i>';
  row.appendChild(clock);
+ // Quick remove beside a chosen exercise; asks first.
+ var quick=document.createElement('button');quick.type='button';quick.className='pbu-quick-del';quick.setAttribute('aria-label','Ta bort övningen');
+ quick.innerHTML='<i class="pbu-cross" aria-hidden="true"></i>';
+ row.appendChild(quick);
  row.appendChild(panel);row.appendChild(actions);
  new MutationObserver(function(){syncBetween(row);}).observe(row,{attributes:true,attributeFilter:['data-between-sets-v7']});
  paintRow(row);
+}
+/* "Vill du verkligen ta bort …?" in the builder's own look. */
+function confirmRemove(row){
+ var modal=byId('day-workout-modal');if(!modal)return;
+ var name=((nameInput(row)||{}).value||'').trim()||'övningen';
+ var old=modal.querySelector('.pbu-confirm');if(old)old.remove();
+ var box=document.createElement('div');box.className='pbu-confirm';box.setAttribute('role','alertdialog');box.setAttribute('aria-modal','true');
+ box.innerHTML='<div class="pbu-confirm-card"><p class="pbu-confirm-title">Vill du verkligen ta bort <b></b>?</p><p class="pbu-confirm-text">Övningen tas bort från passet. Dina tidigare loggade pass påverkas inte.</p><div class="pbu-confirm-actions"><button type="button" class="pbu-confirm-cancel">Avbryt</button><button type="button" class="pbu-confirm-ok">Ta bort</button></div></div>';
+ box.querySelector('b').textContent=name;
+ var done=function(){box.classList.remove('show');setTimeout(function(){box.remove();},180);};
+ box.addEventListener('click',function(e){
+  if(e.target.closest('.pbu-confirm-ok')){done();var del=row.querySelector('.ex-del');if(del)del.click();return;}
+  if(e.target.closest('.pbu-confirm-cancel')||e.target===box)done();
+ });
+ modal.appendChild(box);
+ requestAnimationFrame(function(){box.classList.add('show');var c=box.querySelector('.pbu-confirm-cancel');if(c)c.focus({preventScroll:true});});
 }
 function betweenConfig(row){
  try{var c=JSON.parse(row.dataset.betweenSetsV7||'{}');}catch(_){c={};}
@@ -218,6 +238,10 @@ function ownExercises(ctx,row){
  if(typeof window.getExerciseNameCatalog!=='function')return [];
  try{return window.getExerciseNameCatalog(ctx.type||'Övrigt',ctx.cardio?'cardio':rowKind(row))||[];}catch(_e){return [];}
 }
+function allOwnExercises(ctx,row){
+ if(typeof window.getAllExerciseNames!=='function')return ownExercises(ctx,row);
+ try{return window.getAllExerciseNames()||[];}catch(_e){return ownExercises(ctx,row);}
+}
 function usedNames(except){
  var used={};
  document.querySelectorAll('#day-workout-ex-list .pbu-row').forEach(function(r){if(r===except)return;var v=(nameInput(r)||{}).value;if(v)used[key(v)]=1;});
@@ -268,16 +292,24 @@ function renderOptions(row,query){
    .sort(function(a,b){return a.score-b.score||a.i-b.i;})
    .map(function(x){return x.e;});
   guide.forEach(function(e){gk[key(e.name)]=1;});
-  own=ownExercises(ctx,row).filter(function(e){return !gk[key(e.name)]&&ownMatches(e.name,sq);});
+  // A search reaches all of your own exercises, not only this pass type's.
+  own=allOwnExercises(ctx,row).filter(function(e){return !gk[key(e.name)]&&ownMatches(e.name,sq);});
  }else{
   guide=guideSuggestions(ctx);
   guide.forEach(function(e){gk[key(e.name)]=1;});
   own=ownExercises(ctx,row).filter(function(e){return !gk[key(e.name)];});
  }
- var html='';
+ var html='',ownHtml='',guideHtml='';
+ if(own.length){
+  var limit=q?own.length:Math.min(own.length,6);
+  ownHtml+='<div class="pbu-group">Dina övningar</div>';
+  ownHtml+=own.slice(0,limit).map(function(e){
+   return '<div class="pbu-opt is-own'+(key(e.name)===current?' is-current':'')+'"><button type="button" class="pbu-opt-main" data-pbu-pick="'+esc(e.name)+'" data-pbu-kind-pick="'+e.kind+'"><span class="pbu-opt-copy"><span class="pbu-opt-name">'+esc(e.name)+'</span></span></button></div>';
+  }).join('');
+ }
  if(guide.length){
-  html+='<div class="pbu-group">'+(q?'Övningsguiden'+(sq.muscles.length&&sq.muscles.length<=4?' · '+esc(sq.muscles.join(' + ')):''):'Förslag · '+esc(ctx.label))+'</div>';
-  html+=guide.slice(0,q?16:10).map(function(e){
+  guideHtml+='<div class="pbu-group">'+(q?'Övningsguiden'+(sq.muscles.length&&sq.muscles.length<=4?' · '+esc(sq.muscles.join(' + ')):''):'Förslag · '+esc(ctx.label))+'</div>';
+  guideHtml+=guide.slice(0,q?16:10).map(function(e){
    var img=MUSCLE_IMAGE[e.muscles[0]],isUsed=used[key(e.name)];
    return '<div class="pbu-opt'+(isUsed?' is-used':'')+(key(e.name)===current?' is-current':'')+'">'
     +'<button type="button" class="pbu-opt-main" data-pbu-pick="'+esc(e.name)+'" data-pbu-kind-pick="'+(e.group==='Kondition'?'cardio':'strength')+'" data-pbu-guide-id="'+e.id+'">'
@@ -286,13 +318,8 @@ function renderOptions(row,query){
     +'<button type="button" class="pbu-link" data-pbu-guide="'+e.id+'" aria-label="Visa '+esc(e.name)+' i övningsguiden">Visa</button></div>';
   }).join('');
  }
- if(own.length){
-  var limit=q?own.length:Math.min(own.length,6);
-  html+='<div class="pbu-group">Dina övningar</div>';
-  html+=own.slice(0,limit).map(function(e){
-   return '<div class="pbu-opt is-own'+(key(e.name)===current?' is-current':'')+'"><button type="button" class="pbu-opt-main" data-pbu-pick="'+esc(e.name)+'" data-pbu-kind-pick="'+e.kind+'"><span class="pbu-opt-copy"><span class="pbu-opt-name">'+esc(e.name)+'</span></span></button></div>';
-  }).join('');
- }
+ // While searching, your own exercises come first; otherwise the suggestions do.
+ html=q?ownHtml+guideHtml:guideHtml+ownHtml;
  var typed=String(query||'').trim();
  var exact=typed&&(guide.concat(own)).some(function(e){return key(e.name)===key(typed);});
  if(typed&&!exact)html+='<button type="button" class="pbu-new" data-pbu-pick="'+esc(typed.slice(0,70))+'" data-pbu-kind-pick="'+(ctx.cardio?'cardio':rowKind(row))+'">Lägg till <b>'+esc(typed.slice(0,70))+'</b> som ny övning</button>';
@@ -434,6 +461,7 @@ function init(){
    return;
   }
   if(t.closest('.pbu-between-btn')){row.classList.toggle('pbu-between-open');syncBetween(row);return;}
+  if(t.closest('.pbu-quick-del')){confirmRemove(row);return;}
   if(t.closest('[data-per-set-toggle-v7]')){setTimeout(function(){syncBetween(row);},0);}
   var betweenType=t.closest('[data-pbu-between-type]');
   if(betweenType){

@@ -556,10 +556,10 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261027-kit-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261027-kit-1">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261028-del-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261028-space-2">
 <script defer src="pulse-explore.js?v=20261023-full-library-v2"></script>
-<script defer src="pulse-builder-ui.js?v=20261027-passbyggare-3"></script>
+<script defer src="pulse-builder-ui.js?v=20261028-del-2"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -1832,6 +1832,22 @@ function getExerciseNameCatalog(type,kind){
   });
 }
 window.getExerciseNameCatalog=getExerciseNameCatalog;
+/* Every exercise name the user has registered, whatever pass it came from. */
+function getAllExerciseNames(){
+  var all=Object.create(null);
+  getExerciseCatalogSources().forEach(function(record){
+    var sourceCardio=exerciseCategoryIsCardio(record.type);
+    (record.exercises||[]).forEach(function(exercise){
+      var normalized=normalizeExercise(exercise);
+      var kind=normalized.kind==='cardio'||sourceCardio&&normalized.kind!=='strength'?'cardio':'strength';
+      var name=cleanExerciseName(normalized.name),key=exerciseNameKey(name);
+      if(!key||all[key]||isExerciseNameHidden(record.type,kind,name))return;
+      all[key]={name:name,kind:kind};
+    });
+  });
+  return Object.keys(all).map(function(key){return all[key];}).sort(function(a,b){return a.name.localeCompare(b.name,'sv-SE',{sensitivity:'base'});});
+}
+window.getAllExerciseNames=getAllExerciseNames;
 
 function exercisePickerInput(target){
   if(!target||!target.matches||!target.matches('.exercise-name-picker-input-v1'))return false;
@@ -1990,8 +2006,9 @@ function renderExerciseNamePicker(input){
 function renderExerciseNamePickerOptions(input){
   var picker=ensureExerciseNamePicker();
   var context=exercisePickerContext(input);
-  var catalog=getExerciseNameCatalog(context.type,context.kind);
   var query=picker.querySelector('.exercise-name-picker-search-v1 input').value;
+  // A search reaches every exercise you have registered, whatever the pass type.
+  var catalog=String(query||'').trim()?getAllExerciseNames():getExerciseNameCatalog(context.type,context.kind);
   var shown=catalog.filter(function(entry){return exerciseNameMatchesV2(entry.name,query);});
   var options=picker.querySelector('.exercise-name-picker-options-v1');
   picker.querySelector('.exercise-name-picker-context-v1').textContent=(context.kind==='cardio'?'Kondition':(cleanExerciseName(context.type)||'Styrka'))+' · '+catalog.length+' registrerade';
