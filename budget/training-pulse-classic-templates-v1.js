@@ -41,6 +41,7 @@ function populateSelect(selected){
  });
  select.value=selected!=null?String(selected):'';
  if(select.selectedIndex<0)select.value='';
+ select.dataset.current=select.value;
  var editButton=byId('day-workout-edit-template');
  if(editButton)editButton.disabled=!select.value;
 }
@@ -63,7 +64,21 @@ function syncDay(iso,p){
 }
 function apply(id){
  if(mode==='template')backToDay();
- if(!id){var edit=byId('day-workout-edit-template');if(edit)edit.disabled=true;return;}
+ if(!id){
+  var edit=byId('day-workout-edit-template');if(edit)edit.disabled=true;
+  // Going back to "Välj mallpass" after a template was chosen empties the day:
+  // its exercises came from that template, so they go too.
+  var sel=byId('day-workout-template-select'),prev=sel&&sel.dataset.current;
+  if(prev){
+   var old=getTemplates().find(function(t){return String(t.id)===String(prev);});
+   var nameEl=byId('day-workout-name');
+   if(nameEl&&old&&nameEl.value===(old.name||old.type||''))nameEl.value='';
+   setRows([]);
+   sel.dataset.current='';
+   toast('Mallpasset borttaget. Dagen är tom.');
+  }
+  return;
+ }
  var found=getTemplates().find(function(t){return String(t.id)===String(id);});
  if(!found){populateSelect('');toast('Mallpasset finns inte längre.');return;}
  byId('day-workout-name').value=found.name||found.type||'';
