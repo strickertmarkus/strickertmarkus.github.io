@@ -420,7 +420,7 @@ body:has(.studio-technique[open]){overflow:hidden}
  if(back)back.href='exercise.html'+(profile==='maja'?'?user=maja':'');
 })();
 </script>
-<script src="pulse-explore.js?v=20261023-full-library-v2"></script>
+<script src="pulse-explore.js?v=20261028-dips-sumo-1"></script>
 <script>
 'use strict';
 const exercises=window.PulseExplore.exercises;
@@ -537,7 +537,9 @@ const guideScenes=[
  ['deadBug','Ryggliggande · motsatt arm och ben',-56,47,-83,20],
  ['birdDog','Alla fyra · motsatt arm och ben',-57,32,145,38],
  ['reverseDumbbell','Framåtfälld · lyft åt sidorna',145,35,-75,23],
- ['goblet','Stående · hantel vid bröstet',-54,17,-20,24]
+ ['goblet','Stående · hantel vid bröstet',-54,17,-20,24],
+ ['dips','Raka armar i dipsställningen',-72,12,-28,16],
+ ['sumoDeadlift','Stående · brett med tårna utåt',-32,14,-74,16]
 ].map(([kind,stance,yaw,pitch,altYaw,altPitch])=>({kind,stance,views:[{yaw,pitch},{yaw:altYaw,pitch:altPitch}]}));
 let cameraIndex=0;
 const frameCache=new Map();
@@ -678,8 +680,8 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
    if(kind==='machineRow'){pad([0,.98,.17],[0,1,0],.29,.28,[0,0,-1]);for(const x of [-.62,.62])rod([x,.04,.88],[x,1.32,.88],.035);armBars([[-.62,.72,.88],[.62,.72,.88]]);}
    else{tower(1.25,1.10);pulley([0,.44,1.25]);cable([0,.44,1.25],center);handle(hands[0],hands[1]);for(const x of [-.17,.17])box([x,.11,.49],[.17,.20,.08]);}
   }
- }else if(['backSquat','smithSquat','hackSquat','deadlift','rdl','lunge'].includes(kind)){
-  const squat=['backSquat','smithSquat','hackSquat'].includes(kind),dead=kind==='deadlift',rdl=kind==='rdl';
+ }else if(['backSquat','smithSquat','hackSquat','deadlift','sumoDeadlift','rdl','lunge'].includes(kind)){
+  const squat=['backSquat','smithSquat','hackSquat'].includes(kind),dead=kind==='deadlift',rdl=kind==='rdl',sumo=kind==='sumoDeadlift';
   if(squat){
    if(kind==='hackSquat'){
     body([0,.85-.35*t,-.10-.24*t],[0,.86,-.51]);feet=[[-.19,.14,.34],[.19,.14,.34]];
@@ -697,6 +699,11 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
     const center=A(shoulderMid(),A(M(frontNormal,-.09),M(axis,.015)));grips(center,.34);bar(center);elbowPoles=[[-.52,center[1]-.24,center[2]-.16],[.52,center[1]-.24,center[2]-.16]];
     if(kind==='smithSquat'){for(const x of [-.60,.60]){rod([x,.05,center[2]],[x,1.87,center[2]],.025,palette.light);box([x,center[1],center[2]],[.08,.14,.08]);}rod([-.72,.04,-.35],[.72,.04,-.35],.04);}
    }
+  }else if(sumo){
+   // Wide stance, toes out, hands inside the knees: hips sit lower and the chest stays taller than in a conventional pull.
+   const bend=1-t,lean=rad(44*bend);body([0,.94-.50*bend,-.03-.16*bend],[0,Math.cos(lean),Math.sin(lean)]);
+   feet=[[-.36,.075,.04],[.36,.075,.04]];kneePoles=[[-.70,.45,.42],[.70,.45,.42]];soles=[0,0,1];
+   const s=shoulderMid(),z=.10,center=[0,s[1]-Math.sqrt(Math.max(.01,.57*.57-(z-s[2])**2-.02*.02)),z];grips(center,.17);bar(center);elbowPoles=[[-.36,s[1]-.3,.05],[.36,s[1]-.3,.05]];
   }else if(dead||rdl){
    const bend=1-t,lean=rad((dead?58:70)*bend);body([0,.94-(dead?.45:.10)*bend,-.03-.28*bend],[0,Math.cos(lean),Math.sin(lean)]);
    feet=[[-.16,.075,.02],[.16,.075,.02]];
@@ -731,6 +738,14 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
   body([0,1.04+.075*t,0]);feet=[[-.15,.175+.075*t,.01-.035*t],[.15,.175+.075*t,.01-.035*t]];soles=U([0,-.075*t,.16]);
   box([0,.06,.15],[.60,.12,.28]);for(const x of [-.44,.44])rod([x,.05,-.16],[x,1.88,-.16],.03,palette.light);
   for(const sign of [-1,1]){const s=shoulder(sign);box(A(s,[0,.08,0]),[.17,.10,.32]);hands[sign<0?0:1]=A(s,[sign*.11,-.09,.16]);rod(A(s,[sign*.11,0,-.12]),hands[sign<0?0:1],.018,palette.light);}
+ }else if(kind==='dips'){
+  // Parallel bars: the hands stay on the bars, the body rises to straight arms (t=1) and sinks with a slight forward lean.
+  const bars=1.15,lean=rad(26-18*t),sy=1.40+.30*t,sz=.10-.10*t,dir=[0,Math.cos(lean),Math.sin(lean)];
+  body(S([0,sy,sz],M(dir,bodyLength)),dir);
+  hands=[[-.27,bars,.02],[.27,bars,.02]];elbowPoles=[[-.36,bars+.16,-.42],[.36,bars+.16,-.42]];
+  feet=[[-.07,hip[1]-.60,hip[2]-.32],[.07,hip[1]-.58,hip[2]-.36]];kneePoles=[[-.12,hip[1]-.28,hip[2]+.55],[.12,hip[1]-.28,hip[2]+.55]];
+  for(const x of [-.27,.27]){rod([x,bars,-.38],[x,bars,.48],.024,palette.light);for(const z of [-.32,.42])rod([x,.05,z],[x,bars,z],.03);handle([x,bars,-.05],[x,bars,.09]);}
+  rod([-.27,.05,-.32],[.27,.05,-.32],.035);rod([-.27,.05,.42],[.27,.05,.42],.035);
  }else if(['hipThrust','gluteBridge','situp','pushup','plank','cableCrunch'].includes(kind)){
   if(kind==='hipThrust'||kind==='gluteBridge'){
    const elevated=kind==='hipThrust',shoulderPoint=[0,elevated?.55:.14,-.40],hy=(elevated?.29:.17)+(elevated?.28:.27)*t;
