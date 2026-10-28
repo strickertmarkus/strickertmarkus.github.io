@@ -557,7 +557,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261027-kit-1">
-<link rel="stylesheet" href="pulse-tools-ui.css?v=20261028-full-1">
+<link rel="stylesheet" href="pulse-tools-ui.css?v=20261028-picker-1">
 <script defer src="pulse-explore.js?v=20261023-full-library-v2"></script>
 <script defer src="pulse-builder-ui.js?v=20261027-passbyggare-3"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -1869,11 +1869,25 @@ function ensureExerciseNamePicker(){
   picker.className='exercise-name-picker-v1';
   picker.setAttribute('role','dialog');
   picker.setAttribute('aria-label','Välj övning');
-  picker.innerHTML='<div class="exercise-name-picker-head-v1"><div class="exercise-name-picker-kicker-v1">Välj övning</div><div class="exercise-name-picker-context-v1"></div></div><div class="exercise-name-picker-options-v1" role="listbox"></div><button type="button" class="exercise-name-picker-new-v1">+ Ny övning</button>';
+  picker.innerHTML='<div class="exercise-name-picker-head-v1">'
+    +'<button type="button" class="exercise-name-picker-close-v1" aria-label="Stäng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+    +'<div class="exercise-name-picker-kicker-v1">Välj övning</div><div class="exercise-name-picker-title-v1">Dina övningar</div><div class="exercise-name-picker-context-v1"></div>'
+    +'<div class="exercise-name-picker-search-v1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><input type="search" enterkeyhint="search" autocomplete="off" placeholder="Sök, t.ex. bänk eller bröst" aria-label="Sök övning eller muskel"></div>'
+    +'<button type="button" class="exercise-name-picker-edit-v1" aria-pressed="false">Redigera lista</button></div>'
+    +'<div class="exercise-name-picker-options-v1" role="listbox"></div>'
+    +'<div class="exercise-name-picker-foot-v1"><div class="exercise-name-picker-kind-v1" role="group" aria-label="Typ av ny övning"><button type="button" data-new-kind="strength">Styrka</button><button type="button" data-new-kind="cardio">Kondition</button></div>'
+    +'<button type="button" class="exercise-name-picker-new-v1"><span>Ny övning</span></button></div>';
   document.body.appendChild(picker);
   exerciseNamePickerState.picker=picker;
   picker.addEventListener('pointerdown',function(event){event.stopPropagation();});
+  var search=picker.querySelector('.exercise-name-picker-search-v1 input');
+  search.addEventListener('input',function(){if(exerciseNamePickerState.input)renderExerciseNamePickerOptions(exerciseNamePickerState.input);});
   picker.addEventListener('click',function(event){
+    if(event.target.closest('.exercise-name-picker-close-v1')){closeExerciseNamePicker();return;}
+    var edit=event.target.closest('.exercise-name-picker-edit-v1');
+    if(edit){var on=!picker.classList.contains('is-editing');picker.classList.toggle('is-editing',on);edit.setAttribute('aria-pressed',String(on));edit.textContent=on?'Klar':'Redigera lista';return;}
+    var newKind=event.target.closest('[data-new-kind]');
+    if(newKind){picker.dataset.newKind=newKind.dataset.newKind;syncExerciseNamePickerKind(picker);return;}
     var remove=event.target.closest('.exercise-name-picker-remove-v1');
     var input=exerciseNamePickerState.input;
     if(remove&&input){
@@ -1883,7 +1897,7 @@ function ensureExerciseNamePicker(){
       if(!removeName)return;
       if(!window.confirm('Ta bort "'+removeName+'" från övningslistan?\nTidigare pass, set, reps och vikter påverkas inte.'))return;
       setExerciseNameHidden(removeContext.type,removeKind,removeName,true);
-      renderExerciseNamePicker(input);
+      renderExerciseNamePickerOptions(input);
       showToast('"'+removeName+'" togs bort från listan.');
       return;
     }
@@ -1902,11 +1916,15 @@ function ensureExerciseNamePicker(){
     var addNew=event.target.closest('.exercise-name-picker-new-v1');
     if(addNew&&input){
       var contextNew=exercisePickerContext(input);
-      ensureExerciseRowKind(contextNew.row,contextNew.kind);
-      var catalog=getExerciseNameCatalog(contextNew.type,contextNew.kind);
+      var chosenKind=picker.dataset.newKind||contextNew.kind;
+      ensureExerciseRowKind(contextNew.row,chosenKind);
+      var catalog=getExerciseNameCatalog(contextNew.type,chosenKind);
       var currentKey=exerciseNameKey(input.value);
       var isExisting=catalog.some(function(entry){return exerciseNameKey(entry.name)===currentKey;});
-      if(isExisting)input.value='';
+      // What was typed in the search becomes the new exercise's name.
+      var typedNew=cleanExerciseName(search.value);
+      if(typedNew)input.value=typedNew;
+      else if(isExisting)input.value='';
       input.readOnly=false;
       input.dataset.exerciseNameFreeV1='1';
       closeExerciseNamePicker();
@@ -1917,88 +1935,110 @@ function ensureExerciseNamePicker(){
   return picker;
 }
 function positionExerciseNamePicker(){
-  var input=exerciseNamePickerState.input,picker=exerciseNamePickerState.picker;
-  if(!input||!picker)return;
-  var rect=input.getBoundingClientRect();
-  var vv=window.visualViewport;
-  /* The picker is position:fixed, so its CSS coordinates are viewport-relative.
-     visualViewport width/height are still useful on iOS, but offsetTop/offsetLeft
-     must not be added here or the popup can jump outside the fixed viewport. */
-  var viewportWidth=Math.min(document.documentElement.clientWidth||window.innerWidth,vv&&vv.width||window.innerWidth);
-  var viewportHeight=Math.min(window.innerHeight,vv&&vv.height||window.innerHeight);
-  var margin=8,gap=6;
-  var width=Math.min(380,Math.max(250,rect.width),Math.max(180,viewportWidth-margin*2));
-  var left=Math.max(margin,Math.min(rect.left,viewportWidth-width-margin));
-  var bottomLimit=viewportHeight-margin;
-  var below=Math.max(0,bottomLimit-rect.bottom-gap);
-  var above=Math.max(0,rect.top-margin-gap);
-  var placeBelow=below>=Math.min(260,above)||below>=above;
-  var available=Math.max(96,placeBelow?below:above);
-  var maxHeight=Math.min(420,Math.max(96,Math.min(available,viewportHeight-margin*2)));
-  var top=placeBelow?rect.bottom+gap:rect.top-gap-maxHeight;
-  picker.style.width=width+'px';
-  picker.style.left=left+'px';
-  picker.style.maxHeight=maxHeight+'px';
-  picker.style.top=Math.max(margin,Math.min(top,viewportHeight-maxHeight-margin))+'px';
-
-  /* Measure while visibility:hidden as well as while open, then clamp the
-     actual rendered box. This protects small iPhone viewports from borders,
-     font metrics or dynamic option counts changing the final size. */
-  var measured=picker.getBoundingClientRect();
-  var clampedLeft=Math.max(margin,Math.min(measured.left,viewportWidth-measured.width-margin));
-  var clampedTop=Math.max(margin,Math.min(measured.top,viewportHeight-measured.height-margin));
-  if(Math.abs(clampedLeft-measured.left)>.25)picker.style.left=clampedLeft+'px';
-  if(Math.abs(clampedTop-measured.top)>.25)picker.style.top=clampedTop+'px';
+  /* The picker is a full-screen sheet (pulse-tools-ui.css); nothing to anchor. */
+}
+/* Search matches the name, and also the muscle: "bröst" finds Bänkpress and
+   Dips. Muscles come from the exercise explorer's catalogue when it knows the
+   name, otherwise from common words in the name itself. */
+var EXERCISE_MUSCLE_WORDS_V2={
+  'bröst':/bröst|bänk|press|fly|flyes|pec|armhäv|dips|push/,
+  'axlar':/axl|axel|militär|sidolyft|lateral|face ?pull|shoulder|arnold|upright/,
+  'rygg':/rygg|rodd|lats|latsdrag|pull|marklyft|chins|row|deadlift/,
+  'biceps':/biceps|curl|hammer/,
+  'triceps':/triceps|dips|pushdown|french|extension|skull|kickback/,
+  'ben':/ben|knäböj|squat|utfall|lunge|benpress|lår|leg|vad|calf|step/,
+  'lår':/lår|knäböj|squat|utfall|benpress|leg|marklyft/,
+  'mage':/mage|plank|crunch|sit|core|ab|rull|dead ?bug|hollow/,
+  'säte':/säte|höft|hip|glute|bridge|thrust/,
+  'vader':/vad|calf/,
+  'kondition':/löp|jogg|cykel|rodd|hopprep|cross|gång|trapp|simn|spin|run|bike/
+};
+function exerciseNameMatchesV2(name,query){
+  var n=String(name||'').toLocaleLowerCase('sv-SE'),q=String(query||'').trim().toLocaleLowerCase('sv-SE');
+  if(!q)return true;
+  if(n.indexOf(q)>=0)return true;
+  var explore=window.PulseExplore&&window.PulseExplore.exercises;
+  if(explore){
+    var known=explore.find(function(e){return String(e.name).toLocaleLowerCase('sv-SE')===n;});
+    if(known&&known.muscles.some(function(m){return String(m).toLocaleLowerCase('sv-SE').indexOf(q)>=0;}))return true;
+  }
+  return Object.keys(EXERCISE_MUSCLE_WORDS_V2).some(function(word){return word.indexOf(q)===0&&EXERCISE_MUSCLE_WORDS_V2[word].test(n);});
+}
+function syncExerciseNamePickerKind(picker){
+  var kind=picker.dataset.newKind||'strength';
+  picker.querySelectorAll('[data-new-kind]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.newKind===kind));});
 }
 function renderExerciseNamePicker(input){
   if(!exercisePickerInput(input))return;
   var picker=ensureExerciseNamePicker();
   exerciseNamePickerState.input=input;
   var context=exercisePickerContext(input);
-  var catalog=getExerciseNameCatalog(context.type,context.kind);
-  var options=picker.querySelector('.exercise-name-picker-options-v1');
-  var contextCopy=picker.querySelector('.exercise-name-picker-context-v1');
-  contextCopy.textContent=(context.kind==='cardio'?'Kondition':(cleanExerciseName(context.type)||'Styrka'))+' · '+catalog.length+' registrerade';
-  options.innerHTML='';
-  var current=exerciseNameKey(input.value);
-  if(!catalog.length){
-    var empty=document.createElement('div');
-    empty.className='exercise-name-picker-empty-v1';
-    empty.textContent='Inga registrerade övningar för den här kategorin ännu.';
-    options.appendChild(empty);
-  }else{
-    catalog.forEach(function(entry){
-      var row=document.createElement('div');
-      row.className='exercise-name-picker-row-v1';
-      var button=document.createElement('button');
-      button.type='button';
-      button.className='exercise-name-picker-option-v1'+(exerciseNameKey(entry.name)===current?' is-current':'');
-      button.setAttribute('role','option');
-      button.setAttribute('aria-selected',exerciseNameKey(entry.name)===current?'true':'false');
-      button.dataset.exerciseName=entry.name;
-      button.dataset.exerciseKind=entry.kind;
-      button.textContent=entry.name;
-      var removeButton=document.createElement('button');
-      removeButton.type='button';
-      removeButton.className='exercise-name-picker-remove-v1';
-      removeButton.dataset.exerciseName=entry.name;
-      removeButton.dataset.exerciseKind=entry.kind;
-      removeButton.setAttribute('aria-label','Ta bort '+entry.name+' från övningslistan');
-      removeButton.setAttribute('title','Ta bort från listan, behåll historik');
-      removeButton.textContent='×';
-      row.appendChild(button);
-      row.appendChild(removeButton);
-      options.appendChild(row);
-    });
-  }
+  var search=picker.querySelector('.exercise-name-picker-search-v1 input');
+  search.value='';
+  picker.classList.remove('is-editing');
+  var edit=picker.querySelector('.exercise-name-picker-edit-v1');edit.setAttribute('aria-pressed','false');edit.textContent='Redigera lista';
+  picker.dataset.newKind=context.kind;syncExerciseNamePickerKind(picker);
+  renderExerciseNamePickerOptions(input);
   input.readOnly=true;
   input.removeAttribute('data-exercise-name-free-v1');
   input.setAttribute('aria-expanded','true');
   picker.classList.remove('show');
-  positionExerciseNamePicker();
   requestAnimationFrame(function(){
     if(exerciseNamePickerState.input===input)picker.classList.add('show');
   });
+}
+function renderExerciseNamePickerOptions(input){
+  var picker=ensureExerciseNamePicker();
+  var context=exercisePickerContext(input);
+  var catalog=getExerciseNameCatalog(context.type,context.kind);
+  var query=picker.querySelector('.exercise-name-picker-search-v1 input').value;
+  var shown=catalog.filter(function(entry){return exerciseNameMatchesV2(entry.name,query);});
+  var options=picker.querySelector('.exercise-name-picker-options-v1');
+  picker.querySelector('.exercise-name-picker-context-v1').textContent=(context.kind==='cardio'?'Kondition':(cleanExerciseName(context.type)||'Styrka'))+' · '+catalog.length+' registrerade';
+  options.innerHTML='';
+  var current=exerciseNameKey(input.value);
+  if(!shown.length){
+    var empty=document.createElement('div');
+    empty.className='exercise-name-picker-empty-v1';
+    empty.textContent=catalog.length?'Ingen övning matchar "'+query.trim()+'". Lägg till den som ny övning nedan.':'Inga registrerade övningar för den här kategorin ännu.';
+    options.appendChild(empty);
+  }
+  var q=String(query||'').trim();
+  shown.forEach(function(entry){
+    var row=document.createElement('div');
+    row.className='exercise-name-picker-row-v1';
+    var button=document.createElement('button');
+    button.type='button';
+    button.className='exercise-name-picker-option-v1'+(exerciseNameKey(entry.name)===current?' is-current':'');
+    button.setAttribute('role','option');
+    button.setAttribute('aria-selected',exerciseNameKey(entry.name)===current?'true':'false');
+    button.dataset.exerciseName=entry.name;
+    button.dataset.exerciseKind=entry.kind;
+    // Own exercises carry their initial in the round artwork frame.
+    var badge=document.createElement('span');badge.className='exercise-name-picker-badge-v1'+(entry.kind==='cardio'?' is-cardio':'');badge.setAttribute('aria-hidden','true');
+    badge.textContent=(entry.name.trim()[0]||'?').toLocaleUpperCase('sv-SE');
+    var label=document.createElement('span');label.className='exercise-name-picker-label-v1';
+    var at=q?entry.name.toLocaleLowerCase('sv-SE').indexOf(q.toLocaleLowerCase('sv-SE')):-1;
+    if(at>=0){
+      label.appendChild(document.createTextNode(entry.name.slice(0,at)));
+      var mark=document.createElement('mark');mark.textContent=entry.name.slice(at,at+q.length);label.appendChild(mark);
+      label.appendChild(document.createTextNode(entry.name.slice(at+q.length)));
+    }else label.textContent=entry.name;
+    button.appendChild(badge);button.appendChild(label);
+    var removeButton=document.createElement('button');
+    removeButton.type='button';
+    removeButton.className='exercise-name-picker-remove-v1';
+    removeButton.dataset.exerciseName=entry.name;
+    removeButton.dataset.exerciseKind=entry.kind;
+    removeButton.setAttribute('aria-label','Ta bort '+entry.name+' från övningslistan');
+    removeButton.setAttribute('title','Ta bort från listan, behåll historik');
+    removeButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    row.appendChild(button);
+    row.appendChild(removeButton);
+    options.appendChild(row);
+  });
+  var newLabel=picker.querySelector('.exercise-name-picker-new-v1 span');
+  if(newLabel)newLabel.textContent=q?'Lägg till "'+q+'"':'Ny övning';
 }
 function closeExerciseNamePicker(){
   var input=exerciseNamePickerState.input,picker=exerciseNamePickerState.picker;
@@ -2007,7 +2047,7 @@ function closeExerciseNamePicker(){
   exerciseNamePickerState.input=null;
 }
 function refreshOpenExerciseNamePicker(){
-  if(exerciseNamePickerState.input&&document.body.contains(exerciseNamePickerState.input))renderExerciseNamePicker(exerciseNamePickerState.input);
+  if(exerciseNamePickerState.input&&document.body.contains(exerciseNamePickerState.input))renderExerciseNamePickerOptions(exerciseNamePickerState.input);
 }
 function installExerciseNamePicker(){
   ensureExerciseNamePicker();

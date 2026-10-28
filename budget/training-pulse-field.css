@@ -240,14 +240,26 @@ main{position:relative;z-index:2;display:block}
 [data-chart-tip]{-webkit-tap-highlight-color:transparent}
 [data-chart-tip]:focus{outline:none}
 [data-chart-tip]:focus-visible{outline:1px solid var(--field-peach);outline-offset:3px}
-.field-chart-tooltip{position:fixed;z-index:120;isolation:isolate;min-width:112px;max-width:min(252px,calc(100vw - 28px));padding:10px 13px 11px;border:1px solid #ff9a9178;border-radius:15px;background:linear-gradient(145deg,rgba(77,30,54,.96),rgba(31,18,31,.97) 58%,rgba(18,19,25,.98));box-shadow:0 14px 42px #000a,0 0 0 1px #ff657a12 inset,0 0 28px #ff657a28;backdrop-filter:blur(16px) saturate(1.16);-webkit-backdrop-filter:blur(16px) saturate(1.16);transform:translate(-50%,-100%) translateY(-7px) scale(.98);opacity:0;pointer-events:none;transition:opacity .13s ease,transform .16s cubic-bezier(.2,.85,.2,1);color:#f7e9e3;overflow:hidden}
-.field-chart-tooltip::before{content:"";position:absolute;z-index:-1;left:12px;right:12px;top:0;height:1px;background:linear-gradient(90deg,transparent,#ffd2bd,#ff657a,transparent);box-shadow:0 0 12px #ff657a80}
-.field-chart-tooltip::after{content:"";position:absolute;z-index:-1;width:70px;height:70px;right:-30px;top:-38px;border-radius:50%;background:radial-gradient(circle,#ff657a2c,transparent 68%)}
-.field-chart-tooltip.is-visible{opacity:1;transform:translate(-50%,-100%) translateY(-13px) scale(1)}
+/* Tapping a chart: a soft speech bubble with a tip down to the point, the value
+   large in serif, date and pass as a small coral line above it, and an edge in
+   the colour of the line that was tapped. */
+.field-chart-tooltip{--tip-color:#ff9a91;position:fixed;z-index:120;min-width:108px;max-width:min(240px,calc(100vw - 28px));padding:10px 14px 11px;border:0;border-radius:18px;
+  background:#0b0f18d9;box-shadow:inset 0 0 0 1px #ffffff12,inset 0 2px 0 -1px var(--tip-color),0 16px 40px -14px #000,0 0 30px -12px var(--tip-color);
+  backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);
+  opacity:0;transform:translate(-50%,-100%) translateY(-12px) scale(.96);transform-origin:var(--arrow-x,50%) 100%;transition:opacity .16s ease,transform .2s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.field-chart-tooltip::after{content:"";position:absolute;left:var(--arrow-x,50%);bottom:-6px;width:12px;height:12px;margin-left:-6px;transform:rotate(45deg);border-radius:0 0 3px 0;background:#0b0f18d9;box-shadow:inset -1px -1px 0 #ffffff12}
+.field-chart-tooltip.is-visible{opacity:1;transform:translate(-50%,-100%) translateY(-16px) scale(1)}
 .field-chart-tooltip strong,.field-chart-tooltip span,.field-chart-tooltip small{display:block}
-.field-chart-tooltip strong{color:#ffb9ad;font:650 9px/1.3 var(--field-ui);letter-spacing:.8px;text-transform:uppercase}
-.field-chart-tooltip span{margin-top:3px;color:#fff6f1;font:500 17px/1.15 var(--field-serif);text-shadow:0 0 14px #ff9a9129}
-.field-chart-tooltip small{margin-top:4px;color:#cab8b9;font:500 10px/1.35 var(--field-ui)}
+.field-chart-tooltip strong{color:var(--field-coral);font:700 9px/1.3 var(--field-ui);letter-spacing:1.6px;text-transform:uppercase}
+.field-chart-tooltip span{margin-top:2px;color:#fff6f1;font:400 26px/1.05 var(--field-serif);text-shadow:0 0 18px color-mix(in srgb,var(--tip-color) 40%,transparent)}
+.field-chart-tooltip small{margin-top:3px;color:var(--field-muted);font:500 11px/1.35 var(--field-ui)}
+/* The chosen point: a ring that breathes, and a thin line down to its date. */
+.field-chart-focus{--tip-color:#ff9a91;position:fixed;z-index:119;width:0;height:0;pointer-events:none}
+.field-chart-guide{position:absolute;left:0;top:0;width:1px;height:var(--guide,0);transform:translateX(-50%);background:linear-gradient(var(--tip-color),transparent);opacity:.55}
+.field-chart-ring{display:none;position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 1.5px var(--tip-color),0 0 14px var(--tip-color);animation:chartRing 1.6s ease-in-out infinite}
+.field-chart-focus.is-point .field-chart-ring{display:block}
+@keyframes chartRing{0%,100%{transform:scale(.85);opacity:.9}50%{transform:scale(1.25);opacity:.45}}
+@media(prefers-reduced-motion:reduce){.field-chart-ring{animation:none}.field-chart-tooltip{transition:none}}
 .activity-zero{stroke:#8d98a333;stroke-width:2;stroke-linecap:round}
 .chart-value{fill:#ffd6c4;font:600 10px var(--field-ui);paint-order:stroke;stroke:#080d12;stroke-width:3px;stroke-linejoin:round}
 .line-glow{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.35;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 13px currentColor)}
@@ -605,42 +617,35 @@ main{position:relative;z-index:2;display:block}
   line-height:1.2;
 }
 .week-day.is-selected .day-type{color:var(--week-kind)}
-.week-selected-session-v3{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:baseline;
-  gap:5px 10px;
-  width:100%;
-  min-width:0;
-  margin:12px 0 0;
-  padding:10px 12px;
-  border:1px solid #ff9a911f;
-  border-radius:11px;
-  background:linear-gradient(90deg,#ff657a0b,transparent 78%);
-}
-.week-selected-session-v3 span{
-  flex:0 0 auto;
-  color:#a69da4;
-  font-size:9px;
-  font-weight:700;
-  letter-spacing:.6px;
-  line-height:1.4;
-}
-.week-selected-session-v3 strong{
-  min-width:0;
-  color:#f2d7ce;
-  font-size:12px;
-  font-weight:600;
-  line-height:1.4;
-  overflow-wrap:anywhere;
-}
+/* Today's pass as a row lying on the week line: no frame, a soft red light from
+   below, a thin beam from the chosen day down to it. */
+.week-selected-session-v3{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-width:0;margin:16px 0 0;padding:12px 6px 12px 4px;
+  border:0;border-radius:20px;background:radial-gradient(ellipse 70% 120% at 50% 130%,#ff657a2e,transparent 70%)}
+.week-selected-session-v3::before{content:"";position:absolute;left:var(--today-x,50%);top:-16px;width:1px;height:16px;transform:translateX(-50%);background:linear-gradient(#ff9a9100,#ff9a91aa);box-shadow:0 0 6px #ff657a}
+.week-selected-session-v3[data-kind="cardio"]{background:radial-gradient(ellipse 70% 120% at 50% 130%,#7fe3ef26,transparent 70%)}
+.week-selected-session-v3[data-kind="cardio"]::before{background:linear-gradient(#7fe3ef00,#7fe3efaa);box-shadow:0 0 6px #7fe3ef}
+.week-selected-session-v3[data-kind="rest"]{background:radial-gradient(ellipse 70% 120% at 50% 130%,#ffffff0d,transparent 70%)}
+.week-selected-session-v3[data-kind="rest"]::before{background:linear-gradient(#ffffff00,#ffffff40);box-shadow:none}
+.today-open{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer}
+.today-thumb .pk-thumb{width:48px;height:48px}
+.pk-thumb.is-rest{display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#1c2330,#0d1118);color:#a6afb9;box-shadow:0 0 0 1px #ffffff14}
+.pk-thumb.is-rest .pk-thumb-icon{filter:none}
+.today-copy{display:grid;gap:2px;min-width:0}
+.today-copy span{color:var(--field-coral);font-size:9px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.today-copy strong{overflow:hidden;color:#f6efeb;font:400 25px/1.1 var(--field-serif);white-space:nowrap;text-overflow:ellipsis}
+.today-copy small{color:var(--field-muted);font-size:12px}
+.week-selected-session-v3[data-kind="rest"] .today-copy strong{color:#c5ccd3}
+.today-play{display:grid;place-items:center;flex:none;width:48px;height:48px;padding:0;border:0;border-radius:50%;cursor:pointer;color:#1d0806;
+  background:linear-gradient(135deg,#ff8a74,#e5484d);box-shadow:0 10px 26px -10px #ff5a4acc,inset 0 1px 0 #ffffff55}
+.today-play svg{width:20px;height:20px;fill:currentColor;margin-left:2px}
+.today-play[hidden]{display:none}
+.today-play:active{transform:scale(.94)}
 @media(max-width:560px){
   .week-field-shell{min-height:112px}
   .week-day{min-height:108px;padding:7px 1px 4px}
   .week-day .day-date{height:46px}
   .week-day .day-type{display:-webkit-box!important;min-height:27px;max-width:100%;font-size:8px;line-height:1.24;margin-top:3px}
-  .week-selected-session-v3{margin-top:7px;padding:8px 10px}
-  .week-selected-session-v3 strong{font-size:11px}
+  .today-copy strong{font-size:22px}
 }
 
 

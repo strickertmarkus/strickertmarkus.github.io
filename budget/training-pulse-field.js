@@ -334,6 +334,26 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var dayLabel=byId('week-selected-day-v3'),nameLabel=byId('week-selected-name-v3');
     if(dayLabel)dayLabel.textContent=fullDay;
     if(nameLabel)nameLabel.textContent=chosenName;
+    // Today's pass as a row: artwork, name, what it holds, and a play button to start it.
+    var chosenLower=String(chosenType).trim().toLocaleLowerCase('sv-SE');
+    var chosenRest=!chosenPlan&&!chosenLogged.length||/^(vila|vilodag|ledig|återhämtning)$/.test(chosenLower);
+    var chosenCardio=/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(chosenLower);
+    var planned=(chosenPlan&&Array.isArray(chosenPlan.exercises))?chosenPlan.exercises:[];
+    var sets=planned.reduce(function(n,ex){var e=normalizeExercise(ex);return n+(e.kind==='strength'?Math.max(1,number(e.sets)):0);},0);
+    var cardioMin=planned.reduce(function(n,ex){var e=normalizeExercise(ex);return n+(e.kind==='cardio'?number(e.time):0);},0);
+    var estimate=Math.round((sets*2.5+cardioMin)/5)*5;
+    var meta=chosenLogged.length?'Klart · '+(number(chosenLogged[0].duration)?formatNumber(chosenLogged[0].duration,0)+' min':workoutPrimary(chosenLogged[0])):
+      chosenRest?'Återhämtning':planned.length?planned.length+(planned.length===1?' övning':' övningar')+(estimate?' · ca '+estimate+' min':''):'Bygg passet för dagen';
+    var box=byId('week-selected-session-v3'),thumb=byId('week-selected-thumb-v3'),metaLabel=byId('week-selected-meta-v3');
+    if(box){
+      box.dataset.kind=chosenRest?'rest':chosenCardio?'cardio':'strength';
+      box.style.setProperty('--today-x',(((chosen.getDay()+6)%7)+.5)/7*100+'%');
+      if(chosenRest&&!chosenPlan)nameLabel.textContent='Vila';
+      if(metaLabel)metaLabel.textContent=meta;
+      if(thumb)thumb.innerHTML=chosenRest?'<span class="pk-thumb is-rest">'+PK_MOON+'</span>':pkThumb(chosenName+' '+chosenType,chosenCardio?'cardio':'strength');
+      ['week-selected-open-v3','week-selected-play-v3'].forEach(function(id){var b=byId(id);if(b)b.dataset.fieldDate=selected;});
+      var play=byId('week-selected-play-v3');if(play)play.hidden=chosenRest||!!chosenLogged.length;
+    }
     var startLink=byId('next-session-link');
     if(startLink)startLink.dataset.fieldDate=state.selectedDate;
   }
@@ -355,8 +375,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return '<text class="chart-axis-unit" x="'+left+'" y="'+(top-12)+'" text-anchor="start">'+escapeHtml(label)+'</text>';
   }
 
-  function chartTipAttrs(title,value,detail) {
-    return ' data-chart-tip="1" data-chart-tip-title="'+escapeHtml(title)+'" data-chart-tip-value="'+escapeHtml(value)+'" data-chart-tip-detail="'+escapeHtml(detail||'')+'" tabindex="0"';
+  function chartTipAttrs(title,value,detail,color) {
+    return ' data-chart-tip="1" data-chart-tip-title="'+escapeHtml(title)+'" data-chart-tip-value="'+escapeHtml(value)+'" data-chart-tip-detail="'+escapeHtml(detail||'')+'"'+(color?' data-chart-tip-color="'+escapeHtml(color)+'"':'')+' tabindex="0"';
   }
   function ensureChartTooltip() {
     var tip=byId('field-chart-tooltip');
@@ -369,6 +389,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     tip.hidden=true;
     tip.innerHTML='<strong></strong><span></span><small></small>';
     document.body.appendChild(tip);
+    var focus=document.createElement('div');focus.id='field-chart-focus';focus.className='field-chart-focus';focus.hidden=true;focus.setAttribute('aria-hidden','true');
+    focus.innerHTML='<i class="field-chart-guide"></i><b class="field-chart-ring"></b>';
+    document.body.appendChild(focus);
     return tip;
   }
   function showChartTooltip(target,event,pinned) {
@@ -378,11 +401,27 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     tip.querySelector('span').textContent=target.dataset.chartTipValue||'';
     var detail=target.dataset.chartTipDetail||'',small=tip.querySelector('small');
     small.textContent=detail;small.hidden=!detail;
+    var color=target.dataset.chartTipColor||'#ff9a91';
+    tip.style.setProperty('--tip-color',color);
     tip.hidden=false;tip.classList.add('is-visible');
-    var x=event&&Number.isFinite(event.clientX)&&event.clientX?event.clientX:rect.left+rect.width/2;
-    var y=event&&Number.isFinite(event.clientY)&&event.clientY?event.clientY:rect.top+rect.height/2;
+    // A point anchors the bubble at its centre; a bar or zone at the pointer.
+    var isPoint=target.tagName.toLowerCase()==='circle';
+    var x=isPoint?rect.left+rect.width/2:event&&Number.isFinite(event.clientX)&&event.clientX?event.clientX:rect.left+rect.width/2;
+    var y=isPoint?rect.top+rect.height/2:event&&Number.isFinite(event.clientY)&&event.clientY?event.clientY:rect.top+rect.height/2;
+    var focus=byId('field-chart-focus'),svg=target.closest('svg');
+    if(focus&&svg){
+      var box=svg.getBoundingClientRect();
+      focus.style.setProperty('--tip-color',color);
+      focus.style.left=x+'px';focus.style.top=y+'px';
+      focus.style.setProperty('--guide',Math.max(0,box.bottom-28-y)+'px');
+      focus.classList.toggle('is-point',isPoint);
+      focus.hidden=false;
+    }
+    tip.style.setProperty('--arrow-x','50%');
     var half=Math.min(138,Math.max(84,tip.offsetWidth/2));
+    var anchorX=x;
     x=clamp(x,half+8,window.innerWidth-half-8);
+    tip.style.setProperty('--arrow-x',clamp(anchorX-(x-tip.offsetWidth/2),16,tip.offsetWidth-16)+'px');
     y=clamp(y-18,52,window.innerHeight-24);
     tip.style.left=x+'px';tip.style.top=y+'px';
     clearTimeout(showChartTooltip.timer);
@@ -391,6 +430,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function hideChartTooltip() {
     var tip=byId('field-chart-tooltip');if(!tip)return;
     tip.classList.remove('is-visible');clearTimeout(showChartTooltip.timer);
+    var focus=byId('field-chart-focus');if(focus)focus.hidden=true;
     setTimeout(function(){if(!tip.classList.contains('is-visible'))tip.hidden=true;},160);
   }
 
@@ -411,7 +451,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
       if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
       else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+(top+plotH)+'" x2="'+(x+4)+'" y2="'+(top+plotH)+'"/>';
-      svg+='<rect class="chart-hit-zone" x="'+(left+step*index)+'" y="'+top+'" width="'+step+'" height="'+plotH+'"'+chartTipAttrs(bucket.label,formatNumber(value,0)+' '+(metric==='minutes'?'min':'pass'),state.activityView==='week'?shortDate(bucket.date):'Vecka '+bucket.label.replace(/^v/,''))+'/>';
+      svg+='<rect class="chart-hit-zone" x="'+(left+step*index)+'" y="'+top+'" width="'+step+'" height="'+plotH+'"'+chartTipAttrs(bucket.label,formatNumber(value,0)+' '+(metric==='minutes'?'min':'pass'),state.activityView==='week'?shortDate(bucket.date):'Vecka '+bucket.label.replace(/^v/,''),'#ff9a91')+'/>';
       svg+='<text class="chart-axis-label" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
     });
     svg+='</svg>';
@@ -507,7 +547,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     series.forEach(function(group,index){
       var color=groupVolumeColor(index),points=group.entries.filter(withinChartRange).map(function(entry){return [x(entry.date),y(entry.value),entry];});
       if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
-      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"'+chartTipAttrs(group.name,formatNumber(Math.round(point[2].value),0)+' kg',logDate(point[2].date))+'/>';});
+      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"'+chartTipAttrs(group.name,formatNumber(Math.round(point[2].value),0)+' kg',logDate(point[2].date),color)+'/>';});
     });
     var daySpan=Math.round((dateAtNoon(dateKeys[dateKeys.length-1])-dateAtNoon(dateKeys[0]))/86400000);
     var tickCount=daySpan===0?1:Math.min(5,daySpan+1);
@@ -812,7 +852,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       // Always render a visible marker for every saved heart-rate measurement.
       // Keep labels and transparent hit zones on separate layers so labels never cover the markers.
       heartMarkers+=glowingPoint(px,py,4,color,'heart-point');
-      heartHits+='<circle class="chart-hit-point" cx="'+px+'" cy="'+py+'" r="14"'+chartTipAttrs(logDate(entry.date)+' · '+entry.type,Math.round(entry.value)+' bpm',entry.min>0&&entry.max>=entry.min?'Intervall '+Math.round(entry.min)+'–'+Math.round(entry.max)+' bpm':'')+'/>';
+      heartHits+='<circle class="chart-hit-point" cx="'+px+'" cy="'+py+'" r="14"'+chartTipAttrs(logDate(entry.date)+' · '+entry.type,Math.round(entry.value)+' bpm',entry.min>0&&entry.max>=entry.min?'Intervall '+Math.round(entry.min)+'–'+Math.round(entry.max)+' bpm':'',color)+'/>';
       var labelInterval=Math.max(1,Math.ceil(entries.length/(width<560?3:6)));
       if(index!==0&&index!==entries.length-1&&index%labelInterval!==0)return;
       var labelText=Math.round(entry.value)+' bpm';
@@ -1015,6 +1055,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     pencil:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4L15.8 5.2a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.5 18.5z"/><path d="M13.5 7.5l3 3"/></svg>'
   };
   var PK_ART=[[/triceps|dips/,'triceps'],[/biceps|curl/,'biceps'],[/bröst|press|fly|armhäv|push/,'chest'],[/rygg|rodd|lats|pull/,'back'],[/axl|axel|shoulder/,'shoulders'],[/mage|core|plank/,'abs'],[/säte|höft|glute/,'glutes'],[/baksida|lårcurl|marklyft/,'hamstrings'],[/vad/,'calves'],[/ben|knä|utfall|squat|lår|underkropp|helkropp/,'quads']];
+  var PK_MOON='<svg class="pk-icon pk-thumb-icon" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>';
   var PK_CARDIO='<svg class="pk-icon pk-thumb-icon" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>';
   function pkThumb(text,kind) {
     if(kind==='cardio')return '<span class="pk-thumb is-cardio" aria-hidden="true">'+PK_CARDIO+'</span>';

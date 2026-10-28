@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261028-full-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261028-today-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261028-full-1">
@@ -32,8 +32,8 @@
   <script defer src="auth-config.js?v=20261026-energy-loop-4"></script>
   <script defer src="auth-gate.js?v=20261026-energy-loop-4"></script>
   <script defer src="firebase-sync.js?v=20261020-exercise-history-v1"></script>
-  <script defer src="training-pulse-field.js?v=20261027-kit-5"></script>
-  <script defer src="training-pulse-editor.js?v=20261028-full-1"></script>
+  <script defer src="training-pulse-field.js?v=20261028-today-1"></script>
+  <script defer src="training-pulse-editor.js?v=20261028-picker-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -188,8 +188,11 @@
         <div class="week-days" id="week-days"></div>
       </div>
       <div class="week-selected-session-v3" id="week-selected-session-v3" aria-live="polite">
-        <span id="week-selected-day-v3">Dagens pass</span>
-        <strong id="week-selected-name-v3">Välj en dag</strong>
+        <button type="button" class="today-open" id="week-selected-open-v3" data-field-action="edit-day">
+          <span class="today-thumb" id="week-selected-thumb-v3" aria-hidden="true"></span>
+          <span class="today-copy"><span id="week-selected-day-v3">Dagens pass</span><strong id="week-selected-name-v3">Välj en dag</strong><small id="week-selected-meta-v3"></small></span>
+        </button>
+        <button type="button" class="today-play" id="week-selected-play-v3" data-field-action="start-day" aria-label="Starta passet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.8v12.4L18.5 12z"/></svg></button>
       </div>
     </section>
 
