@@ -170,10 +170,21 @@ async function initialize(){
   if(meta.texture){
    const map=await new THREE.TextureLoader().loadAsync(new URL(meta.texture,base).href);
    map.flipY=false;map.colorSpace=THREE.NoColorSpace;map.anisotropy=4;
-   Object.assign(mat,{map,opacity:1,transparent:false,depthWrite:true,roughness:.62,metalness:0});mat.color.set(0xffffff);
-   Object.assign(materials.skin,{roughness:.62,metalness:0});materials.skin.color.set(0xc3c9cf);
+   Object.assign(mat,{map,opacity:1,transparent:false,depthWrite:true,roughness:.42,metalness:.38});mat.color.set(0xffffff);
+   Object.assign(materials.skin,{roughness:.42,metalness:.38});materials.skin.color.set(0x9aa3ad);
    const compile=mat.onBeforeCompile;
-   mat.onBeforeCompile=(shader,renderer)=>{compile(shader,renderer);shader.fragmentShader=shader.fragmentShader.replace('clothingMask=max(clothingMask,shortsExtension);','').replace('vec3 pearl = mix(vec3(0.86, 0.90, 0.95), mix(diffuseColor.rgb,vec3(0.055,0.085,0.13),shortsExtension), clothingMask);','vec3 pearl = diffuseColor.rgb;');};
+   // Textured figure: cool silver-grey skin that keeps the model's own shading,
+   // a red tissue flow on the primary muscle and a quieter tint on secondary ones.
+   const textured=[
+    ['clothingMask=max(clothingMask,shortsExtension);',''],
+    ['vec3 pearl = mix(vec3(0.86, 0.90, 0.95), mix(diffuseColor.rgb,vec3(0.055,0.085,0.13),shortsExtension), clothingMask);',
+     'float modelShade = clamp(dot(diffuseColor.rgb, vec3(0.299,0.587,0.114)) * 1.9, 0.0, 1.25);\n    vec3 pearl = vec3(0.50,0.54,0.59) * (0.42 + 0.62 * modelShade);'],
+    ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.42;'],
+    ['muscleMask=region*mix(0.85,0.99,primary);','muscleMask=region*mix(0.45,1.0,primary);'],
+    ['diffuseColor.rgb=mix(pearl,red,muscleMask);','diffuseColor.rgb=mix(pearl,red*(0.80+0.50*modelShade),muscleMask);'],
+    ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','diffuseColor.rgb = mix(pearl, muscleColor*(0.62+0.55*modelShade), muscleMask);']
+   ];
+   mat.onBeforeCompile=(shader,renderer)=>{compile(shader,renderer);for(const [a,b] of textured){if(!shader.fragmentShader.includes(a))console.warn('pulse figure: shader text not found',a.slice(0,40));shader.fragmentShader=shader.fragmentShader.replace(a,b);}};
    mat.customProgramCacheKey=()=>'pulse-tissue-textured';
   }
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
