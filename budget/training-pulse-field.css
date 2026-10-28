@@ -111,7 +111,7 @@ body.field-compact-active .field-footer{display:none!important}
 .kind-switch a.is-active::after{transform:scaleX(1)}
 
 main{position:relative;z-index:2;display:block}
-.field-hero{position:relative;display:flex;flex-direction:column;min-height:535px;padding:48px 0 30px;isolation:isolate}
+.field-hero{position:relative;display:flex;flex-direction:column;min-height:470px;padding:48px 0 30px;isolation:isolate}
 .hero-copy{position:relative;z-index:4;max-width:540px}
 .eyebrow{margin:0;color:var(--field-coral);font-size:10px;line-height:1.5;letter-spacing:2.3px;text-transform:uppercase}
 .spark-symbol{display:inline-grid;place-items:center;margin-right:9px}
@@ -474,7 +474,7 @@ main{position:relative;z-index:2;display:block}
   .space-star--2{left:21%}
   .space-star--4{left:63%}
   .space-star--6{left:90%}
-  .field-hero{min-height:clamp(460px,calc(100svh - 164px),535px);padding-top:30px}
+  .field-hero{min-height:clamp(390px,calc(100svh - 300px),440px);padding-top:30px}
   .hero-copy h1{font-size:68px;letter-spacing:-3px}
   .hero-script{font-size:23px}
   .hero-description{max-width:285px;line-height:1.7}
@@ -637,11 +637,11 @@ main{position:relative;z-index:2;display:block}
 .today-copy strong{overflow:hidden;color:#f6efeb;font:400 25px/1.1 var(--field-serif);white-space:nowrap;text-overflow:ellipsis}
 .today-copy small{color:var(--field-muted);font-size:12px}
 .week-selected-session-v3[data-kind="rest"] .today-copy strong{color:#c5ccd3}
-.today-play{display:grid;place-items:center;flex:none;width:48px;height:48px;padding:0;border:0;border-radius:50%;cursor:pointer;color:#1d0806;
-  background:linear-gradient(135deg,#ff8a74,#e5484d);box-shadow:0 10px 26px -10px #ff5a4acc,inset 0 1px 0 #ffffff55}
-.today-play svg{width:20px;height:20px;fill:currentColor;margin-left:2px}
+.today-play{display:inline-flex;align-items:center;gap:2px;flex:none;min-height:44px;padding:0 4px 0 10px;border:0;background:none;cursor:pointer;color:var(--field-coral);font:600 13px var(--pk-ui);letter-spacing:.2px;text-shadow:0 0 14px #ff657a66}
+.today-play svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.week-selected-session-v3[data-kind="cardio"] .today-play{color:var(--pk-cyan);text-shadow:0 0 14px #7fe3ef66}
 .today-play[hidden]{display:none}
-.today-play:active{transform:scale(.94)}
+.today-play:active{opacity:.7}
 @media(max-width:560px){
   .week-field-shell{min-height:112px}
   .week-day{min-height:108px;padding:7px 1px 4px}
