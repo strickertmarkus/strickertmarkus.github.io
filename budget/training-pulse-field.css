@@ -474,7 +474,7 @@ main{position:relative;z-index:2;display:block}
   .space-star--2{left:21%}
   .space-star--4{left:63%}
   .space-star--6{left:90%}
-  .field-hero{min-height:clamp(390px,calc(100svh - 300px),440px);padding-top:30px}
+  .field-hero{min-height:clamp(450px,calc(100svh - 250px),500px);padding-top:30px}
   .hero-copy h1{font-size:68px;letter-spacing:-3px}
   .hero-script{font-size:23px}
   .hero-description{max-width:285px;line-height:1.7}
