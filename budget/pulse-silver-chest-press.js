@@ -166,6 +166,16 @@ async function initialize(){
   geo.morphAttributes.position=shapes.map(s=>s.positions);
   geo.morphAttributes.normal=shapes.map(s=>s.normals);
   const mat=createTissueMaterial(materials.skin,{pressContraction,tissueLight,muscleUniform,pilotUniform,activationUniform});
+  // The new figure is shown as its source model: solid, with the model's own painted texture and no shorts.
+  if(meta.texture){
+   const map=await new THREE.TextureLoader().loadAsync(new URL(meta.texture,base).href);
+   map.flipY=false;map.colorSpace=THREE.NoColorSpace;map.anisotropy=4;
+   Object.assign(mat,{map,opacity:1,transparent:false,depthWrite:true,roughness:.62,metalness:0});mat.color.set(0xffffff);
+   Object.assign(materials.skin,{roughness:.62,metalness:0});materials.skin.color.set(0xc3c9cf);
+   const compile=mat.onBeforeCompile;
+   mat.onBeforeCompile=(shader,renderer)=>{compile(shader,renderer);shader.fragmentShader=shader.fragmentShader.replace('clothingMask=max(clothingMask,shortsExtension);','').replace('vec3 pearl = mix(vec3(0.86, 0.90, 0.95), mix(diffuseColor.rgb,vec3(0.055,0.085,0.13),shortsExtension), clothingMask);','vec3 pearl = diffuseColor.rgb;');};
+   mat.customProgramCacheKey=()=>'pulse-tissue-textured';
+  }
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;body.castShadow=true;body.receiveShadow=true;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
   body.bind(new THREE.Skeleton(bones));scene.add(body);
