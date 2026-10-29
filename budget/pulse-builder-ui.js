@@ -147,7 +147,9 @@ function enhanceRow(row){
  var panel=document.createElement('div');panel.className='pbu-panel';
  panel.innerHTML='<div class="pbu-pick" hidden></div>'
   +'<div class="pbu-seg" role="group" aria-label="Typ av övning"><button type="button" data-pbu-kind="strength">Styrka</button><button type="button" data-pbu-kind="cardio">Kondition</button></div>'
-  +'<div class="pbu-steps"></div>';
+  +'<div class="pbu-steps"></div>'
+  // One quiet line under the numbers: the exercise time (log) and kg / Kroppsvikt.
+  +'<div class="pbu-extra"></div>';
  var actions=document.createElement('div');actions.className='pbu-actions';
  actions.innerHTML='<button type="button" class="pbu-link" data-pbu-change>Byt övning</button>'
   +'<button type="button" class="pbu-link is-danger" data-pbu-delete>Ta bort</button>';
@@ -164,7 +166,7 @@ function enhanceRow(row){
  row.appendChild(quick);
  row.appendChild(panel);row.appendChild(actions);
  // The log form's "Tid för övningen" belongs with the numbers.
- var timing=row.querySelector(':scope>.ex-duration-editor-v7');if(timing){timing.classList.add('pbu-timing');panel.appendChild(timing);}
+ var timing=row.querySelector(':scope>.ex-duration-editor-v7');if(timing){timing.classList.add('pbu-timing');var tl=timing.querySelector(':scope>span');if(tl){tl.title=tl.textContent;tl.textContent='Tid';}panel.querySelector('.pbu-extra').appendChild(timing);}
  new MutationObserver(function(){syncBetween(row);}).observe(row,{attributes:true,attributeFilter:['data-between-sets-v7']});
  paintRow(row);
 }
@@ -266,7 +268,8 @@ function renderSteps(row){
    +'<input class="pbu-step-value" data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1||s.clock?'decimal':'numeric')+'" value="'+esc(v)+'" placeholder="'+(s.clock?'0:00':'0')+'" aria-label="'+s.label+'" autocomplete="off">'
    +'<button type="button" data-pbu-step="1" data-pbu-n="'+s.n+'" aria-label="Öka '+s.label.toLowerCase()+'"><i class="pbu-plus"></i></button></div></div>';
  }).join('');
- if(kind==='strength')wrap.insertAdjacentHTML('beforeend','<div class="pbu-seg pbu-weight-choice" role="group" aria-label="Viktalternativ"><button type="button" data-pbu-weight-mode="kg" aria-pressed="'+!bw+'">kg</button><button type="button" data-pbu-weight-mode="bodyweight" aria-pressed="'+bw+'">Kroppsvikt</button></div>');
+ var extra=row.querySelector('.pbu-extra'),old=extra&&extra.querySelector('.pbu-weight-choice');if(old)old.remove();
+ if(extra&&kind==='strength')extra.insertAdjacentHTML('beforeend','<div class="pbu-seg pbu-weight-choice" role="group" aria-label="Viktalternativ"><button type="button" data-pbu-weight-mode="kg" aria-pressed="'+!bw+'">kg</button><button type="button" data-pbu-weight-mode="bodyweight" aria-pressed="'+bw+'">Kroppsvikt</button></div>');
  syncSteps(row);
 }
 

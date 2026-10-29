@@ -553,16 +553,16 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return:hover{background:#28202a}
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20261029-planner-bodyweight-2">
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20261029-plan-4">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-planner-bodyweight-2">
-<link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-log-1">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-8">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-plan-2">
+<link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-plan-2">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261029-planner-bodyweight-2"></script>
+<script defer src="pulse-builder-ui.js?v=20261029-plan-3"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -943,9 +943,11 @@ if(!window.__FIELD_EMBEDDED__){
           <input type="date" id="plan-week-date" aria-label="Välj datum för veckoplanen" onchange="onPlanWeekDateChange()">
         </label>
       </div>
-      <div class="pulse-plan-summary-v2" id="pulse-plan-summary-v2" aria-live="polite"></div>
+      <div class="pulse-plan-meta-row">
+        <div class="pulse-plan-summary-v2" id="pulse-plan-summary-v2" aria-live="polite"></div>
+        <details class="pulse-plan-templates-v2"><summary><span>Veckomallar</span><small aria-hidden="true">⌄</small></summary><div class="pulse-plan-week-template-row-v2"><select id="pulse-plan-template-select-v2" aria-label="Välj veckomall"></select><button type="button" onclick="pulsePlanApplyWeekTemplateV2()">Använd</button></div></details>
+      </div>
     </div>
-    <details class="pulse-plan-templates-v2"><summary><span>Återanvänd en vecka</span><small>Veckomallar ⌄</small></summary><div class="pulse-plan-week-template-row-v2"><select id="pulse-plan-template-select-v2" aria-label="Välj veckomall"></select><button type="button" onclick="pulsePlanApplyWeekTemplateV2()">Använd</button></div></details>
     <div id="plan-days"></div>
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('plan-modal')">Avbryt</button>
@@ -1252,39 +1254,30 @@ function pulsePlanRefreshSummaryV2(){
   var node=document.getElementById('pulse-plan-summary-v2');
   if(node)node.textContent=active.length+' pass · '+count+' övningar · '+(7-active.length)+' vilodagar';
 }
+/* Quick planning for one day: the pass as a drop-down, a saved template, and
+   the way into the pass builder for exercises, sets and weights. */
 function pulsePlanExpandedHtmlV2(entry,i){
   var type=entry.type||'Vila',kind=pulsePlanKindV2(type),exercises=pulsePlanExerciseListV2(entry);
-  var types=[type].concat(pulsePlanTypesV2().filter(function(candidate){return candidate!==type;})).slice(0,12),matches=pulsePlanCatalogV2(type);
-  var typeButtons=types.map(function(name){
-    return '<button type="button" class="pulse-plan-chip-v2" data-pulse-type-v2="'+i+'" data-pulse-value-v2="'+encodeURIComponent(name)+'" aria-pressed="'+String(name===type)+'">'+escHtml(name)+'</button>';
-  }).join('');
-  var suggested=matches.filter(function(ex){return !exercises.some(function(chosen){return String(chosen.name||'').toLocaleLowerCase('sv-SE')===String(ex.name||'').toLocaleLowerCase('sv-SE');});}).slice(0,8);
-  var chosen=exercises.map(function(ex,j){
-    return '<div class="pulse-plan-exercise-v2"><span class="pulse-plan-exercise-dot-v2"></span><span>'+escHtml(ex.name||'Övning')+'</span><button type="button" data-pulse-remove-ex-v2="'+i+':'+j+'" aria-label="Ta bort '+escHtml(ex.name||'övning')+'">×</button></div>';
-  }).join('');
-  var suggestedHtml=suggested.map(function(ex){
-    return '<button type="button" class="pulse-plan-chip-v2" data-pulse-add-ex-v2="'+i+'" data-pulse-value-v2="'+encodeURIComponent(ex.name)+'">+ '+escHtml(ex.name)+'</button>';
-  }).join('');
+  var types=pulsePlanTypesV2().filter(function(name){return pulsePlanKindV2(name)!=='rest';});
+  var known=kind==='rest'||types.indexOf(type)>=0;
+  var options='<option value="Vila"'+(kind==='rest'?' selected':'')+'>Vila</option>'+
+    types.map(function(name){return '<option value="'+escHtml(name)+'"'+(name===type?' selected':'')+'>'+escHtml(name)+'</option>';}).join('')+
+    (known?'':'<option value="'+escHtml(type)+'" selected>'+escHtml(type)+'</option>')+
+    '<option value="__custom">Eget namn…</option>';
   var templates=getTemplates().filter(function(t){return t&&Array.isArray(t.exercises)&&t.exercises.length;});
   var templatesHtml=templates.length?
-    '<div class="pulse-plan-day-template-select-v4"><select data-pulse-template-select-v4="'+i+'" aria-label="Välj mallpass för '+DAYS[i]+'"><option value="">Välj sparat mallpass</option>'+
+    '<div class="pp-row"><label class="pp-select"><span>Mallpass</span><select data-pulse-template-select-v4="'+i+'" aria-label="Välj mallpass för '+DAYS[i]+'"><option value="">Välj sparat mallpass</option>'+
     templates.map(function(t){return '<option value="'+escHtml(String(t.id))+'">'+escHtml(t.name||t.type||'Mallpass')+'</option>';}).join('')+
-    '</select><button type="button" data-pulse-apply-template-v4="'+i+'">Använd mall</button></div>':
-    '<p class="pulse-plan-empty-v2">Inga mallpass ännu. Skapa dem under Bygg pass.</p>';
-  return '<div class="pulse-plan-editor-v2">'+
-    '<div class="pulse-plan-editor-head-v2"><b>PASS</b><span>Välj era vanliga träningsgrupper</span></div>'+
-    '<div class="pulse-plan-chip-list-v2 pulse-plan-types-v3" role="group" aria-label="Välj träningsgrupp">'+typeButtons+'</div>'+
-    '<label class="pulse-plan-custom-v2"><span>Passnamn · tryck för att ändra</span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" autocomplete="off" value="'+escHtml(type)+'" aria-label="Träningspass för '+DAYS[i]+'"></label>'+
-    '<div class="pulse-plan-editor-head-v2"><b>MALLPASS</b><span>Hämta sparat upplägg</span></div>'+templatesHtml+
-    (kind==='rest'?'':('<div class="pulse-plan-editor-head-v2"><b>ÖVNINGAR</b><span>'+exercises.length+(exercises.length===1?' vald':' valda')+'</span></div>'+
-      (chosen||'<p class="pulse-plan-empty-v2">Inga övningar valda ännu.</p>')+
-      (suggestedHtml?'<div class="pulse-plan-chip-list-v2 pulse-plan-exercise-choices-v2">'+suggestedHtml+'</div>':'')+
-      '<div class="pulse-plan-add-row-v2"><input type="text" data-pulse-new-ex-v2="'+i+'" placeholder="Ny övning…" aria-label="Ny övning" autocomplete="off"><button type="button" data-pulse-create-ex-v2="'+i+'">+ Lägg till</button></div>'+
-      ''))+
-    '<div class="pulse-plan-editor-foot-v2">'+
-      '<button type="button" data-pulse-open-builder-v2="'+i+'">Set, vikter och detaljer ↗</button>'+
-      '<button type="button" data-pulse-copy-v2="'+i+'">'+(pulsePlanCopied&&pulsePlanCopied.date===shiftISODate(planTargetMondayISO,i)?'Avbryt kopiering':'Kopiera pass')+'</button>'+
-      '<button type="button" data-pulse-rest-v2="'+i+'">Vila / rensa</button></div>'+
+    '</select></label><button type="button" class="pp-quiet" data-pulse-apply-template-v4="'+i+'">Använd</button></div>':'';
+  var copying=pulsePlanCopied&&pulsePlanCopied.date===shiftISODate(planTargetMondayISO,i);
+  return '<div class="pulse-plan-editor-v2 pp-quick">'+
+    '<div class="pp-row"><label class="pp-select is-pass"><span>Pass</span><select data-pulse-type-select="'+i+'" aria-label="Pass för '+DAYS[i]+'">'+options+'</select></label>'+
+      '<button type="button" class="pp-builder" data-pulse-open-builder-v2="'+i+'">Passbyggaren<span aria-hidden="true">↗</span></button></div>'+
+    '<label class="pp-custom"'+(known?' hidden':'')+'><span>Eget namn</span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" autocomplete="off" value="'+escHtml(type)+'" aria-label="Eget namn på passet för '+DAYS[i]+'"></label>'+
+    templatesHtml+
+    (kind==='rest'?'':'<p class="pp-summary">'+(exercises.length?'<b>'+exercises.length+(exercises.length===1?' övning':' övningar')+'</b> · '+escHtml(pulsePlanPreviewV2(entry)):'Inga övningar ännu · lägg till dem i passbyggaren')+'</p>')+
+    '<div class="pp-foot"><button type="button" class="pp-quiet" data-pulse-copy-v2="'+i+'">'+(copying?'Avbryt kopiering':'Kopiera pass')+'</button>'+
+      (kind==='rest'?'':'<button type="button" class="pp-quiet" data-pulse-rest-v2="'+i+'">Gör till vilodag</button>')+'</div>'+
     '</div>';
 }
 function pulsePlanRenderV2(){
@@ -1474,7 +1467,14 @@ function pulsePlanInstallV2(){
     var badge=card.querySelector('.pulse-plan-badge-v2');
     if(badge)badge.textContent=pulsePlanKindV2(entry.type)==='rest'?'Vila':pulsePlanKindV2(entry.type)==='cardio'?'Kondition':'Styrka';
   });
-  box.addEventListener('change',function(event){if(event.target.matches('input[data-day]'))pulsePlanRenderV2();});
+  box.addEventListener('change',function(event){
+    if(event.target.matches('input[data-day]')){pulsePlanRenderV2();return;}
+    var pick=event.target.closest('[data-pulse-type-select]');if(!pick)return;
+    var index=Number(pick.dataset.pulseTypeSelect),editor=pick.closest('.pp-quick'),custom=editor&&editor.querySelector('.pp-custom');
+    if(pick.value==='__custom'){if(custom){custom.hidden=false;var input=custom.querySelector('input');input.value='';input.focus();}return;}
+    if(custom){custom.hidden=true;custom.querySelector('input').value=pick.value;}
+    pulsePlanSetTypeV2(index,pick.value);
+  });
   box.addEventListener('keydown',function(event){
     if(event.key==='Enter'&&event.target.matches('[data-pulse-new-ex-v2]')){event.preventDefault();pulsePlanAddExerciseV2(Number(event.target.dataset.pulseNewExV2),event.target.value);return;}
     var handle=event.target.closest('[data-pulse-drag-v2]');
@@ -3406,6 +3406,13 @@ function updateWorkoutMeters(){
   var goal=Number(getGoals().vo2Goal)||45,vo2=workoutFieldNumber('wk-vo2'),g=document.getElementById('wk-vo2-goal');
   if(g)g.textContent='mål '+String(goal).replace('.',',');
   put('wk-vo2-meter',vo2?(vo2-40)/Math.max(.1,goal-40):null);
+  // VO2 belongs to cardio passes (running, cycling…): shown there, or when a value is already saved.
+  var vo2Meter=document.getElementById('wk-vo2-meter');
+  if(vo2Meter){
+    var type=(document.getElementById('wk-type')||{}).value||'';
+    var cardio=exerciseCategoryIsCardio(type)||Array.prototype.some.call(document.querySelectorAll('#ex-list [class$="-kind"]'),function(k){return k.value==='cardio';});
+    vo2Meter.hidden=!(vo2||cardio);
+  }
   var run=workoutRunPace(),paceMeter=document.getElementById('wk-pace-meter'),paceInput=document.getElementById('wk-pace');
   if(paceMeter){
     paceMeter.hidden=!(run.distance>0);
@@ -3746,7 +3753,7 @@ window.addEventListener('firebase-sync',function(event){
   },{once:true});
 })();
 </script>
-<script src="training-month-planner.js?v=20261029-plan-1"></script>
+<script src="training-month-planner.js?v=20261029-plan-2"></script>
 <script src="training-pulse-classic-templates-v1.js?v=20261028-clear-1"></script>
 </body>
 </html>

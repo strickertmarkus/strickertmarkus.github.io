@@ -375,7 +375,12 @@ html.pbu-v1[data-field-embedded] body :is(#day-workout-modal,#wk-modal,#exercise
 .pbu-v1 .pbu-meter-ctrl .pbu-plus,.pbu-v1 .pbu-meter-ctrl .pbu-minus{width:10px;height:10px}
 .pbu-v1 .pbu-meter-ctrl .pbu-plus::before,.pbu-v1 .pbu-meter-ctrl .pbu-plus::after,.pbu-v1 .pbu-meter-ctrl .pbu-minus::before{width:10px;height:1.5px}
 
-.pbu-weight-choice{grid-column:1/-1;justify-content:flex-end}
-.pbu-bodyweight-value{display:block;padding:13px 2px;font:500 12px/1.4 Inter,sans-serif;color:#ffb2a6;text-align:center}
+/* Under the numbers: exercise time on the left, kg / Kroppsvikt as a small switch on the right. */
+.pbu-v1 .pbu-extra{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;min-width:0}
+.pbu-v1 .pbu-extra:empty{display:none}
+.pbu-v1 .pbu-row.pbu-picking .pbu-extra{display:none}
+.pbu-v1 .pbu-extra .pbu-weight-choice{flex:none;margin:0 0 0 auto;padding:2px;gap:0;width:max-content}
+.pbu-v1 .pbu-extra .pbu-weight-choice button{min-height:30px;padding:0 12px;font-size:12px}
+.pbu-v1 .pbu-bodyweight-value{display:grid;place-items:center;height:50px;border-radius:16px;background:#ffffff07;box-shadow:inset 0 0 0 1px #ffffff12;font:600 13px Inter,sans-serif;color:#ffb2a6}
 
 .pbu-row .exercise-weight-mode{display:none!important}

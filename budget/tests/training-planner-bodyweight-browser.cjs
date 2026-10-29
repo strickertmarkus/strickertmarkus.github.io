@@ -33,7 +33,7 @@ async function verify(width,profile){
  }
  await geometry();await page.screenshot({path:`${out}/${width}-month.jpg`,type:'jpeg',quality:70});
  await frame.locator('.planner-day-open[data-plan-date="2026-10-29"]').click();
- await frame.locator('.planner-selected-title').click();
+ await frame.locator('.planner-selected-day .pp-builder').click();
  await frame.locator('#day-workout-ex-list .pbu-title').first().click();
  await frame.locator('[data-pbu-weight-mode="kg"]').click();await frame.locator('[data-pbu-value="3"]').fill('25');
  await frame.locator('[data-pbu-weight-mode="bodyweight"]').click();

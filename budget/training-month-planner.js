@@ -41,7 +41,7 @@ function pulsePlanRenderMonth(){
   if(pulsePlanExpandedV2>=0&&pulsePlanSelected){
     var index=DAY_KEYS.indexOf(dayKeyFromISO(pulsePlanSelected)),selectedEntry=pulsePlanEntryForDate(pulsePlanSelected);
     html+='<article class="pulse-plan-day-v2 is-expanded planner-selected-day" data-index="'+index+'" data-color="'+pulsePlanColorV2(selectedEntry.type)+'">'+
-      '<button type="button" class="planner-selected-title" data-pulse-open-builder-v2="'+index+'">'+escHtml(parseISODate(pulsePlanSelected).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}))+'<span>Öppna passbyggaren ↗</span></button>'+
+      '<h3 class="planner-selected-title">'+escHtml(parseISODate(pulsePlanSelected).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}))+'</h3>'+
       pulsePlanExpandedHtmlV2(selectedEntry,index)+'</article>';
   }
   var scroll=box.scrollTop;box.innerHTML=html;box.scrollTop=scroll;

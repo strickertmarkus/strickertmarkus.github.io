@@ -153,7 +153,8 @@ html[data-field-embedded] body#pulse-page #pulse-goals .goal-card-vo2-v37 .progr
    keeps the top-right corner free for the floating close button. */
 html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal{padding-top:max(18px,env(safe-area-inset-top,0px))!important}
 html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal>h2{padding-right:56px!important}
-html[data-field-embedded] body#pulse-page #plan-modal .modal{padding-top:calc(max(18px,env(safe-area-inset-top,0px)) + 52px)!important}
+/* The planner's Vecka/Månad tabs share the top row with the floating close button. */
+html[data-field-embedded] body#pulse-page #plan-modal .modal{padding-top:max(14px,env(safe-area-inset-top,0px))!important}
 html[data-field-embedded] body#pulse-page #pulse-goals{padding-top:calc(max(18px,env(safe-area-inset-top,0px)) + 52px)!important}
 
 /* ---------- Your own exercises: a full-screen sheet ---------- */

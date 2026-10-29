@@ -1047,7 +1047,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var min=number(workout.hrMin),avg=number(workout.hrAvg),max=number(workout.hrMax);
     var saved=(data.vo2||[]).find(function(item){return item&&item.date===workout.date;});
     var vo2=number(workout.vo2)||number(saved&&(saved.score||saved.value||saved.vo2));
-    var pace=workoutPace(workout),goal=number(data.goals.vo2Goal)||45;
+    // VO2 and pace only for cardio passes (running, cycling…), like the log form.
+    var cardio=workoutKind(workout)==='cardio';
+    if(!cardio){vo2=0;}
+    var pace=cardio?workoutPace(workout):0,goal=number(data.goals.vo2Goal)||45;
     function chart(type,label,value,position,low,high,unit){
       var pct=clamp((position-9)/86*100,0,100);
       return '<div class="log-mini-meter log-mini-meter--'+type+'" role="img" aria-label="'+escapeHtml(label+': '+value+' '+unit+'. Skala '+low+' till '+high)+'">'+
