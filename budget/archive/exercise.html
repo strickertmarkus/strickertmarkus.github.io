@@ -556,13 +556,13 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261027-kit-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-pace-2">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-pace-3">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-log-1">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-6">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-7">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261029-pace-2"></script>
+<script defer src="pulse-builder-ui.js?v=20261029-pace-3"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -809,13 +809,24 @@ if(!window.__FIELD_EMBEDDED__){
       <p class="pbu-log-section">Mätvärden</p>
       <!-- Distance, time and pace are typed in the cardio rows above; the pass gets them from there. -->
       <input type="hidden" id="wk-run-km"><input type="hidden" id="wk-run-min">
-      <section class="pbu-log-card" aria-labelledby="wk-hr-title">
-        <h3 id="wk-hr-title"><span>Puls <small>bpm</small></span><span class="pbu-log-vo2-title">Kondition</span></h3>
-        <div class="pbu-log-grid is-4">
-          <label class="pbu-log-tile"><span>Medel</span><input type="text" id="wk-hr-avg" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-          <label class="pbu-log-tile"><span>Max</span><input type="text" id="wk-hr-max" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-          <label class="pbu-log-tile"><span>Min</span><input type="text" id="wk-hr-min" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-          <label class="pbu-log-tile is-vo2"><span>VO₂ max</span><input type="text" id="wk-vo2" placeholder="–" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label>
+      <!-- Pulse and VO2 as the training log's interval meters; the numbers are the fields. -->
+      <section class="pbu-log-card pbu-log-meters" aria-label="Puls och VO₂ max">
+        <div class="pbu-log-meter is-heart" id="wk-hr-meter">
+          <label class="pbu-log-meter-read"><span>Medelpuls <small>bpm</small></span><input type="text" id="wk-hr-avg" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next" oninput="updateWorkoutMeters()"></label>
+          <div class="pbu-log-meter-signal">
+            <div class="pbu-log-meter-track" aria-hidden="true"><i class="pbu-log-meter-point"></i></div>
+            <div class="pbu-log-meter-scale">
+              <label><span>Min</span><input type="text" id="wk-hr-min" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next" oninput="updateWorkoutMeters()"></label>
+              <label class="is-end"><span>Max</span><input type="text" id="wk-hr-max" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next" oninput="updateWorkoutMeters()"></label>
+            </div>
+          </div>
+        </div>
+        <div class="pbu-log-meter is-vo2" id="wk-vo2-meter">
+          <label class="pbu-log-meter-read"><span>VO₂ max <small>ml/kg/min</small></span><input type="text" id="wk-vo2" placeholder="–" inputmode="decimal" autocomplete="off" enterkeyhint="done" oninput="updateWorkoutMeters()"></label>
+          <div class="pbu-log-meter-signal">
+            <div class="pbu-log-meter-track" aria-hidden="true"><i class="pbu-log-meter-point"></i></div>
+            <div class="pbu-log-meter-scale" aria-hidden="true"><span>40</span><span id="wk-vo2-goal">mål 45</span></div>
+          </div>
         </div>
       </section>
     </div>
@@ -3201,9 +3212,12 @@ function saveSingleExerciseEdit(){
   var timings=Array.isArray(workout.exerciseTimings)?workout.exerciseTimings.slice():[];
   var durationInput=row.querySelector('.ex-duration-seconds-v7');
   var durationSec=exerciseDurationSeconds(durationInput&&durationInput.value);
+  // Run totals that came from the rows follow the edited row (also when saved explicitly by the log form).
+  var rowsBefore=workoutRunMetrics({type:workout.type,exercises:workout.exercises||[]});
+  var followsRows=workout.runMetricsDerived||(rowsBefore.distance>0&&Math.abs((Number(workout.runDistance)||0)-rowsBefore.distance)<.005);
   workout.exercises=Array.isArray(workout.exercises)?workout.exercises.slice():[];
   workout.exercises[exerciseIndex]=parsed;
-  if(workout.runMetricsDerived){
+  if(followsRows){
     workout.runDistance=0;
     workout.runTime=null;
     workout.avgPaceKm=null;
@@ -3246,6 +3260,7 @@ function editWorkout(id){
   document.getElementById('wk-hr-max').value=wk.hrMax||'';
   document.getElementById('wk-hr-min').value=wk.hrMin||'';
   document.getElementById('wk-vo2').value=wk.vo2||'';
+  updateWorkoutMeters();
   document.getElementById('wk-notes').value=wk.notes||'';
   var list=document.getElementById('ex-list');
   list.innerHTML='';
@@ -3286,6 +3301,7 @@ function openWorkoutModal(options){
   document.getElementById('wk-hr-max').value='';
   document.getElementById('wk-hr-min').value='';
   document.getElementById('wk-vo2').value='';
+  updateWorkoutMeters();
   document.getElementById('wk-notes').value='';
   document.getElementById('ex-list').innerHTML='';
   if(!options.skipBlank)addExRow();
@@ -3296,6 +3312,15 @@ function openWorkoutModal(options){
 function workoutFieldNumber(id){
   var el=document.getElementById(id),n=parseFloat(String(el&&el.value||'').replace(/\s/g,'').replace(',','.'));
   return isFinite(n)&&n>0?n:0;
+}
+/* The meters in Mätvärden: the point sits where the value is on its scale. */
+function updateWorkoutMeters(){
+  var put=function(meterId,t){var m=document.getElementById(meterId);if(!m)return;m.classList.toggle('is-empty',t==null);var pt=m.querySelector('.pbu-log-meter-point');if(pt)pt.style.left=(t==null?50:Math.max(0,Math.min(1,t))*100).toFixed(1)+'%';};
+  var avg=workoutFieldNumber('wk-hr-avg'),min=workoutFieldNumber('wk-hr-min'),max=workoutFieldNumber('wk-hr-max');
+  put('wk-hr-meter',avg?(min&&max>min?(avg-min)/(max-min):.5):null);
+  var goal=Number(getGoals().vo2Goal)||45,vo2=workoutFieldNumber('wk-vo2'),g=document.getElementById('wk-vo2-goal');
+  if(g)g.textContent='mål '+String(goal).replace('.',',');
+  put('wk-vo2-meter',vo2?(vo2-40)/Math.max(.1,goal-40):null);
 }
 function formatPaceField(pace){
   var sec=Math.round(pace*60);

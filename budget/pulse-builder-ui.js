@@ -224,7 +224,7 @@ function syncBetween(row){
  row.querySelectorAll('[data-pbu-between-type]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.pbuBetweenType===cfg.type));});
 }
 /* The day builder's list and the log form's list ("Logga träning"). */
-var LISTS='#day-workout-ex-list,#wk-modal #ex-list';
+var LISTS='#day-workout-ex-list,#wk-modal #ex-list,#single-exercise-editor-v9';
 function enhanceAll(){document.querySelectorAll(LISTS.split(',').map(function(s){return s+' .ex-row-item';}).join(',')).forEach(enhanceRow);}
 
 /* ---------- Row: expanded panel ---------- */
@@ -461,8 +461,8 @@ function paintTop(modal){
 
 /* ---------- Wiring ---------- */
 /* Rows, add button and editing for one exercise list. */
-function bindList(modal,list,addSelector){
- var addBtn=modal.querySelector(addSelector);
+function bindList(modal,list,addSelector,single){
+ var addBtn=addSelector&&modal.querySelector(addSelector);
  if(addBtn){
   addBtn.classList.remove('pt-add','btn-sm');addBtn.style.removeProperty('margin-top');
   addBtn.classList.add('pbu-add');addBtn.innerHTML='<i class="pbu-plus" aria-hidden="true"></i><span>Lägg till övning</span>';
@@ -475,11 +475,14 @@ function bindList(modal,list,addSelector){
    enhanceRow(n);
    // A freshly copied row should not inherit the open state.
    if(n.classList.contains('pbu-open'))closeRow(n);
+   // Editing one logged exercise: the row is the whole editor, open from the start.
+   if(single)openRow(n,{scroll:false});
   }});});
  }).observe(list,{childList:true});
  list.addEventListener('click',function(e){
   var t=e.target,row=t.closest('.pbu-row');if(!row)return;
   if(t.closest('.pbu-head')||t.closest('.pbu-thumb')){
+   if(single){if(row.classList.contains('pbu-picking'))hidePicker(row);else showPicker(row);return;}
    if(row.classList.contains('pbu-open'))closeRow(row);else openRow(row);
    return;
   }
@@ -546,6 +549,7 @@ function init(){
  var nameEl=byId('day-workout-name');if(nameEl)nameEl.placeholder='Namnge passet';
  bindList(modal,list,'[onclick="addDayWorkoutExRow()"]');
  initLog();
+ initSingle();
  enhanceAll();
  var h=byId('day-workout-title');
  if(h)new MutationObserver(function(){paintTop(modal);}).observe(h,{childList:true,characterData:true,subtree:true});
@@ -567,6 +571,20 @@ function init(){
    var bar=modal.querySelector('.pbu-settings-toggle');if(bar)bar.setAttribute('aria-expanded','false');
   }
  }).observe(modal,{attributes:true,attributeFilter:['class']});
+}
+/* "Redigera övning" from the training log: one row, built when first used. */
+function initSingle(){
+ var bind=function(){
+  var modal=byId('exercise-edit-modal-v9'),list=byId('single-exercise-editor-v9');
+  if(!modal||!list||list.dataset.pbuBound)return !!(list&&list.dataset.pbuBound);
+  list.dataset.pbuBound='1';modal.classList.add('pbu-single');
+  bindList(modal,list,null,true);
+  list.querySelectorAll('.ex-row-item').forEach(function(r){enhanceRow(r);openRow(r,{scroll:false});});
+  return true;
+ };
+ if(bind())return;
+ var mo=new MutationObserver(function(){if(bind())mo.disconnect();});
+ mo.observe(document.body,{childList:true});
 }
 /* "Logga träning": the same rows and choice, in the log form. */
 function initLog(){
