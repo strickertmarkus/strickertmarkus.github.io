@@ -73,9 +73,9 @@ function observeEditor(win){
  function sync(){
   var sessionOpen=doc.getElementById('session-modal').classList.contains('show');
   dialog.classList.toggle('field-workspace-session',sessionOpen);
-  // The pass builder runs full screen with its own close button.
-  var builder=doc.getElementById('day-workout-modal');
-  dialog.classList.toggle('field-workspace-fullbuilder',!sessionOpen&&!!builder&&builder.classList.contains('show'));
+  // The pass builder and the log form run full screen with their own close button.
+  var full=['day-workout-modal','wk-modal'].some(function(id){var el=doc.getElementById(id);return el&&el.classList.contains('show');});
+  dialog.classList.toggle('field-workspace-fullbuilder',!sessionOpen&&full);
   if(sessionOpen){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
   if(!dialog.open||activeTool==='goals'||openingTool||win.__embeddedSessionStarting||hasOpenModal(doc))return;
   if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-log-1');
+  url.searchParams.set('v','20261029-log-2');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});

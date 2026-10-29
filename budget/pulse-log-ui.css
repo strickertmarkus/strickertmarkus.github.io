@@ -29,7 +29,14 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .form-group{m
 /* Date and duration side by side. */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meta{display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px!important;margin:0 0 18px!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meta .form-group{margin:0!important;min-width:0}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meta :is(#wk-date,#wk-dur){width:100%!important;min-width:0!important}
+/* Same tile for both; iOS draws the date as a native pill unless its appearance is reset. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meta :is(#wk-date,#wk-dur){
+  display:block!important;box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  height:52px!important;min-height:52px!important;margin:0!important;padding:0 16px!important;line-height:52px!important;
+  -webkit-appearance:none!important;appearance:none!important;text-align:left!important;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log #wk-date::-webkit-date-and-time-value{text-align:left;margin:0;line-height:52px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log #wk-date::-webkit-datetime-edit{padding:0}
 
 /* Template: the choice and two quiet actions on one line (wraps on narrow phones). */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-template-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px}
