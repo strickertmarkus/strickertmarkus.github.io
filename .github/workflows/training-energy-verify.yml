@@ -1,4 +1,4 @@
-name: Training timers and energy verification
+name: Baseline training timer verification
 on:
   push:
     paths:
