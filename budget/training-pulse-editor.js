@@ -21,7 +21,10 @@ function changed(){
 function notice(t){var node=$('field-toast');if(!node)return;node.textContent=t;node.classList.add('is-visible');clearTimeout(notice.timer);notice.timer=setTimeout(function(){node.classList.remove('is-visible');},2700);}
 function makeDialog(){
  dialog=document.createElement('dialog');
- dialog.id='field-workspace';dialog.className='field-workspace';dialog.setAttribute('aria-label','Passverktyg');
+ dialog.id='field-workspace';dialog.className='field-workspace';
+ // Its motion is driven here (pulse-motion.js): opt out of the generic dialog fade,
+ // whose late exit transition made the page flicker after closing.
+ dialog.dataset.menuMotion='';dialog.dataset.surfaceDialog='';dialog.setAttribute('aria-label','Passverktyg');
  dialog.innerHTML='<section class="field-workspace-shell"><header class="field-workspace-header"><div><strong id="field-workspace-title">Passverktyg</strong><small>Pulse Field · träning</small></div><button type="button" class="field-workspace-close" id="field-workspace-close" aria-label="Stäng passverktyget"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header><p class="field-workspace-status" id="field-workspace-status" role="status">Öppnar passverktyg…</p><div id="field-workspace-container" class="field-workspace-shell" style="flex:1;min-height:0;height:auto"></div></section>';
  document.body.appendChild(dialog);
  $('field-workspace-close').addEventListener('click',requestClose);
@@ -137,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-motion-6');
+  url.searchParams.set('v','20261029-motion-7');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -152,9 +155,6 @@ function closeWorkspace(){
  // Show the page again underneath, so the circle shrinks back into the control
  // that opened it (like Lists and Travel returning to Home's overview).
  document.body.classList.remove('field-workspace-active');
- // Give the page back its normal scrolling now, while the window still covers it,
- // so the scroll restore is never seen after the fold has finished.
- unlockHostScroll();
  var target=origin&&document.body.contains(origin)&&origin.getClientRects().length?origin:null;
  // Opened from the menu (now closed): fold back into the menu button.
  if(!target&&origin&&origin.closest&&origin.closest('#field-menu'))target=$('menu-toggle');

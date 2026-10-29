@@ -156,7 +156,8 @@ function fold(el,to){
  if(!o)o={x:innerWidth/2,y:innerHeight*.62,r:22};
  const k=Math.max(.06,Math.min(.25,(o.r*2)/Math.max(innerWidth,1)));
  el.style.transformOrigin=o.x.toFixed(1)+'px '+o.y.toFixed(1)+'px';
- const a=el.animate([{transform:'scale(1)',opacity:1,borderRadius:'0px'},{transform:'scale('+k+')',opacity:0,borderRadius:'48px'}],{duration:260,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+ // Stays solid while it shrinks, fading only at the very end, so the fold reads as a collapse.
+ const a=el.animate([{transform:'scale(1)',opacity:1,borderRadius:'0px',offset:0},{opacity:1,offset:.55},{transform:'scale('+k+')',opacity:0,borderRadius:'48px',offset:1}],{duration:300,easing:'cubic-bezier(.45,0,.2,1)',fill:'forwards'});
  running.set(el,[a]);
  return a.finished.catch(()=>{}).then(()=>{el.style.opacity='0';a.cancel();running.delete(el);el.style.transformOrigin='';});
 }
