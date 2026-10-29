@@ -7,14 +7,16 @@
   var htmlProps=['overflow','overscrollBehavior','scrollBehavior'];
   function capture(style,props){var values={};props.forEach(function(p){values[p]=style[p];});return values;}
   function restore(style,values){Object.keys(values).forEach(function(p){style[p]=values[p];});}
-  function acquire(owner){
+  // soft: a full-screen surface covers the page anyway, so only stop scrolling and
+  // leave the page where it is (no fixed body, no scroll jump and repaint on release).
+  function acquire(owner,soft){
     if(owners.has(owner))return;
     owners.add(owner);
     if(saved)return;
     var body=document.body,html=document.documentElement;
-    saved={x:window.scrollX,y:window.scrollY,body:capture(body.style,bodyProps),html:capture(html.style,htmlProps)};
+    saved={x:window.scrollX,y:window.scrollY,soft:!!soft,body:capture(body.style,bodyProps),html:capture(html.style,htmlProps)};
     html.style.overflow='hidden';html.style.overscrollBehavior='none';html.style.scrollBehavior='auto';
-    body.style.position='fixed';body.style.top=-saved.y+'px';body.style.left=-saved.x+'px';body.style.right='0';body.style.width='100%';body.style.overflow='hidden';
+    if(!soft){body.style.position='fixed';body.style.top=-saved.y+'px';body.style.left=-saved.x+'px';body.style.right='0';body.style.width='100%';body.style.overflow='hidden';}
     window.dispatchEvent(new CustomEvent('training-overlay:change',{detail:{locked:true}}));
   }
   function release(owner){
@@ -23,7 +25,7 @@
     var previous=saved;saved=null;
     restore(document.body.style,previous.body);restore(document.documentElement.style,previous.html);
     document.documentElement.style.scrollBehavior='auto';
-    window.scrollTo(previous.x,previous.y);
+    if(!previous.soft||window.scrollY!==previous.y)window.scrollTo(previous.x,previous.y);
     document.documentElement.style.scrollBehavior=previous.html.scrollBehavior;
     window.dispatchEvent(new CustomEvent('training-overlay:change',{detail:{locked:false}}));
   }

@@ -34,7 +34,7 @@ function makeDialog(){
 function updateStatus(t){var status=$('field-workspace-status');status.hidden=!t;status.textContent=t||'';}
 function lockHostScroll(){
  document.body.classList.add('field-workspace-active');
- window.TrainingOverlay.acquire('workspace');
+ window.TrainingOverlay.acquire('workspace',true);
 }
 function unlockHostScroll(){
  document.body.classList.remove('field-workspace-active');
@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-motion-8');
+  url.searchParams.set('v','20261029-motion-9');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
