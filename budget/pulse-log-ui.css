@@ -72,7 +72,6 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card
 }
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card+.pbu-log-card{--tile:#7fe3ef}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card>h3{padding-left:2px;color:color-mix(in srgb,var(--tile) 70%,#a5a0ae)!important}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-pace{color:var(--tile);font:600 13px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile{
   display:flex;flex-direction:column;gap:4px;min-width:0;margin:0;padding:10px 12px 8px;border-radius:16px;cursor:text;
@@ -83,7 +82,7 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile
   display:block;color:var(--pbu-dim)!important;font:700 9px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0!important;
 }
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>span small{font-size:9px;letter-spacing:.04em;text-transform:none}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input:is(#wk-hr-avg,#wk-hr-max,#wk-hr-min,#wk-run-km,#wk-run-min,#wk-vo2){
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input:is(#wk-hr-avg,#wk-hr-max,#wk-hr-min,#wk-run-km,#wk-run-min,#wk-run-pace,#wk-vo2){
   width:100%!important;min-width:0!important;height:32px!important;min-height:0!important;padding:0!important;margin:0!important;
   border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
   color:#fff!important;-webkit-text-fill-color:#fff!important;font:600 22px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;
@@ -96,7 +95,7 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile
   html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card{padding:14px 10px 10px}
   html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid{gap:6px}
   html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile{padding:9px 9px 7px}
-  html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input:is(#wk-hr-avg,#wk-hr-max,#wk-hr-min,#wk-run-km,#wk-run-min,#wk-vo2){font-size:19px!important}
+  html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input:is(#wk-hr-avg,#wk-hr-max,#wk-hr-min,#wk-run-km,#wk-run-min,#wk-run-pace,#wk-vo2){font-size:19px!important}
 }
 
 /* Footer: one red pill, as in the builder; the close button cancels. */
@@ -111,3 +110,15 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer
 /* Editing a template here: only the pass itself. */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log[data-field-editing-template] :is([data-log-health],.pbu-log-template,.pbu-log-notes,.pbu-log-meta>.form-group:first-child){display:none!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log[data-field-editing-template] .pbu-log-meta{grid-template-columns:minmax(0,1fr)}
+
+/* Kondition: distance, time, pace and VO2 as two by two; the hint under them. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid.is-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input::placeholder{color:#ffffff40!important;-webkit-text-fill-color:#ffffff40!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-hint{margin:10px 2px 0;color:var(--pbu-dim);font:450 11.5px/1.45 Inter,system-ui,sans-serif}
+/* The title is the pass name: a faint pencil says it can be changed. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-title{position:relative}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log #wk-type{padding-right:34px!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-title::after{content:"";position:absolute;right:4px;top:50%;width:18px;height:18px;margin-top:-9px;pointer-events:none;opacity:.45;background:var(--pbu-pale);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4'/%3E%3C/svg%3E") center/contain no-repeat}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-title:focus-within::after{opacity:0}
