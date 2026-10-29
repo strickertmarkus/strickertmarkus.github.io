@@ -782,3 +782,4 @@ main{position:relative;z-index:2;display:block}
 .planner-calendar-entry .pk-icon{width:27px;height:27px;stroke-width:1.4}
 .planner-calendar-entry:hover{color:var(--field-peach)}
 .planner-calendar-entry:focus-visible{outline:1px solid currentColor;outline-offset:3px;border-radius:8px}
+.section-head-actions{display:flex;align-items:center;gap:2px}

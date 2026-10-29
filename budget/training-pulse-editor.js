@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-plan-5');
+  url.searchParams.set('v','20261029-tpl-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -270,7 +270,7 @@ function selectTool(win,tool,button,date){
    var name=button.dataset.recordName,prs=win.getPRs(),value=Number(prs[name]||button.dataset.recordValue||0);
    win.openEditPR(name,value);break;
   case 'createTemplate':
-   if(win.PulseClassicTemplates)win.PulseClassicTemplates.openTemplate(null,iso);
+   if(win.PulseClassicTemplates)win.PulseClassicTemplates.openTemplate(null,iso,{fromPage:!button||!button.dataset.fieldDate});
    else openTemplateEditor(win,null);
    break;
   case 'editTemplate':

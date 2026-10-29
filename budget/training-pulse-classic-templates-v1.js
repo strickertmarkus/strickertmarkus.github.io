@@ -4,7 +4,7 @@
 'use strict';
 var box=document.getElementById('day-workout-modal');
 if(!box||typeof window.openDayWorkoutBuilder!=='function')return;
-var mode='day',originDay='',editTemplateId='',nextId=0;
+var mode='day',originDay='',editTemplateId='',nextId=0,fromPage=false;
 var byId=function(id){return document.getElementById(id);};
 var getTemplates=function(){return window.getTemplates()||[];};
 var saveTemplates=function(list){window.saveTemplates(list);};
@@ -55,12 +55,18 @@ function refreshMode(){
  var inline=byId('day-workout-inline-template');
  if(inline)inline.hidden=true;
  var back=byId('day-workout-back-day');
- if(back)back.hidden=!editing;
+ // Opened from the page's template button there is no day to go back to.
+ if(back)back.hidden=!editing||fromPage;
 }
 function syncDay(iso,p){
- mode='day';originDay=iso;editTemplateId='';
+ mode='day';originDay=iso;editTemplateId='';fromPage=false;
  populateSelect(p&&p.templateId);
  refreshMode();
+ // A day planned from a template but without its exercises gets them now.
+ if(p&&p.templateId&&!rows().length){
+  var found=getTemplates().find(function(t){return String(t.id)===String(p.templateId);});
+  if(found&&(found.exercises||[]).length)setRows(found.exercises);
+ }
 }
 function apply(id){
  if(mode==='template')backToDay();
@@ -81,16 +87,17 @@ function apply(id){
  }
  var found=getTemplates().find(function(t){return String(t.id)===String(id);});
  if(!found){populateSelect('');toast('Mallpasset finns inte längre.');return;}
+ if(!(found.exercises||[]).length){populateSelect(found.id);toast('Mallpasset har inga övningar ännu. Lägg till dem via mallpassknappen.');return;}
  byId('day-workout-name').value=found.name||found.type||'';
  byId('day-workout-type').value=found.type||'Helkropp';
  setRows(found.exercises||[]);
  populateSelect(found.id);
  toast('Mallpass valt. Justera eller spara dagen.');
 }
-function openTemplate(id,date){
+function openTemplate(id,date,opts){
  originDay=date||originDay||byId('day-workout-date').value||window.todayISO();
  window.openDayWorkoutBuilder(window.dayLabelFromISO(originDay),originDay);
- mode='template';
+ mode='template';fromPage=!!(opts&&opts.fromPage);
  var tpl=id==null?null:getTemplates().find(function(t){return String(t.id)===String(id);});
  if(id!=null&&!tpl){toast('Mallpasset finns inte längre.');mode='day';refreshMode();return;}
  editTemplateId=tpl?tpl.id:'';

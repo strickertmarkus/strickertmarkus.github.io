@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261029-planner-bodyweight-2">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261029-tpl-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -33,7 +33,7 @@
   <script defer src="auth-gate.js?v=20261026-energy-loop-4"></script>
   <script defer src="firebase-sync.js?v=20261020-exercise-history-v1"></script>
   <script defer src="training-pulse-field.js?v=20261029-plan-2"></script>
-  <script defer src="training-pulse-editor.js?v=20261029-plan-5"></script>
+  <script defer src="training-pulse-editor.js?v=20261029-tpl-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -172,7 +172,10 @@
     <section class="field-section week-section" id="week-field" aria-labelledby="week-title">
       <div class="section-head">
         <div><p class="eyebrow">PLANERA RYTMEN</p><h2 id="week-title">Veckofält</h2></div>
-        <a class="planner-calendar-entry" aria-label="Öppna vecko- och månadsplaneraren" title="Planera träning" id="edit-week-link" href="#week-field" data-field-action="week"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h1M12 14h1M16 14h1M8 17.5h1M12 17.5h1"/></svg></a>
+        <div class="section-head-actions">
+          <a class="planner-calendar-entry" aria-label="Mallpass: bygg eller redigera ett återanvändbart pass" title="Mallpass" href="#week-field" data-field-action="create-template"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="13.5" height="13.5" rx="2.5"/><path d="M3.5 7.5v10.5A2.5 2.5 0 0 0 6 20.5h10.5"/><path d="M13.75 7v6.5M10.5 10.25H17"/></svg></a>
+          <a class="planner-calendar-entry" aria-label="Öppna vecko- och månadsplaneraren" title="Planera träning" id="edit-week-link" href="#week-field" data-field-action="week"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h1M12 14h1M16 14h1M8 17.5h1M12 17.5h1"/></svg></a>
+        </div>
       </div>
       <div class="week-navigator" data-week-navigator>
         <button type="button" data-week-shift="-1" aria-label="Föregående vecka"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
