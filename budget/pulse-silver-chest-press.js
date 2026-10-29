@@ -1,7 +1,7 @@
 /** Original rigged mannequin + chest-press apparatus. One renderer, driven by the guide clock. */
 import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
-import {createEquipment} from './pulse-silver-equipment.js?v=21';
+import {createEquipment} from './pulse-silver-equipment.js?v=22';
 import {applyMotion,frameCamera} from './pulse-silver-rig.js?v=22';
 import {createTissueMaterial,muscleNames} from './pulse-silver-material.js?v=22';
 const host=document.getElementById('exercise-silver-3d'),stage=document.getElementById('studio-stage');
@@ -184,6 +184,9 @@ async function initialize(){
     float muscleShape = max(muscleTex, 0.35) * (1.0 - clothingMask);
     vec3 chrome = vec3(0.34,0.37,0.41) * (0.28 + 0.95 * modelShade);
     chrome = mix(chrome, chrome * vec3(1.04,0.98,0.96), muscleTex * 0.35);
+    // Shadowed eye sockets under the brow give the mannequin face some depth.
+    float eyeShade = exp(-pow((p.x - 0.037) / 0.021, 2.0) - pow((p.y - 1.718) / 0.014, 2.0)) * smoothstep(0.105, 0.13, p.z);
+    chrome *= 1.0 - 0.62 * eyeShade;
     vec3 pearl = mix(chrome, vec3(0.040,0.052,0.075), clothingMask);`],
     ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, muscleColor * (0.50 + 0.85 * modelShade), muscleMask);'],
     ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.45;'],
