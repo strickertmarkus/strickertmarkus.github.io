@@ -731,7 +731,7 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
   tower(-1.0,1.55);const origin=[0,.18,-.90],split=A(center,[0,-.04,-.12]);pulley(origin);cable(origin,split);hands.forEach(h=>{cable(split,h);ball(h,.025,palette.pad);});
  }else if(kind==='farmerCarry'){
   const phi=cycle*TAU;body([0,.90+.004*Math.cos(2*phi),0]);
-  feet=[-1,1].map(sign=>{const a=phi+(sign<0?0:Math.PI);return [sign*.15,.075+.11*Math.max(0,Math.sin(a)),.26*Math.cos(a)];});
+  feet=[-1,1].map(sign=>{const a=phi+(sign<0?0:Math.PI);return [sign*.15,.075+.11*Math.max(0,Math.sin(a)),-.26*Math.cos(a)];});
   hands=[A(shoulder(-1),[-.07,-.56,.025]),A(shoulder(1),[.07,-.56,.025])];hands.forEach(dumbbell);
   // Repeating ground marks move with the gait to distinguish walking from standing.
   for(let i=0;i<5;i++){const z=-.7+((i/5+1-cycle)%1)*1.4;rod([-.55,.005,z],[-.40,.005,z],.006,'#3c596e');rod([.40,.005,z],[.55,.005,z],.006,'#3c596e');}
@@ -1058,7 +1058,7 @@ renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='S
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 
 
-<script type="module" src="pulse-silver-chest-press.js?v=20261029-std-1"></script>
+<script type="module" src="pulse-silver-chest-press.js?v=20261029-glute-1"></script>
 
 </body></html>
 

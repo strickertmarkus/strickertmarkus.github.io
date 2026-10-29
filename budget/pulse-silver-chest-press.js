@@ -189,14 +189,14 @@ async function initialize(){
     vec3 pearl = mix(chrome, vec3(0.040,0.052,0.075), clothingMask);`],
     ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, muscleColor * (0.50 + 0.85 * modelShade), muscleMask);'],
     ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.45;'],
-    ['muscleMask=region*mix(0.85,0.99,primary);','muscleMask=region*muscleShape*mix(0.45,1.0,primary);'],
+    ['muscleMask=region*mix(0.85,0.99,primary);','// Worked glutes show through the shorts as a glow on the fabric.\n     float seen=max(muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8);\n     muscleMask=max(region*muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8)*mix(0.45,1.0,primary);'],
     ['diffuseColor.rgb=mix(pearl,red,muscleMask);',`vec3 flesh = mix(vec3(0.17,0.004,0.006), vec3(0.88,0.07,0.04), clamp(modelShade * 1.2 + silk * 0.25, 0.0, 1.0));
      diffuseColor.rgb=mix(pearl,flesh,muscleMask);`],
     ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.85,0.10,0.05)*volume*reflection'],
     // The main worked muscle glows from within, strongest along its shading highlights.
-    ['generalGlow*=uActivation;','generalGlow+=vec3(1.0,0.12,0.05)*primary*region*muscleShape*(0.28+0.42*modelShade+0.12*silk);\n     generalGlow*=uActivation;'],
+    ['generalGlow*=uActivation;','generalGlow+=vec3(1.0,0.12,0.05)*primary*region*seen*(0.28+0.42*modelShade+0.12*silk);\n     generalGlow*=uActivation;'],
     ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.95,0.09,0.04) * muscleMask * (0.10 + 0.20 * modelShade) * uActivation;'],
-    ['generalGlow=region*(','generalGlow=region*muscleShape*mix(0.45,1.0,primary)*('],
+    ['generalGlow=region*(','generalGlow=region*seen*mix(0.45,1.0,primary)*('],
     ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.48, max(muscleMask, clothingMask));'],
     ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.04, max(muscleMask, clothingMask));']
    ];
