@@ -171,6 +171,9 @@ html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-lis
 /* ---------- Expanded: steppers ---------- */
 .pbu-v1 .pbu-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
 .pbu-v1 .pbu-steps[data-count="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* Kondition: distance and time side by side, pace (derived from them) under them. */
+.pbu-v1 .pbu-steps[data-kind="cardio"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pbu-v1 .pbu-steps[data-kind="cardio"]>.pbu-step:nth-child(3){grid-column:1/-1}
 .pbu-v1 .pbu-row.pbu-picking .pbu-steps{display:none}
 .pbu-v1 .pbu-step{display:flex;flex-direction:column;gap:6px;min-width:0}
 .pbu-v1 .pbu-step-label{font:700 9.5px/1.2 Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--pbu-dim)}

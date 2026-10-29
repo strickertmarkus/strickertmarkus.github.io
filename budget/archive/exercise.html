@@ -556,13 +556,13 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261027-kit-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-log-1">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-pace-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-log-1">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-3">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-5">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261029-log-1"></script>
+<script defer src="pulse-builder-ui.js?v=20261029-pace-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -790,7 +790,7 @@ if(!window.__FIELD_EMBEDDED__){
     </div>
     <div class="form-row pbu-log-meta">
       <div class="form-group"><label for="wk-date">Datum</label><input type="date" id="wk-date"></div>
-      <div class="form-group"><label for="wk-dur">Tid (min)</label><input type="text" id="wk-dur" placeholder="60" inputmode="numeric" autocomplete="off"></div>
+      <div class="form-group"><label for="wk-dur">Längd (min)</label><input type="text" id="wk-dur" placeholder="60" inputmode="numeric" autocomplete="off"></div>
     </div>
     <div class="form-group pbu-log-template">
       <label for="wk-template-select">Använd mall</label>
@@ -805,24 +805,26 @@ if(!window.__FIELD_EMBEDDED__){
       <div class="ex-list" id="ex-list"></div>
       <button class="btn-sm pt-add" type="button" style="margin-top:8px" onclick="addExRow()">Lägg till övning</button>
     </div>
-    <section class="pbu-log-card" data-log-health aria-labelledby="wk-hr-title">
-      <h3 id="wk-hr-title">Puls</h3>
-      <div class="pbu-log-grid">
-        <label class="pbu-log-tile"><span>Medel <small>bpm</small></span><input type="text" id="wk-hr-avg" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-        <label class="pbu-log-tile"><span>Max <small>bpm</small></span><input type="text" id="wk-hr-max" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-        <label class="pbu-log-tile"><span>Min <small>bpm</small></span><input type="text" id="wk-hr-min" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-      </div>
-    </section>
-    <section class="pbu-log-card" data-log-health aria-labelledby="wk-cardio-title">
-      <h3 id="wk-cardio-title">Kondition</h3>
-      <div class="pbu-log-grid is-2">
-        <label class="pbu-log-tile"><span>Distans <small>km</small></span><input type="text" id="wk-run-km" placeholder="–" inputmode="decimal" oninput="updateWorkoutPace()" autocomplete="off" enterkeyhint="next"></label>
-        <label class="pbu-log-tile"><span>Tid <small>min</small></span><input type="text" id="wk-run-min" placeholder="–" inputmode="decimal" oninput="updateWorkoutPace()" autocomplete="off" enterkeyhint="next"></label>
-        <label class="pbu-log-tile"><span>Snittakt <small>min/km</small></span><input type="text" id="wk-run-pace" placeholder="–" inputmode="decimal" oninput="updateWorkoutPace()" autocomplete="off" enterkeyhint="next" aria-describedby="wk-pace-hint"></label>
-        <label class="pbu-log-tile"><span>VO₂ max</span><input type="text" id="wk-vo2" placeholder="–" inputmode="decimal" autocomplete="off" enterkeyhint="next"></label>
-      </div>
-      <p class="pbu-log-hint" id="wk-pace-hint">Fyll i två av distans, tid och snittakt så räknas den tredje ut.</p>
-    </section>
+    <div class="pbu-log-measures" data-log-health>
+      <p class="pbu-log-section">Mätvärden</p>
+      <section class="pbu-log-card" aria-labelledby="wk-hr-title">
+        <h3 id="wk-hr-title">Puls</h3>
+        <div class="pbu-log-grid">
+          <label class="pbu-log-tile"><span>Medel <small>bpm</small></span><input type="text" id="wk-hr-avg" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
+          <label class="pbu-log-tile"><span>Max <small>bpm</small></span><input type="text" id="wk-hr-max" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
+          <label class="pbu-log-tile"><span>Min <small>bpm</small></span><input type="text" id="wk-hr-min" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
+        </div>
+      </section>
+      <section class="pbu-log-card" aria-labelledby="wk-cardio-title">
+        <h3 id="wk-cardio-title">Kondition</h3>
+        <!-- Distance, time and pace come from the cardio exercises above (one place to type them). -->
+        <div class="pbu-log-run" id="wk-run-summary" aria-live="polite"></div>
+        <input type="hidden" id="wk-run-km"><input type="hidden" id="wk-run-min">
+        <div class="pbu-log-grid is-1">
+          <label class="pbu-log-tile"><span>VO₂ max <small>ml/kg/min</small></span><input type="text" id="wk-vo2" placeholder="–" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label>
+        </div>
+      </section>
+    </div>
     <div class="form-group pbu-log-notes"><label for="wk-notes">Anteckningar</label><textarea id="wk-notes" rows="2" placeholder="Hur kändes det?"></textarea></div>
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('wk-modal')">Avbryt</button>
@@ -3246,21 +3248,27 @@ function editWorkout(id){
   document.getElementById('wk-dur').value=wk.duration||'';
   document.getElementById('wk-run-km').value=wk.runDistance||'';
   document.getElementById('wk-run-min').value=wk.runTime||'';
-  var storedPace=Number(wk.avgPaceKm)||0,derivedPace=wk.runDistance>0&&wk.runTime>0?wk.runTime/wk.runDistance:0;
-  document.getElementById('wk-run-pace').value=storedPace&&Math.abs(storedPace-derivedPace)*60>=1?formatPaceField(storedPace):'';
   document.getElementById('wk-hr-avg').value=wk.hrAvg||'';
   document.getElementById('wk-hr-max').value=wk.hrMax||'';
   document.getElementById('wk-hr-min').value=wk.hrMin||'';
   document.getElementById('wk-vo2').value=wk.vo2||'';
   document.getElementById('wk-notes').value=wk.notes||'';
-  updateWorkoutPace();
   var list=document.getElementById('ex-list');
   list.innerHTML='';
   var usedTimings={};
   (wk.exercises||[]).forEach(function(exercise,index){
     addExRow(exercise,workoutTimingForExercise(wk,exercise,index,usedTimings));
   });
-  if(!(wk.exercises||[]).length)addExRow();
+  // Distance and time are typed in the cardio rows. A pass that only has them
+  // on the pass itself gets them as a Löpning row, so nothing is hidden.
+  var fromRows=workoutRunMetrics({type:wk.type,exercises:wk.exercises||[]});
+  if(!(fromRows.distance>0)&&(Number(wk.runDistance)>0||Number(wk.runTime)>0)){
+    addExRow(normalizeExercise({name:'Löpning',kind:'cardio',distance:Number(wk.runDistance)||0,time:Number(wk.runTime)||0}));
+  }
+  document.getElementById('wk-run-km').value='';
+  document.getElementById('wk-run-min').value='';
+  if(!list.children.length)addExRow();
+  updateWorkoutPace();
 }
 
 // ══ WORKOUT MODAL ════════════════════════════════════════════════
@@ -3281,7 +3289,6 @@ function openWorkoutModal(options){
   document.getElementById('wk-dur').value='';
   document.getElementById('wk-run-km').value='';
   document.getElementById('wk-run-min').value='';
-  document.getElementById('wk-run-pace').value='';
   document.getElementById('wk-hr-avg').value='';
   document.getElementById('wk-hr-max').value='';
   document.getElementById('wk-hr-min').value='';
@@ -3298,26 +3305,20 @@ function workoutFieldNumber(id){
   var el=document.getElementById(id),n=parseFloat(String(el&&el.value||'').replace(/\s/g,'').replace(',','.'));
   return isFinite(n)&&n>0?n:0;
 }
-/* Pace in min/km: "5:30", "5.30" or "5,30" are 5 min 30 s; "5,5" is 5.5 minutes. */
-function parsePaceField(text){
-  text=String(text||'').trim().replace(/\s|\/km|min/gi,'');
-  var m=text.match(/^(\d{1,2})[:.,](\d{2})$/);
-  if(m)return Number(m[2])<60?Number(m[1])+Number(m[2])/60:0;
-  var n=parseFloat(text.replace(',','.'));
-  return isFinite(n)&&n>0?n:0;
-}
 function formatPaceField(pace){
   var sec=Math.round(pace*60);
   return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
 }
-/* Kondition: two of distance, time and pace give the third, shown as a hint in its empty field. */
+/* Kondition summary in the log form: distance, time and pace of the running rows. */
 function updateWorkoutPace(){
-  var kmEl=document.getElementById('wk-run-km'),minEl=document.getElementById('wk-run-min'),paceEl=document.getElementById('wk-run-pace');
-  if(!kmEl||!minEl||!paceEl)return;
-  var km=workoutFieldNumber('wk-run-km'),min=workoutFieldNumber('wk-run-min'),pace=parsePaceField(paceEl.value);
-  kmEl.placeholder=!km&&min&&pace?String(Math.round(min/pace*100)/100).replace('.',','):'–';
-  minEl.placeholder=!min&&km&&pace?String(Math.round(km*pace*10)/10).replace('.',','):'–';
-  paceEl.placeholder=!pace&&km&&min?formatPaceField(min/km):'–';
+  var out=document.getElementById('wk-run-summary');if(!out)return;
+  var exercises=[];
+  document.querySelectorAll('#ex-list .ex-row-item').forEach(function(row){var ex=parseExerciseRow(row,'ex');if(ex)exercises.push(ex);});
+  var run=workoutRunMetrics({type:document.getElementById('wk-type').value,exercises:exercises});
+  var cell=function(label,value,unit){return '<div><span>'+label+'</span><strong>'+value+(unit?'<small> '+unit+'</small>':'')+'</strong></div>';};
+  out.innerHTML=run.distance>0||run.time>0
+    ?cell('Distans',run.distance>0?String(Math.round(run.distance*100)/100).replace('.',','):'–','km')+cell('Tid',run.time>0?formatPaceField(run.time):'–','')+cell('Snittakt',run.distance>0&&run.time>0?formatPaceField(run.time/run.distance):'–','/km')
+    :'<p>Lägg till en löpövning ovan med distans och tid, så visas snittakten här.</p>';
 }
 function addExRow(ex,timing){
   var list=document.getElementById('ex-list');
@@ -3345,10 +3346,6 @@ function saveWorkout(){
   if(vo2&&(vo2<10||vo2>100)){showToast('VO₂ max ska vara mellan 10 och 100.');return;}
   var runKm=workoutFieldNumber('wk-run-km')||0;
   var runMin=workoutFieldNumber('wk-run-min')||null;
-  var paceText=document.getElementById('wk-run-pace').value.trim(),runPace=parsePaceField(paceText);
-  if(paceText&&!(runPace>=1.5&&runPace<=30)){showToast('Skriv snittakten som min/km, t.ex. 5:30.');return;}
-  if(runPace&&runKm&&!runMin)runMin=Math.round(runKm*runPace*10)/10;
-  if(runPace&&runMin&&!runKm)runKm=Math.round(runMin/runPace*100)/100;
   var notes=document.getElementById('wk-notes').value.trim();
   var rows=document.querySelectorAll('#ex-list .ex-row-item');
   var exercises=[];
@@ -3365,8 +3362,7 @@ function saveWorkout(){
   var exerciseRunMetrics=workoutRunMetrics({type:type,exercises:exercises});
   var finalRunKm=runKm>0?runKm:exerciseRunMetrics.distance;
   var finalRunMin=runMin>0?runMin:exerciseRunMetrics.time;
-  // A pace typed in (e.g. the watch's) wins over the one from distance and time.
-  var finalRunPace=runPace?+runPace.toFixed(4):finalRunKm>0&&finalRunMin>0?+(finalRunMin/finalRunKm).toFixed(4):null;
+  var finalRunPace=finalRunKm>0&&finalRunMin>0?+(finalRunMin/finalRunKm).toFixed(4):null;
   var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,hrMax:hrMax,hrMin:hrMin,vo2:vo2,runDistance:finalRunKm||0,runTime:finalRunMin||null,avgPaceKm:finalRunPace,runMetricsDerived:!(runKm>0)&&exerciseRunMetrics.distance>0,notes:notes,exerciseTimings:exerciseTimings};
   var wks=getWorkouts();
   if(editingWorkoutId){

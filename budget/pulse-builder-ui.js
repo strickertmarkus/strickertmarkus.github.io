@@ -34,8 +34,39 @@ var TOKENS=[
 var CARDIO=/kondition|cardio|löp|jogg|cykel|cykl|spinning|intervall|promenad/;
 var SPECS={
  strength:[{n:1,label:'Sets',step:1,min:1,unit:''},{n:2,label:'Reps',step:1,min:0,unit:''},{n:3,label:'Vikt',step:2.5,min:0,unit:'kg'}],
- cardio:[{n:1,label:'Distans',step:.5,min:0,unit:'km'},{n:2,label:'Tid',step:1,min:0,unit:'min'}]
+ // Time is shown as min:sek; pace (min/km) is not stored on its own: it is
+ // time ÷ distance, and changing it changes the time for the same distance.
+ cardio:[{n:1,label:'Distans',step:.5,min:0,unit:'km'},{n:2,label:'Tid',step:1,min:0,unit:'min:s',clock:true},{n:'pace',label:'Snittakt',step:1/12,min:0,unit:'min/km',clock:true}]
 };
+function clock(minutes){var sec=Math.round(minutes*60);return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');}
+/* "21:07", "21.07" and "21,07" are minutes and seconds; "21,5" is 21.5 minutes. */
+function parseClock(text){
+ var t=String(text==null?'':text).trim(),m=t.match(/^(\d{1,3})[:.,](\d{2})$/);
+ if(m)return Number(m[2])<60?Number(m[1])+Number(m[2])/60:NaN;
+ return t===''?0:num(t);
+}
+function specValue(row,spec){
+ if(spec.n==='pace'){var d=num(field(row,1).value),t=num(field(row,2).value);return d>0&&t>0?t/d:0;}
+ return num(field(row,spec.n).value);
+}
+function setSpecValue(row,spec,v){
+ v=Math.max(spec.min,v);
+ if(spec.n==='pace'){var d=num(field(row,1).value);if(d>0)write(field(row,2),v?Math.round(v*d*100)/100:'');return;}
+ write(field(row,spec.n),spec.clock&&!v?'':Math.round(v*100)/100);
+}
+function shownValue(row,spec){
+ var v=specValue(row,spec);
+ if(spec.clock)return v>0?clock(v):'';
+ return spec.n==='pace'?'':(field(row,spec.n).value===''?'':fmt(v));
+}
+/* Refresh the shown numbers, except the one being typed in. */
+function syncSteps(row,except){
+ SPECS[rowKind(row)].forEach(function(spec){
+  var el=row.querySelector('[data-pbu-value="'+spec.n+'"]');if(!el||el===except)return;
+  var v=shownValue(row,spec);if(el.value!==v)el.value=v;
+  if(spec.n==='pace')el.placeholder=num(field(row,1).value)>0?'0:00':'ange km';
+ });
+}
 
 var api=function(){return window.PulseExplore||null;};
 var byId=function(id){return document.getElementById(id);};
@@ -74,10 +105,11 @@ function setKind(row,kind){
 }
 
 /* ---------- Row: collapsed summary ---------- */
+function specFor(row,n){return SPECS[rowKind(row)].filter(function(s){return String(s.n)===String(n);})[0];}
 function summaryText(row){
  var a=num(field(row,1).value),b=num(field(row,2).value);
  if(rowKind(row)==='cardio'){
-  var parts=[];if(a)parts.push(fmt(a)+' km');if(b)parts.push(fmt(b)+' min');
+  var parts=[];if(a)parts.push(fmt(a)+' km');if(b)parts.push(clock(b)+' min');if(a&&b)parts.push(clock(b/a)+' /km');
   return parts.length?parts.join(' · '):'Kondition · ange distans eller tid';
  }
  var w=num(field(row,3).value);
@@ -213,14 +245,16 @@ function syncActions(row){
 }
 function renderSteps(row){
  var wrap=row.querySelector('.pbu-steps'),kind=rowKind(row);
- wrap.dataset.count=SPECS[kind].length;
+ wrap.dataset.count=SPECS[kind].length;wrap.dataset.kind=kind;
+ row.classList.toggle('pbu-is-cardio',kind==='cardio');
  wrap.innerHTML=SPECS[kind].map(function(s){
-  var v=field(row,s.n).value;
+  var v=shownValue(row,s);
   return '<div class="pbu-step"><span class="pbu-step-label">'+s.label+(s.unit?' <small>'+s.unit+'</small>':'')+'</span>'
    +'<div class="pbu-step-ctrl"><button type="button" data-pbu-step="-1" data-pbu-n="'+s.n+'" aria-label="Minska '+s.label.toLowerCase()+'"><i class="pbu-minus"></i></button>'
-   +'<input class="pbu-step-value" data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1?'decimal':'numeric')+'" value="'+esc(v)+'" placeholder="0" aria-label="'+s.label+'" autocomplete="off">'
+   +'<input class="pbu-step-value" data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1||s.clock?'decimal':'numeric')+'" value="'+esc(v)+'" placeholder="'+(s.clock?'0:00':'0')+'" aria-label="'+s.label+'" autocomplete="off">'
    +'<button type="button" data-pbu-step="1" data-pbu-n="'+s.n+'" aria-label="Öka '+s.label.toLowerCase()+'"><i class="pbu-plus"></i></button></div></div>';
  }).join('');
+ syncSteps(row);
 }
 
 /* ---------- Inline exercise choice (no popup) ---------- */
@@ -457,11 +491,9 @@ function bindList(modal,list,addSelector){
   }
   var step=t.closest('[data-pbu-step]');
   if(step){
-   var spec=SPECS[rowKind(row)].filter(function(s){return s.n===Number(step.dataset.pbuN);})[0];
-   var input=field(row,spec.n),value=num(input.value)+Number(step.dataset.pbuStep)*spec.step;
-   write(input,Math.max(spec.min,Math.round(value*100)/100));
-   var shown=row.querySelector('[data-pbu-value="'+spec.n+'"]');if(shown)shown.value=input.value;
-   paintRow(row);return;
+   var spec=specFor(row,step.dataset.pbuN);
+   setSpecValue(row,spec,specValue(row,spec)+Number(step.dataset.pbuStep)*spec.step);
+   syncSteps(row);paintRow(row);return;
   }
   var kind=t.closest('[data-pbu-kind]');
   if(kind){setKind(row,kind.dataset.pbuKind);renderSteps(row);syncActions(row);paintRow(row);if(!row.querySelector('.pbu-pick').hidden)renderOptions(row,(row.querySelector('[data-pbu-search]')||{}).value||'');return;}
@@ -475,7 +507,14 @@ function bindList(modal,list,addSelector){
  list.addEventListener('input',function(e){
   var t=e.target,row=t.closest('.pbu-row');if(!row)return;
   if(t.matches('[data-pbu-search]')){renderOptions(row,t.value);return;}
-  if(t.matches('[data-pbu-value]')){write(field(row,Number(t.dataset.pbuValue)),t.value===''?'':num(t.value));paintRow(row);return;}
+  // Plain numbers apply while typing; min:sek values when the field is left.
+  if(t.matches('[data-pbu-value]')){var spec=specFor(row,t.dataset.pbuValue);if(spec.clock)return;write(field(row,spec.n),t.value===''?'':num(t.value));syncSteps(row,t);paintRow(row);return;}
+ });
+ list.addEventListener('change',function(e){
+  var t=e.target,row=t.closest('.pbu-row');if(!row||!t.matches('[data-pbu-value]'))return;
+  var spec=specFor(row,t.dataset.pbuValue);if(!spec.clock)return;
+  var v=parseClock(t.value);if(isFinite(v))setSpecValue(row,spec,v);
+  syncSteps(row);paintRow(row);
  });
  list.addEventListener('keydown',function(e){
   if(e.key!=='Enter')return;
@@ -527,6 +566,11 @@ function initLog(){
  bindList(modal,list,'[onclick="addExRow()"]');
  var type=byId('wk-type');
  if(type)type.addEventListener('input',function(){list.querySelectorAll('.pbu-row.pbu-picking').forEach(function(r){renderOptions(r,(r.querySelector('[data-pbu-search]')||{}).value||'');});});
+ // The Kondition summary under the rows follows every change to them.
+ var raf=0,summary=function(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;if(typeof window.updateWorkoutPace==='function')window.updateWorkoutPace();});};
+ ['input','change','click'].forEach(function(ev){list.addEventListener(ev,summary);});
+ new MutationObserver(summary).observe(list,{childList:true});
+ if(type)type.addEventListener('input',summary);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 window.PulseBuilderUI={openRow:openRow,closeRow:closeRow,musclesFromText:musclesFromText};
