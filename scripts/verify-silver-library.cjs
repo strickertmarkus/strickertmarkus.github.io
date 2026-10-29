@@ -23,7 +23,7 @@ async function render(page,i,t,cycle,viewIndex=0){
  // Sweep continuous cycles without rendering: detect sudden arm/wrist flips at reversals.
  const rotationCheck=await page.evaluate(async()=>{
   const THREE=await import('three'),{applyMotion}=await import('./pulse-silver-rig.js?v=21');
-  const {rest}=await(await fetch('./assets/silver-mannequin-v1/body.json')).json();
+  const {rest}=await(await fetch('./assets/pulse-figure/body.json')).json();
   const bones=rest.map(()=>new THREE.Bone()),hands=[new THREE.Object3D(),new THREE.Object3D()],shoes=[new THREE.Object3D(),new THREE.Object3D()];
   const body={morphTargetInfluences:[0,0]},results=[];
   for(let i=1;i<guideScenes.length;i++){
@@ -66,7 +66,7 @@ async function render(page,i,t,cycle,viewIndex=0){
  assert.equal(after.performance.geometries,memory.performance.geometries,'stable geometry count');
  assert.equal(after.performance.programs,memory.performance.programs,'stable shader count');
  assert.ok(!requests.some(u=>/skin\.glb|muscles\.glb/.test(u)),'no legacy anatomy downloads');
- assert.equal(requests.filter(u=>u.includes('silver-mannequin-v1/body.bin')).length,1,'one shared body download');
+ assert.equal(requests.filter(u=>u.includes('pulse-figure/body.bin')).length,1,'one shared body download');
  for(const width of [320,1280]){
   await page.setViewportSize({width,height:900});await render(page,27,.5,.25);
   await page.locator('#studio-stage').screenshot({path:`${dir}/squat-${width}.png`});

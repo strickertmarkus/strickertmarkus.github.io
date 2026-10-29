@@ -99,7 +99,13 @@ function workout(request){
   const e=exercises[id],p=prescription(id,program);
   return {name:e.name,mode:p.mode,suggestedReps:p.range,guideId:id,betweenSets:{enabled:true,type:'rest',seconds:p.mode==='min'?60:90,name:''},sets:Array.from({length:p.sets},()=>({weight:null,reps:p.reps,minutes:p.minutes,done:false}))};})};
 }
-// Keep the guide isolated from Ingemar and keep each user's selections apart.
-const profile=root.location&&new URLSearchParams(root.location.search).get('user')==='maja'?'maja':'markus';
-root.PulseExplore={exercises,inspiration,programs,durationLabel,matchingPrograms,prescription,workout,transferKey:'pulse-explore-transfer-v1-'+profile,selectionKey:'pulse-explore-selection-v1-'+profile};
+// One catalogue for Markus, Maja and Ingemar; each keeps their own selection and hand-off.
+// Ingemar's pages set root.PULSE_EXPLORE_PROFILE='ingemar' (or the guide gets ?user=ingemar)
+// and keep the keys his training page has always read.
+const asked=root.PULSE_EXPLORE_PROFILE||(root.location&&new URLSearchParams(root.location.search).get('user'));
+const profile=asked==='maja'||asked==='ingemar'?asked:'markus';
+const keys=profile==='ingemar'?{transferKey:'ingemar-explore-transfer-v1',selectionKey:'ingemar-explore-selection-v1'}
+ :{transferKey:'pulse-explore-transfer-v1-'+profile,selectionKey:'pulse-explore-selection-v1-'+profile};
+root.PulseExplore={exercises,inspiration,programs,durationLabel,matchingPrograms,prescription,workout,profile,...keys};
+if(profile==='ingemar')root.IngemarExplore=root.PulseExplore;
 })(typeof window==='undefined'?globalThis:window);

@@ -5,7 +5,7 @@ on:
     paths:
       - 'budget/pulse-silver-*.js'
       - 'budget/pulse-exercise-guide.html'
-      - 'budget/assets/silver-mannequin-v1/**'
+      - 'budget/assets/pulse-figure/**'
       - 'scripts/verify-silver-press.cjs'
       - 'scripts/verify-silver-library.cjs'
       - '.github/workflows/silver-press-verify.yml'

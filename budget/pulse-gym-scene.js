@@ -240,7 +240,7 @@
         (ids.length ? '<ul class="st-pass">' + ids.map(function (id) {
           var d = splitDose(explore.prescription(id).label);
           return '<li><img src="' + (pose(id, true) || 'assets/atlas-art-v1/chest.webp') + '" alt=""><span><b>' + all[id].name + '</b><small>' + d.big + ' ' + d.unit + '</small></span><button type="button" data-remove="' + id + '" aria-label="Ta bort ' + all[id].name + '">×</button></li>';
-        }).join('') + '</ul><button type="button" class="st-cta" data-copy-pass>Kopiera passförslag ↗</button>'
+        }).join('') + '</ul><button type="button" class="st-cta" data-copy-pass>' + (explore.profile === 'ingemar' ? 'Öppna i passbyggaren ↗' : 'Kopiera passförslag ↗') + '</button>'
           : '<p class="st-muted">Dubbeltryck på en övning för att lägga till den.</p>');
     }
     function openSheet(kind) {

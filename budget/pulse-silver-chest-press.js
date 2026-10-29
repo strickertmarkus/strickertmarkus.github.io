@@ -134,9 +134,8 @@ async function initialize(){
   key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-2,right:2,top:2,bottom:-2,near:.1,far:10});key.shadow.bias=-.0007;key.shadow.normalBias=.02;scene.add(key);
   const rim=new THREE.DirectionalLight(0xb3d8ff,1.6);rim.position.set(2,2,-2);scene.add(rim);
   const floor=mesh(new THREE.PlaneGeometry(8,8),new THREE.ShadowMaterial({opacity:.20}));floor.rotation.x=-Math.PI/2;floor.position.y=-.012;floor.castShadow=false;
-  // Preview of the new body: add ?figur=ny to the page address.
-  const figure=new URLSearchParams(location.search).get('figur')==='ny'?'silver-mannequin-v2':'silver-mannequin-v1';
-  const base=new URL('./assets/'+figure+'/',import.meta.url);
+  // The figure: Markus's sculpted model fitted to the animation skeleton (scripts/build-pulse-figure.py).
+  const base=new URL('./assets/pulse-figure/',import.meta.url);
   const [metaResponse,binaryResponse]=await Promise.all([fetch(new URL('body.json',base)),fetch(new URL('body.bin',base))]);
   if(!metaResponse.ok||!binaryResponse.ok)throw new Error('Mannequin asset unavailable');
   const meta=await metaResponse.json(),buffer=await binaryResponse.arrayBuffer(),geo=new THREE.BufferGeometry();rest=meta.rest;
@@ -166,7 +165,7 @@ async function initialize(){
   geo.morphAttributes.position=shapes.map(s=>s.positions);
   geo.morphAttributes.normal=shapes.map(s=>s.normals);
   const mat=createTissueMaterial(materials.skin,{pressContraction,tissueLight,muscleUniform,pilotUniform,activationUniform});
-  // The new figure is shown as its source model: solid, with the model's own painted texture and no shorts.
+  // Solid, with the model's own painted texture driving shading and muscle shapes.
   if(meta.texture){
    const map=await new THREE.TextureLoader().loadAsync(new URL(meta.texture,base).href);
    map.flipY=false;map.colorSpace=THREE.NoColorSpace;map.anisotropy=4;

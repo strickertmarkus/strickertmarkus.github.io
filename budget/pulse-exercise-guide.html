@@ -3,21 +3,6 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b12">
 <title>Utforska träning · Pulse Field</title>
-<script>
-(function(){
-  // Hide the SVG fallback while the pre-rendered image atlas loads.
-  // It returns if loading fails; this view does not require WebGL.
-  document.documentElement.classList.add('atlas-stills-pending');
-  window.__pulseAtlasFallbackTimeout=setTimeout(function(){
-    if(!document.querySelector('.atlas-visual.atlas-stills-ready')){
-      document.documentElement.classList.remove('atlas-stills-pending');
-      document.documentElement.classList.add('atlas-stills-failed');
-      const status=document.getElementById('atlas-stills-status');
-      if(status)status.textContent='Bildvyn kunde inte laddas. Visar 2D-atlasen.';
-    }
-  },12000);
-})();
-</script>
 <style>
 :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,sans-serif;--bg:#080b12;--surface:#0f141e;--line:#ffffff1c;--text:#f2eded;--muted:#a5a0ae;--plum:#dc958f;--cyan:#91e4ec;--orange:#f3b07b;--muscle:#ff806f}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);min-height:100dvh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}a{color:inherit;text-decoration:none}button{color:inherit}header{position:sticky;top:0;z-index:10;background:#0a0d14ed;backdrop-filter:blur(14px);border-bottom:1px solid #b8665f25}.top{max-width:1140px;margin:auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-size:15px;letter-spacing:.17em;font-weight:800}.brand span{color:#c6675e;font-weight:500}.brand small{display:block;font-size:10px;color:#a19baa;letter-spacing:.08em;margin-top:4px}.back{border:1px solid #ffffff27;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:650;background:#ffffff06}main{max-width:1140px;margin:auto;padding:28px 20px 70px}.eyebrow{font-size:10px;letter-spacing:.18em;font-weight:800;color:#ba7a74}.intro h1{font-size:clamp(27px,4vw,40px);letter-spacing:-.045em;margin:9px 0 7px;font-weight:650}.intro p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.filters{margin:25px 0 18px;display:grid;gap:10px}.search{width:100%;background:#10151f;color:var(--text);border:1px solid #ffffff26;border-radius:12px;padding:13px 15px;font-size:16px}.filter-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}.filter-row::-webkit-scrollbar{display:none}.filter-row button{flex:0 0 auto;min-height:37px;border:1px solid #ffffff21;background:#ffffff05;border-radius:10px;padding:8px 13px;font-size:12px;font-weight:650;color:#bdb7c3}.filter-row button[aria-pressed=true]{border-color:#c1726ba0;background:#bd665e1c;color:#f3bab5}.filter-row.equipment button[aria-pressed=true]{border-color:#ffffff65;background:#ffffff11;color:white}.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}.catalog{background:#0d111a;border:1px solid var(--line);border-radius:16px;overflow:hidden}.catalog-head{padding:15px 15px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.catalog-head strong{font-size:13px}.catalog-head small{color:var(--muted);font-size:11px}.exercise-list{max-height:690px;overflow-y:auto;padding:7px}.exercise-option{display:flex;align-items:center;gap:10px;width:100%;padding:11px 10px;border:1px solid transparent;border-radius:10px;background:transparent;text-align:left;min-width:0}.exercise-option:hover{background:#ffffff08}.exercise-option[aria-current=true]{border-color:#bf77705b;background:#bd615915}.exercise-option .option-symbol{flex:0 0 36px;height:36px;display:grid;place-items:center;border:1px solid #ffffff1b;background:#ffffff05;border-radius:9px;color:#e5aaa5;font-size:17px}.exercise-option .option-copy{min-width:0}.exercise-option strong{display:block;font-size:12px;font-weight:650;white-space:normal;line-height:1.35}.exercise-option small{display:block;margin-top:4px;color:#928d9a;font-size:10px}.empty{padding:15px;color:var(--muted);font-size:12px}.detail{border:1px solid #ffffff1d;background:#0d111a;border-radius:17px;min-width:0;overflow:hidden}.detail-head{display:flex;justify-content:space-between;align-items:start;gap:10px;padding:20px 22px 13px}.detail-head h2{font-size:clamp(21px,3vw,28px);letter-spacing:-.04em;margin:5px 0 7px}.detail-head p{margin:0;color:#b7aeb8;font-size:11px}.kind-tag{border:1px solid #b4635c54;border-radius:100px;padding:6px 10px;font-size:10px;color:#e7a8a2;white-space:nowrap}.kind-tag.pull{border-color:#7cd4de52;color:var(--cyan)}.kind-tag.ben{border-color:#e8b57b52;color:var(--orange)}.kind-tag.kondition{border-color:#95b7d252;color:#a7d5f4}.stage{position:relative;margin:0 22px;border:1px solid #ffffff13;border-radius:13px;background:radial-gradient(ellipse 58% 64% at 50% 45%,#18202c,#0a0e15 80%);overflow:hidden}.stage svg{display:block;width:100%;height:auto;max-height:380px;aspect-ratio:420/340}.stage-label{position:absolute;top:12px;left:14px;right:14px;text-transform:uppercase;color:#9c9da9;font-size:9px;letter-spacing:.14em;font-weight:750}.stage-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 22px 0}.stage-controls{display:flex;gap:6px;flex-shrink:0}.stage-bottom small{color:#a9a2ae;font-size:11px}.stage-bottom button{border:1px solid #ffffff2a;background:#ffffff08;border-radius:9px;padding:8px 12px;font-size:11px;font-weight:650;min-width:80px}.muscle-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:15px 22px 4px}.muscle-row b{font-size:10px;color:#b6aab5;font-weight:650;margin-right:4px}.muscle-pill{font-size:11px;border:1px solid #ff806f56;background:#ff806f12;color:#ffad9f;padding:6px 9px;border-radius:100px}.muscle-pill:before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muscle);margin-right:6px;box-shadow:0 0 8px #ff806f90}.instructions{padding:13px 22px 23px}.instructions h3{font-size:13px;margin:9px 0 10px}.instructions ol{margin:0;padding-left:20px;display:grid;gap:9px}.instructions li{font-size:12px;line-height:1.6;color:#d2cbd4;padding-left:3px}.tech-tip{margin-top:15px;border-top:1px solid #ffffff14;padding-top:13px;font-size:11px;color:#b6abb4;line-height:1.6}.tech-tip strong{color:#e3bab6}.footnote{margin-top:16px;font-size:11px;line-height:1.6;color:#898592}#detail[hidden]{display:none}
@@ -33,41 +18,11 @@
 .program-time-row p{margin:0 0 12px;color:var(--muted);font-size:12px}#inspiration-toggle{color:#e4c99d}#inspiration-toggle[aria-pressed=true]{background:#cba36524;border-color:#cfb0757d}
 
 
-/* Markus & Maja, atlas v2: a single editorial surface with anatomical SVG fallback. */
 body{background:radial-gradient(ellipse 90% 33% at 55% 13%,#17233255,transparent 88%),#080b12}
 main{max-width:1060px;padding:24px 22px 78px}
 .intro{margin:0}.intro h1{font-weight:580;font-size:clamp(30px,4.3vw,43px);letter-spacing:-.055em;margin:8px 0 5px;line-height:1.1}
 .intro p{color:#97a1af;font-size:12px;line-height:1.55}
-.atlas-home{margin:0}
-.atlas-shell{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(290px,.85fr);grid-template-areas:"copy figure" "explore figure";align-items:center;column-gap:clamp(18px,6vw,74px);padding:7px 8px 30px}
-.atlas-content{grid-area:copy;align-self:end;max-width:500px;min-width:0}
-.atlas-content h2{margin:12px 0 9px;font-weight:550;font-size:clamp(36px,4.7vw,55px);line-height:1.06;letter-spacing:-.063em}
-.atlas-content>p{margin:0;color:#aeb3c2;font-size:13px;line-height:1.6}
-.atlas-visual{grid-area:figure;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:0;max-height:none;padding:8px 0 12px;overflow:visible;background:radial-gradient(ellipse 53% 52% at 50% 51%,#52302d66,transparent 90%)}
-.atlas-visual::after{display:none}
-.atlas-visual::before{content:"";position:absolute;inset:14% 8% 6%;pointer-events:none;border-radius:50%;background:radial-gradient(ellipse at 50% 56%,#81575324 0%,transparent 64%);filter:blur(25px)}
-.atlas-view-controls{position:relative;top:auto;left:auto;transform:none;display:flex;gap:4px;padding:3px;border:1px solid #ffffff17;border-radius:100px;background:#0d141dc4;z-index:2}
-.atlas-view-controls button{font-size:11px;font-weight:600;min-height:33px;padding:8px 19px;color:#a6afbb;border-radius:100px}
-.atlas-view-controls button[aria-pressed="true"]{background:#c17e7824;color:#f0bcb7;box-shadow:inset 0 0 0 1px #e3a8a352}
-.atlas-figure{display:block;position:relative;z-index:1;max-height:485px;width:min(100%,355px);height:auto;margin:1px auto -4px;filter:drop-shadow(0 23px 28px #03060a7d)}
-.atlas-figure[data-view="front"] [data-atlas-side="back"],.atlas-figure[data-view="back"] [data-atlas-side="front"]{display:none}
-.atlas-hotspot{cursor:pointer;outline:none}
-.atlas-hotspot .atlas-zone{fill:url(#anatomy-muscle);fill-opacity:.40;stroke:#e9adb0;stroke-opacity:.48;stroke-width:1.1;transition:fill-opacity .2s,stroke-opacity .2s,filter .2s}
-.atlas-hotspot:is(:hover,:focus-visible,[data-active="true"]) .atlas-zone{fill:url(#anatomy-focus);fill-opacity:.89;stroke:#ffe0cb;stroke-opacity:.95;filter:drop-shadow(0 0 7px #fa968fba)}
-.atlas-hotspot .anatomy-seam{fill:none;stroke:#f5d3cb;stroke-opacity:.28;stroke-width:1.1;pointer-events:none}
-.atlas-hotspot:focus-visible{filter:drop-shadow(0 0 5px #f2b8aa)}
 
-.atlas-pulse-dot{width:6px;height:6px;background:#ed9d99;border-radius:50%;box-shadow:0 0 10px #e7979090}
-.atlas-explore{grid-area:explore;align-self:start;margin-top:28px;max-width:520px;min-width:0}
-.atlas-explore-header{display:flex;justify-content:space-between;gap:9px;align-items:center;color:#a98380;font-size:10px;letter-spacing:.14em;font-weight:760}
-.atlas-explore-header .atlas-count{margin:0;color:#788694;letter-spacing:0;font-size:10px;font-weight:550}
-.atlas-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px;margin-top:8px}
-.atlas-list button{display:flex;justify-content:space-between;align-items:center;min-width:0;min-height:43px;gap:9px;padding:10px 1px;text-align:left;font-size:12px;font-weight:590;color:#cbd1d8;border:0;border-bottom:1px solid #ffffff16;background:transparent;transition:color .16s,border-color .16s}
-.atlas-list button:hover,.atlas-list button:focus-visible{color:#ffcccb;border-color:#df888090}
-.atlas-list button small{color:#a67f7c;font-size:10px;white-space:nowrap}
-.atlas-list button:disabled{opacity:.27}
-.atlas-all{width:100%;display:flex;justify-content:space-between;align-items:center;min-height:44px;margin-top:10px;padding:7px 2px;border:0;background:transparent;color:#efb7b2;font-weight:680;font-size:12px}
-.atlas-all span{font-size:18px;font-weight:350}
 .studio-shell{animation:atlas-in .2s ease-out both}
 @keyframes atlas-in{from{opacity:.7;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .studio-top{padding:0 0 13px;border-bottom:1px solid #ffffff17}
@@ -105,20 +60,7 @@ main{padding:15px 15px 64px}
 .intro h1{font-size:29px;margin:5px 0 3px}
 .intro .eyebrow{font-size:9px;letter-spacing:.13em}
 .intro p{font-size:11px}
-.atlas-shell{grid-template-columns:1fr;grid-template-areas:"copy" "figure" "explore";gap:0;padding:1px 1px 20px}
-.atlas-content{max-width:none}
-.atlas-content .eyebrow{font-size:10px;letter-spacing:.13em}
-.atlas-content h2{font-size:clamp(30px,8.5vw,38px);letter-spacing:-.055em;margin:8px 0 4px}
-.atlas-content>p{font-size:12px;line-height:1.45}
-.atlas-visual{max-height:none;min-height:0;margin:10px -3px 0;padding:0 0 6px}
-.atlas-view-controls{margin:1px auto 0}
-.atlas-view-controls button{min-height:32px;font-size:11px;padding:7px 16px}
-.atlas-figure{max-height:332px;width:min(100%,238px);margin:1px auto -3px}
 
-.atlas-explore{margin-top:20px;max-width:none}
-.atlas-list{gap:0 15px;margin-top:6px}
-.atlas-list button{min-height:39px;padding:8px 1px;font-size:12px}
-.atlas-all{margin-top:7px}
 .studio-filters{margin:10px 0 14px}
 .studio-layout .detail-head{padding:0 1px 12px}
 .studio-layout .detail-head h2{font-size:27px}
@@ -128,22 +70,14 @@ main{padding:15px 15px 64px}
 .studio-layout .exercise-option{flex-basis:172px}
 }
 @media(max-width:375px){
-.atlas-content h2{font-size:29px}
-.atlas-figure{max-height:298px;width:min(100%,216px)}
-.atlas-list button{font-size:11px}
 }
 /* Illustrated stills; SVG remains the offline/error fallback. */
 
-.atlas-stills img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
-.atlas-stills-ready .atlas-figure{display:none}
-.atlas-stills-status{color:#968fa0;font-size:10px;text-align:center;line-height:1.4;max-width:310px;min-height:0;padding:2px 0}
-.atlas-stills-status:empty{display:none}
 
 
 @media(max-width:740px){
 
 
-.atlas-stills-status{font-size:9px}
 
 }
 
@@ -153,53 +87,27 @@ main{padding:15px 15px 64px}
 .atlas-visual{isolation:isolate;border:1px solid #ffffff13;border-radius:24px;overflow:hidden;
  background:radial-gradient(ellipse 66% 60% at 50% 47%,#2b354874 0%,#16172494 56%,#10141c 100%);
  box-shadow:inset 0 1px 0 #ffffff10,0 20px 48px #03040937}
-.atlas-visual::before{inset:11% 5% 6%;background:radial-gradient(ellipse 54% 48% at 50% 47%,#e5948d1f,transparent 75%);filter:blur(18px)}
-.atlas-view-controls{margin-top:14px!important;background:#0e141bd9;box-shadow:0 7px 25px #0003}
 
 
 .atlas-list{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;overflow-y:hidden;
  padding:11px 0 10px;margin-top:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.atlas-list::-webkit-scrollbar{display:none}
 .atlas-list button{flex:0 0 auto;min-height:37px;border:1px solid #ffffff1c;border-radius:100px;
  background:#ffffff06;padding:8px 14px;color:#d3d0da;font-size:12px;font-weight:600;white-space:nowrap}
-.atlas-list button[aria-pressed="true"]{background:#b4635c2b;border-color:#e6a6a07d;color:#ffd6cf;box-shadow:0 0 14px #d5746b40}
-.atlas-list button:hover{border-color:#ebadb08c}
-.atlas-explore{margin-top:16px}
-.atlas-explore-header{font-size:10px}
 .atlas-selected{display:flex;align-items:center;justify-content:space-between;gap:12px;
  margin:11px 0 4px;padding:15px 17px;border:1px solid #d38a833f;border-radius:15px;
  background:linear-gradient(105deg,#a6605a28,#ffffff04 75%)}
-.atlas-selected-copy{display:flex;flex-direction:column;gap:4px}
-.atlas-selected-copy span{font-size:9px;font-weight:740;letter-spacing:.12em;color:#a9918f}
-.atlas-selected-copy strong{font-size:20px;letter-spacing:-.035em;font-weight:610}
-.atlas-selected-copy small{font-size:11px;color:#c1a29f}
 #atlas-show-exercises{flex-shrink:0;border:0;background:#c6827c;color:#1e1312;border-radius:11px;
  font-size:12px;font-weight:800;min-height:40px;padding:10px 13px}
 #atlas-show-exercises span{margin-left:6px;font-size:15px}
-.atlas-all{font-size:11px;min-height:36px;margin-top:4px;color:#be9f9c}
 @media(max-width:740px){
- .atlas-shell{padding:0 0 18px}
- .atlas-visual{margin:13px 0 2px;padding:0 4px 8px;border-radius:21px}
 
- .atlas-figure{max-height:312px}
 
- .atlas-view-controls{margin-top:10px!important}
- .atlas-explore{margin-top:15px}
- .atlas-list{margin-top:2px;padding:9px 0}
- .atlas-list button{font-size:11px;padding:8px 12px}
- .atlas-selected{padding:13px 13px;border-radius:13px}
- .atlas-selected-copy strong{font-size:18px}
  #atlas-show-exercises{font-size:11px}
 }
 @media(max-width:370px){
 
- .atlas-selected{gap:8px}
  #atlas-show-exercises{padding:9px 9px;font-size:10px}
 }
-.atlas-loading{display:none}
-.atlas-stills-pending .atlas-figure{display:none!important}
-.atlas-stills-pending .atlas-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;height:365px;color:#bcaeba;font-size:11px;letter-spacing:.035em}
-.atlas-loading-orb{width:78px;height:78px;border:1px solid #c59f9c33;border-radius:50%;background:radial-gradient(circle at 32% 22%,#ffffff30,transparent 55%);box-shadow:0 0 40px #d4948e14,inset 0 0 32px #d2a7a318;animation:atlas-loading-pulse 2.3s ease-in-out infinite}
 @keyframes atlas-loading-pulse{50%{opacity:.45;transform:scale(.96)}}
 @media(max-width:740px){.atlas-stills-pending .atlas-loading{height:355px}}
 @media(prefers-reduced-motion:reduce){.atlas-loading-orb{animation:none}}
@@ -259,12 +167,6 @@ body.pulse-studio-open{background:#090c12}
 .discover-under{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;color:#858d9a;font-size:11px}
 .discover-under button{border:0;background:transparent;color:#e7afaa;font-size:11px;font-weight:700;padding:11px 6px}
 .discover-swipe-icon{font-size:17px;color:#e7bdb9;margin-right:5px}
-.atlas-archive{max-width:1000px;margin:13px auto 27px;border-top:1px solid #ffffff1a;border-bottom:1px solid #ffffff15}
-.atlas-archive>summary{display:flex;justify-content:space-between;align-items:center;gap:15px;min-height:66px;padding:8px 4px;cursor:pointer;color:#dfc9c7;font-size:13px;font-weight:650;list-style:none}
-.atlas-archive>summary::-webkit-details-marker{display:none}
-.atlas-archive>summary span{color:#858b99;font-size:10px;font-weight:500}
-.atlas-archive[open]>summary{border-bottom:1px solid #ffffff14}
-.atlas-archive .atlas-home{margin:16px auto}
 body.pulse-studio-open main{padding-top:12px}
 .studio-shell{max-width:980px;margin:0 auto;animation:atlas-in .23s ease-out}
 .studio-top{border-bottom:0;padding:5px 2px 16px}
@@ -326,8 +228,6 @@ body:has(.studio-technique[open]){overflow:hidden}
  .discover-open{padding:11px 15px;min-height:42px}
  .discover-stepper button{height:42px;width:42px}
  .discover-under{font-size:10px}
- .atlas-archive{margin-top:10px}
- .atlas-archive>summary{font-size:12px}
  body.pulse-studio-open main{padding:12px 13px 48px}
  .studio-layout .detail-head h2{font-size:31px;margin:5px 0}
  .studio-layout .stage{border-radius:21px}
@@ -367,7 +267,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261027-kit-1"><script src="pulse-gym-scene.js?v=20261029-anim-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261027-kit-1"><script src="pulse-gym.js?v=20261027-std-2"></script>
+<link rel="stylesheet" href="pulse-flow-layout.css?v=20261026-unified"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261027-kit-1"><script src="pulse-gym-scene.js?v=20261029-std-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261027-kit-1"><script src="pulse-gym.js?v=20261027-std-2"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261027-tissue-4">
 </head>
 <body>
@@ -413,14 +313,15 @@ body:has(.studio-technique[open]){overflow:hidden}
 </main>
 <script>
 (function(){
- const profile=new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus';
+ const asked=new URLSearchParams(location.search).get('user'),profile=asked==='maja'||asked==='ingemar'?asked:'markus';
  const label=document.getElementById('explore-profile-name');
  const back=document.getElementById('explore-back');
- if(label)label.textContent=profile==='maja'?'MAJAS TRÄNING':'MARKUS TRÄNING';
- if(back)back.href='exercise.html'+(profile==='maja'?'?user=maja':'');
+ if(label)label.textContent=profile==='maja'?'MAJAS TRÄNING':profile==='ingemar'?'INGEMARS TRÄNING':'MARKUS TRÄNING';
+ if(back)back.href=profile==='ingemar'?'ingemar.html':'exercise.html'+(profile==='maja'?'?user=maja':'');
+ if(profile==='ingemar')document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('open-selection');if(b)b.textContent='Öppna i passbyggaren ↗';});
 })();
 </script>
-<script src="pulse-explore.js?v=20261028-dips-sumo-1"></script>
+<script src="pulse-explore.js?v=20261029-shared-1"></script>
 <script>
 'use strict';
 const exercises=window.PulseExplore.exercises;
@@ -1024,7 +925,7 @@ function renderPrograms(){
 function showProgram(id){
  const p=explorer.programs.find(program=>program.id===id);if(!p)return;chosenProgram=p.id;
  $('program-detail').hidden=false;
- $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">Tidsestimat: ca ${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><div class="timeline-start"><span>◌</span> Uppvärmning <small>Innan första arbetssetet</small></div><ol class="program-timeline">${p.ids.map((id,i)=>`<li><button class="timeline-preview" type="button" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}"><span class="timeline-poses">${[0,1].map(pose=>`<span class="timeline-pose"><span class="pose-image"><img src="assets/exercise-poses-v1/${String(id).padStart(2,'0')}-${pose?'end':'start'}.webp" width="364" height="295" loading="lazy" decoding="async" alt="${safe(exercises[id].name)} · ${pose?'slutläge':'startläge'}"></span></span>`).join('')}</span></button><div class="timeline-copy"><span class="timeline-number">${String(i+1).padStart(2,'0')}</span><strong>${safe(exercises[id].name)}</strong><small>Förslag: ${safe(explorer.prescription(id,p).label)}</small><small>${safe(exerciseEstimate(id,p))}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}">Se teknik ↗</button></li>`).join('')}</ol><footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">Kopiera programförslag ↗</button></footer>`;
+ $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">Tidsestimat: ca ${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><div class="timeline-start"><span>◌</span> Uppvärmning <small>Innan första arbetssetet</small></div><ol class="program-timeline">${p.ids.map((id,i)=>`<li><button class="timeline-preview" type="button" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}"><span class="timeline-poses">${[0,1].map(pose=>`<span class="timeline-pose"><span class="pose-image"><img src="assets/exercise-poses-v1/${String(id).padStart(2,'0')}-${pose?'end':'start'}.webp" width="364" height="295" loading="lazy" decoding="async" alt="${safe(exercises[id].name)} · ${pose?'slutläge':'startläge'}"></span></span>`).join('')}</span></button><div class="timeline-copy"><span class="timeline-number">${String(i+1).padStart(2,'0')}</span><strong>${safe(exercises[id].name)}</strong><small>Förslag: ${safe(explorer.prescription(id,p).label)}</small><small>${safe(exerciseEstimate(id,p))}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}">Se teknik ↗</button></li>`).join('')}</ol><footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">${explorer.profile==='ingemar'?'Öppna i passbyggaren ↗':'Kopiera programförslag ↗'}</button></footer>`;
  $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
  $('program-detail').focus({preventScroll:true});$('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
 }
@@ -1041,6 +942,12 @@ function closeProgram(){$('programs-title').closest('.section-intro').hidden=fal
 function transfer(request){
  const plan=explorer.workout(request);
  if(!plan)return;
+ // Ingemar's training page imports the pass itself (date, category, open or save as template).
+ if(explorer.profile==='ingemar'){
+  try{sessionStorage.setItem(explorer.transferKey,JSON.stringify(request));location.assign('ingemar.html?explore=1');}
+  catch(error){announce('Passet kunde inte föras över. Tillåt webbplatslagring i webbläsaren och försök igen. Ditt urval finns kvar.');}
+  return;
+ }
  // Export instead of writing an Ingemar-specific builder format.
  const text=[plan.name,'',...plan.exercises.map((exercise,index)=>{
   const first=exercise.sets[0]||{};
@@ -1129,7 +1036,7 @@ renderFilters();renderList();renderDetail();if(paused){$('pause').textContent='S
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}</script>
 
 
-<script type="module" src="pulse-silver-chest-press.js?v=20261029-gear-3"></script>
+<script type="module" src="pulse-silver-chest-press.js?v=20261029-std-1"></script>
 
 </body></html>
 
