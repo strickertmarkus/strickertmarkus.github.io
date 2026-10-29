@@ -34,7 +34,7 @@ function populateSelect(selected){
  if(!select)return;
  select.textContent='';
  var ph=document.createElement('option');
- ph.value='';ph.textContent=getTemplates().length?'Välj mallpass':'Inga mallpass ännu';
+ ph.value='';ph.textContent=mode==='template'?'Nytt mallpass':getTemplates().length?'Välj mallpass':'Inga mallpass ännu';
  select.appendChild(ph);
  getTemplates().slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'sv');}).forEach(function(t){
   var opt=document.createElement('option');opt.value=String(t.id);opt.textContent=t.name||t.type||'Mallpass';select.appendChild(opt);
@@ -54,6 +54,8 @@ function refreshMode(){
  if(btn)btn.textContent=editing?'Spara mallpass':'Spara passupplägg';
  var inline=byId('day-workout-inline-template');
  if(inline)inline.hidden=true;
+ var del=box.querySelector('.classic-delete-template');
+ if(del){del.hidden=!(editing&&editTemplateId);del.classList.remove('is-armed');del.textContent='Ta bort mallen';}
  var back=byId('day-workout-back-day');
  // Opened from the page's template button there is no day to go back to.
  if(back)back.hidden=!editing||fromPage;
@@ -69,7 +71,8 @@ function syncDay(iso,p){
  }
 }
 function apply(id){
- if(mode==='template')backToDay();
+ // In the template builder the drop-down switches which template is edited.
+ if(mode==='template'){openTemplate(id||null,originDay,{fromPage:fromPage});return;}
  if(!id){
   var edit=byId('day-workout-edit-template');if(edit)edit.disabled=true;
   // Going back to "Välj mallpass" after a template was chosen empties the day:
@@ -184,9 +187,24 @@ byId('day-workout-new-template-name').addEventListener('keydown',function(event)
  if(event.key==='Enter'){event.preventDefault();confirmSaveAsTemplate();}
  if(event.key==='Escape'){byId('day-workout-inline-template').hidden=true;}
 });
+/* Delete the edited template: a second tap confirms (no browser dialog). */
+(function(){
+ var footer=box.querySelector('.classic-builder-footer');if(!footer)return;
+ var del=document.createElement('button');del.type='button';del.className='btn-sm classic-delete-template';del.hidden=true;del.textContent='Ta bort mallen';
+ footer.appendChild(del);
+ del.addEventListener('click',function(){
+  if(!editTemplateId)return;
+  if(!del.classList.contains('is-armed')){del.classList.add('is-armed');del.textContent='Tryck igen för att ta bort';setTimeout(function(){del.classList.remove('is-armed');del.textContent='Ta bort mallen';},4000);return;}
+  var gone=editTemplateId;
+  saveTemplates(getTemplates().filter(function(t){return String(t.id)!==String(gone);}));
+  toast('Mallpasset borttaget.');
+  var next=getTemplates()[0];
+  openTemplate(next?next.id:null,originDay,{fromPage:fromPage});
+ });
+})();
 window.PulseClassicTemplates={syncDay:syncDay,openTemplate:openTemplate,apply:apply,backToDay:backToDay,saveAsTemplate:saveAsTemplate,confirmSaveAsTemplate:confirmSaveAsTemplate,saveTemplate:saveTemplate};
 window.pulseClassicApplyTemplate=apply;
-window.pulseClassicNewTemplate=function(){openTemplate(null);};
+window.pulseClassicNewTemplate=function(){openTemplate(null,originDay,{fromPage:mode==='template'&&fromPage});};
 window.pulseClassicEditTemplate=function(){var id=byId('day-workout-template-select').value;if(id)openTemplate(id);};
 window.pulseClassicBackToDay=backToDay;
 window.pulseClassicSaveAsTemplate=saveAsTemplate;

@@ -443,9 +443,13 @@ function pickFromGuide(){
 /* ---------- Pass header: title, meta and folded settings ---------- */
 function buildTop(modal){
  var modalBox=modal.querySelector('.modal');
- var kicker=document.createElement('div');kicker.className='pbu-kicker';
+ // The date is the kicker: tapping it opens the day's date field (the week navigator is gone).
+ var kicker=document.createElement('label');kicker.className='pbu-kicker';
+ kicker.innerHTML='<span class="pbu-kicker-text"></span><i class="pbu-chev" aria-hidden="true"></i>';
+ var date=byId('day-workout-date');
+ if(date){kicker.appendChild(date);date.classList.add('pbu-kicker-date');date.setAttribute('aria-label','Byt dag för passet');}
  var bar=document.createElement('button');bar.type='button';bar.className='pbu-settings-toggle';bar.setAttribute('aria-expanded','false');
- bar.innerHTML='<span class="pbu-settings-meta"></span><span class="pbu-settings-label">Inställningar</span><i class="pbu-chev" aria-hidden="true"></i>';
+ bar.innerHTML='<span class="pbu-settings-meta"></span><span class="pbu-settings-label"><svg class="pbu-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Inställningar</span><i class="pbu-chev" aria-hidden="true"></i>';
  modalBox.insertBefore(kicker,modalBox.firstChild);
  modalBox.appendChild(bar);
  bar.addEventListener('click',function(){
@@ -457,7 +461,7 @@ function buildTop(modal){
 }
 function paintTop(modal){
  var h=byId('day-workout-title'),text=h?h.textContent.trim():'';
- var kicker=modal.querySelector('.pbu-kicker');if(!kicker)return;
+ var kicker=modal.querySelector('.pbu-kicker-text');if(!kicker)return;
  var k=/^passupplägg/i.test(text)?text.replace(/^passupplägg\s*·\s*/i,''):text;
  if(kicker.textContent!==k)kicker.textContent=k;
  var sel=byId('day-workout-template-select'),tpl=sel&&sel.value&&sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].textContent:'';
