@@ -34,8 +34,8 @@
   border:0!important;border-radius:0!important;background:none!important;aspect-ratio:auto!important;min-height:0!important;
   transition:opacity .17s ease-in,transform .17s ease-in}
 .st-root #studio-stage .stage-label,.st-root #stage-technique,.st-root #model-status{display:none!important}
-.st-poster{position:absolute;left:50%;top:calc(var(--gy-hero) - 50px);width:min(112%,600px);transform:translateX(-50%);pointer-events:none;
-  clip-path:inset(11% 0 9% 0);-webkit-mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 46% 50% at 50% 54%,#000 58%,transparent 100%)}
+.st-poster{position:absolute;left:0;right:0;top:calc(var(--gy-hero) - 40px);width:100%;height:calc(100svh - var(--gy-hero) + 40px - 120px - env(safe-area-inset-bottom));object-fit:contain;pointer-events:none;transition:opacity .17s ease-in}
+.st-root.is-swap-out .st-poster{opacity:0}
 .st-stage:has(#studio-stage.silver-press-ready) .st-poster{display:none}
 .st-touch{position:absolute;inset:var(--gy-hero) 0 170px 0;z-index:3;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .st-nav{position:absolute;z-index:4;top:calc(var(--gy-hero) + (100svh - var(--gy-hero) - 240px) / 2);display:grid;place-items:center;width:40px;height:56px;padding:0;border:0;background:none;color:#f6ece9;opacity:.5;cursor:pointer}

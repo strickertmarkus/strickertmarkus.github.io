@@ -6,10 +6,11 @@
    page's own stage, selection and transfer are reused through PulseGuideUI. */
 (function () {
   'use strict';
-  var POSES = [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,21,22,23,25,26,30,34,35,43,44,45,52];
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, cls, html) { var n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; }
-  function pose(id, end) { return POSES.indexOf(Number(id)) >= 0 ? 'assets/exercise-poses-v1/' + String(id).padStart(2, '0') + (end ? '-end' : '-start') + '.webp' : ''; }
+  // Stills of the current figure for every exercise (rendered from the 3D scene).
+  function still(id, kind) { return id == null || id < 0 ? '' : 'assets/exercise-poses-v2/' + String(id).padStart(2, '0') + '-' + kind + '.webp'; }
+  function pose(id, end) { return still(Number(id), end ? 'end' : 'start'); }
   function splitDose(label) {
     var m = String(label || '').match(/(\d+)\s*×\s*([\d–]+)\s*(.*)$/);
     if (!m) return { big: String(label || ''), unit: '' };
@@ -123,7 +124,8 @@
       info.innerHTML = '<span class="st-eyebrow">' + e.equipment + ' · ' + e.muscles[0] + '</span><h2>' + e.name + '</h2>' +
         '<div class="st-dose"><strong>' + dose.big + '</strong><span>' + dose.unit + '</span></div>' +
         '<div class="st-muscles">' + e.muscles.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</div>';
-      var src = pose(id, false);
+      // Placeholder while the 3D figure starts: the same figure and framing, still.
+      var src = still(Number(id), 'poster');
       poster.hidden = !src; if (src) poster.src = src;
       syncChosen();
     }
@@ -276,8 +278,8 @@
         sheet.setAttribute('aria-label', 'Program');
         var programs = explore.programs.filter(function (p) { return p.ids.some(function (id) { return all[id].muscles.indexOf(state.group) >= 0; }); });
         sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Program</span><h3>Program för ' + state.group.toLowerCase() + '</h3><div class="st-programs">' + programs.map(function (p) {
-          var still = p.ids.filter(function (id) { return POSES.indexOf(id) >= 0; })[0];
-          return '<button type="button" class="st-program" data-program="' + p.id + '"><span class="st-program-art">' + (still != null ? '<img src="' + pose(still, true) + '" alt="">' : '') +
+          var lead = p.ids[0];
+          return '<button type="button" class="st-program" data-program="' + p.id + '"><span class="st-program-art">' + (lead != null ? '<img src="' + pose(lead, true) + '" alt="" loading="lazy">' : '') +
             '</span><span class="st-program-copy"><b>' + p.name + '</b><small>' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</small></span><span class="st-program-play">' + ICON.fwd + '</span></button>';
         }).join('') + '</div>';
       }
@@ -471,7 +473,7 @@
       show(Math.max(0, state.list.indexOf(id != null ? id : ui.active())));
       close.focus({ preventScroll: true });
       // "Alla övningar" on the body opens the scene with its list already up.
-      if (withList) setTimeout(function () { openSheet('list'); }, 650);
+      if (withList) openSheet('list');
       else setTimeout(showHint, 900);
     }
     /* The artwork is born from the tapped muscle: it starts as a glowing tile
