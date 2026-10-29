@@ -721,7 +721,8 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
   const z=.30+.28*t,y=.57+.27*t;feet=[[-.17,y,z],[.17,y,z]];kneePoles=[[-.24,.96,.10],[.24,.96,.10]];
   pad([0,y+.04,z+.045],[0,.71,-.71],.62,.82,[0,-.71,-.71]);
   for(const x of [-.52,.52]){rod([x,.18,.03],[x,1.35,1.20],.035,palette.light);rod([x*.78,y+.04,z+.045],[x,y+.04,y-.11],.024,palette.light);}
-  hands=[[-.31,.55,-.28],[.31,.55,-.28]];hands.forEach(h=>rod(A(h,[0,-.13,0]),h,.02));soles=[0,.71,.71];
+  // Hands hold the seat handles beside the hips; elbows point out and back, alongside the body.
+  hands=[[-.30,.50,-.16],[.30,.50,-.16]];elbowPoles=[[-.62,.70,-.50],[.62,.70,-.50]];hands.forEach(h=>rod(A(h,[0,-.10,0]),h,.02));soles=[0,.71,.71];
  }else if(kind==='legExtension'){
   seated();knees=[[-.17,.60,.425],[.17,.60,.425]];const a=rad(-83+79*t);
   feet=knees.map(k=>A(k,[0,.43*Math.sin(a),.43*Math.cos(a)]));restHands();
