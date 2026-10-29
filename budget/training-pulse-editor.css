@@ -8,7 +8,8 @@
 .field-workspace::backdrop{background:transparent;backdrop-filter:none}
 .field-workspace-shell{display:flex;flex-direction:column;width:100%;height:100%;height:100dvh;background:radial-gradient(ellipse at 80% 0%,#402131 0%,#111a24 52%,#080f17 100%)}
 body.field-workspace-active{overflow:hidden}
-body.field-workspace-active .field-canvas,body.field-workspace-active .space-scene{display:none!important}
+/* Covered by the workspace: kept laid out (no reflow or repaint flash when it returns), just not painted. */
+body.field-workspace-active .field-canvas,body.field-workspace-active .space-scene{visibility:hidden!important}
 /* Every tool is full screen: no title bar, only the round close button floating
    in the corner (the title stays for screen readers). */
 .field-workspace-shell{position:relative}

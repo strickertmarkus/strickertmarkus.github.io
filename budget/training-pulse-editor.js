@@ -137,7 +137,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-motion-5');
+  url.searchParams.set('v','20261029-motion-6');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -152,6 +152,9 @@ function closeWorkspace(){
  // Show the page again underneath, so the circle shrinks back into the control
  // that opened it (like Lists and Travel returning to Home's overview).
  document.body.classList.remove('field-workspace-active');
+ // Give the page back its normal scrolling now, while the window still covers it,
+ // so the scroll restore is never seen after the fold has finished.
+ unlockHostScroll();
  var target=origin&&document.body.contains(origin)&&origin.getClientRects().length?origin:null;
  // Opened from the menu (now closed): fold back into the menu button.
  if(!target&&origin&&origin.closest&&origin.closest('#field-menu'))target=$('menu-toggle');
