@@ -129,7 +129,7 @@
     return '<div class="set-tag">Set</div>' +
       '<input type="number" min="1" step="1" inputmode="numeric" aria-label="Set" data-session-log-v112="setNo" data-session-log-index-v112="' + index + '" value="' + escapeAttr(Math.max(1,Number(log.setNo) || (index + 1))) + '">' +
       '<input type="number" min="0" step="1" inputmode="numeric" aria-label="Reps" data-session-log-v112="actualReps" data-session-log-index-v112="' + index + '" value="' + escapeAttr(Number(log.actualReps) || 0) + '">' +
-      '<input type="number" min="0" step="0.5" inputmode="decimal" aria-label="Vikt i kg" data-session-log-v112="actualWeight" data-session-log-index-v112="' + index + '" value="' + escapeAttr(Number(log.actualWeight) || 0) + '">';
+      (log.weightMode==='bodyweight'?'<span class="session-bodyweight">Kroppsvikt</span>':'<input type="number" min="0" step="0.5" inputmode="decimal" aria-label="Vikt i kg" data-session-log-v112="actualWeight" data-session-log-index-v112="' + index + '" value="' + escapeAttr(Number(log.actualWeight) || 0) + '">');
   }
 
   function cardioRowHtml(log,index) {

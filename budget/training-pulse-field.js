@@ -150,7 +150,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       name:String(exercise.name||exercise.exercise||'Övning'),
       sets:number(exercise.sets)||1,
       reps:number(exercise.reps),
-      weight:number(exercise.weight||exercise.actualWeight||exercise.maxWeight),
+      weightMode:exercise.weightMode||'kg',
+      weight:exercise.weightMode==='bodyweight'?0:number(exercise.weight||exercise.actualWeight||exercise.maxWeight),
       distance:number(exercise.distance),
       time:number(exercise.time),
       durationSec:number(exercise.durationSec)
@@ -1033,7 +1034,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function exerciseResult(raw) {
     var ex=normalizeExercise(raw);
     if(ex.kind==='cardio')return ex.distance?formatNumber(ex.distance,2)+' km'+(ex.time?' · '+formatNumber(ex.time,0)+' min':''):(ex.time?formatNumber(ex.time,0)+' min':'Kondition');
-    var pieces=[];if(ex.sets&&ex.reps)pieces.push(ex.sets+'×'+ex.reps);if(ex.weight)pieces.push(formatNumber(ex.weight,1)+' kg');return pieces.join(' · ')||'Styrka';
+    var pieces=[];if(ex.sets&&ex.reps)pieces.push(ex.sets+'×'+ex.reps);if(ex.weightMode==='bodyweight')pieces.push('Kroppsvikt');else if(ex.weight)pieces.push(formatNumber(ex.weight,1)+' kg');return pieces.join(' · ')||'Styrka';
   }
   function exerciseSeconds(workout,raw,index) {
     var ex=normalizeExercise(raw);if(ex.durationSec)return ex.durationSec;

@@ -117,8 +117,9 @@ function summaryText(row){
   return parts.length?parts.join(' · '):'Kondition · ange distans eller tid';
  }
  var w=num(field(row,3).value);
- if(!a&&!b&&!w)return 'Ange sets och reps';
- return (a||'–')+' × '+(b||'–')+(w?' · '+fmt(w)+' kg':'');
+ var bw=field(row,3).dataset.weightMode==='bodyweight';
+ if(!a&&!b&&!w&&!bw)return 'Ange sets och reps';
+ return (a||'–')+' × '+(b||'–')+(bw?' · Kroppsvikt':w?' · '+fmt(w)+' kg':'');
 }
 function paintRow(row){
  if(!row||!row.querySelector('.pbu-head'))return;
@@ -250,8 +251,10 @@ function syncActions(row){
 function renderSteps(row){
  var wrap=row.querySelector('.pbu-steps'),kind=rowKind(row);
  wrap.dataset.count=SPECS[kind].length;wrap.dataset.kind=kind;
+ var bw=kind==='strength'&&field(row,3).dataset.weightMode==='bodyweight';
  row.classList.toggle('pbu-is-cardio',kind==='cardio');
  wrap.innerHTML=SPECS[kind].map(function(s){
+  if(kind==='strength'&&s.n===3&&bw)return '<div class="pbu-step"><span class="pbu-step-label">Vikt</span><span class="pbu-bodyweight-value">Kroppsvikt</span></div>';
   var v=shownValue(row,s);
   // Pace as the training log's interval meter (7:00 slow → 3:00 fast), with its number and steps.
   if(s.meter)return '<div class="pbu-step pbu-meter"><div class="pbu-meter-read"><span class="pbu-step-label">'+s.label+' <small>'+s.unit+'</small></span>'
@@ -263,6 +266,7 @@ function renderSteps(row){
    +'<input class="pbu-step-value" data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1||s.clock?'decimal':'numeric')+'" value="'+esc(v)+'" placeholder="'+(s.clock?'0:00':'0')+'" aria-label="'+s.label+'" autocomplete="off">'
    +'<button type="button" data-pbu-step="1" data-pbu-n="'+s.n+'" aria-label="Öka '+s.label.toLowerCase()+'"><i class="pbu-plus"></i></button></div></div>';
  }).join('');
+ if(kind==='strength')wrap.insertAdjacentHTML('beforeend','<div class="pbu-seg pbu-weight-choice" role="group" aria-label="Viktalternativ"><button type="button" data-pbu-weight-mode="kg" aria-pressed="'+!bw+'">kg</button><button type="button" data-pbu-weight-mode="bodyweight" aria-pressed="'+bw+'">Kroppsvikt</button></div>');
  syncSteps(row);
 }
 
@@ -501,6 +505,8 @@ function bindList(modal,list,addSelector,single){
    if(secs){secs.value=Math.max(5,(Number(secs.value)||60)+Number(betweenStep.dataset.pbuBetweenStep)*15);secs.dispatchEvent(new Event('input',{bubbles:true}));}
    syncBetween(row);return;
   }
+  var weightChoice=t.closest('[data-pbu-weight-mode]');
+  if(weightChoice){window.setExerciseWeightMode(row,weightChoice.dataset.pbuWeightMode);renderSteps(row);paintRow(row);return;}
   var step=t.closest('[data-pbu-step]');
   if(step){
    var spec=specFor(row,step.dataset.pbuN);

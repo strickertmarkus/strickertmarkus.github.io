@@ -119,7 +119,8 @@
       name:String(exercise.name || ''),
       sets:Math.max(1,Number(exercise.sets) || Number(exercise.plannedSets) || 1),
       reps:Number(exercise.reps) || 0,
-      weight:Number(exercise.weight) || 0
+      weightMode:exercise.weightMode||'kg',
+      weight:exercise.weightMode==='bodyweight'?0:(Number(exercise.weight) || 0)
     };
   }
   function fallbackPlanFromWorkout(workout) {

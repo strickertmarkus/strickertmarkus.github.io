@@ -1111,3 +1111,44 @@ html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row
   html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .single-exercise-metric-v10 input[type="number"]{font-size:18px!important}
   html[data-field-embedded] body #exercise-edit-modal-v9 .single-exercise-edit-row-v9.is-cardio .ex-duration-editor-v7>span{font-size:11px!important}
 }
+
+/* Planner views use the same selected-only highlight as Historik / Vecka. */
+html[data-field-embedded] #plan-modal .planner-view-tabs{display:flex;gap:2px;padding:0 38px 12px 0;flex-shrink:0}
+html[data-field-embedded] #plan-modal .planner-view-tabs button{min-height:38px;padding:0 15px;border:0;border-radius:12px;background:none;color:#929ba5;font:500 13px Inter,sans-serif;box-shadow:none}
+html[data-field-embedded] #plan-modal .planner-view-tabs button[aria-selected=true]{background:#ff9a9110;color:#ff9a91}
+html[data-field-embedded] body #plan-modal.is-month-view .modal{width:min(980px,100%)!important;max-width:980px!important;margin-inline:auto!important}
+html[data-field-embedded] #plan-modal .planner-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;flex-shrink:0}
+html[data-field-embedded] #plan-modal .planner-weekday{padding:8px 0;text-align:center;color:#949aa3;font:500 11px Inter,sans-serif}
+html[data-field-embedded] #plan-modal .planner-month-day{position:relative;min-width:0;min-height:106px;border-top:1px solid #ffffff12;background:#ffffff02;--day-color:#ff9a91}
+html[data-field-embedded] #plan-modal .planner-month-day[data-kind=cardio]{--day-color:#7fe3ef}
+html[data-field-embedded] #plan-modal .planner-month-day[data-kind=rest]{--day-color:#7c8793}
+html[data-field-embedded] #plan-modal .planner-month-day.is-outside{opacity:.42}
+html[data-field-embedded] #plan-modal .planner-month-day.is-selected{background:#ff9a9110;border-top-color:#ff9a9180}
+html[data-field-embedded] #plan-modal .planner-day-open{width:100%;height:100%;min-height:106px;padding:10px 8px 25px;display:flex;flex-direction:column;align-items:flex-start;gap:7px;border:0;border-radius:0;background:none;color:#e4e5e8;text-align:left;box-shadow:none}
+html[data-field-embedded] #plan-modal .planner-day-number{font:400 19px/1 Inter,sans-serif}
+html[data-field-embedded] #plan-modal .planner-day-open[aria-current=date] .planner-day-number{color:#ffb2a6;text-shadow:0 0 14px #ff9a9180}
+html[data-field-embedded] #plan-modal .planner-day-name{width:100%;font:500 11px/1.35 Inter,sans-serif;color:var(--day-color);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+html[data-field-embedded] #plan-modal .planner-day-count{font:400 9px Inter,sans-serif;color:#8c959f}
+html[data-field-embedded] #plan-modal .planner-day-drag,html[data-field-embedded] #plan-modal .planner-day-paste{position:absolute;bottom:0;right:0;min-width:28px;height:25px;padding:3px;border:0;border-radius:0;background:none;color:#a4a8b3;box-shadow:none;touch-action:none}
+html[data-field-embedded] #plan-modal .planner-day-drag{cursor:grab}
+html[data-field-embedded] #plan-modal .planner-day-drag svg{width:20px;height:12px;stroke:currentColor;fill:none;stroke-width:1.3}
+html[data-field-embedded] #plan-modal .planner-day-paste{font:500 10px Inter,sans-serif;color:#ffb2a6}
+html[data-field-embedded] #plan-modal .planner-month-day.is-drag-source{opacity:.3}
+html[data-field-embedded] #plan-modal .planner-month-day.is-drag-target{outline:1px solid #ff9a91;outline-offset:-1px;background:#ff9a9120}
+html[data-field-embedded] #plan-modal .planner-selected-day{flex-shrink:0;margin-top:12px}
+html[data-field-embedded] #plan-modal .planner-selected-title{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:14px;border:0;background:none;color:#fff0e9;text-align:left;font:500 14px Inter,sans-serif;text-transform:capitalize}
+html[data-field-embedded] #plan-modal .planner-selected-title span{font-size:11px;color:#ff9a91;text-transform:none}
+html[data-field-embedded] #plan-modal .planner-copy-status{font:400 12px/1.5 Inter,sans-serif;color:#ffb2a6}
+html[data-field-embedded] #plan-modal #plan-week-label{text-transform:capitalize}
+@media(max-width:600px){
+ html[data-field-embedded] #plan-modal .planner-month-day,html[data-field-embedded] #plan-modal .planner-day-open{min-height:94px}
+ html[data-field-embedded] #plan-modal .planner-day-open{padding:8px 3px 23px;gap:6px}
+ html[data-field-embedded] #plan-modal .planner-day-number{font-size:16px}
+ html[data-field-embedded] #plan-modal .planner-day-name{font-size:9px}
+ html[data-field-embedded] #plan-modal .planner-day-count{font-size:8px}
+ html[data-field-embedded] #plan-modal .planner-selected-title{font-size:12px;padding:12px 9px}
+ html[data-field-embedded] #plan-modal .planner-selected-title span{max-width:95px;text-align:right;line-height:1.5}
+}
+.exercise-weight-mode{font:500 12px Inter,sans-serif;background:transparent;color:inherit;border:0;padding:5px;max-width:130px}
+.is-cardio .exercise-weight-mode{display:none}
+.session-bodyweight{font-size:12px;align-self:center}

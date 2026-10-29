@@ -468,7 +468,7 @@
     if (!name) return null;
     var kind = kindEl ? kindEl.value : 'strength';
     if (kind === 'cardio') return {kind:'cardio',name:name,distance:+row.querySelector('.dw-metric1').value||0,time:+row.querySelector('.dw-metric2').value||0};
-    return {kind:'strength',name:name,sets:+row.querySelector('.dw-metric1').value||1,reps:+row.querySelector('.dw-metric2').value||0,weight:+row.querySelector('.dw-metric3').value||0};
+    return {kind:'strength',name:name,sets:+row.querySelector('.dw-metric1').value||1,reps:+row.querySelector('.dw-metric2').value||0,weightMode:row.querySelector('.dw-metric3').dataset.weightMode||'kg',weight:row.querySelector('.dw-metric3').dataset.weightMode==='bodyweight'?0:(+row.querySelector('.dw-metric3').value||0)};
   }
 
   function captureDraft() {
@@ -497,7 +497,8 @@
       return p.join(' · ') || 'Kondition';
     }
     var base=(Number(ex.sets)||1)+'×'+(Number(ex.reps)||0);
-    if (Number(ex.weight)>0) base+=' · '+ex.weight+' kg';
+    if (ex.weightMode==='bodyweight') base+=' · Kroppsvikt';
+    else if (Number(ex.weight)>0) base+=' · '+ex.weight+' kg';
     return base;
   }
 

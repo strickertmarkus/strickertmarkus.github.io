@@ -116,7 +116,7 @@
       cells = [
         ['Set', (state.currentSet || 1) + ' / ' + (ex.plannedSets || 1)],
         ['Reps', String(ex.reps || 0)],
-        ['Vikt (kg)', (ex.weight || 0) + ' kg']
+        [ex.weightMode==='bodyweight'?'Vikt':'Vikt (kg)', ex.weightMode==='bodyweight'?'Kroppsvikt':(ex.weight || 0) + ' kg']
       ];
     }
 

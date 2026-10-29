@@ -63,7 +63,7 @@
   function loadSessionPersistence() {
     if (document.querySelector('script[data-exercise-session-persistence-v143]')) return;
     var script = document.createElement('script');
-    script.src = 'exercise-session-persistence-v143.js?v=20260911-session-persistence-v143b';
+    script.src = 'exercise-session-persistence-v143.js?v=20261029-planner-bodyweight-1';
     script.async = false;
     script.setAttribute('data-exercise-session-persistence-v143','true');
     document.head.appendChild(script);

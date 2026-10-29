@@ -776,3 +776,9 @@ main{position:relative;z-index:2;display:block}
 .pace-heat-scale{display:flex;align-items:center;gap:8px;min-width:0;color:#a4aeba;font-size:9px;white-space:nowrap}
 .pace-heat-scale b{color:#e7ecef;font-weight:600;font-variant-numeric:tabular-nums}
 .pace-heat-scale i{display:block;flex:1 1 72px;min-width:48px;max-width:160px;height:6px;border-radius:999px;box-shadow:0 0 10px #ff9a6b40}
+
+/* Calendar entry remains an unboxed symbol in the week heading. */
+.planner-calendar-entry{display:grid;place-items:center;width:44px;height:44px;color:var(--field-coral);background:none;border:0;text-decoration:none;filter:drop-shadow(0 0 9px #ff9a9138)}
+.planner-calendar-entry .pk-icon{width:27px;height:27px;stroke-width:1.4}
+.planner-calendar-entry:hover{color:var(--field-peach)}
+.planner-calendar-entry:focus-visible{outline:1px solid currentColor;outline-offset:3px;border-radius:8px}

@@ -694,6 +694,7 @@
     } : {
       setNo: state.currentSet,
       targetReps: Number(exercise.reps) || 0,
+      weightMode:exercise.weightMode||'kg',
       targetWeight: Number(exercise.weight) || 0,
       actualReps: Number(exercise.reps) || 0,
       actualWeight: Number(exercise.weight) || 0,

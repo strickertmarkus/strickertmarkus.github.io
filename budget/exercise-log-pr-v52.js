@@ -75,6 +75,7 @@
   }
   function collectWeights(exercise) {
     var out=[];
+    if(exercise&&exercise.weightMode==='bodyweight')return out;
     function add(v){ var n=number(v); if(n>0) out.push(n); }
     add(exercise && exercise.weight);
     add(exercise && exercise.actualWeight);
@@ -82,7 +83,7 @@
     ['sets','logs','setLogs','setLog'].forEach(function(key){
       var rows=exercise && exercise[key];
       if(!Array.isArray(rows)) return;
-      rows.forEach(function(row){ if(!row||typeof row!=='object') return; add(row.actualWeight); add(row.weight); add(row.maxWeight); });
+      rows.forEach(function(row){ if(!row||typeof row!=='object'||row.weightMode==='bodyweight') return; add(row.actualWeight); add(row.weight); add(row.maxWeight); });
     });
     return out;
   }

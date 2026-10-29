@@ -10,13 +10,13 @@
   <title>Träning · bevarade passverktyg</title>
   <script>
   if(window.__FIELD_EMBEDDED__){
-    document.write('<script src="auth-config.js?v=20261026-energy-loop-4"><\/script>');
+    document.write('<script src="auth-config.js?v=20261029-planner-bodyweight-1"><\/script>');
   }else{
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"><\/script>');
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"><\/script>');
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"><\/script>');
     document.write('<script src="indexeddb-fallback.js"><\/script>');
-    document.write('<script src="auth-config.js?v=20261026-energy-loop-4"><\/script>');
+    document.write('<script src="auth-config.js?v=20261029-planner-bodyweight-1"><\/script>');
     document.write('<script src="auth-gate.js?v=20261026-energy-loop-4"><\/script>');
     document.write('<script src="firebase-sync.js?v=20261020-exercise-history-v1"><\/script>');
   }
@@ -553,16 +553,16 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return:hover{background:#28202a}
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20261027-kit-1">
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20261029-planner-bodyweight-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-pace-3">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-planner-bodyweight-2">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-log-1">
 <link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-8">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261029-pace-3"></script>
+<script defer src="pulse-builder-ui.js?v=20261029-planner-bodyweight-2"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -926,6 +926,10 @@ if(!window.__FIELD_EMBEDDED__){
 <div class="modal-overlay pulse-editor" id="plan-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('plan-modal')">✕</button>
+    <div class="planner-view-tabs" role="tablist" aria-label="Planeringsvy">
+      <button type="button" role="tab" data-plan-view="week" aria-selected="true" onclick="pulsePlanSetView('week')">Vecka</button>
+      <button type="button" role="tab" data-plan-view="month" aria-selected="false" onclick="pulsePlanSetView('month')">Månad</button>
+    </div>
     <div class="pulse-plan-toolbar-v3">
       <div class="pulse-plan-nav-v3" aria-label="Välj vecka">
         <button type="button" class="pulse-plan-nav-btn-v3" onclick="shiftPlanTargetWeek(-1)" aria-label="Föregående vecka">‹</button>
@@ -1129,7 +1133,7 @@ function setPlanForWeek(mondayISO,plan){
   var all=getWeekPlans();
   all[mondayISO]=plan;
   saveWeekPlans(all);
-  if(mondayISO===weekStartISO()) DB.set('plan',plan);
+  // Date-specific edits must not rewrite the legacy fallback for every other week.
 }
 function formatWeekLabel(mondayISO){
   var start=parseISODate(mondayISO), end=parseISODate(shiftISODate(mondayISO,6));
@@ -1193,7 +1197,8 @@ function onTemplateEditorWeekDateChange(){
 
 /* Pulse Field week planner: Ingemar-style day cards, own workout names,
    in-card quick planning and full-session drag-and-drop. */
-var pulsePlanDraftsV2={},pulsePlanExpandedV2=-1,pulsePlanCopyV2=-1,pulsePlanDragV2=null,pulsePlanInstalledV2=false;
+var pulsePlanView='week',pulsePlanMonth='',pulsePlanSelected='',pulsePlanCopied=null,pulsePlanDirtyWeeks={};
+var pulsePlanDraftsV2={},pulsePlanExpandedV2=-1,pulsePlanDragV2=null,pulsePlanInstalledV2=false;
 function pulsePlanCloneV2(obj){return obj==null?obj:JSON.parse(JSON.stringify(obj));}
 function pulsePlanKindV2(value){
   var t=String(value||'').trim().toLocaleLowerCase('sv-SE');
@@ -1278,13 +1283,14 @@ function pulsePlanExpandedHtmlV2(entry,i){
       ''))+
     '<div class="pulse-plan-editor-foot-v2">'+
       '<button type="button" data-pulse-open-builder-v2="'+i+'">Set, vikter och detaljer ↗</button>'+
-      '<button type="button" data-pulse-copy-v2="'+i+'">'+(pulsePlanCopyV2===i?'Avbryt kopiering':'Kopiera pass')+'</button>'+
+      '<button type="button" data-pulse-copy-v2="'+i+'">'+(pulsePlanCopied&&pulsePlanCopied.date===shiftISODate(planTargetMondayISO,i)?'Avbryt kopiering':'Kopiera pass')+'</button>'+
       '<button type="button" data-pulse-rest-v2="'+i+'">Vila / rensa</button></div>'+
     '</div>';
 }
 function pulsePlanRenderV2(){
   var box=document.getElementById('plan-days'),week=planTargetMondayISO;
   if(!box||!week)return;
+  if(pulsePlanView==='month'){pulsePlanRenderMonth();return;}
   var draft=pulsePlanWeekDraftV2(week),previousScroll=box.scrollTop;
   box.innerHTML='';
   DAYS.forEach(function(day,i){
@@ -1300,7 +1306,7 @@ function pulsePlanRenderV2(){
        '<span class="pulse-plan-arrow-v2" aria-hidden="true">↗</span></button>'+
       '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
       '<button type="button" class="pulse-plan-quick-v3" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'"><span><b>Snabbplanera</b> · '+(rest?'välj pass':exercises.length+(exercises.length===1?' övning':' övningar'))+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
-      (pulsePlanCopyV2!==-1&&pulsePlanCopyV2!==i?'<button type="button" class="pulse-plan-copy-here-v2" data-pulse-copy-to-v2="'+i+'">Kopiera hit ↗</button>':'')+
+      (pulsePlanCopied&&pulsePlanCopied.date!==date?'<button type="button" class="pulse-plan-copy-here-v2" data-pulse-copy-to-v2="'+i+'">Kopiera hit ↗</button>':'')+
       (expanded?pulsePlanExpandedHtmlV2(entry,i):'');
     box.appendChild(article);
   });
@@ -1311,6 +1317,7 @@ function pulsePlanSetTypeV2(index,type){
   var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index];if(!entry)return;
   var current=entry.type||'Vila',chosen=type||'Vila';
   if(current===chosen)return;
+  pulsePlanDirtyWeeks[planTargetMondayISO]=true;
   if(!entry.savedByType)entry.savedByType={};
   if(entry.session)entry.savedByType[current]=pulsePlanCloneV2(entry.session);
   entry.type=chosen;
@@ -1327,6 +1334,7 @@ function pulsePlanAddExerciseV2(index,name){
   if(!Array.isArray(entry.session.exercises))entry.session.exercises=[];
   if(entry.session.exercises.some(function(ex){return String(ex.name||'').toLocaleLowerCase('sv-SE')===name.toLocaleLowerCase('sv-SE');}))return;
   var existing=pulsePlanCatalogV2(entry.type).find(function(ex){return String(ex.name||'').toLocaleLowerCase('sv-SE')===name.toLocaleLowerCase('sv-SE');});
+  pulsePlanDirtyWeeks[planTargetMondayISO]=true;
   entry.session.exercises.push(existing||{name:name,kind:pulsePlanKindV2(entry.type)==='cardio'?'cardio':'strength',sets:1,reps:0,weight:0});
   pulsePlanRenderV2();
 }
@@ -1334,20 +1342,24 @@ function pulsePlanApplyTemplateV2(index,id){
   var template=getTemplates().find(function(t){return String(t.id)===String(id);});
   if(!template)return;
   var entry=pulsePlanWeekDraftV2(planTargetMondayISO)[index];
+  pulsePlanDirtyWeeks[planTargetMondayISO]=true;
   entry.type=template.type||entry.type;
   entry.session={type:entry.type,name:template.name||entry.type,templateId:template.id,exercises:pulsePlanCloneV2(template.exercises||[])};
   pulsePlanRenderV2();
 }
 function pulsePlanCopyV2To(index){
-  var draft=pulsePlanWeekDraftV2(planTargetMondayISO),from=pulsePlanCopyV2;
-  if(from<0||from>=7||index===from)return;
-  draft[index]=pulsePlanCloneV2(draft[from]);
-  pulsePlanCopyV2=-1;pulsePlanExpandedV2=index;pulsePlanRenderV2();
+  if(!pulsePlanCopied)return;
+  var date=shiftISODate(planTargetMondayISO,index);
+  if(date===pulsePlanCopied.date)return;
+  pulsePlanWeekDraftV2(planTargetMondayISO)[index]=pulsePlanCloneV2(pulsePlanCopied.entry);
+  pulsePlanDirtyWeeks[planTargetMondayISO]=true;
+  pulsePlanCopied=null;pulsePlanExpandedV2=index;pulsePlanRenderV2();
 }
 function pulsePlanSwapV2(a,b){
   if(a===b||a<0||b<0||a>6||b>6)return;
+  pulsePlanDirtyWeeks[planTargetMondayISO]=true;
   var draft=pulsePlanWeekDraftV2(planTargetMondayISO),tmp=draft[a];draft[a]=draft[b];draft[b]=tmp;
-  pulsePlanCopyV2=-1;pulsePlanExpandedV2=-1;pulsePlanRenderV2();
+  pulsePlanExpandedV2=-1;pulsePlanRenderV2();
 }
 function pulsePlanDragMoveV2(event){
   var drag=pulsePlanDragV2;
@@ -1401,7 +1413,7 @@ function pulsePlanOpenBuilderV3(index){
   // Persist complete drafts before opening the existing full builder. In particular,
   // dragged sessions retain their exercise lists and are not replaced by empty plans.
   savePlan();
-  pulsePlanBuilderReturnV3={week:week,index:index,scroll:scroll};
+  pulsePlanBuilderReturnV3={week:week,index:index,scroll:scroll,view:pulsePlanView,month:pulsePlanMonth,date:date};
   openDayWorkoutBuilder(DAYS[index],date);
 }
 function pulsePlanReturnFromBuilderV3(){
@@ -1409,7 +1421,8 @@ function pulsePlanReturnFromBuilderV3(){
   if(!previous)return;
   pulsePlanBuilderReturnV3=null;
   openPlanModal();
-  planTargetMondayISO=previous.week;
+  pulsePlanView=previous.view||'week';pulsePlanMonth=previous.month;pulsePlanSelected=previous.date;
+  planTargetMondayISO=previous.week;pulsePlanExpandedV2=previous.index;
   syncPlanWeekUI();
   var box=document.getElementById('plan-days');
   if(box){
@@ -1424,7 +1437,7 @@ function pulsePlanCancelBuilderV3(){
 }
 function pulsePlanCaptureV2(){
   var input=document.querySelector('#plan-days .pulse-plan-day-v2.is-expanded input[data-day]');
-  if(input){var day=Number(input.closest('.pulse-plan-day-v2').dataset.index),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[day];if(entry){entry.type=input.value.trim()||'Vila';if(entry.session)entry.session.type=entry.type;}}
+  if(input){var day=Number(input.closest('.pulse-plan-day-v2').dataset.index),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[day];if(entry){var type=input.value.trim()||'Vila';if(entry.type!==type){pulsePlanDirtyWeeks[planTargetMondayISO]=true;entry.type=type;if(entry.session){entry.session.type=type;entry.session.name=type;}}}}
 }
 function pulsePlanInstallV2(){
   if(pulsePlanInstalledV2)return;
@@ -1433,14 +1446,22 @@ function pulsePlanInstallV2(){
   box.addEventListener('click',function(event){
     var b=event.target.closest('button');if(!b)return;
     var d=b.dataset,i;
+    if(d.planDate){
+      pulsePlanCaptureV2();pulsePlanSelected=d.planDate;planTargetMondayISO=mondayISOOf(d.planDate);
+      pulsePlanExpandedV2=DAY_KEYS.indexOf(dayKeyFromISO(d.planDate));
+      if(d.planPaste!=null)pulsePlanCopyV2To(pulsePlanExpandedV2);
+      syncPlanWeekUI();
+      var selectedPanel=box.querySelector('.planner-selected-day');if(selectedPanel)selectedPanel.scrollIntoView({block:'start',behavior:'smooth'});
+      return;
+    }
     if(d.pulseExpandV2!=null){i=Number(d.pulseExpandV2);pulsePlanCaptureV2();pulsePlanExpandedV2=pulsePlanExpandedV2===i?-1:i;pulsePlanRenderV2();}
     else if(d.pulseTypeV2!=null){pulsePlanSetTypeV2(Number(d.pulseTypeV2),decodeURIComponent(d.pulseValueV2));}
     else if(d.pulseAddExV2!=null){pulsePlanAddExerciseV2(Number(d.pulseAddExV2),decodeURIComponent(d.pulseValueV2));}
-    else if(d.pulseRemoveExV2!=null){var parts=d.pulseRemoveExV2.split(':').map(Number),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[parts[0]];if(entry&&entry.session&&entry.session.exercises){entry.session.exercises.splice(parts[1],1);pulsePlanRenderV2();}}
+    else if(d.pulseRemoveExV2!=null){var parts=d.pulseRemoveExV2.split(':').map(Number),entry=pulsePlanWeekDraftV2(planTargetMondayISO)[parts[0]];if(entry&&entry.session&&entry.session.exercises){pulsePlanDirtyWeeks[planTargetMondayISO]=true;entry.session.exercises.splice(parts[1],1);pulsePlanRenderV2();}}
     else if(d.pulseCreateExV2!=null){i=Number(d.pulseCreateExV2);var input=box.querySelector('[data-pulse-new-ex-v2="'+i+'"]');if(input)pulsePlanAddExerciseV2(i,input.value);}
     else if(d.pulseDayTemplateV2!=null){pulsePlanApplyTemplateV2(Number(d.pulseDayTemplateV2),d.pulseTemplateIdV2);}
     else if(d.pulseApplyTemplateV4!=null){i=Number(d.pulseApplyTemplateV4);var sel=box.querySelector('[data-pulse-template-select-v4="'+i+'"]');if(sel&&sel.value)pulsePlanApplyTemplateV2(i,sel.value);else showToast('Välj ett mallpass.');}
-    else if(d.pulseCopyV2!=null){i=Number(d.pulseCopyV2);pulsePlanCopyV2=pulsePlanCopyV2===i?-1:i;pulsePlanRenderV2();}
+    else if(d.pulseCopyV2!=null){i=Number(d.pulseCopyV2);var date=shiftISODate(planTargetMondayISO,i);pulsePlanCopied=pulsePlanCopied&&pulsePlanCopied.date===date?null:{date:date,entry:pulsePlanCloneV2(pulsePlanWeekDraftV2(planTargetMondayISO)[i])};pulsePlanRenderV2();}
     else if(d.pulseCopyToV2!=null){pulsePlanCopyV2To(Number(d.pulseCopyToV2));}
     else if(d.pulseRestV2!=null){pulsePlanSetTypeV2(Number(d.pulseRestV2),'Vila');}
     else if(d.pulseOpenBuilderV2!=null){pulsePlanOpenBuilderV3(Number(d.pulseOpenBuilderV2));}
@@ -1470,6 +1491,7 @@ function pulsePlanApplyWeekTemplateV2(){
   var select=document.getElementById('pulse-plan-template-select-v2'),id=select&&select.value;
   var t=getWeekTemplates().find(function(item){return String(item.id)===String(id);});
   if(!t){showToast('Välj en veckomall.');return;}
+  pulsePlanDirtyWeeks[planTargetMondayISO]=true;
   var draft=pulsePlanWeekDraftV2(planTargetMondayISO);
   DAY_KEYS.forEach(function(day,i){
     var type=t.plan&&t.plan[day]||'Vila';
@@ -1488,25 +1510,39 @@ function pulsePlanRenderTemplatePickerV2(){
 function syncPlanWeekUI(){
   if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
   fillWeekLabel(planTargetMondayISO,'plan-week-label','plan-week-sub','plan-week-date');
+  var month=pulsePlanView==='month',modal=document.getElementById('plan-modal');
+  modal.classList.toggle('is-month-view',month);
+  modal.querySelectorAll('[data-plan-view]').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.planView===pulsePlanView));});
+  modal.querySelector('.pulse-plan-nav-v3').setAttribute('aria-label',month?'Välj månad':'Välj vecka');
+  var arrows=modal.querySelectorAll('.pulse-plan-nav-btn-v3');
+  arrows[0].setAttribute('aria-label',month?'Föregående månad':'Föregående vecka');arrows[1].setAttribute('aria-label',month?'Nästa månad':'Nästa vecka');
+  modal.querySelector('.pulse-plan-current-v3').setAttribute('aria-label',month?'Gå till aktuell månad':'Gå till aktuell vecka');
+  if(month){
+    var date=parseISODate(pulsePlanMonth);
+    document.getElementById('plan-week-label').textContent=date.toLocaleDateString('sv-SE',{month:'long',year:'numeric'});
+    document.getElementById('plan-week-sub').textContent='Vecka '+getWeekNum(parseISODate(planTargetMondayISO))+' vald';
+    document.getElementById('plan-week-date').value=pulsePlanSelected||pulsePlanMonth;
+  }
   pulsePlanInstallV2();pulsePlanRenderTemplatePickerV2();pulsePlanRenderV2();
 }
 function pulsePlanCurrentWeekV3(){
-  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
-  planTargetMondayISO=weekStartISO();
+  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;
+  planTargetMondayISO=weekStartISO();pulsePlanMonth=todayISO().slice(0,7)+'-01';pulsePlanSelected=todayISO();
   var box=document.getElementById('plan-days');if(box)box.scrollTop=0;
   syncPlanWeekUI();
 }
 function shiftPlanTargetWeek(delta){
-  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
+  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;
   if(!planTargetMondayISO)planTargetMondayISO=getViewedMondayISO();
-  planTargetMondayISO=shiftISODate(planTargetMondayISO,delta*7);
+  if(pulsePlanView==='month'){var date=parseISODate(pulsePlanMonth);date.setMonth(date.getMonth()+delta);pulsePlanMonth=toISODate(date);pulsePlanSelected=pulsePlanMonth;planTargetMondayISO=mondayISOOf(pulsePlanSelected);}
+  else {planTargetMondayISO=shiftISODate(planTargetMondayISO,delta*7);pulsePlanSelected=planTargetMondayISO;pulsePlanMonth=planTargetMondayISO.slice(0,7)+'-01';}
   var box=document.getElementById('plan-days');if(box)box.scrollTop=0;
   syncPlanWeekUI();
 }
 function onPlanWeekDateChange(){
   var date=document.getElementById('plan-week-date');if(!date||!date.value)return;
-  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
-  planTargetMondayISO=mondayISOOf(date.value);
+  pulsePlanCaptureV2();pulsePlanExpandedV2=-1;
+  planTargetMondayISO=mondayISOOf(date.value);pulsePlanSelected=date.value;pulsePlanMonth=date.value.slice(0,7)+'-01';
   var box=document.getElementById('plan-days');if(box)box.scrollTop=0;
   syncPlanWeekUI();
 }
@@ -1516,7 +1552,7 @@ function normalizeExercise(ex){
   if(kind==='cardio'){
     return {kind:'cardio',name:ex.name||'',distance:+ex.distance||0,time:+ex.time||0};
   }
-  return {kind:'strength',name:ex.name||'',sets:+ex.sets||1,reps:+ex.reps||0,weight:+ex.weight||0};
+  return {kind:'strength',name:ex.name||'',sets:+ex.sets||1,reps:+ex.reps||0,weight:ex.weightMode==='bodyweight'?0:(+ex.weight||0),weightMode:ex.weightMode==='bodyweight'?'bodyweight':'kg'};
 }
 function calcVol(wk){var v=0;(wk.exercises||[]).forEach(function(ex){var e=normalizeExercise(ex);if(e.kind==='strength')v+=(e.sets||0)*(e.reps||0)*(e.weight||0);});return v;}
 function fmtDate(iso){if(!iso)return'—';var p=iso.split('-');return p[2]+'/'+p[1];}
@@ -1651,7 +1687,8 @@ function exerciseTargetText(exercise){
     return cardioParts.join(' · ')||'Kondition';
   }
   var strengthParts=[String(ex.sets||1)+'×'+String(ex.reps||0)];
-  if(ex.weight||ex.weight===0)strengthParts.push(String(ex.weight).replace(/\.0$/,'')+' kg');
+  if(ex.weightMode==='bodyweight')strengthParts.push('Kroppsvikt');
+  else if(ex.weight||ex.weight===0)strengthParts.push(String(ex.weight).replace(/\.0$/,'')+' kg');
   return strengthParts.join(' · ');
 }
 function workoutTimingForExercise(workout,exercise,index,used){
@@ -2224,16 +2261,25 @@ function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
       +'<input type="hidden" class="'+prefix+'-kind" value="'+e.kind+'">'
       +'<button class="ex-kind-btn'+(e.kind==='strength'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'strength\')">Styrka</button>'
       +'<button class="ex-kind-btn'+(e.kind==='cardio'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'cardio\')">Kondition</button>'
+      +'<select class="exercise-weight-mode" aria-label="Viktalternativ" onchange="setExerciseWeightMode(this.closest(\'.ex-row-item, .ex-row-wrap, .inline-ex-row\'),this.value)"><option value="kg">kg</option><option value="bodyweight"'+(e.weightMode==='bodyweight'?' selected':'')+'>Kroppsvikt</option></select>'
     +'</div>'
     +'<div class="ex-row">'
       +'<input type="text" class="'+prefix+'-name exercise-name-picker-input-v1" placeholder="Övning" value="'+escHtml(e.name||'')+'" readonly autocomplete="off" aria-haspopup="listbox" aria-expanded="false">'
       +'<input type="number" class="'+prefix+'-metric1" data-role="'+(e.kind==='cardio'?'distance':'sets')+'" placeholder="'+(e.kind==='cardio'?'Distans':'Sets')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.distance||''):(hasExplicitSets?(ex.sets||''):''))+'">'
       +'<input type="number" class="'+prefix+'-metric2" data-role="'+(e.kind==='cardio'?'time':'reps')+'" placeholder="'+(e.kind==='cardio'?'Tid':'Reps')+'" min="0" step="'+(e.kind==='cardio'?'0.1':'1')+'" value="'+(e.kind==='cardio'?(e.time||''):(hasExplicitReps?(ex.reps||''):''))+'">'
-      +'<input type="number" class="'+prefix+'-metric3'+strengthCls+'" data-role="weight" placeholder="kg" min="0" step="0.5" value="'+(e.kind==='strength'?(hasExplicitWeight?(ex.weight||''):''):'')+'">'
+      +'<input type="number" class="'+prefix+'-metric3'+strengthCls+'" data-role="weight" data-weight-mode="'+(e.weightMode||'kg')+'" '+(e.weightMode==='bodyweight'?'disabled':'')+' placeholder="kg" min="0" step="0.5" value="'+(e.kind==='strength'?(hasExplicitWeight?(ex.weight||''):''):'')+'">'
       +'<button class="ex-del" type="button" onclick="'+removeHandler+'">✕</button>'
     +'</div>';
 }
 
+function setExerciseWeightMode(row,mode){
+  if(!row)return;
+  var input=row.querySelector('[data-role="weight"]');if(!input)return;
+  var bodyweight=mode==='bodyweight';
+  input.dataset.weightMode=bodyweight?'bodyweight':'kg';input.disabled=bodyweight;
+  var select=row.querySelector('.exercise-weight-mode');if(select)select.value=input.dataset.weightMode;
+  input.dispatchEvent(new Event('change',{bubbles:true}));
+}
 function applyExerciseKindToRow(wrap,kind){
   if(!wrap)return;
   var hidden=wrap.querySelector('[class$="-kind"]');
@@ -2270,7 +2316,7 @@ function parseExerciseRow(row,prefix){
   if(kind==='cardio'){
     return normalizeExercise({kind:'cardio',name:name,distance:+row.querySelector('.'+prefix+'-metric1').value||0,time:+row.querySelector('.'+prefix+'-metric2').value||0});
   }
-  return normalizeExercise({kind:'strength',name:name,sets:+row.querySelector('.'+prefix+'-metric1').value||1,reps:+row.querySelector('.'+prefix+'-metric2').value||0,weight:+row.querySelector('.'+prefix+'-metric3').value||0});
+  return normalizeExercise({kind:'strength',name:name,sets:+row.querySelector('.'+prefix+'-metric1').value||1,reps:+row.querySelector('.'+prefix+'-metric2').value||0,weightMode:row.querySelector('.'+prefix+'-metric3').dataset.weightMode||'kg',weight:+row.querySelector('.'+prefix+'-metric3').value||0});
 }
 
 function upsertVO2ForDate(date,val){
@@ -2633,7 +2679,7 @@ function startWorkoutSessionForDate(iso){
       var norm=normalizeExercise(ex);
       return norm.kind==='cardio'
         ? {kind:'cardio',name:norm.name,distance:norm.distance,time:norm.time,plannedSets:1}
-        : {kind:'strength',name:norm.name,plannedSets:+norm.sets||1,reps:+norm.reps||0,weight:+norm.weight||0};
+        : {kind:'strength',name:norm.name,plannedSets:+norm.sets||1,reps:+norm.reps||0,weight:+norm.weight||0,weightMode:norm.weightMode||'kg'};
     }),
     exerciseIndex:0,
     currentSet:1,
@@ -2696,7 +2742,7 @@ function renderSessionMode(){
     currentExEl.textContent=ex.name;
     currentTargetEl.textContent=ex.kind==='cardio'
       ? 'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)
-      : 'Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps @ '+ex.weight+' kg';
+      : 'Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps · '+(ex.weightMode==='bodyweight'?'Kroppsvikt':ex.weight+' kg');
 
     if(sessionState.setRunning){
       controls.className='session-cta-row';
@@ -2741,7 +2787,7 @@ function renderSessionMode(){
     var logs=sessionState.logs[i]||[];
     var dur=logs.reduce(function(s,x){return s+(x.durationSec||0);},0);
     var tr=document.createElement('tr');
-    tr.innerHTML='<td>'+escHtml(ex.name)+'</td><td>'+(ex.kind==='cardio'?((ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)):(ex.plannedSets+'x'+ex.reps+' @ '+ex.weight))+'</td><td>'+logs.length+'</td><td>'+fmtSec(dur)+'</td>';
+    tr.innerHTML='<td>'+escHtml(ex.name)+'</td><td>'+(ex.kind==='cardio'?((ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)):(ex.plannedSets+'x'+ex.reps+' · '+(ex.weightMode==='bodyweight'?'Kroppsvikt':ex.weight+' kg')))+'</td><td>'+logs.length+'</td><td>'+fmtSec(dur)+'</td>';
     tbody.appendChild(tr);
   });
 }
@@ -2773,6 +2819,7 @@ function completeCurrentSet(){
   } : {
     setNo:sessionState.currentSet,
     targetReps:ex.reps,
+    weightMode:ex.weightMode||'kg',
     targetWeight:ex.weight,
     actualReps:ex.reps,
     actualWeight:ex.weight,
@@ -2835,7 +2882,7 @@ function saveSessionWorkout(){
       var sets=logs.length;
       var reps=Math.round(logs.reduce(function(s,l){return s+(l.actualReps||0);},0)/sets);
       var weight=+(logs.reduce(function(s,l){return s+(l.actualWeight||0);},0)/sets).toFixed(1);
-      exercises.push(normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight}));
+      exercises.push(normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight,weightMode:ex.weightMode||'kg'}));
     }
     exerciseTimings.push({name:ex.name,durationSec:dur,exerciseIndex:exercises.length-1});
   });
@@ -3596,15 +3643,16 @@ function planWeekFromTemplate(){
 // ══ PLAN MODAL ═══════════════════════════════════════════════════
 function openPlanModal(){
   refreshTypeSuggestions();
-  pulsePlanDraftsV2={};pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
+  pulsePlanDraftsV2={};pulsePlanDirtyWeeks={};pulsePlanCopied=null;pulsePlanExpandedV2=-1;
   planTargetMondayISO=getViewedMondayISO();
+  pulsePlanSelected=planTargetMondayISO===weekStartISO()?todayISO():planTargetMondayISO;
+  pulsePlanMonth=pulsePlanSelected.slice(0,7)+'-01';
   document.getElementById('plan-modal').classList.add('show');
   syncPlanWeekUI();
 }
 function savePlan(){
   pulsePlanCaptureV2();
-  var weeks=Object.keys(pulsePlanDraftsV2),plans=getWeekPlans(),sessions=getPlannedSessions();
-  if(!weeks.length)return;
+  var weeks=Object.keys(pulsePlanDirtyWeeks),plans=getWeekPlans(),sessions=getPlannedSessions();
   weeks.forEach(function(monday){
     var plan=Object.assign({},getPlanForWeek(monday));
     DAY_KEYS.forEach(function(day,i){
@@ -3619,14 +3667,14 @@ function savePlan(){
     });
     plans[monday]=plan;
   });
-  saveWeekPlans(plans);
-  if(plans[weekStartISO()])DB.set('plan',plans[weekStartISO()]);
-  savePlannedSessions(sessions);
+  if(weeks.length){saveWeekPlans(plans);
+  savePlannedSessions(sessions);}
+  pulsePlanDirtyWeeks={};pulsePlanCopied=null;
   var chosen=planTargetMondayISO||getViewedMondayISO();
-  pulsePlanDraftsV2={};pulsePlanExpandedV2=-1;pulsePlanCopyV2=-1;
+  pulsePlanDraftsV2={};pulsePlanExpandedV2=-1;
   goToWeek(chosen);
   closeModal('plan-modal');
-  showToast('Veckoplan sparad.');
+  showToast('Planering sparad.');
   refreshTypeSuggestions();
 }
 
@@ -3698,6 +3746,7 @@ window.addEventListener('firebase-sync',function(event){
   },{once:true});
 })();
 </script>
+<script src="training-month-planner.js?v=20261029-plan-1"></script>
 <script src="training-pulse-classic-templates-v1.js?v=20261028-clear-1"></script>
 </body>
 </html>
