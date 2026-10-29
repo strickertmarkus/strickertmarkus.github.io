@@ -36,7 +36,7 @@ var SPECS={
  strength:[{n:1,label:'Sets',step:1,min:1,unit:''},{n:2,label:'Reps',step:1,min:0,unit:''},{n:3,label:'Vikt',step:2.5,min:0,unit:'kg'}],
  // Time is shown as min:sek; pace (min/km) is not stored on its own: it is
  // time ÷ distance, and changing it changes the time for the same distance.
- cardio:[{n:1,label:'Distans',step:.5,min:0,unit:'km'},{n:2,label:'Tid',step:1,min:0,unit:'min:s',clock:true},{n:'pace',label:'Snittakt',step:1/12,min:0,unit:'min/km',clock:true}]
+ cardio:[{n:1,label:'Distans',step:.5,min:0,unit:'km'},{n:2,label:'Tid',step:1,min:0,unit:'min:s',clock:true},{n:'pace',label:'Snittakt',step:1/12,min:0,unit:'min/km',clock:true,meter:true}]
 };
 function clock(minutes){var sec=Math.round(minutes*60);return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');}
 /* "21:07", "21.07" and "21,07" are minutes and seconds; "21,5" is 21.5 minutes. */
@@ -64,7 +64,11 @@ function syncSteps(row,except){
  SPECS[rowKind(row)].forEach(function(spec){
   var el=row.querySelector('[data-pbu-value="'+spec.n+'"]');if(!el||el===except)return;
   var v=shownValue(row,spec);if(el.value!==v)el.value=v;
-  if(spec.n==='pace')el.placeholder=num(field(row,1).value)>0?'0:00':'ange km';
+  if(spec.n==='pace'){
+   el.placeholder=num(field(row,1).value)>0?'0:00':'ange km';
+   var pace=specValue(row,spec),meter=el.closest('.pbu-meter');
+   if(meter){meter.classList.toggle('is-empty',!pace);var pt=meter.querySelector('.pbu-meter-point');if(pt)pt.style.left=(pace?Math.max(0,Math.min(1,(7-pace)/4))*100:50).toFixed(1)+'%';}
+  }
  });
 }
 
@@ -249,6 +253,11 @@ function renderSteps(row){
  row.classList.toggle('pbu-is-cardio',kind==='cardio');
  wrap.innerHTML=SPECS[kind].map(function(s){
   var v=shownValue(row,s);
+  // Pace as the training log's interval meter (7:00 slow → 3:00 fast), with its number and steps.
+  if(s.meter)return '<div class="pbu-step pbu-meter"><div class="pbu-meter-read"><span class="pbu-step-label">'+s.label+' <small>'+s.unit+'</small></span>'
+   +'<input class="pbu-step-value" data-pbu-value="'+s.n+'" type="text" inputmode="decimal" value="'+esc(v)+'" placeholder="0:00" aria-label="'+s.label+'" autocomplete="off"></div>'
+   +'<div class="pbu-meter-signal" aria-hidden="true"><div class="pbu-meter-track"><i class="pbu-meter-point"></i></div><div class="pbu-meter-scale"><span>7:00</span><span>3:00</span></div></div>'
+   +'<div class="pbu-meter-ctrl"><button type="button" data-pbu-step="-1" data-pbu-n="'+s.n+'" aria-label="Snabbare"><i class="pbu-minus"></i></button><button type="button" data-pbu-step="1" data-pbu-n="'+s.n+'" aria-label="Långsammare"><i class="pbu-plus"></i></button></div></div>';
   return '<div class="pbu-step"><span class="pbu-step-label">'+s.label+(s.unit?' <small>'+s.unit+'</small>':'')+'</span>'
    +'<div class="pbu-step-ctrl"><button type="button" data-pbu-step="-1" data-pbu-n="'+s.n+'" aria-label="Minska '+s.label.toLowerCase()+'"><i class="pbu-minus"></i></button>'
    +'<input class="pbu-step-value" data-pbu-value="'+s.n+'" type="text" inputmode="'+(s.step%1||s.clock?'decimal':'numeric')+'" value="'+esc(v)+'" placeholder="'+(s.clock?'0:00':'0')+'" aria-label="'+s.label+'" autocomplete="off">'
@@ -566,11 +575,6 @@ function initLog(){
  bindList(modal,list,'[onclick="addExRow()"]');
  var type=byId('wk-type');
  if(type)type.addEventListener('input',function(){list.querySelectorAll('.pbu-row.pbu-picking').forEach(function(r){renderOptions(r,(r.querySelector('[data-pbu-search]')||{}).value||'');});});
- // The Kondition summary under the rows follows every change to them.
- var raf=0,summary=function(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;if(typeof window.updateWorkoutPace==='function')window.updateWorkoutPace();});};
- ['input','change','click'].forEach(function(ev){list.addEventListener(ev,summary);});
- new MutationObserver(summary).observe(list,{childList:true});
- if(type)type.addEventListener('input',summary);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 window.PulseBuilderUI={openRow:openRow,closeRow:closeRow,musclesFromText:musclesFromText};

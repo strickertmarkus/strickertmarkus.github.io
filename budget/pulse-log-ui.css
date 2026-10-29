@@ -70,20 +70,10 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card
   background:radial-gradient(120% 90% at 0% 0%,color-mix(in srgb,var(--tile) 9%,transparent),transparent 60%),#ffffff05;
   box-shadow:inset 0 0 0 1px #ffffff10;
 }
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card+.pbu-log-card{--tile:#7fe3ef}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-measures{margin:30px 0 8px}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-section{margin:0 0 4px;color:var(--pbu-dim);font:700 9.5px/1.2 Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
 /* The add row closes the list with a line, like the rows above it. */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-exercises .pbu-add{border-bottom:1px solid var(--pbu-line)!important}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid.is-1{grid-template-columns:minmax(0,1fr)}
-/* Distance, time and pace of the running rows: read, not typed here. */
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-run{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 2px 12px}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-run>div{min-width:0}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-run span{display:block;margin-bottom:5px;color:var(--pbu-dim);font:700 9px/1.2 Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-run strong{display:block;color:var(--pbu-text);font:600 21px/1.1 Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-run>div:last-child strong{color:var(--tile)}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-run small{color:var(--pbu-dim);font-size:12px;font-weight:500}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-run>p{grid-column:1/-1;margin:0;color:var(--pbu-muted);font:450 12.5px/1.45 Inter,system-ui,sans-serif}
 /* Cardio rows: their own time is the run time, no separate exercise timer. */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row.pbu-is-cardio .pbu-timing{display:none!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card>h3{padding-left:2px;color:color-mix(in srgb,var(--tile) 70%,#a5a0ae)!important}
@@ -128,3 +118,11 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log[data-field-ed
 
 /* Typing in a stepper lights the number, like in the builder; no extra frame. */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-step-value:focus{outline:none!important;box-shadow:none!important;border:0!important}
+
+/* One card: heart rate (bpm) and VO2 max side by side. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid.is-4{grid-template-columns:repeat(3,minmax(0,1fr)) minmax(0,1.15fr)}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card>h3 small{font-size:9px;letter-spacing:.04em;text-transform:none;color:var(--pbu-dim)}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-vo2-title{color:#7fe3ef;opacity:.85}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile.is-vo2{--tile:#7fe3ef;background:linear-gradient(180deg,#7fe3ef10,transparent),#080b1266}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile.is-vo2>span{color:#8fd3dc!important}
+@media(max-width:340px){html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid.is-4{grid-template-columns:repeat(3,minmax(0,1fr))}html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile.is-vo2{grid-column:1/-1}html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-vo2-title{display:none}}

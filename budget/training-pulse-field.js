@@ -961,8 +961,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var container=byId('insight-chart');
     var width=clamp(container.clientWidth||820,320,1600),height=clamp(container.clientHeight||276,230,440),left=47,right=32,top=32,bottom=37;
     var range=paceRange(entries),dists=entries.map(function(e){return e.distance;});
-    // Round ticks: five lines at whole kilometres.
-    var min=0,max=Math.max(4,Math.ceil(Math.max.apply(Math,dists)*1.1/4)*4);
+    // Same autoscale as the VO2 chart: the range of the runs plus a margin, not from zero.
+    var min=Math.min.apply(Math,dists),max=Math.max.apply(Math,dists);
+    if(min===max){min=Math.max(0,min-1);max+=1;}
+    var pad=(max-min)*.14;min=Math.max(0,min-pad);max+=pad;
     function x(index){return left+(entries.length===1?(width-left-right)/2:index*(width-left-right)/(entries.length-1));}
     function y(value){return top+(max-value)*(height-top-bottom)/(max-min);}
     var points=entries.map(function(e,i){return [x(i),y(e.distance)];}),path=seriesPath(points);
@@ -972,7 +974,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var svg='<svg class="metric-axis-chart run-heat-chart" viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><defs>'+
       '<linearGradient id="run-heat-stroke" gradientUnits="userSpaceOnUse" x1="'+left+'" y1="0" x2="'+(width-right)+'" y2="0">'+stops+'</linearGradient>'+
       '<linearGradient id="run-heat-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ff9a6b" stop-opacity=".16"/><stop offset="1" stop-color="#ff9a6b" stop-opacity="0"/></linearGradient></defs>';
-    svg+=metricChartFrame(width,height,left,right,top,bottom,{tickCount:5,gridColor:'#ff9a6b12',axisColor:'#b9898e',axisUnit:'KM',decimals:0},y,min,max);
+    svg+=metricChartFrame(width,height,left,right,top,bottom,{tickCount:5,gridColor:'#ff9a6b12',axisColor:'#b9898e',axisUnit:'KM',decimals:1},y,min,max);
     if(points.length>1)svg+='<path class="line-area" d="'+path+' L '+points[points.length-1][0]+' '+(height-bottom)+' L '+points[0][0]+' '+(height-bottom)+' Z" fill="url(#run-heat-fill)"/><path class="run-heat-line" d="'+path+'" stroke="url(#run-heat-stroke)"/>';
     points.forEach(function(pt,i){
       var e=entries[i];

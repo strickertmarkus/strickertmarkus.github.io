@@ -556,13 +556,13 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261027-kit-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-pace-1">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-pace-2">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-log-1">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-5">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-6">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261029-pace-1"></script>
+<script defer src="pulse-builder-ui.js?v=20261029-pace-2"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -807,21 +807,15 @@ if(!window.__FIELD_EMBEDDED__){
     </div>
     <div class="pbu-log-measures" data-log-health>
       <p class="pbu-log-section">Mätvärden</p>
+      <!-- Distance, time and pace are typed in the cardio rows above; the pass gets them from there. -->
+      <input type="hidden" id="wk-run-km"><input type="hidden" id="wk-run-min">
       <section class="pbu-log-card" aria-labelledby="wk-hr-title">
-        <h3 id="wk-hr-title">Puls</h3>
-        <div class="pbu-log-grid">
-          <label class="pbu-log-tile"><span>Medel <small>bpm</small></span><input type="text" id="wk-hr-avg" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-          <label class="pbu-log-tile"><span>Max <small>bpm</small></span><input type="text" id="wk-hr-max" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-          <label class="pbu-log-tile"><span>Min <small>bpm</small></span><input type="text" id="wk-hr-min" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
-        </div>
-      </section>
-      <section class="pbu-log-card" aria-labelledby="wk-cardio-title">
-        <h3 id="wk-cardio-title">Kondition</h3>
-        <!-- Distance, time and pace come from the cardio exercises above (one place to type them). -->
-        <div class="pbu-log-run" id="wk-run-summary" aria-live="polite"></div>
-        <input type="hidden" id="wk-run-km"><input type="hidden" id="wk-run-min">
-        <div class="pbu-log-grid is-1">
-          <label class="pbu-log-tile"><span>VO₂ max <small>ml/kg/min</small></span><input type="text" id="wk-vo2" placeholder="–" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label>
+        <h3 id="wk-hr-title"><span>Puls <small>bpm</small></span><span class="pbu-log-vo2-title">Kondition</span></h3>
+        <div class="pbu-log-grid is-4">
+          <label class="pbu-log-tile"><span>Medel</span><input type="text" id="wk-hr-avg" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
+          <label class="pbu-log-tile"><span>Max</span><input type="text" id="wk-hr-max" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
+          <label class="pbu-log-tile"><span>Min</span><input type="text" id="wk-hr-min" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next"></label>
+          <label class="pbu-log-tile is-vo2"><span>VO₂ max</span><input type="text" id="wk-vo2" placeholder="–" inputmode="decimal" autocomplete="off" enterkeyhint="done"></label>
         </div>
       </section>
     </div>
@@ -3268,7 +3262,6 @@ function editWorkout(id){
   document.getElementById('wk-run-km').value='';
   document.getElementById('wk-run-min').value='';
   if(!list.children.length)addExRow();
-  updateWorkoutPace();
 }
 
 // ══ WORKOUT MODAL ════════════════════════════════════════════════
@@ -3294,7 +3287,6 @@ function openWorkoutModal(options){
   document.getElementById('wk-hr-min').value='';
   document.getElementById('wk-vo2').value='';
   document.getElementById('wk-notes').value='';
-  updateWorkoutPace();
   document.getElementById('ex-list').innerHTML='';
   if(!options.skipBlank)addExRow();
   refreshTemplateSelectors();
@@ -3308,17 +3300,6 @@ function workoutFieldNumber(id){
 function formatPaceField(pace){
   var sec=Math.round(pace*60);
   return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
-}
-/* Kondition summary in the log form: distance, time and pace of the running rows. */
-function updateWorkoutPace(){
-  var out=document.getElementById('wk-run-summary');if(!out)return;
-  var exercises=[];
-  document.querySelectorAll('#ex-list .ex-row-item').forEach(function(row){var ex=parseExerciseRow(row,'ex');if(ex)exercises.push(ex);});
-  var run=workoutRunMetrics({type:document.getElementById('wk-type').value,exercises:exercises});
-  var cell=function(label,value,unit){return '<div><span>'+label+'</span><strong>'+value+(unit?'<small> '+unit+'</small>':'')+'</strong></div>';};
-  out.innerHTML=run.distance>0||run.time>0
-    ?cell('Distans',run.distance>0?String(Math.round(run.distance*100)/100).replace('.',','):'–','km')+cell('Tid',run.time>0?formatPaceField(run.time):'–','')+cell('Snittakt',run.distance>0&&run.time>0?formatPaceField(run.time/run.distance):'–','/km')
-    :'<p>Lägg till en löpövning ovan med distans och tid, så visas snittakten här.</p>';
 }
 function addExRow(ex,timing){
   var list=document.getElementById('ex-list');

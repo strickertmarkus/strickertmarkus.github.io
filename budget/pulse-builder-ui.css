@@ -357,3 +357,20 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-in
 .pbu-v1 .pbu-confirm-cancel{background:#ffffff10;color:#f2eded}
 .pbu-v1 .pbu-confirm-ok{background:linear-gradient(135deg,#ff8a74,#e5484d);color:#1d0806;box-shadow:0 12px 30px -12px #ff5a4acc}
 @media(prefers-reduced-motion:reduce){.pbu-v1 .pbu-confirm,.pbu-v1 .pbu-confirm-card{transition:none}}
+
+/* Pace in a cardio row: the training log's interval meter with its number and steps, one compact line. */
+.pbu-v1 .pbu-meter{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:8px 6px 8px 14px;border-radius:16px;background:linear-gradient(90deg,#ffd2bd0d,transparent 80%),#ffffff05;box-shadow:inset 0 0 0 1px #ffffff12}
+.pbu-v1 .pbu-meter-read{display:flex;flex-direction:column;gap:3px;min-width:0}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal,#wk-modal) .pbu-meter .pbu-step-value{width:64px!important;height:26px!important;text-align:left;color:#ffd2bd;-webkit-text-fill-color:#ffd2bd;font-size:20px}
+.pbu-v1 .pbu-meter-signal{position:relative;min-width:0;padding:0 6px}
+.pbu-v1 .pbu-meter-track{position:relative;height:2px;margin:10px 0 7px;border-radius:99px;background:#ffd2bd;box-shadow:0 0 7px #ffd2bd3a}
+.pbu-v1 .pbu-meter-track::before,.pbu-v1 .pbu-meter-track::after{content:"";position:absolute;top:50%;width:5px;height:5px;border-radius:50%;background:#ffd2bd;opacity:.6;transform:translateY(-50%)}
+.pbu-v1 .pbu-meter-track::before{left:-2px}.pbu-v1 .pbu-meter-track::after{right:-2px}
+.pbu-v1 .pbu-meter-point{position:absolute;top:50%;left:50%;width:12px;height:12px;border:2px solid #081118;border-radius:50%;background:#ffd2bd;transform:translate(-50%,-50%);box-shadow:0 0 7px #ffd2bd,0 0 15px #ffd2bd8c;transition:left .25s cubic-bezier(.22,1,.36,1)}
+.pbu-v1 .pbu-meter.is-empty .pbu-meter-point{opacity:0}
+.pbu-v1 .pbu-meter-scale{display:flex;justify-content:space-between;color:var(--pbu-dim);font:500 9.5px Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.pbu-v1 .pbu-meter-ctrl{display:flex;gap:2px}
+.pbu-v1 .pbu-meter-ctrl button{display:grid;place-items:center;width:34px;height:40px;padding:0;border:0;border-radius:12px;background:none;color:var(--pbu-dim);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.pbu-v1 .pbu-meter-ctrl button:active{transform:scale(.88);background:#ff806f30}
+.pbu-v1 .pbu-meter-ctrl .pbu-plus,.pbu-v1 .pbu-meter-ctrl .pbu-minus{width:10px;height:10px}
+.pbu-v1 .pbu-meter-ctrl .pbu-plus::before,.pbu-v1 .pbu-meter-ctrl .pbu-plus::after,.pbu-v1 .pbu-meter-ctrl .pbu-minus::before{width:10px;height:1.5px}
