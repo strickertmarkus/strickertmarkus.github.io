@@ -20,3 +20,8 @@ html.pm-stage-open,html.pm-stage-open body{overscroll-behavior:none}
 html.pm-stage-covered body>*:not(.pm-stage):not(script){visibility:hidden!important}
 html.pm-stage-covered body *{animation-play-state:paused!important}
 html.pm-idle *{animation-play-state:paused!important}
+/* Home and calendar (pulse-motion.js data-surfaces): a closing surface stays shown while it folds. */
+.modal-overlay.pm-hold{display:flex!important;opacity:1!important;visibility:visible!important;pointer-events:none!important;transition:none!important}
+.modal-overlay.pm-hold .modal{opacity:1!important;transform:none!important;transition:none!important}
+.home-day-popover.pm-hold{display:block!important;opacity:1!important;transform:none!important;pointer-events:none!important;transition:none!important}
+.day-panel.pm-hold,.fp-floating-menu.pm-hold{display:block!important;pointer-events:none!important}

@@ -24,9 +24,12 @@ function originFor(el){
  if(lastPoint&&performance.now()-lastPoint.t<1200)return {x:lastPoint.x,y:lastPoint.y,r:22};
  return {x:innerWidth/2,y:innerHeight*.62,r:22};
 }
-function circles(o){
- const far=Math.hypot(Math.max(o.x,innerWidth-o.x),Math.max(o.y,innerHeight-o.y))+16;
- const at=' at '+o.x.toFixed(1)+'px '+o.y.toFixed(1)+'px)';
+// Circle geometry in the element's own box (works for full-screen and small surfaces).
+function circles(o,el){
+ const b=el&&el.getBoundingClientRect?el.getBoundingClientRect():{left:0,top:0,width:innerWidth,height:innerHeight};
+ const w=b.width||innerWidth,h=b.height||innerHeight,x=o.x-b.left,y=o.y-b.top;
+ const far=Math.hypot(Math.max(Math.abs(x),Math.abs(w-x)),Math.max(Math.abs(y),Math.abs(h-y)))+16;
+ const at=' at '+x.toFixed(1)+'px '+y.toFixed(1)+'px)';
  return {small:'circle('+o.r.toFixed(1)+'px'+at,full:'circle('+far.toFixed(1)+'px'+at};
 }
 const running=new WeakMap();
@@ -35,7 +38,8 @@ function stop(el){const a=running.get(el);if(a)a.forEach(m=>m.cancel());running.
 function reveal(el,from,ms){
  stop(el);
  if(reduced()||!el.animate)return Promise.resolve();
- const o=from&&from.x!=null?from:originFor(from||lastTarget),c=circles(o);
+ el.style.clipPath='';el.style.opacity='';
+ const o=from&&from.x!=null?from:originFor(from||lastTarget),c=circles(o,el);
  const inner=el.firstElementChild;
  const d=ms||300;
  const anims=[el.animate([{clipPath:c.small},{clipPath:c.full}],{duration:d,easing:ease,fill:ms?'forwards':'none'})];
@@ -50,7 +54,7 @@ function conceal(el,to){
  let o=to&&to.x!=null?to:to?originFor(to):null;
  if(!o){try{o=JSON.parse(el.dataset.pmFrom||'null');}catch(_){o=null;}}
  if(!o)o={x:innerWidth/2,y:innerHeight*.62,r:22};
- const c=circles(o),inner=el.firstElementChild;
+ const c=circles(o,el),inner=el.firstElementChild;
  const anims=[el.animate([{clipPath:c.full},{clipPath:c.small,opacity:.6}],{duration:240,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'})];
  if(inner&&inner.animate)anims.push(inner.animate([{transform:'none',opacity:1},{transform:'scale(.97)',opacity:.2}],{duration:240,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'}));
  running.set(el,anims);
@@ -226,5 +230,28 @@ function fold(el,to){
  running.set(el,[a]);
  return a.finished.catch(()=>{}).then(()=>{el.style.opacity='0';a.cancel();running.delete(el);el.style.transformOrigin='';});
 }
-window.PulseMotion={reveal,conceal,fold,measure,ring,originFor};
+/* Any page: surfaces that open with a `show` class grow out of the tap and fold
+   back into it. Closing keeps the surface shown until the fold has finished. */
+function watchSurfaces(selector){
+ const seen=new WeakSet();
+ const observer=new MutationObserver(records=>records.forEach(r=>{
+  const el=r.target,was=(r.oldValue||'').split(/\s+/).includes('show'),now=el.classList.contains('show');
+  if(was===now)return;
+  if(now){
+   // Opening (also mid-fold): drop the hold and grow out of the tap.
+   el.classList.remove('pm-hold');reveal(el);
+  }else if(!reduced()&&el.animate){
+   // Closing: pm-hold keeps it on screen (styled like .show) while it folds back.
+   el.classList.add('pm-hold');
+   conceal(el).then(()=>{if(!el.classList.contains('show'))el.classList.remove('pm-hold');});
+  }
+ }));
+ const attach=el=>{if(seen.has(el))return;seen.add(el);observer.observe(el,{attributes:true,attributeFilter:['class'],attributeOldValue:true});};
+ const scan=root=>root.querySelectorAll&&root.querySelectorAll(selector).forEach(attach);
+ scan(document);
+ new MutationObserver(rs=>rs.forEach(r=>r.addedNodes.forEach(n=>{if(n.nodeType!==1)return;if(n.matches(selector))attach(n);scan(n);}))).observe(document.body,{childList:true,subtree:true});
+}
+const surfaceList=document.currentScript&&document.currentScript.dataset.surfaces;
+if(surfaceList){const go=()=>watchSurfaces(surfaceList);if(document.body)go();else document.addEventListener('DOMContentLoaded',go,{once:true});}
+window.PulseMotion={watchSurfaces,reveal,conceal,fold,measure,ring,originFor};
 })();
