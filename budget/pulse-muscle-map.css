@@ -51,12 +51,12 @@ body.muscle-map-active main{padding-top:8px}
 }
 /* Labels as chart readouts: a quiet serif name over a small count, joined to the
    muscle by a hairline that ends in a pulsing ring. */
-.muscle-map-leader{stroke:#ff9a91;stroke-width:1.1;opacity:.6;filter:none;fill:none}
-.muscle-map-leader path{stroke:#ff9a91;stroke-opacity:.55}
+.muscle-map-leader{stroke:#ff9a91;stroke-width:1.6;opacity:.85;filter:drop-shadow(0 0 2px #ff3a2a66);fill:none}
+.muscle-map-leader path{stroke:#ff9a91;stroke-opacity:.8}
 .muscle-map-leader .muscle-map-dot{fill:#ffd4cc;stroke:none;filter:drop-shadow(0 0 4px #ff6a5a)}
 .muscle-map-leader .muscle-map-ring{fill:none;stroke:#ff9a91;stroke-width:1.4;opacity:0;transform-box:fill-box;transform-origin:center}
-.muscle-map-leader.is-selected{opacity:1;stroke-width:1.2;filter:drop-shadow(0 0 4px #ff3a2a88)}
-.muscle-map-leader.is-selected path{stroke-opacity:.9}
+.muscle-map-leader.is-selected{opacity:1;stroke-width:2;filter:drop-shadow(0 0 4px #ff3a2a)}
+.muscle-map-leader.is-selected path{stroke-opacity:1;stroke:#ffb4a6}
 .muscle-map-leader.is-selected .muscle-map-ring{opacity:1;animation:mmRing 1.6s ease-out infinite}
 @keyframes mmRing{0%{transform:scale(.4);opacity:1}60%{transform:scale(1.1);opacity:.6}100%{transform:scale(1.45);opacity:0}}
 .muscle-map-leader.is-selected .muscle-map-ring{stroke-width:3;stroke:#ffb4a6;filter:drop-shadow(0 0 6px #ff3a2a)}

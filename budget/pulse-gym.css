@@ -16,8 +16,9 @@ html.gm-scene-open main{visibility:hidden}
    body's layers so "Alla övningar" is never clipped. */
 .muscle-map-options{position:relative;z-index:4}
 /* Search: a glowing magnifier opposite the close button, opening a full-screen list. */
-.gm-find-btn{position:absolute;left:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:radial-gradient(circle,#ff657a26,#ffffff10 70%);color:#ffd4cc;box-shadow:0 0 0 1px #ff9a9133,0 0 22px -6px #ff657a;cursor:pointer}
-.gm-find-btn svg,.gm-find svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.gm-find-btn{position:absolute;left:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:#ffd4cc;box-shadow:none;filter:drop-shadow(0 0 6px #ff657a88);cursor:pointer}
+.gm-find-btn svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.gm-find svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .gm-find-btn .gm-find-spark{fill:#ff9a91;stroke:none;transform-origin:10.5px 10.5px;animation:gmSpark 2.8s ease-in-out infinite}
 @keyframes gmSpark{0%,100%{opacity:.55;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
 .gm-find-btn:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
