@@ -885,6 +885,7 @@ html[data-field-embedded] body #plan-modal button.pulse-plan-chip-v2{
 html[data-field-embedded] body #plan-modal .pulse-plan-editor-foot-v2 button{min-height:36px!important}
 html[data-field-embedded] body #plan-modal .modal-footer{
   position:relative!important;
+  bottom:auto!important;
   flex:0 0 auto!important;
   display:grid!important;
   grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);

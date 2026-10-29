@@ -28,11 +28,13 @@ async function verify(width,profile){
   const result=await frame.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,cells:[...document.querySelectorAll('.planner-month-day')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};})}));
   assert.ok(result.scroll<=result.width+1,JSON.stringify(result));
   assert.ok(result.cells.every(r=>r.left>=-1&&r.right<=result.width+1&&r.width>25),'calendar cell geometry');
+  const footer=await frame.locator('#plan-modal .modal-footer').evaluate(el=>({bottom:el.getBoundingClientRect().bottom,height:innerHeight}));
+  assert.ok(footer.bottom<=footer.height+1,'Planner save controls stay inside viewport: '+JSON.stringify(footer));
  }
  await geometry();await page.screenshot({path:`${out}/${width}-month.jpg`,type:'jpeg',quality:70});
  await frame.locator('.planner-day-open[data-plan-date="2026-10-29"]').click();
  await frame.locator('.planner-selected-title').click();
- await frame.locator('.pbu-head').first().click();
+ await frame.locator('#day-workout-ex-list .pbu-title').first().click();
  await frame.locator('[data-pbu-weight-mode="kg"]').click();await frame.locator('[data-pbu-value="3"]').fill('25');
  await frame.locator('[data-pbu-weight-mode="bodyweight"]').click();
  assert.match(await frame.locator('.pbu-head').first().textContent(),/Kroppsvikt/);
@@ -70,7 +72,7 @@ async function verify(width,profile){
  await page.evaluate(()=>window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'log',date:'2026-10-29'}})));
  await frame.waitForSelector('#wk-modal.show');
  await frame.evaluate(()=>{document.getElementById('ex-list').innerHTML='';addExRow({kind:'cardio',name:'Löpning',distance:5,time:25});});
- await frame.locator('#ex-list .pbu-head').click();
+ await frame.locator('#ex-list .pbu-title').click();
  assert.equal(await frame.locator('#ex-list [data-pbu-value="2"]').inputValue(),'25:00');
  await frame.locator('#wk-pace').fill('6:00');
  await frame.locator('#wk-type').fill('Löpning med nya mätvärden');
