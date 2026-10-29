@@ -558,7 +558,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-pace-3">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-log-1">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-7">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-8">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
@@ -810,7 +810,15 @@ if(!window.__FIELD_EMBEDDED__){
       <!-- Distance, time and pace are typed in the cardio rows above; the pass gets them from there. -->
       <input type="hidden" id="wk-run-km"><input type="hidden" id="wk-run-min">
       <!-- Pulse and VO2 as the training log's interval meters; the numbers are the fields. -->
-      <section class="pbu-log-card pbu-log-meters" aria-label="Puls och VO₂ max">
+      <section class="pbu-log-card pbu-log-meters" aria-label="Snittakt, puls och VO₂ max">
+        <div class="pbu-log-meter is-pace" id="wk-pace-meter" hidden>
+          <label class="pbu-log-meter-read"><span>Snittakt <small>min/km</small></span><input type="text" id="wk-pace" placeholder="0:00" inputmode="decimal" autocomplete="off" enterkeyhint="next" onchange="setWorkoutPace(this.value)"></label>
+          <div class="pbu-log-meter-signal">
+            <div class="pbu-log-meter-track" aria-hidden="true"><i class="pbu-log-meter-point"></i></div>
+            <div class="pbu-log-meter-scale" aria-hidden="true"><span>7:00</span><span>3:00</span></div>
+          </div>
+          <div class="pbu-log-meter-ctrl"><button type="button" onclick="stepWorkoutPace(-1)" aria-label="Snabbare"><i class="pbu-minus"></i></button><button type="button" onclick="stepWorkoutPace(1)" aria-label="Långsammare"><i class="pbu-plus"></i></button></div>
+        </div>
         <div class="pbu-log-meter is-heart" id="wk-hr-meter">
           <label class="pbu-log-meter-read"><span>Medelpuls <small>bpm</small></span><input type="text" id="wk-hr-avg" placeholder="–" inputmode="numeric" autocomplete="off" enterkeyhint="next" oninput="updateWorkoutMeters()"></label>
           <div class="pbu-log-meter-signal">
@@ -3313,6 +3321,36 @@ function workoutFieldNumber(id){
   var el=document.getElementById(id),n=parseFloat(String(el&&el.value||'').replace(/\s/g,'').replace(',','.'));
   return isFinite(n)&&n>0?n:0;
 }
+/* Running rows of the log form: their distance and time give the pass's pace. */
+function workoutRunRows(){
+  var type=(document.getElementById('wk-type')||{}).value||'';
+  return Array.prototype.filter.call(document.querySelectorAll('#ex-list .ex-row-item'),function(row){
+    var kind=row.querySelector('[class$="-kind"]'),name=row.querySelector('.ex-row input[class*="-name"]');
+    return kind&&kind.value==='cardio'&&(isRunningLabel(name&&name.value)||isRunningLabel(type));
+  });
+}
+function rowMetric(row,n){var el=row.querySelector('[class*="-metric'+n+'"]');return el?parseFloat(String(el.value).replace(',','.'))||0:0;}
+function workoutRunPace(){
+  var d=0,t=0;workoutRunRows().forEach(function(r){d+=rowMetric(r,1);t+=rowMetric(r,2);});
+  return {distance:d,time:t,pace:d>0&&t>0?t/d:0};
+}
+/* A new pace sets the running rows' times for the same distances. */
+function setWorkoutPace(text){
+  var m=String(text||'').trim().match(/^(\d{1,2})[:.,](\d{2})$/),pace=m&&Number(m[2])<60?Number(m[1])+Number(m[2])/60:parseFloat(String(text||'').replace(',','.'))||0;
+  if(!(pace>0)){updateWorkoutMeters();return;}
+  workoutRunRows().forEach(function(row){
+    var d=rowMetric(row,1),el=row.querySelector('[class*="-metric2"]');
+    if(!(d>0)||!el)return;
+    el.value=String(Math.round(d*pace*100)/100);
+    el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));
+  });
+  document.querySelectorAll('#ex-list .pbu-row').forEach(function(r){if(window.PulseBuilderUI&&r.classList.contains('pbu-open'))window.PulseBuilderUI.openRow(r,{scroll:false});});
+  updateWorkoutMeters();
+}
+function stepWorkoutPace(dir){
+  var run=workoutRunPace();if(!run.pace)return;
+  setWorkoutPace(formatPaceField(Math.max(1.5,run.pace+dir/12)));
+}
 /* The meters in Mätvärden: the point sits where the value is on its scale. */
 function updateWorkoutMeters(){
   var put=function(meterId,t){var m=document.getElementById(meterId);if(!m)return;m.classList.toggle('is-empty',t==null);var pt=m.querySelector('.pbu-log-meter-point');if(pt)pt.style.left=(t==null?50:Math.max(0,Math.min(1,t))*100).toFixed(1)+'%';};
@@ -3321,7 +3359,21 @@ function updateWorkoutMeters(){
   var goal=Number(getGoals().vo2Goal)||45,vo2=workoutFieldNumber('wk-vo2'),g=document.getElementById('wk-vo2-goal');
   if(g)g.textContent='mål '+String(goal).replace('.',',');
   put('wk-vo2-meter',vo2?(vo2-40)/Math.max(.1,goal-40):null);
+  var run=workoutRunPace(),paceMeter=document.getElementById('wk-pace-meter'),paceInput=document.getElementById('wk-pace');
+  if(paceMeter){
+    paceMeter.hidden=!(run.distance>0);
+    if(paceInput&&document.activeElement!==paceInput)paceInput.value=run.pace?formatPaceField(run.pace):'';
+    put('wk-pace-meter',run.pace?(7-run.pace)/4:null);
+  }
 }
+/* The pace meter follows every change to the exercise rows. */
+(function(){
+  var list=document.getElementById('ex-list');if(!list)return;
+  var raf=0,schedule=function(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;updateWorkoutMeters();});};
+  ['input','change','click'].forEach(function(ev){list.addEventListener(ev,schedule);});
+  new MutationObserver(schedule).observe(list,{childList:true});
+  var type=document.getElementById('wk-type');if(type)type.addEventListener('input',schedule);
+})();
 function formatPaceField(pace){
   var sec=Math.round(pace*60);
   return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');

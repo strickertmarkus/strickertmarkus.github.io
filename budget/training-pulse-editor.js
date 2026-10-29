@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-log-6');
+  url.searchParams.set('v','20261029-log-7');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -254,7 +254,14 @@ function selectTool(win,tool,button,date){
    }
    break;
   case 'log':win.openWorkoutModal();if(iso){win.document.getElementById('wk-date').value=iso;}break;
-  case 'editLog':win.editWorkout(Number(button.dataset.workoutId));break;
+  case 'editLog':
+   win.editWorkout(Number(button.dataset.workoutId));
+   // Opened from one exercise in the log: that exercise's row starts open.
+   if(button.dataset.exerciseIndex!=null&&button.dataset.exerciseIndex!==''){
+    var index=Number(button.dataset.exerciseIndex);
+    setTimeout(function(){var row=win.document.querySelectorAll('#ex-list .pbu-row')[index];if(row&&win.PulseBuilderUI)win.PulseBuilderUI.openRow(row);},80);
+   }
+   break;
   case 'editExercise':win.editWorkoutExercise(Number(button.dataset.workoutId),Number(button.dataset.exerciseIndex));break;
   case 'week':win.openPlanModal();break;
   case 'weekTemplates':win.openTemplateModal();break;

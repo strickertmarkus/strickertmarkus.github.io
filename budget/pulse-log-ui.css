@@ -101,13 +101,16 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card
 
 /* Mätvärden: pulse and VO2 max as the training log's interval meters. The
    numbers themselves are the fields (no boxes); the point follows them. */
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meters{display:grid;gap:14px;padding:16px 16px 12px}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter{--mc:#ff8a91;display:grid;grid-template-columns:112px minmax(0,1fr);align-items:center;gap:14px;min-width:0;padding:4px 0 4px 12px;border-left:2px solid color-mix(in srgb,var(--mc) 45%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 7%,transparent),transparent 70%);border-radius:0 10px 10px 0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meters{display:block;padding:2px 6px 2px 14px!important;border-radius:18px!important;background:linear-gradient(90deg,#ffffff06,transparent 80%),#ffffff04!important;box-shadow:inset 0 0 0 1px #ffffff12!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter{--mc:#ff8a91;display:grid;grid-template-columns:104px minmax(0,1fr) 72px;align-items:center;gap:12px;min-width:0;padding:12px 0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter+.pbu-log-meter{border-top:1px solid #ffffff0d}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter[hidden]{display:none!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter.is-pace{--mc:#ffd2bd}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter.is-vo2{--mc:#65d7a5}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-read{display:flex;flex-direction:column;gap:3px;min-width:0;margin:0!important;cursor:text}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-read>span{color:var(--pbu-dim)!important;font:700 9px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important;white-space:nowrap}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-read>span small,html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-scale small{font-size:9px;letter-spacing:.04em;text-transform:none}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter input:is(#wk-hr-avg,#wk-hr-min,#wk-hr-max,#wk-vo2){
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter input:is(#wk-hr-avg,#wk-hr-min,#wk-hr-max,#wk-vo2,#wk-pace){
   width:100%!important;min-width:0!important;height:30px!important;min-height:0!important;padding:0!important;margin:0!important;
   border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
   color:var(--mc)!important;-webkit-text-fill-color:var(--mc)!important;font:600 24px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;
@@ -127,9 +130,17 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-mete
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-scale input:is(#wk-hr-min,#wk-hr-max){width:44px!important;height:24px!important;font-size:16px!important;color:#ffc3c6!important;-webkit-text-fill-color:#ffc3c6!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-scale .is-end{flex-direction:row-reverse}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-scale .is-end input{text-align:right}
-@media(max-width:340px){html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter{grid-template-columns:92px minmax(0,1fr);gap:10px}}
 
 /* "Redigera övning" from the training log: the builder's row, open, as the whole editor. */
 html.pbu-v1[data-field-embedded] body#pulse-page #exercise-edit-modal-v9.pbu-single :is(.pbu-actions [data-pbu-delete],.pbu-row>.pbu-quick-del){display:none!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #exercise-edit-modal-v9.pbu-single .pbu-row .pbu-head{padding-right:0!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #exercise-edit-modal-v9.pbu-single #single-exercise-editor-v9{border-top:1px solid var(--pbu-line);margin-top:14px}
+/* The −/+ of the pace; pulse and VO2 leave that column empty so all three meters line up. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-ctrl{display:flex;justify-content:flex-end;gap:2px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-ctrl button{display:grid;place-items:center;width:34px;height:40px;padding:0;border:0;border-radius:12px;background:none;color:var(--pbu-dim);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-ctrl button:active{transform:scale(.88);background:#ff806f30}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-ctrl :is(.pbu-plus,.pbu-minus){width:10px;height:10px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-ctrl .pbu-plus::before,html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-ctrl .pbu-plus::after,html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter-ctrl .pbu-minus::before{width:10px;height:1.5px}
+/* In the log form the pace lives with the other meters, not in the row. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row .pbu-meter{display:none!important}
+@media(max-width:340px){html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter{grid-template-columns:84px minmax(0,1fr) 68px;gap:8px}}
