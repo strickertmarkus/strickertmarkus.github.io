@@ -115,6 +115,13 @@
     });
     document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !find.hidden) closeFind(); });
     window.PulseExploreSearch = { open: openFind, close: closeFind };
+    // Opened again from the training page: start on the body, without reloading anything.
+    window.PulseGymReset = function () {
+      closeFind(true);
+      if (scene.isOpen()) { scene.leave(true); document.documentElement.classList.remove('gm-scene-open'); }
+      figure.classList.remove('gm-zooming'); figure.style.transformOrigin = '';
+      showBody(); window.scrollTo(0, 0);
+    };
     // Browser back from the exercise view returns to the body as well.
     new MutationObserver(function () { if ($('guide-page').hidden && scene.isOpen()) { scene.leave(true); document.documentElement.classList.remove('gm-scene-open'); } })
       .observe($('guide-page'), { attributes: true, attributeFilter: ['hidden'] });

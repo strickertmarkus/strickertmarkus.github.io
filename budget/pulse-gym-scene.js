@@ -161,6 +161,16 @@
       navNext.hidden = state.index === state.list.length - 1 && !state.program;
       if (!sheetOpen) ui.setPaused(false);
       syncPause();
+      // Work out the neighbours' framing while idle, so a swipe never waits for it.
+      var idle = window.requestIdleCallback || function (fn) { return setTimeout(fn, 200); };
+      [state.index + 1, state.index - 1].forEach(function (k) {
+        var id = state.list[k];
+        if (id == null || typeof window.sceneFrame !== 'function') return;
+        idle(function () { try {
+          var cfg = window.guideScenes[id], view = stage.view(cfg.kind, cfg.views[0], 0, cfg.views);
+          window.sceneFrame(id, 0, stage.figureOnly(cfg.kind), view);
+        } catch (e) {} });
+      });
     }
     function next() {
       if (state.index < state.list.length - 1) go(state.index + 1);

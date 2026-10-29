@@ -140,6 +140,11 @@ else document.addEventListener('DOMContentLoaded',()=>{if(document.getElementByI
 const embedded=(()=>{try{return window.parent!==window&&!!window.parent.PulseExploreStage;}catch(_){return false;}})();
 if(embedded){
  document.documentElement.classList.add('pm-embedded');
+ // The explorer's own steps (body → exercise → list) share the browser history with
+ // the training page; count them so closing can step back past all of them at once.
+ const host=window.parent.PulseExploreStage,push=history.pushState.bind(history);
+ history.pushState=function(){host.steps=(host.steps||0)+1;return push.apply(history,arguments);};
+ addEventListener('popstate',()=>{host.steps=Math.max(0,(host.steps||0)-1);});
  // Leaving the explorer from inside the frame hands control back to the training page.
  document.addEventListener('click',event=>{
   const a=event.target.closest&&event.target.closest('a[href]');
@@ -151,6 +156,7 @@ if(embedded){
  },true);
 }
 let stage=null,stageFrame=null,stageFrom=null,stageOpen=false,stageBusy=false,homeUrl=null;
+function idle(on){try{stageFrame.contentDocument.documentElement.classList.toggle('pm-idle',on);}catch(_){}}
 function explorerUrl(link){const u=new URL(link.href,location.href);return u.href;}
 function ensureStage(url){
  if(stage){if(stageFrame.dataset.src!==url){stageFrame.dataset.src=url;stageFrame.src=url;}return stage;}
@@ -166,24 +172,28 @@ function openStage(link,push){
  homeUrl=location.href;
  if(push)history.pushState({pmExplore:1},'',url);
  window.TrainingOverlay&&window.TrainingOverlay.acquire('explore',true);
- stage.hidden=false;document.documentElement.classList.add('pm-stage-open');
+ stage.hidden=false;document.documentElement.classList.add('pm-stage-open');document.documentElement.classList.remove('pm-stage-covered');
  const ready=new Promise(resolve=>{try{if(stageFrame.contentDocument&&stageFrame.contentDocument.readyState==='complete'&&stageFrame.contentWindow.PulseGuideUI)return resolve();}catch(_){}
-  stageFrame.addEventListener('load',()=>resolve(),{once:true});setTimeout(resolve,900);});
+  stageFrame.addEventListener('load',()=>resolve(),{once:true});setTimeout(resolve,350);});
  // Grow as soon as the explorer has painted its body (or quickly, if it is still loading).
- ready.then(()=>reveal(stage,stageFrom,320)).then(()=>{stageBusy=false;try{stageFrame.contentWindow.focus();}catch(_){}});
+ idle(false);
+ // Once covered, the training page stops painting and animating underneath.
+ ready.then(()=>reveal(stage,stageFrom,320)).then(()=>{stageBusy=false;if(stageOpen)document.documentElement.classList.add('pm-stage-covered');try{stageFrame.contentWindow.focus();}catch(_){}});
 }
 function closeStage(fromPop){
  if(!stageOpen||stageBusy)return;
  stageBusy=true;
- if(!fromPop&&history.state&&history.state.pmExplore)history.back();
- else if(!fromPop&&homeUrl)history.replaceState(null,'',homeUrl);
+ // The training page shows again underneath for the fold.
+ document.documentElement.classList.remove('pm-stage-open');
+ const api=window.PulseExploreStage,steps=api.steps||0;api.steps=0;
+ if(!fromPop)history.go(-(1+steps));
  const target=stageFrom&&document.body.contains(stageFrom)&&stageFrom.getClientRects().length?stageFrom:null;
+ document.documentElement.classList.remove('pm-stage-covered');
  fold(stage,target).then(()=>{
   stage.hidden=true;stage.style.opacity='';stage.style.clipPath='';stageOpen=false;stageBusy=false;
-  document.documentElement.classList.remove('pm-stage-open');
   window.TrainingOverlay&&window.TrainingOverlay.release('explore');
-  // Next time it opens on the body again.
-  try{stageFrame.contentWindow.location.replace(stageFrame.dataset.src);}catch(_){}
+  // The explorer sleeps (no drawing) and starts on the body next time; nothing reloads.
+  idle(true);try{stageFrame.contentWindow.PulseGymReset&&stageFrame.contentWindow.PulseGymReset();}catch(_){}
  });
 }
 if(!embedded){
@@ -196,9 +206,9 @@ if(!embedded){
   openStage(link,true);
  });
  addEventListener('popstate',()=>{if(stageOpen)closeStage(true);});
- // Load the explorer quietly once the page has settled, so it opens at once.
- const warm=()=>{const link=document.querySelector('a.field-explore-entry');if(link&&!stage)ensureStage(explorerUrl(link));};
- addEventListener('load',()=>setTimeout(()=>(window.requestIdleCallback||setTimeout)(warm,{timeout:2500}),1200),{once:true});
+ // Start loading the explorer as the finger lands on its link, not before: the
+ // training page itself never pays for it.
+ document.addEventListener('pointerdown',event=>{const link=event.target.closest&&event.target.closest('a.field-explore-entry,a#menu-explore-training');if(link&&!stage)ensureStage(explorerUrl(link));},{capture:true,passive:true});
 }
 
 /* Folding a surface that holds an iframe: a shrinking clip makes Safari repaint the
