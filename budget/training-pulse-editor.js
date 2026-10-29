@@ -78,7 +78,7 @@ function observeEditor(win){
   if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
   closeWorkspace();activeTool='';
  }
- var observer=new MutationObserver(sync);
+ var observer=new MutationObserver(function(records){records.forEach(function(r){if(!r.target.classList.contains('show')){lastHidden=r.target;lastHiddenAt=performance.now();}});sync();});
  function watch(modal){if(!watched.has(modal)){watched.add(modal);observer.observe(modal,{attributes:true,attributeFilter:['class']});}}
  doc.querySelectorAll('.modal-overlay').forEach(watch);
  var additions=new MutationObserver(function(records){records.forEach(function(record){Array.from(record.addedNodes).forEach(function(el){if(el.matches&&el.matches('.modal-overlay'))watch(el);});});});
@@ -137,20 +137,27 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-motion-1');
+  url.searchParams.set('v','20261029-motion-2');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
  return legacyReady;
 }
 /* Open as a circle growing out of the tapped control; close back into it. */
-var origin=null;
+var origin=null,lastHidden=null,lastHiddenAt=0;
 function closeWorkspace(){
  if(!dialog||!dialog.open||dialog.dataset.closing)return;
  if(!window.PulseMotion){SurfaceMotion.closeDialog(dialog);return;}
  dialog.dataset.closing='1';dialog.inert=true;
  var target=origin&&document.body.contains(origin)&&origin.getClientRects().length?origin:null;
- window.PulseMotion.conceal(dialog,target).then(function(){delete dialog.dataset.closing;dialog.inert=false;if(dialog.open)dialog.close();});
+ // The window that just closed inside the tools stays painted while the circle shrinks.
+ var held=lastHidden&&performance.now()-lastHiddenAt<600?lastHidden:null;
+ if(held)held.setAttribute('data-pm-hold','');
+ window.PulseMotion.conceal(dialog,target).then(function(){
+  delete dialog.dataset.closing;dialog.inert=false;if(dialog.open)dialog.close();
+  if(held)held.removeAttribute('data-pm-hold');
+  requestAnimationFrame(function(){dialog.style.clipPath='';dialog.style.opacity='';});
+ });
 }
 function showWorkspace(tool,button){
  if(!dialog)makeDialog();
@@ -160,7 +167,7 @@ function showWorkspace(tool,button){
  lockHostScroll();
  if(dialog.open&&dialog.dataset.closing){delete dialog.dataset.closing;dialog.inert=false;}
  if(!dialog.open){
-  origin=button||null;
+  origin=button||null;dialog.style.clipPath='';dialog.style.opacity='';
   if(window.PulseMotion){dialog.showModal();window.PulseMotion.reveal(dialog,button||null);}
   else SurfaceMotion.showDialog(dialog);
  }

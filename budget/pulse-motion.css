@@ -8,3 +8,6 @@
 /* iPhone zooms the page when a field under 16px gets focus. These were the only
    fields below 16px on the training page and in its tools (checked at 390px). */
 #record-picker select,[data-featured-select],[data-global-seconds-v7],#day-workout-ex-list [class*="dw-metric"],#session-hr,#session-vo2{font-size:16px!important}
+/* Inside the tools: the window being closed stays on screen while the workspace shrinks. */
+#pulse-page .modal-overlay[data-pm-hold]{display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:none!important}
+#pulse-page .modal-overlay[data-pm-hold] .modal{opacity:1!important;transform:none!important}

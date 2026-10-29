@@ -53,7 +53,8 @@ function conceal(el,to){
  const anims=[el.animate([{clipPath:c.full},{clipPath:c.small,opacity:.6}],{duration:240,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'})];
  if(inner&&inner.animate)anims.push(inner.animate([{transform:'none',opacity:1},{transform:'scale(.97)',opacity:.2}],{duration:240,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'}));
  running.set(el,anims);
- return Promise.all(anims.map(a=>a.finished)).catch(()=>{}).then(()=>{anims.forEach(a=>a.cancel());running.delete(el);});
+ // Hold the final small circle while the caller hides the surface, so no full frame flashes in between.
+ return Promise.all(anims.map(a=>a.finished)).catch(()=>{}).then(()=>{el.style.clipPath=c.small;el.style.opacity='0';anims.forEach(a=>a.cancel());running.delete(el);});
 }
 
 /* A soft ring at the finger on main actions. */
@@ -67,14 +68,24 @@ function ring(x,y,warm){
  if(dot.animate){dot.animate([{transform:'translate(-50%,-50%) scale(.25)',opacity:.95},{transform:'translate(-50%,-50%) scale(1.6)',opacity:0}],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)'}).finished.then(done,done);}
  else setTimeout(done,520);
 }
+// The ring answers a tap, not a scroll: it waits for the finger to lift without
+// having moved (or for a mouse click), so swiping through the log never pulses.
+let press=null;
 document.addEventListener('pointerdown',event=>{
  lastPoint={x:event.clientX,y:event.clientY,t:performance.now()};
  lastTarget=event.target.closest&&event.target.closest('button,a,[role="button"],[data-field-action],input,select,label')||null;
+ press=null;
  if(reduced()||event.button>0)return;
  const hit=event.target.closest&&event.target.closest(PULSE);
  if(!hit||hit.disabled)return;
- const cool=!!hit.closest('.is-cardio,[data-kind="cardio"]');
- ring(event.clientX,event.clientY,!cool);
+ press={x:event.clientX,y:event.clientY,t:performance.now(),cool:!!hit.closest('.is-cardio,[data-kind="cardio"]')};
+},{capture:true,passive:true});
+document.addEventListener('pointermove',event=>{if(press&&Math.hypot(event.clientX-press.x,event.clientY-press.y)>8)press=null;},{capture:true,passive:true});
+['pointercancel','scroll'].forEach(type=>document.addEventListener(type,()=>{press=null;},{capture:true,passive:true}));
+document.addEventListener('pointerup',event=>{
+ const p=press;press=null;
+ if(!p||performance.now()-p.t>600)return;
+ ring(p.x,p.y,!p.cool);
 },{capture:true,passive:true});
 
 /* Panels that unfold grow from their old size (uses SurfaceMotion when present). */
