@@ -72,7 +72,7 @@ async function verify(width,profile){
  await frame.evaluate(()=>{document.getElementById('ex-list').innerHTML='';addExRow({kind:'cardio',name:'Löpning',distance:5,time:25});});
  await frame.locator('#ex-list .pbu-head').click();
  assert.equal(await frame.locator('#ex-list [data-pbu-value="2"]').inputValue(),'25:00');
- await frame.locator('#ex-list [data-pbu-value="pace"]').fill('6:00');
+ await frame.locator('#wk-pace').fill('6:00');
  await frame.locator('#wk-type').fill('Löpning med nya mätvärden');
  await frame.locator('#wk-hr-avg').fill('145');await frame.locator('#wk-hr-min').fill('110');await frame.locator('#wk-hr-max').fill('175');await frame.locator('#wk-vo2').fill('48,5');
  await page.screenshot({path:`${out}/${width}-new-log.jpg`,type:'jpeg',quality:70});
