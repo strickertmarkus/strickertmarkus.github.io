@@ -134,18 +134,73 @@ function watchOverlays(){
 if(document.body&&document.getElementById('pulse-page'))watchOverlays();
 else document.addEventListener('DOMContentLoaded',()=>{if(document.getElementById('pulse-page'))watchOverlays();},{once:true});
 
-/* Host page: the way into the exercise explorer grows into its dark sky first. */
-document.addEventListener('click',event=>{
- const link=event.target.closest&&event.target.closest('a.field-explore-entry,a#menu-explore-training,a.gm-exit');
- if(!link||reduced()||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||!document.body.animate)return;
- event.preventDefault();
- const veil=document.createElement('div');veil.className='pm-veil';veil.innerHTML='<i></i>';document.body.appendChild(veil);
- // Navigate straight away; the quick veil only covers the moment the next page loads.
- veil.style.setProperty('--pm-speed','1');reveal(veil,link.querySelector('.field-explore-star')||link,170);
- location.href=link.href;
- // Coming back with the browser's Back keeps no stale veil on screen.
- addEventListener('pageshow',()=>veil.remove(),{once:true});
-});
+/* The exercise explorer opens inside the training page, like Lists and Travel on
+   Home: it is loaded in a full-screen frame that grows out of the star and folds
+   back into it. The address follows (so Back and refresh work as before). */
+const embedded=(()=>{try{return window.parent!==window&&!!window.parent.PulseExploreStage;}catch(_){return false;}})();
+if(embedded){
+ document.documentElement.classList.add('pm-embedded');
+ // Leaving the explorer from inside the frame hands control back to the training page.
+ document.addEventListener('click',event=>{
+  const a=event.target.closest&&event.target.closest('a[href]');
+  if(!a||event.defaultPrevented)return;
+  const url=new URL(a.getAttribute('href'),location.href);
+  if(!/\/exercise\.html$/.test(url.pathname))return;
+  event.preventDefault();
+  if(url.search.includes('explore=1'))window.parent.location.href=url.href;else window.parent.PulseExploreStage.close();
+ },true);
+}
+let stage=null,stageFrame=null,stageFrom=null,stageOpen=false,stageBusy=false,homeUrl=null;
+function explorerUrl(link){const u=new URL(link.href,location.href);return u.href;}
+function ensureStage(url){
+ if(stage){if(stageFrame.dataset.src!==url){stageFrame.dataset.src=url;stageFrame.src=url;}return stage;}
+ stage=document.createElement('div');stage.className='pm-stage';stage.hidden=true;stage.setAttribute('role','region');stage.setAttribute('aria-label','Utforska övningar');
+ stageFrame=document.createElement('iframe');stageFrame.title='Utforska övningar';stageFrame.dataset.src=url;stageFrame.src=url;
+ stage.appendChild(stageFrame);document.body.appendChild(stage);
+ return stage;
+}
+function openStage(link,push){
+ if(stageOpen||stageBusy)return;
+ const url=explorerUrl(link);ensureStage(url);
+ stageBusy=true;stageOpen=true;stageFrom=link.querySelector('.field-explore-star')||link;
+ homeUrl=location.href;
+ if(push)history.pushState({pmExplore:1},'',url);
+ window.TrainingOverlay&&window.TrainingOverlay.acquire('explore',true);
+ stage.hidden=false;document.documentElement.classList.add('pm-stage-open');
+ const ready=new Promise(resolve=>{try{if(stageFrame.contentDocument&&stageFrame.contentDocument.readyState==='complete'&&stageFrame.contentWindow.PulseGuideUI)return resolve();}catch(_){}
+  stageFrame.addEventListener('load',()=>resolve(),{once:true});setTimeout(resolve,900);});
+ // Grow as soon as the explorer has painted its body (or quickly, if it is still loading).
+ ready.then(()=>reveal(stage,stageFrom,320)).then(()=>{stageBusy=false;try{stageFrame.contentWindow.focus();}catch(_){}});
+}
+function closeStage(fromPop){
+ if(!stageOpen||stageBusy)return;
+ stageBusy=true;
+ if(!fromPop&&history.state&&history.state.pmExplore)history.back();
+ else if(!fromPop&&homeUrl)history.replaceState(null,'',homeUrl);
+ const target=stageFrom&&document.body.contains(stageFrom)&&stageFrom.getClientRects().length?stageFrom:null;
+ fold(stage,target).then(()=>{
+  stage.hidden=true;stage.style.opacity='';stage.style.clipPath='';stageOpen=false;stageBusy=false;
+  document.documentElement.classList.remove('pm-stage-open');
+  window.TrainingOverlay&&window.TrainingOverlay.release('explore');
+  // Next time it opens on the body again.
+  try{stageFrame.contentWindow.location.replace(stageFrame.dataset.src);}catch(_){}
+ });
+}
+if(!embedded){
+ window.PulseExploreStage={open:link=>openStage(link,true),close:()=>closeStage(false)};
+ document.addEventListener('click',event=>{
+  const link=event.target.closest&&event.target.closest('a.field-explore-entry,a#menu-explore-training');
+  if(!link||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||!document.body.animate)return;
+  event.preventDefault();
+  if(link.id==='menu-explore-training')window.dispatchEvent(new Event('pulse-field:close-menu'));
+  openStage(link,true);
+ });
+ addEventListener('popstate',()=>{if(stageOpen)closeStage(true);});
+ // Load the explorer quietly once the page has settled, so it opens at once.
+ const warm=()=>{const link=document.querySelector('a.field-explore-entry');if(link&&!stage)ensureStage(explorerUrl(link));};
+ addEventListener('load',()=>setTimeout(()=>(window.requestIdleCallback||setTimeout)(warm,{timeout:2500}),1200),{once:true});
+}
+
 /* Folding a surface that holds an iframe: a shrinking clip makes Safari repaint the
    frame (flicker); scaling it into the origin stays on the compositor. */
 function fold(el,to){

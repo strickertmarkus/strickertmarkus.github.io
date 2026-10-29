@@ -367,7 +367,9 @@
       var url = new URL($('explore-back').getAttribute('href'), location.href);
       url.searchParams.set('explore', '1');
       if (new URLSearchParams(location.search).get('user') === 'maja') url.searchParams.set('user', 'maja');
-      location.href = url.href;
+      // Opened inside the training page: the training page itself takes over.
+      var host = window; try { if (window.parent !== window && window.parent.PulseExploreStage) host = window.parent; } catch (e) {}
+      host.location.href = url.href;
     }
     function closeSheet() {
       closeZoom();
