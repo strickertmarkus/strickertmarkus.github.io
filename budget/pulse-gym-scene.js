@@ -35,6 +35,14 @@
   var WIDE = ['legPress'];
   // Fly movements read best straight on (the reverse fly from behind, where its muscles are).
   var SQUARE = { pecDeck: { yaw: -10, pitch: 16 }, cableFly: { yaw: -10, pitch: 16 }, reverseDeck: { yaw: 170, pitch: 18 } };
+  // Back-side main muscles (back, glutes, hamstrings, triceps, calves): open on a
+  // view from behind. SWAP uses the exercise's own rear view first; START sets a rear quarter.
+  var SWAP = { latPulldown: 1, machineRow: 1, assistedChin: 1, singleRow: 1, chin: 1, proneCurl: 1, singleLat: 1, narrowLat: 1, pullThrough: 1 };
+  var START = {
+    pushdown: { yaw: -140, pitch: 14 }, dips: { yaw: -140, pitch: 12 }, calfMachine: { yaw: -140, pitch: 14 },
+    barRow: { yaw: -125, pitch: 30 }, cableRow: { yaw: -128, pitch: 20 }, erg: { yaw: -125, pitch: 18 },
+    deadlift: { yaw: -138, pitch: 16 }, rdl: { yaw: -138, pitch: 16 }, sumoDeadlift: { yaw: -150, pitch: 14 }
+  };
   // Cardio and slow core moves keep an even rhythm; everything else uses the training tempo.
   var LOOP = ['treadmill', 'bike', 'elliptical', 'stepper', 'farmerCarry', 'deadBug', 'birdDog'];
   function ease(x) { return x * x * (3 - 2 * x); }
@@ -417,7 +425,12 @@
       tempo: tempo,
       // The working muscle glows with the effort: dim at rest, brightest at the squeeze.
       activation: function (t, kind) { return LOOP.indexOf(kind) >= 0 ? 1 : 0.3 + t; },
-      view: function (kind, base, index) { return index === 0 && SQUARE[kind] ? SQUARE[kind] : base; }
+      view: function (kind, base, index, views) {
+        // Start where the main muscle can be seen; the angle button gives the other view.
+        if (SWAP[kind] && views && views.length > 1) return views[index === 0 ? 1 : 0];
+        if (index === 0 && START[kind]) return START[kind];
+        return index === 0 && SQUARE[kind] ? SQUARE[kind] : base;
+      }
     };
 
     /* ---- Opened for one muscle by the body, closed back to it ---- */

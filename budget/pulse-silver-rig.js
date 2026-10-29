@@ -6,6 +6,10 @@ export function applyMotion({motion,rest,bones,body,hands,shoes,t,chestActive}){
  const basis=new THREE.Matrix4().makeBasis(right,up,front),torso=new THREE.Quaternion().setFromRotationMatrix(basis);
  const order=right.x<0?[1,0]:[0,1],hip=v(j.hip),shoulder=v(j.shoulders[0]).add(v(j.shoulders[1])).multiplyScalar(.5);
  const headUp=motion.cfg.kind==='gluteBridge'?v([0,0,-1]):up;
+ // The head keeps facing the way the chest faces (a lone swing from +Y would
+ // turn the face up or backwards whenever the body lies down, as in a plank).
+ const headFront=front.clone().addScaledVector(headUp,-front.dot(headUp)).normalize(),headRight=new THREE.Vector3().crossVectors(headUp,headFront).normalize();
+ const head=new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(headRight,headUp,headFront));
  const segments=[[hip,shoulder],[shoulder,shoulder.clone().addScaledVector(headUp,.30)]];
  for(const i of order)segments.push([v(j.shoulders[i]),v(j.elbows[i])],[v(j.elbows[i]),v(j.hands[i])]);
  for(const i of order)segments.push([v(j.hips[i]),v(j.knees[i])],[v(j.knees[i]),v(j.feet[i])]);
@@ -15,7 +19,7 @@ export function applyMotion({motion,rest,bones,body,hands,shoes,t,chestActive}){
   // The elbow bends relative to its upper arm. Independent world-space swings
   // become ambiguous near 180 degrees and can flip the forearm inside out.
   const base=i===3||i===5?bones[i-1].quaternion:
-   i===1?new THREE.Quaternion().setFromUnitVectors(Y,headUp):torso;
+   i===1?head:torso;
   const rotated=from.clone().applyQuaternion(base).normalize();
   bones[i].position.copy(a);bones[i].quaternion.setFromUnitVectors(rotated,to.clone().normalize()).multiply(base);
   // Uniform scaling keeps each weighted joint endpoint aligned with its equipment target.
