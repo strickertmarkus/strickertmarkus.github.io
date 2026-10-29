@@ -15,3 +15,29 @@ html.gm-scene-open main{visibility:hidden}
 /* The summary below the body sits tucked under it; keep it painted above the
    body's layers so "Alla övningar" is never clipped. */
 .muscle-map-options{position:relative;z-index:4}
+/* Search: a glowing magnifier opposite the close button, opening a full-screen list. */
+.gm-find-btn{position:absolute;left:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:radial-gradient(circle,#ff657a26,#ffffff10 70%);color:#ffd4cc;box-shadow:0 0 0 1px #ff9a9133,0 0 22px -6px #ff657a;cursor:pointer}
+.gm-find-btn svg,.gm-find svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.gm-find-btn .gm-find-spark{fill:#ff9a91;stroke:none;transform-origin:10.5px 10.5px;animation:gmSpark 2.8s ease-in-out infinite}
+@keyframes gmSpark{0%,100%{opacity:.55;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
+.gm-find-btn:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+.gm-find{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:var(--pk-sky),radial-gradient(120% 70% at 50% 40%,#0f1622,transparent 80%),#080b12;color:#f2eded;opacity:0;transform:translateY(14px);transition:opacity .18s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
+.gm-find.is-open{opacity:1;transform:none}
+.gm-find-head{position:relative;padding:calc(18px + env(safe-area-inset-top)) 20px 6px}
+.gm-find-head .eyebrow{color:#ff9a91;font:700 9.5px Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.gm-find-head h2{margin:6px 0 0;font:400 34px/1.05 "Cormorant Garamond",Georgia,serif;letter-spacing:-.5px}
+.gm-find-close{position:absolute;right:16px;top:calc(14px + env(safe-area-inset-top));display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#ffffff12;color:#f6ece9;cursor:pointer}
+.gm-find-field{display:flex;align-items:center;gap:10px;height:48px;margin-top:14px;padding:0 16px;border-radius:999px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff14;color:#a5a0ae}
+.gm-find-field:focus-within{box-shadow:inset 0 0 0 1px #ff806f66,0 0 24px -10px #ff6a5a}
+.gm-find-field input{flex:1;min-width:0;height:100%;padding:0;border:0;background:none;color:#fff;font:500 16px Inter,system-ui,sans-serif;outline:none;-webkit-appearance:none}
+.gm-find-field input::placeholder{color:#ffffff40}
+.gm-find-count{margin:10px 2px 0;color:#77727f;font:600 11px Inter,system-ui,sans-serif;letter-spacing:.04em}
+.gm-find-list{flex:1;overflow-y:auto;padding:4px 14px calc(20px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.gm-find-row{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:8px 6px;border:0;border-top:1px solid #ffffff0d;background:none;color:inherit;text-align:left;cursor:pointer}
+.gm-find-row:active{background:#ff806f10}
+.gm-find-copy{display:grid;gap:3px;min-width:0}
+.gm-find-copy b{font:600 15.5px Inter,system-ui,sans-serif;overflow-wrap:anywhere}
+.gm-find-copy b mark{background:none;color:#ff9a91}
+.gm-find-copy small{color:#a5a0ae;font:500 12px Inter,system-ui,sans-serif}
+.gm-find-empty{padding:24px 8px;color:#a5a0ae;font-size:13px;line-height:1.5}
+@media(prefers-reduced-motion:reduce){.gm-find{transition:none}.gm-find-btn .gm-find-spark{animation:none}}

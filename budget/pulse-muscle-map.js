@@ -58,7 +58,8 @@
   const offset=side==='front'?-41:41;
   const lines=regions[side].map(([name])=>{
    const [anchor,y,edge,percent]=leaders[side][name],x=anchor+offset,end=edge==='left'?164:560,level=1086*percent/100;
-   return `<g class="muscle-map-leader" data-map-label="${name}" aria-hidden="true"><path d="M${x} ${y} L${(x+end)/2} ${level} H${end}"/><circle cx="${x}" cy="${y}" r="4"/></g>`;
+   // A hairline to the label, ending on the muscle in a pulsing ring (as on the charts at home).
+   return `<g class="muscle-map-leader" data-map-label="${name}" aria-hidden="true"><path d="M${x} ${y} L${(x+end)/2} ${level} H${end}"/><circle class="muscle-map-ring" cx="${x}" cy="${y}" r="18"/><circle class="muscle-map-dot" cx="${x}" cy="${y}" r="3.2"/></g>`;
   }).join('');
   const effects=`<defs>
    <filter id="muscle-map-feather" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feMorphology operator="dilate" radius="7"/><feGaussianBlur stdDeviation="7"/></filter>
@@ -77,7 +78,8 @@
   svg.innerHTML=effects+regions[side].map(([name,paths])=>`<g class="muscle-map-region" transform="translate(${offset} 0)" data-map-muscle="${name}" role="button" tabindex="0" aria-label="Välj ${name}">${name==='Mage'?'<path class="muscle-map-hit" d="M315 286L490 286 475 421 420 473 388 473 327 420Z"/>':''}${paths.map(d=>`<path d="${d}"/>`).join('')}</g>`).join('')+lines;
   labels.innerHTML=regions[side].map(([name])=>{
    const [,,edge,percent]=leaders[side][name];
-   return `<button type="button" class="muscle-map-label ${edge}" style="top:${percent}%" data-map-label="${name}" data-map-guide="${name}" aria-label="Öppna animerade övningar för ${name}"><span>${name}</span><span aria-hidden="true">↗</span></button>`;
+   const n=window.PulseGuideUI.countFor(name);
+   return `<button type="button" class="muscle-map-label ${edge}" style="top:${percent}%" data-map-label="${name}" data-map-guide="${name}" aria-label="Öppna animerade övningar för ${name}"><span class="muscle-map-label-name">${name}</span><span class="muscle-map-label-count" aria-hidden="true">${n} övningar</span></button>`;
   }).join('');
   if(!regions[side].some(([name])=>name===selected))selected=side==='front'?'Bröst':'Rygg';
   select(selected);

@@ -61,6 +61,50 @@
       setTimeout(handoff, 600);
     });
     scene.onLeave(function () { document.documentElement.classList.remove('gm-scene-open'); showBody(); });
+
+    /* Search every exercise: name, muscle, equipment or category ("bröst", "kabel", "pull"). */
+    var findBtn = document.createElement('button');
+    findBtn.type = 'button'; findBtn.className = 'gm-find-btn'; findBtn.setAttribute('aria-label', 'Sök bland alla övningar');
+    findBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/><path class="gm-find-spark" d="M10.5 7.4c.25 1.9.9 2.6 2.8 2.8-1.9.25-2.6.9-2.8 2.8-.25-1.9-.9-2.6-2.8-2.8 1.9-.25 2.6-.9 2.8-2.8z"/></svg>';
+    map.appendChild(findBtn);
+    var find = document.createElement('div');
+    find.className = 'gm-find'; find.hidden = true; find.setAttribute('role', 'dialog'); find.setAttribute('aria-modal', 'true'); find.setAttribute('aria-label', 'Sök övning');
+    find.innerHTML = '<div class="gm-find-head"><button type="button" class="gm-find-close" aria-label="Stäng sök"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '<span class="eyebrow">Alla övningar</span><h2>Sök övning</h2>' +
+      '<label class="gm-find-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/></svg><input type="search" placeholder="Övning, muskel eller redskap" autocomplete="off" enterkeyhint="search" aria-label="Sök övning, muskel eller redskap"></label>' +
+      '<p class="gm-find-count" aria-live="polite"></p></div><div class="gm-find-list" role="list"></div>';
+    document.body.appendChild(find);
+    var field = find.querySelector('input'), list = find.querySelector('.gm-find-list'), count = find.querySelector('.gm-find-count');
+    var low = function (t) { return String(t || '').toLocaleLowerCase('sv-SE'); };
+    var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    function matches(e, q) {
+      if (!q) return true;
+      if (low(e.name).indexOf(q) >= 0) return true;
+      return e.muscles.concat([e.equipment, e.group]).some(function (w) { return low(w).split(/[\s,·]+/).some(function (part) { return part.indexOf(q) === 0; }) || low(w).indexOf(q) === 0; });
+    }
+    function renderFind() {
+      var q = low(field.value).trim(), all = window.PulseExplore.exercises.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'sv'); });
+      var hits = all.filter(function (e) { return matches(e, q); });
+      count.textContent = q ? hits.length + (hits.length === 1 ? ' träff' : ' träffar') : all.length + ' övningar';
+      list.innerHTML = hits.map(function (e) {
+        var name = esc(e.name), at = q ? low(e.name).indexOf(q) : -1;
+        if (at >= 0) name = esc(e.name.slice(0, at)) + '<mark>' + esc(e.name.slice(at, at + q.length)) + '</mark>' + esc(e.name.slice(at + q.length));
+        var art = ART[e.muscles[0]];
+        return '<button type="button" class="gm-find-row" role="listitem" data-find-id="' + e.id + '"><span class="pk-thumb' + (e.group === 'Kondition' ? ' is-cardio' : '') + '">' + (art ? '<img alt="" loading="lazy" src="assets/atlas-art-v1/' + art + '.webp">' : '') + '</span>' +
+          '<span class="gm-find-copy"><b>' + name + '</b><small>' + esc(e.muscles.slice(0, 3).join(' · ')) + ' · ' + esc(e.equipment) + '</small></span></button>';
+      }).join('') || '<p class="gm-find-empty">Ingen övning matchar. Prova en muskel, som <b>bröst</b>, eller ett redskap, som <b>kabel</b>.</p>';
+    }
+    function openFind() { field.value = ''; renderFind(); find.hidden = false; requestAnimationFrame(function () { find.classList.add('is-open'); field.focus({ preventScroll: true }); }); }
+    function closeFind() { find.classList.remove('is-open'); setTimeout(function () { find.hidden = true; }, 200); }
+    findBtn.addEventListener('click', openFind);
+    field.addEventListener('input', renderFind);
+    find.addEventListener('click', function (event) {
+      if (event.target.closest('.gm-find-close')) { closeFind(); return; }
+      var row = event.target.closest('[data-find-id]');
+      if (row) { var e = window.PulseExplore.exercises[Number(row.dataset.findId)]; closeFind(); ui.openMuscleExercise(e.muscles[0], e.id); }
+    });
+    document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !find.hidden) closeFind(); });
+    window.PulseExploreSearch = { open: openFind, close: closeFind };
     // Browser back from the exercise view returns to the body as well.
     new MutationObserver(function () { if ($('guide-page').hidden && scene.isOpen()) { scene.leave(true); document.documentElement.classList.remove('gm-scene-open'); } })
       .observe($('guide-page'), { attributes: true, attributeFilter: ['hidden'] });

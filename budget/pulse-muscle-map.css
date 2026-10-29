@@ -49,3 +49,23 @@ body.muscle-map-active main{padding-top:8px}
  .muscle-map-result .eyebrow{display:none}
  .muscle-map-result p{font-size:11px}
 }
+/* Labels as chart readouts: a quiet serif name over a small count, joined to the
+   muscle by a hairline that ends in a pulsing ring. */
+.muscle-map-leader{stroke:#ff9a91;stroke-width:1.1;opacity:.6;filter:none;fill:none}
+.muscle-map-leader path{stroke:#ff9a91;stroke-opacity:.55}
+.muscle-map-leader .muscle-map-dot{fill:#ffd4cc;stroke:none;filter:drop-shadow(0 0 4px #ff6a5a)}
+.muscle-map-leader .muscle-map-ring{fill:none;stroke:#ff9a91;stroke-width:1.4;opacity:0;transform-box:fill-box;transform-origin:center}
+.muscle-map-leader.is-selected{opacity:1;stroke-width:1.2;filter:drop-shadow(0 0 4px #ff3a2a88)}
+.muscle-map-leader.is-selected path{stroke-opacity:.9}
+.muscle-map-leader.is-selected .muscle-map-ring{opacity:1;animation:mmRing 1.6s ease-out infinite}
+@keyframes mmRing{0%{transform:scale(.4);opacity:1}60%{transform:scale(1.1);opacity:.6}100%{transform:scale(1.45);opacity:0}}
+.muscle-map-leader.is-selected .muscle-map-ring{stroke-width:3;stroke:#ffb4a6;filter:drop-shadow(0 0 6px #ff3a2a)}
+.muscle-map-leader .muscle-map-dot{r:4}
+.muscle-map-label{flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;padding:4px 2px;color:#d8cdcf;text-shadow:0 1px 8px #000}
+.muscle-map-label.right{align-items:flex-end;text-align:right}
+.muscle-map-label-name{font:400 17px/1.05 "Cormorant Garamond",Georgia,serif;letter-spacing:-.1px}
+.muscle-map-label>span.muscle-map-label-count{color:#8f8692;font:600 8.5px/1.3 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.muscle-map-label.is-selected{color:#fff1ee;text-shadow:0 0 14px #ff3a2a99}
+.muscle-map-label.is-selected>span.muscle-map-label-count{color:#ff9a91}
+@media(max-width:360px){.muscle-map-label-name{font-size:15px}.muscle-map-label>span.muscle-map-label-count{font-size:7.5px;letter-spacing:.08em}}
+@media(prefers-reduced-motion:reduce){.muscle-map-leader.is-selected .muscle-map-ring{animation:none;opacity:.6}}
