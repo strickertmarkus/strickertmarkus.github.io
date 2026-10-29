@@ -558,7 +558,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-tpl-4">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-plan-2">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-tpl-6">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
@@ -797,7 +797,7 @@ if(!window.__FIELD_EMBEDDED__){
       <div class="pbu-log-template-row">
         <select id="wk-template-select" aria-label="Välj mallpass"></select>
         <button class="btn-sm" type="button" onclick="applyTemplateToWorkout()">Använd</button>
-        <button class="btn-sm" type="button" onclick="saveCurrentAsTemplate()">Spara som mall</button>
+        <button class="btn-sm pbu-log-save-template" type="button" onclick="saveWorkoutAsTemplate()" aria-label="Spara passet som mallpass" title="Spara som mallpass"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="13.5" height="13.5" rx="2.5"/><path d="M3.5 7.5v10.5A2.5 2.5 0 0 0 6 20.5h10.5"/><path d="M13.75 7v6.5M10.5 10.25H17"/></svg><span>Spara som mall</span></button>
       </div>
     </div>
     <div class="form-group pbu-log-exercises">
@@ -3540,6 +3540,24 @@ function saveCurrentAsTemplate(){
   showToast('Mall sparad.');
 }
 
+/* "Spara som mall" in the log form: the pass's exercises become a template
+   named after the pass (an existing template with that name is updated). */
+function saveWorkoutAsTemplate(){
+  var exercises=[];
+  document.querySelectorAll('#ex-list .ex-row-item').forEach(function(row){var parsed=parseExerciseRow(row,'ex');if(parsed)exercises.push(parsed);});
+  if(!exercises.length){showToast('Passet har inga övningar att spara.');return;}
+  var name=String(document.getElementById('wk-type').value||'').trim().slice(0,70)||'Mallpass';
+  var key=name.toLocaleLowerCase('sv-SE'),templates=getTemplates();
+  var at=templates.findIndex(function(t){return String(t.name||'').trim().toLocaleLowerCase('sv-SE')===key;});
+  var entry=Object.assign({},at>=0?templates[at]:{},{
+    id:at>=0?templates[at].id:Date.now(),name:name,type:canonicalWorkoutType(name,exercises),
+    duration:Math.round(workoutFieldNumber('wk-dur'))||null,exercises:exercises
+  });
+  if(at>=0)templates[at]=entry;else templates.push(entry);
+  saveTemplates(templates);
+  refreshTemplateSelectors();
+  showToast(at>=0?'Mallpasset ”'+name+'” uppdaterat.':'Sparat som mallpass ”'+name+'”.');
+}
 function applyTemplateToWorkout(){
   var id=+(document.getElementById('wk-template-select').value||0);
   if(!id)return;

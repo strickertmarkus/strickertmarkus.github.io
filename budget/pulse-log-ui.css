@@ -149,3 +149,6 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-mete
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter.is-empty{grid-template-columns:minmax(0,1fr) 72px;padding:10px 0}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter.is-empty .pbu-log-meter-read{flex-direction:row;align-items:center;justify-content:space-between;gap:12px}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meter.is-empty .pbu-log-meter-read input{max-width:120px;text-align:right}
+/* Save the pass as a template: the template symbol with a short label. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-save-template{display:inline-flex!important;align-items:center;gap:7px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-save-template svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px #ff9a9140)}

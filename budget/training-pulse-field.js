@@ -235,6 +235,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if (!type||/^vila$/i.test(type)) return null;
     return {type:type,exercises:[]};
   }
+  // The latest logged pass on a day up to today, if any.
+  function dayLogged(key){if(String(key)>isoDate(new Date()))return null;var list=workoutsOn(dateAtNoon(key));return list.length?list.slice().sort(function(a,b){return number(b.id)-number(a.id);})[0]:null;}
   function workoutsOn(value) { var key=isoDate(value);return data.workouts.filter(function(w){return w.date===key;}); }
   function workoutsInWeek(value) {
     var start=isoDate(startOfWeek(value)),end=isoDate(shiftDate(start,6));
@@ -353,6 +355,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(metaLabel)metaLabel.textContent=meta;
       if(thumb)thumb.innerHTML=chosenRest?'<span class="pk-thumb is-rest">'+PK_MOON+'</span>':pkThumb(chosenName+' '+chosenType,chosenCardio?'cardio':'strength');
       ['week-selected-open-v3','week-selected-play-v3'].forEach(function(id){var b=byId(id);if(b)b.dataset.fieldDate=selected;});
+      var open=byId('week-selected-open-v3'),done=dayLogged(selected);
+      if(open){open.dataset.fieldAction=done?'edit-log':'edit-day';if(done)open.dataset.workoutId=String(done.id);else delete open.dataset.workoutId;}
       var play=byId('week-selected-play-v3');if(play)play.hidden=chosenRest||!!chosenLogged.length;
     }
     var startLink=byId('next-session-link');
@@ -1255,7 +1259,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
     document.addEventListener('click',function(event){
 var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=shiftDate(state.weekStart,number(shift.dataset.weekShift)*7);state.selectedDate=isoDate(state.weekStart);renderWeek();if(state.activityView==='week')renderActivity();return;}
-      var day=event.target.closest('[data-day]');if(day){state.selectedDate=day.dataset.day;renderWeek();window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'edit-day',date:state.selectedDate}}));return;}
+      var day=event.target.closest('[data-day]');if(day){
+        state.selectedDate=day.dataset.day;renderWeek();
+        // A day already trained opens what was logged (all its exercises), not the empty plan.
+        var done=dayLogged(state.selectedDate);
+        if(done){day.dataset.workoutId=String(done.id);window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'edit-log',date:state.selectedDate,origin:day}}));}
+        else window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'edit-day',date:state.selectedDate,origin:day}}));
+        return;
+      }
       var view=event.target.closest('[data-activity-view]');if(view){state.activityView=view.dataset.activityView;renderActivity();return;}
       var metric=event.target.closest('[data-activity-metric]');if(metric){state.activityMetric=metric.dataset.activityMetric;renderActivity();return;}
       var range=event.target.closest('[data-chart-range]');
