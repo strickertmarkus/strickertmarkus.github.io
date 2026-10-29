@@ -450,6 +450,7 @@ function limbJoint(root,end,l1,l2,pole){
  const along=(l1*l1-l2*l2+d*d)/(2*d),height=Math.sqrt(Math.max(0,l1*l1-along*along));
  return A(A(root,M(direction,along)),M(U(bend),height));
 }
+const restCable=new Map();
 function makeScene(index,t,cycle=0,equipmentOnly=false){
  const cfg=guideScenes[index],kind=cfg.kind,shapes=[],anchors=[];
  let drawingPerson=false;
@@ -472,10 +473,13 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
   // thickness follows the size, so pulleys stay slim and plates stay chunky.
   primitive('plate',[center,A(center,M(n,r)),A(center,M(u,r)),A(center,M(v,r)),S(center,M(u,r)),S(center,M(v,r))],{r,axis:n,thickness:Math.max(.018,r*.2),color,plate:r>.1});
  };
- const cable=(a,b)=>rod(a,b,.006,palette.cable);
+ // Cable length drawn in this frame; the weight stacks rise by how much it grew from the rest position.
+ let cableLength=0;const stacks=[];
+ const cable=(a,b)=>{cableLength+=V.len(S(b,a));rod(a,b,.006,palette.cable);};
  const tower=(z=1.1,height=1.95,x=0)=>{
   rod([x-.16,.06,z],[x-.16,height,z],.027);rod([x+.16,.06,z],[x+.16,height,z],.027);rod([x-.16,height,z],[x+.16,height,z],.025);
-  box([x,.35,z],[.25,.48,.19]);for(let i=0;i<7;i++)rod([x-.11,.15+i*.055,z+.101],[x+.11,.15+i*.055,z+.101],.004,palette.light);
+  // The plates are drawn once the cable is known (see the end of makeScene).
+  stacks.push({x,z,height});
   rod([x-.27,.04,z-.2],[x+.27,.04,z-.2],.035);rod([x,.04,z-.2],[x,.04,z+.12],.03);
  };
  const pulley=(p)=>wheel(p,.045,[1,0,0],palette.metal);
@@ -771,7 +775,25 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
  const shoulders=[shoulder(-1),shoulder(1)],hips=[A(hip,[-.12,0,0]),A(hip,[.12,0,0])];
  if(!elbows)elbows=hands.map((h,i)=>limbJoint(shoulders[i],h,.30,.28,elbowPoles[i]));
  if(!knees)knees=feet.map((f,i)=>limbJoint(hips[i],f,.44,.43,kneePoles[i]));
- const motionData={shapes,joints:{hip,shoulders,hips,elbows,hands,knees,feet},anchors,cfg,axis,frontNormal,soles};
+ if(stacks.length){
+  // Rest length: the shortest the cable gets over the rep (cached per exercise).
+  let rest=restCable.get(index);
+  if(rest==null&&!makeScene.resting){
+   makeScene.resting=true;
+   try{rest=Math.min(...[0,.25,.5,.75,1].map(r=>makeScene(index,r,0,true).cableLength));}finally{makeScene.resting=false;}
+   restCable.set(index,rest);
+  }
+  // The kneeling crunch folds towards its pulley, so its stack follows the crunch itself.
+  const lift=kind==='cableCrunch'?.16*t:Math.max(0,Math.min(.32,(cableLength-(rest??cableLength))*.6/stacks.length));
+  for(const {x,z,height} of stacks){
+   // Bottom plates stay; the pinned plates above ride up on the guide rods.
+   box([x,.19,z],[.25,.16,.19]);for(let i=0;i<3;i++)rod([x-.11,.13+i*.055,z+.101],[x+.11,.13+i*.055,z+.101],.004,palette.light);
+   const y0=.28+lift;box([x,y0+.16,z],[.25,.30,.19]);for(let i=0;i<5;i++)rod([x-.11,y0+.04+i*.055,z+.101],[x+.11,y0+.04+i*.055,z+.101],.004,palette.light);
+   rod([x,y0+.31,z],[x,Math.max(y0+.32,height-.05),z],.008,palette.light);
+   for(const sx of [-.07,.07])rod([x+sx,.06,z],[x+sx,height,z],.006,palette.light);
+  }
+ }
+ const motionData={shapes,joints:{hip,shoulders,hips,elbows,hands,knees,feet},anchors,cfg,axis,frontNormal,soles,cableLength};
  return motionData;
 }
 
