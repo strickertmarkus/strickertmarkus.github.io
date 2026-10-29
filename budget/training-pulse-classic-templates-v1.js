@@ -15,18 +15,27 @@ function makeId(){
  while(getTemplates().some(function(t){return String(t.id)===String(id);}))id+=1;
  return id;
 }
+/* Rows as exercises, with each row's between-sets choice (Vila/Övning) kept. */
 function rows(){
  var result=[];
  document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(function(row){
   var ex=window.parseExerciseRow(row,'dw');
-  if(ex)result.push(ex);
+  if(!ex)return;
+  try{var between=JSON.parse(row.dataset.betweenSetsV7||'null');if(between&&between.enabled&&ex.kind!=='cardio')ex.betweenSets=between;}catch(_){}
+  result.push(ex);
  });
  return result;
 }
+var NO_BETWEEN=JSON.stringify({enabled:false,type:'rest',seconds:60,name:''});
 function setRows(exercises){
  var list=byId('day-workout-ex-list');
  list.innerHTML='';
- if(Array.isArray(exercises)&&exercises.length)exercises.forEach(function(ex){window.addDayWorkoutExRow(clone(ex));});
+ if(Array.isArray(exercises)&&exercises.length)exercises.forEach(function(ex){
+  window.addDayWorkoutExRow(clone(ex));
+  // The template's own between-sets choice, not the day's row at the same position.
+  var row=list.lastElementChild;
+  if(row)row.dataset.betweenSetsV7=ex&&ex.betweenSets&&ex.betweenSets.enabled?JSON.stringify(ex.betweenSets):NO_BETWEEN;
+ });
  else window.addDayWorkoutExRow();
 }
 function populateSelect(selected){
@@ -166,16 +175,20 @@ function confirmSaveAsTemplate(){
  byId('day-workout-inline-template').hidden=true;
  toast('Mallpass sparat och valt.');
 }
-var originalSave=window.saveDayWorkoutPlan;
-window.saveDayWorkoutPlan=function(){
- if(mode==='template')return saveTemplate();
- return originalSave.apply(this,arguments);
-};
-var originalStart=window.startDayWorkoutFromBuilder;
-window.startDayWorkoutFromBuilder=function(){
- if(mode==='template'){saveTemplate();return;}
- return originalStart.apply(this,arguments);
-};
+/* In the template builder the save button saves the template and nothing
+   else. Caught before the button's own handler, because other builder
+   scripts replace window.saveDayWorkoutPlan later (the between-sets preview
+   saves the day), so wrapping that function is not enough. */
+box.addEventListener('click',function(event){
+ if(mode!=='template')return;
+ var btn=event.target.closest('.classic-save-pass,.classic-start-pass,.classic-save-as-template');
+ if(!btn)return;
+ event.preventDefault();event.stopPropagation();
+ saveTemplate();
+},true);
+/* Nor can the template builder change the day it was opened over. */
+var dateInput=byId('day-workout-date');
+if(dateInput)dateInput.addEventListener('change',function(event){if(mode==='template'){event.stopImmediatePropagation();}},true);
 byId('day-workout-name').addEventListener('blur',function(){
  if(mode!=='template')return;
  var val=this.value.trim();

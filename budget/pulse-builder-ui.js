@@ -61,7 +61,7 @@ function shownValue(row,spec){
 }
 /* Refresh the shown numbers, except the one being typed in. */
 function syncSteps(row,except){
- SPECS[rowKind(row)].forEach(function(spec){
+ specsFor(row).forEach(function(spec){
   var el=row.querySelector('[data-pbu-value="'+spec.n+'"]');if(!el||el===except)return;
   var v=shownValue(row,spec);if(el.value!==v)el.value=v;
   if(spec.n==='pace'){
@@ -109,12 +109,21 @@ function setKind(row,kind){
 }
 
 /* ---------- Row: collapsed summary ---------- */
-function specFor(row,n){return SPECS[rowKind(row)].filter(function(s){return String(s.n)===String(n);})[0];}
+/* Cardio: distance only where it means something (running, cycling, rowing…,
+   not jump rope); pace only when registering a pass, never when planning. */
+var DISTANCE=/löp|jogg|run|cykel|cykl|spinning|promenad|gång|rodd|simn|skid|vandr|crosstrainer|walk|bike|row|swim|ski/;
+function specsFor(row){
+ var kind=rowKind(row);if(kind!=='cardio')return SPECS[kind];
+ var name=key((nameInput(row)||{}).value),hasDist=!name||DISTANCE.test(name)||num(field(row,1).value)>0;
+ var registering=!!row.closest('#wk-modal,#exercise-edit-modal-v9');
+ return SPECS.cardio.filter(function(s){return s.n===1?hasDist:s.n==='pace'?hasDist&&registering:true;});
+}
+function specFor(row,n){return specsFor(row).filter(function(s){return String(s.n)===String(n);})[0];}
 function summaryText(row){
  var a=num(field(row,1).value),b=num(field(row,2).value);
  if(rowKind(row)==='cardio'){
   var parts=[];if(a)parts.push(fmt(a)+' km');if(b)parts.push(clock(b)+' min');if(a&&b)parts.push(clock(b/a)+' /km');
-  return parts.length?parts.join(' · '):'Kondition · ange distans eller tid';
+  return parts.length?parts.join(' · '):specsFor(row)[0].n===1?'Kondition · ange distans eller tid':'Kondition · ange tid';
  }
  var w=num(field(row,3).value);
  var bw=field(row,3).dataset.weightMode==='bodyweight';
@@ -203,7 +212,10 @@ function enhanceBetween(row){
  var step=document.createElement('div');step.className='pbu-step pbu-between-time';
  step.innerHTML='<span class="pbu-step-label">Tid <small>s</small></span><div class="pbu-step-ctrl"><button type="button" data-pbu-between-step="-1" aria-label="Kortare"><i class="pbu-minus"></i></button><button type="button" data-pbu-between-step="1" aria-label="Längre"><i class="pbu-plus"></i></button></div>';
  var ctrl=step.querySelector('.pbu-step-ctrl');ctrl.insertBefore(seconds,ctrl.lastChild);seconds.classList.add('pbu-step-value');
- fields.insertBefore(seg,fields.firstChild);fields.insertBefore(step,select.nextSibling);
+ // Vila/Övning sits on the heading line, between "Mellan set" and its switch.
+ var head=panel.querySelector('.per-set-toggle-wrap-v7'),sw=head&&head.querySelector('.between-switch-v7');
+ if(head&&sw)head.insertBefore(seg,sw);else fields.insertBefore(seg,fields.firstChild);
+ fields.insertBefore(step,select.nextSibling);
  var name=panel.querySelector('[data-per-set-name-v7]');
  if(name){var wrap=document.createElement('div');wrap.className='pbu-step pbu-between-name';wrap.innerHTML='<span class="pbu-step-label">Övning</span>';fields.insertBefore(wrap,name);wrap.appendChild(name);}
  // The wrapper follows the field's visibility, which the between-sets script sets.
@@ -225,6 +237,7 @@ function syncBetween(row){
   if(note.textContent!==text)note.textContent=text;
  }
  row.querySelectorAll('[data-pbu-between-type]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.pbuBetweenType===cfg.type));});
+ var seg=row.querySelector('.pbu-between-seg');if(seg)seg.hidden=!cfg.enabled;
 }
 /* The day builder's list and the log form's list ("Logga träning"). */
 var LISTS='#day-workout-ex-list,#wk-modal #ex-list,#single-exercise-editor-v9';
@@ -242,7 +255,7 @@ function openRow(row,opts){
  if(opts.scroll!==false)setTimeout(function(){try{row.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_e){}},30);
 }
 function closeRow(row){
- row.classList.remove('pbu-open');
+ row.classList.remove('pbu-open','pbu-between-open');syncBetween(row);
  var h=row.querySelector('.pbu-head');if(h)h.setAttribute('aria-expanded','false');
  hidePicker(row);paintRow(row);
 }
@@ -252,10 +265,10 @@ function syncActions(row){
 }
 function renderSteps(row){
  var wrap=row.querySelector('.pbu-steps'),kind=rowKind(row);
- wrap.dataset.count=SPECS[kind].length;wrap.dataset.kind=kind;
+ var specs=specsFor(row);wrap.dataset.count=specs.length;wrap.dataset.kind=kind;
  var bw=kind==='strength'&&field(row,3).dataset.weightMode==='bodyweight';
  row.classList.toggle('pbu-is-cardio',kind==='cardio');
- wrap.innerHTML=SPECS[kind].map(function(s){
+ wrap.innerHTML=specs.map(function(s){
   if(kind==='strength'&&s.n===3&&bw)return '<div class="pbu-step"><span class="pbu-step-label">Vikt</span><span class="pbu-bodyweight-value">Kroppsvikt</span></div>';
   var v=shownValue(row,s);
   // Pace as the training log's interval meter (7:00 slow → 3:00 fast), with its number and steps.
@@ -494,7 +507,8 @@ function bindList(modal,list,addSelector,single){
   var t=e.target,row=t.closest('.pbu-row');if(!row)return;
   if(t.closest('.pbu-head')||t.closest('.pbu-thumb')){
    if(single){if(row.classList.contains('pbu-picking'))hidePicker(row);else showPicker(row);return;}
-   if(row.classList.contains('pbu-open'))closeRow(row);else openRow(row);
+   // Tapping the exercise folds everything that is open on it (numbers and between sets).
+   if(row.classList.contains('pbu-open')||row.classList.contains('pbu-between-open'))closeRow(row);else openRow(row);
    return;
   }
   if(t.closest('.pbu-between-btn')){row.classList.toggle('pbu-between-open');syncBetween(row);return;}

@@ -556,13 +556,13 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261029-plan-5">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-tpl-3">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-tpl-4">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
 <link rel="stylesheet" href="pulse-log-ui.css?v=20261029-plan-2">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261029-tpl-3"></script>
+<script defer src="pulse-builder-ui.js?v=20261029-tpl-5"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -997,7 +997,7 @@ if(!window.__FIELD_EMBEDDED__){
       <label for="day-workout-template-select">Välj mallpass</label>
       <div class="classic-template-actions">
         <select id="day-workout-template-select" onchange="pulseClassicApplyTemplate(this.value)" aria-label="Välj ett sparat mallpass"></select>
-        <button class="btn-sm" type="button" onclick="pulseClassicNewTemplate()">＋ Ny mall</button>
+        <button class="btn-sm" type="button" onclick="pulseClassicNewTemplate()" aria-label="Nytt mallpass">＋ Ny</button>
         <button class="btn-sm" type="button" id="day-workout-edit-template" onclick="pulseClassicEditTemplate()" disabled>Redigera</button>
       </div>
       <div class="classic-inline-template-name" id="day-workout-inline-template" hidden>
@@ -3756,6 +3756,6 @@ window.addEventListener('firebase-sync',function(event){
 })();
 </script>
 <script src="training-month-planner.js?v=20261029-plan-5"></script>
-<script src="training-pulse-classic-templates-v1.js?v=20261029-tpl-3"></script>
+<script src="training-pulse-classic-templates-v1.js?v=20261029-tpl-4"></script>
 </body>
 </html>
