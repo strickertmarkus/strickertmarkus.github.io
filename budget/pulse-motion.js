@@ -32,13 +32,14 @@ function circles(o){
 const running=new WeakMap();
 function stop(el){const a=running.get(el);if(a)a.forEach(m=>m.cancel());running.delete(el);}
 /* Grow `el` (already displayed) out of `from` (an element or a point). */
-function reveal(el,from){
+function reveal(el,from,ms){
  stop(el);
  if(reduced()||!el.animate)return Promise.resolve();
  const o=from&&from.x!=null?from:originFor(from||lastTarget),c=circles(o);
  const inner=el.firstElementChild;
- const anims=[el.animate([{clipPath:c.small},{clipPath:c.full}],{duration:300,easing:ease})];
- if(inner&&inner.animate)anims.push(inner.animate([{transform:'scale(.965)',opacity:.4},{transform:'none',opacity:1}],{duration:300,easing:ease}));
+ const d=ms||300;
+ const anims=[el.animate([{clipPath:c.small},{clipPath:c.full}],{duration:d,easing:ease,fill:ms?'forwards':'none'})];
+ if(inner&&inner.animate)anims.push(inner.animate([{transform:'scale(.965)',opacity:.4},{transform:'none',opacity:1}],{duration:d,easing:ease}));
  running.set(el,anims);el.dataset.pmFrom=JSON.stringify(o);
  return Promise.all(anims.map(a=>a.finished)).catch(()=>{}).then(()=>running.delete(el));
 }
@@ -69,21 +70,25 @@ function ring(x,y,warm){
  const done=()=>dot.remove();
  if(dot.animate){dot.animate([{transform:'translate(-50%,-50%) scale(.25)',opacity:.95},{transform:'translate(-50%,-50%) scale(1.6)',opacity:0}],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)'}).finished.then(done,done);}
  else setTimeout(done,520);
+ return dot;
 }
-// The ring answers a tap, never a scroll: it follows the click event, which the
-// browser only sends when the finger lifted without scrolling.
+// The ring appears the moment the finger lands (as before); if the touch turns
+// into a scroll it fades out at once instead of finishing its pulse.
+let pressRing=null,pressAt=null;
 document.addEventListener('pointerdown',event=>{
  lastPoint={x:event.clientX,y:event.clientY,t:performance.now()};
  lastTarget=event.target.closest&&event.target.closest('button,a,[role="button"],[data-field-action],input,select,label')||null;
-},{capture:true,passive:true});
-document.addEventListener('click',event=>{
- if(reduced())return;
+ pressRing=null;
+ if(reduced()||event.button>0)return;
  const hit=event.target.closest&&event.target.closest(PULSE);
  if(!hit||hit.disabled)return;
- let x=event.clientX,y=event.clientY;
- if(!x&&!y){const c=centre(hit);if(!c)return;x=c.x;y=c.y;}
- ring(x,y,!hit.closest('.is-cardio,[data-kind="cardio"]'));
-},true);
+ pressAt={x:event.clientX,y:event.clientY};
+ pressRing=ring(event.clientX,event.clientY,!hit.closest('.is-cardio,[data-kind="cardio"]'));
+},{capture:true,passive:true});
+const dropRing=()=>{const r=pressRing;pressRing=null;if(r&&r.isConnected&&r.animate){r.getAnimations().forEach(a=>a.cancel());r.animate([{opacity:.5},{opacity:0}],{duration:90,fill:'forwards'}).finished.then(()=>r.remove(),()=>r.remove());}};
+document.addEventListener('pointermove',event=>{if(pressRing&&pressAt&&Math.hypot(event.clientX-pressAt.x,event.clientY-pressAt.y)>8)dropRing();},{capture:true,passive:true});
+document.addEventListener('pointercancel',dropRing,{capture:true,passive:true});
+document.addEventListener('scroll',dropRing,{capture:true,passive:true});
 
 /* Panels that unfold grow from their old size (uses SurfaceMotion when present). */
 function measure(el,change){
@@ -95,14 +100,29 @@ function measure(el,change){
 
 /* Inside the tools: every full-screen window reveals from the tap that opened it. */
 function watchOverlays(){
- const seen=new WeakSet();
+ const seen=new WeakSet();let lastClose=0;
  const isOpen=el=>el.classList.contains('show');
  const observer=new MutationObserver(records=>{
   records.forEach(r=>{
    const el=r.target;
    if(r.type!=='attributes')return;
    const was=(r.oldValue||'').split(/\s+/).includes('show');
-   if(!was&&isOpen(el))reveal(el);
+   if(!was&&isOpen(el)){
+    // Coming back to the window underneath (e.g. the log after editing an entry):
+    // it is simply there; only the closing window moves.
+    if(performance.now()-lastClose<450)return;
+    reveal(el);
+   }else if(was&&!isOpen(el)&&el.matches('.modal-overlay')){
+    lastClose=performance.now();
+    el.setAttribute('data-pm-closing','');el.style.zIndex='2147480000';
+    requestAnimationFrame(()=>{
+     const back=[...document.querySelectorAll('.modal-overlay.show')].some(m=>m!==el);
+     const clean=()=>{el.removeAttribute('data-pm-closing');el.style.zIndex='';el.style.clipPath='';el.style.opacity='';};
+     // Back to another window: shrink into the control that opened this one.
+     // Otherwise the whole tool is closing and the page handles it.
+     if(back)conceal(el).then(clean);else clean();
+    });
+   }
   });
  });
  const attach=el=>{if(seen.has(el))return;seen.add(el);observer.observe(el,{attributes:true,attributeFilter:['class'],attributeOldValue:true});};
@@ -120,10 +140,25 @@ document.addEventListener('click',event=>{
  if(!link||reduced()||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||!document.body.animate)return;
  event.preventDefault();
  const veil=document.createElement('div');veil.className='pm-veil';veil.innerHTML='<i></i>';document.body.appendChild(veil);
- reveal(veil,link.querySelector('.field-explore-star')||link).then(()=>{location.href=link.href;});
- veil.dataset.from='1';
+ // Navigate straight away; the quick veil only covers the moment the next page loads.
+ veil.style.setProperty('--pm-speed','1');reveal(veil,link.querySelector('.field-explore-star')||link,170);
+ location.href=link.href;
  // Coming back with the browser's Back keeps no stale veil on screen.
  addEventListener('pageshow',()=>veil.remove(),{once:true});
 });
-window.PulseMotion={reveal,conceal,measure,ring,originFor};
+/* Folding a surface that holds an iframe: a shrinking clip makes Safari repaint the
+   frame (flicker); scaling it into the origin stays on the compositor. */
+function fold(el,to){
+ stop(el);
+ if(reduced()||!el.animate)return Promise.resolve();
+ let o=to&&to.x!=null?to:to?originFor(to):null;
+ if(!o){try{o=JSON.parse(el.dataset.pmFrom||'null');}catch(_){o=null;}}
+ if(!o)o={x:innerWidth/2,y:innerHeight*.62,r:22};
+ const k=Math.max(.06,Math.min(.25,(o.r*2)/Math.max(innerWidth,1)));
+ el.style.transformOrigin=o.x.toFixed(1)+'px '+o.y.toFixed(1)+'px';
+ const a=el.animate([{transform:'scale(1)',opacity:1,borderRadius:'0px'},{transform:'scale('+k+')',opacity:0,borderRadius:'48px'}],{duration:260,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
+ running.set(el,[a]);
+ return a.finished.catch(()=>{}).then(()=>{el.style.opacity='0';a.cancel();running.delete(el);el.style.transformOrigin='';});
+}
+window.PulseMotion={reveal,conceal,fold,measure,ring,originFor};
 })();

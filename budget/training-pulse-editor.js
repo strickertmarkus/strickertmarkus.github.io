@@ -137,14 +137,14 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-motion-3');
+  url.searchParams.set('v','20261029-motion-5');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
  return legacyReady;
 }
 /* Open as a circle growing out of the tapped control; close back into it. */
-var origin=null,lastHidden=null,lastHiddenAt=0;
+var origin=null,lastHidden=null,lastHiddenAt=0,closeToken=0;
 function closeWorkspace(){
  if(!dialog||!dialog.open||dialog.dataset.closing)return;
  if(!window.PulseMotion){SurfaceMotion.closeDialog(dialog);return;}
@@ -158,7 +158,9 @@ function closeWorkspace(){
  // The window that just closed inside the tools stays painted while the circle shrinks.
  var held=lastHidden&&performance.now()-lastHiddenAt<600?lastHidden:null;
  if(held)held.setAttribute('data-pm-hold','');
- window.PulseMotion.conceal(dialog,target).then(function(){
+ var token=++closeToken;
+ window.PulseMotion.fold(dialog,target).then(function(){
+  if(token!==closeToken){if(held)held.removeAttribute('data-pm-hold');return;}
   delete dialog.dataset.closing;dialog.inert=false;if(dialog.open)dialog.close();
   if(held)held.removeAttribute('data-pm-hold');
   requestAnimationFrame(function(){dialog.style.clipPath='';dialog.style.opacity='';});
@@ -170,10 +172,19 @@ function showWorkspace(tool,button){
  $('field-workspace-title').textContent=actionTitles[tool]||'Passverktyg';
  updateStatus(frame&&legacyReady?'':'Laddar dina passverktyg…');
  lockHostScroll();
- if(dialog.open&&dialog.dataset.closing){delete dialog.dataset.closing;dialog.inert=false;}
+ if(dialog.open&&dialog.dataset.closing){
+  // Reopened while folding away: grow out again instead of closing.
+  closeToken++;delete dialog.dataset.closing;dialog.inert=false;dialog.style.clipPath='';dialog.style.opacity='';
+  if(window.PulseMotion)window.PulseMotion.reveal(dialog,button||null);
+ }
  if(!dialog.open){
   origin=button||null;dialog.style.clipPath='';dialog.style.opacity='';
-  if(window.PulseMotion){dialog.showModal();window.PulseMotion.reveal(dialog,button||null);}
+  if(window.PulseMotion){
+   // The page stays visible behind the growing circle; it is hidden only once covered.
+   document.body.classList.remove('field-workspace-active');
+   dialog.showModal();
+   window.PulseMotion.reveal(dialog,button||null).then(function(){if(dialog.open&&!dialog.dataset.closing)document.body.classList.add('field-workspace-active');});
+  }
   else SurfaceMotion.showDialog(dialog);
  }
 }
