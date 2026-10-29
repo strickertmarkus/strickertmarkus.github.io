@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-motion-7');
+  url.searchParams.set('v','20261029-motion-8');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -162,12 +162,16 @@ function closeWorkspace(){
  var held=lastHidden&&performance.now()-lastHiddenAt<600?lastHidden:null;
  if(held)held.setAttribute('data-pm-hold','');
  var token=++closeToken;
- window.PulseMotion.fold(dialog,target).then(function(){
+ // Let the page underneath repaint (charts, tabs) while the tool still covers it;
+ // on iPhone it needs a moment after the tool has been open.
+ var go=function(){if(token!==closeToken)return;window.PulseMotion.fold(dialog,target).then(after);};
+ requestAnimationFrame(function(){requestAnimationFrame(function(){setTimeout(go,110);});});
+ function after(){
   if(token!==closeToken){if(held)held.removeAttribute('data-pm-hold');return;}
   delete dialog.dataset.closing;dialog.inert=false;if(dialog.open)dialog.close();
   if(held)held.removeAttribute('data-pm-hold');
   requestAnimationFrame(function(){dialog.style.clipPath='';dialog.style.opacity='';});
- });
+ }
 }
 function showWorkspace(tool,button){
  if(!dialog)makeDialog();
