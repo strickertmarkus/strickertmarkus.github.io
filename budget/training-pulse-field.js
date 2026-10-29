@@ -1135,7 +1135,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function setRecordPicker(open,slot) {
     var picker=byId('record-picker'),toggle=byId('record-customize');
-    picker.hidden=!open;toggle.setAttribute('aria-expanded',String(open));
+    var apply=function(){picker.hidden=!open;if(open)picker.setAttribute('data-pm-unfold','');toggle.setAttribute('aria-expanded',String(open));};
+    if(window.PulseMotion&&picker.parentElement)window.PulseMotion.measure(picker.parentElement,apply);else apply();
     if(open&&slot!=null){
       var control=picker.querySelector('[data-featured-select="'+slot+'"]');
       if(control)control.focus();
@@ -1207,12 +1208,16 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(logButton){
         var card=logButton.closest('[data-log-card]'),id=card.dataset.logId;
         state.logTouched=true;state.openLogId=state.openLogId===id?null:id;
-        document.querySelectorAll('[data-log-card]').forEach(function(item){
+        // The list grows and shrinks around the entry instead of jumping.
+        var applyLog=function(){document.querySelectorAll('[data-log-card]').forEach(function(item){
           var open=item.dataset.logId===state.openLogId;
           item.classList.toggle('is-open',open);
           item.querySelector('.log-summary').setAttribute('aria-expanded',String(open));
-          item.querySelector('.log-detail').hidden=!open;
-        });
+          var detail=item.querySelector('.log-detail');detail.hidden=!open;
+          if(open)detail.setAttribute('data-pm-unfold','');else detail.removeAttribute('data-pm-unfold');
+        });};
+        var logList=card.parentElement;
+        if(window.PulseMotion)window.PulseMotion.measure(logList,applyLog);else applyLog();
         if(chartGlowMq.matches)paintMiniIntervalGlows();
         scheduleChartCanvasGlow('log');
       }

@@ -1,0 +1,10 @@
+/* Tap ring (pulse-motion.js): coral for strength and the main actions, cyan for cardio. */
+.pm-ring{position:fixed;z-index:2147483000;left:0;top:0;width:64px;height:64px;border-radius:50%;pointer-events:none;
+ box-shadow:0 0 0 1.5px #ff9a91,0 0 18px #ff657a88,inset 0 0 14px #ff657a55;transform:translate(-50%,-50%) scale(.25);opacity:0}
+.pm-ring.is-cool{box-shadow:0 0 0 1.5px #7fe3ef,0 0 18px #7fe3ef88,inset 0 0 14px #7fe3ef55}
+@media(prefers-reduced-motion:reduce){.pm-ring{display:none}}
+.pm-veil{position:fixed;inset:0;z-index:2147482500;background:var(--pk-sky,none),radial-gradient(120% 70% at 50% 40%,#101722,transparent 80%),#090d13;pointer-events:none}
+.pm-veil i{position:absolute;inset:0}
+/* iPhone zooms the page when a field under 16px gets focus. These were the only
+   fields below 16px on the training page and in its tools (checked at 390px). */
+#record-picker select,[data-featured-select],[data-global-seconds-v7],#day-workout-ex-list [class*="dw-metric"],#session-hr,#session-vo2{font-size:16px!important}

@@ -62,7 +62,7 @@ function requestClose(){
   });
  }
  requestId++;openingTool=false;
- if(dialog.open)SurfaceMotion.closeDialog(dialog);
+ if(dialog.open)closeWorkspace();
  activeTool='';
 }
 function observeEditor(win){
@@ -76,7 +76,7 @@ function observeEditor(win){
   if(sessionOpen){activeTool='start';$('field-workspace-title').textContent=actionTitles.start;}
   if(!dialog.open||activeTool==='goals'||openingTool||win.__embeddedSessionStarting||hasOpenModal(doc))return;
   if(pendingWrites){notice('Ändringarna har sparats.');pendingWrites=0;}
-  SurfaceMotion.closeDialog(dialog);activeTool='';
+  closeWorkspace();activeTool='';
  }
  var observer=new MutationObserver(sync);
  function watch(modal){if(!watched.has(modal)){watched.add(modal);observer.observe(modal,{attributes:true,attributeFilter:['class']});}}
@@ -137,19 +137,33 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261028-guide-1');
+  url.searchParams.set('v','20261029-motion-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
  return legacyReady;
 }
-function showWorkspace(tool){
+/* Open as a circle growing out of the tapped control; close back into it. */
+var origin=null;
+function closeWorkspace(){
+ if(!dialog||!dialog.open||dialog.dataset.closing)return;
+ if(!window.PulseMotion){SurfaceMotion.closeDialog(dialog);return;}
+ dialog.dataset.closing='1';dialog.inert=true;
+ var target=origin&&document.body.contains(origin)&&origin.getClientRects().length?origin:null;
+ window.PulseMotion.conceal(dialog,target).then(function(){delete dialog.dataset.closing;dialog.inert=false;if(dialog.open)dialog.close();});
+}
+function showWorkspace(tool,button){
  if(!dialog)makeDialog();
  activeTool=tool;
  $('field-workspace-title').textContent=actionTitles[tool]||'Passverktyg';
  updateStatus(frame&&legacyReady?'':'Laddar dina passverktyg…');
  lockHostScroll();
- if(!dialog.open)SurfaceMotion.showDialog(dialog);
+ if(dialog.open&&dialog.dataset.closing){delete dialog.dataset.closing;dialog.inert=false;}
+ if(!dialog.open){
+  origin=button||null;
+  if(window.PulseMotion){dialog.showModal();window.PulseMotion.reveal(dialog,button||null);}
+  else SurfaceMotion.showDialog(dialog);
+ }
 }
 function openTemplateEditor(win,id){
  var tpl=id==null?null:win.getTemplates().find(function(t){return String(t.id)===String(id);});
@@ -253,7 +267,7 @@ function runTool(tool,button,dateOverride){
  if(tool==='edit-day'||tool==='start-day')tool=tool==='edit-day'?'editDay':'start';
  if(tool==='week-templates')tool='weekTemplates';
  if(!(tool in actionTitles)){notice('Okänt passverktyg.');return;}
- showWorkspace(tool);
+ showWorkspace(tool,button);
  var request=++requestId;openingTool=true;
  loadLegacy().then(function(win){
   if(!dialog.open||request!==requestId)return;
@@ -269,7 +283,7 @@ function runTool(tool,button,dateOverride){
    if(!dialog.open||request!==requestId)return;
    updateStatus('');
    var success=selectTool(win,tool,button,date);openingTool=false;
-   if(success===false){SurfaceMotion.closeDialog(dialog);activeTool='';}
+   if(success===false){closeWorkspace();activeTool='';}
   }
 
   if(!needsSession){openSelectedTool();return;}
