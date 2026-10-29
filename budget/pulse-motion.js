@@ -59,7 +59,9 @@ function conceal(el,to){
 
 /* A soft ring at the finger on main actions. */
 const PULSE='[data-field-action],.start-orbit,.field-explore-entry,.today-play,.week-day,'+
- '.btn-primary,.session-cta,.pt-add,.pbu-add,.pbu-confirm-ok,.exercise-name-picker-new-v1,.pk-pulse';
+ '.btn-primary,.session-cta,.pt-add,.pbu-add,.pbu-confirm-ok,.exercise-name-picker-new-v1,.pk-pulse,'+
+ // the exercise explorer
+ '.st-cta,.st-rail-btn,.st-program,[data-start-at],.gm-find-btn,.gm-find-row,.muscle-map-label,#muscle-map-open,[data-map-exercise]';
 function ring(x,y,warm){
  const dot=document.createElement('span');
  dot.className='pm-ring'+(warm?'':' is-cool');dot.style.left=x+'px';dot.style.top=y+'px';
@@ -68,25 +70,20 @@ function ring(x,y,warm){
  if(dot.animate){dot.animate([{transform:'translate(-50%,-50%) scale(.25)',opacity:.95},{transform:'translate(-50%,-50%) scale(1.6)',opacity:0}],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)'}).finished.then(done,done);}
  else setTimeout(done,520);
 }
-// The ring answers a tap, not a scroll: it waits for the finger to lift without
-// having moved (or for a mouse click), so swiping through the log never pulses.
-let press=null;
+// The ring answers a tap, never a scroll: it follows the click event, which the
+// browser only sends when the finger lifted without scrolling.
 document.addEventListener('pointerdown',event=>{
  lastPoint={x:event.clientX,y:event.clientY,t:performance.now()};
  lastTarget=event.target.closest&&event.target.closest('button,a,[role="button"],[data-field-action],input,select,label')||null;
- press=null;
- if(reduced()||event.button>0)return;
+},{capture:true,passive:true});
+document.addEventListener('click',event=>{
+ if(reduced())return;
  const hit=event.target.closest&&event.target.closest(PULSE);
  if(!hit||hit.disabled)return;
- press={x:event.clientX,y:event.clientY,t:performance.now(),cool:!!hit.closest('.is-cardio,[data-kind="cardio"]')};
-},{capture:true,passive:true});
-document.addEventListener('pointermove',event=>{if(press&&Math.hypot(event.clientX-press.x,event.clientY-press.y)>8)press=null;},{capture:true,passive:true});
-['pointercancel','scroll'].forEach(type=>document.addEventListener(type,()=>{press=null;},{capture:true,passive:true}));
-document.addEventListener('pointerup',event=>{
- const p=press;press=null;
- if(!p||performance.now()-p.t>600)return;
- ring(p.x,p.y,!p.cool);
-},{capture:true,passive:true});
+ let x=event.clientX,y=event.clientY;
+ if(!x&&!y){const c=centre(hit);if(!c)return;x=c.x;y=c.y;}
+ ring(x,y,!hit.closest('.is-cardio,[data-kind="cardio"]'));
+},true);
 
 /* Panels that unfold grow from their old size (uses SurfaceMotion when present). */
 function measure(el,change){
@@ -119,11 +116,12 @@ else document.addEventListener('DOMContentLoaded',()=>{if(document.getElementByI
 
 /* Host page: the way into the exercise explorer grows into its dark sky first. */
 document.addEventListener('click',event=>{
- const link=event.target.closest&&event.target.closest('a.field-explore-entry,a#menu-explore-training');
+ const link=event.target.closest&&event.target.closest('a.field-explore-entry,a#menu-explore-training,a.gm-exit');
  if(!link||reduced()||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||!document.body.animate)return;
  event.preventDefault();
  const veil=document.createElement('div');veil.className='pm-veil';veil.innerHTML='<i></i>';document.body.appendChild(veil);
  reveal(veil,link.querySelector('.field-explore-star')||link).then(()=>{location.href=link.href;});
+ veil.dataset.from='1';
  // Coming back with the browser's Back keeps no stale veil on screen.
  addEventListener('pageshow',()=>veil.remove(),{once:true});
 });

@@ -137,7 +137,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-motion-2');
+  url.searchParams.set('v','20261029-motion-3');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -149,7 +149,12 @@ function closeWorkspace(){
  if(!dialog||!dialog.open||dialog.dataset.closing)return;
  if(!window.PulseMotion){SurfaceMotion.closeDialog(dialog);return;}
  dialog.dataset.closing='1';dialog.inert=true;
+ // Show the page again underneath, so the circle shrinks back into the control
+ // that opened it (like Lists and Travel returning to Home's overview).
+ document.body.classList.remove('field-workspace-active');
  var target=origin&&document.body.contains(origin)&&origin.getClientRects().length?origin:null;
+ // Opened from the menu (now closed): fold back into the menu button.
+ if(!target&&origin&&origin.closest&&origin.closest('#field-menu'))target=$('menu-toggle');
  // The window that just closed inside the tools stays painted while the circle shrinks.
  var held=lastHidden&&performance.now()-lastHiddenAt<600?lastHidden:null;
  if(held)held.setAttribute('data-pm-hold','');

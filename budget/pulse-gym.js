@@ -94,14 +94,24 @@
           '<span class="gm-find-copy"><b>' + name + '</b><small>' + esc(e.muscles.slice(0, 3).join(' · ')) + ' · ' + esc(e.equipment) + '</small></span></button>';
       }).join('') || '<p class="gm-find-empty">Ingen övning matchar. Prova en muskel, som <b>bröst</b>, eller ett redskap, som <b>kabel</b>.</p>';
     }
-    function openFind() { field.value = ''; renderFind(); find.hidden = false; requestAnimationFrame(function () { find.classList.add('is-open'); field.focus({ preventScroll: true }); }); }
-    function closeFind() { find.classList.remove('is-open'); setTimeout(function () { find.hidden = true; }, 200); }
+    // Grows out of the magnifier and shrinks back into it (pulse-motion.js), like the training tools.
+    var motion = window.PulseMotion;
+    function openFind() {
+      field.value = ''; renderFind(); find.hidden = false; find.classList.add('is-open');
+      if (motion) motion.reveal(find, findBtn); else find.style.opacity = 1;
+      field.focus({ preventScroll: true });
+    }
+    function closeFind(quiet) {
+      if (find.hidden) return;
+      var done = function () { find.hidden = true; find.classList.remove('is-open'); find.style.clipPath = ''; find.style.opacity = ''; };
+      if (motion && !quiet) motion.conceal(find, findBtn).then(done); else done();
+    }
     findBtn.addEventListener('click', openFind);
     field.addEventListener('input', renderFind);
     find.addEventListener('click', function (event) {
       if (event.target.closest('.gm-find-close')) { closeFind(); return; }
       var row = event.target.closest('[data-find-id]');
-      if (row) { var e = window.PulseExplore.exercises[Number(row.dataset.findId)]; closeFind(); ui.openMuscleExercise(e.muscles[0], e.id); }
+      if (row) { var e = window.PulseExplore.exercises[Number(row.dataset.findId)]; closeFind(true); ui.openMuscleExercise(e.muscles[0], e.id); }
     });
     document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !find.hidden) closeFind(); });
     window.PulseExploreSearch = { open: openFind, close: closeFind };

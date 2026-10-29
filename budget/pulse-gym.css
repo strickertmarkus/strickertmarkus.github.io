@@ -22,8 +22,7 @@ html.gm-scene-open main{visibility:hidden}
 .gm-find-btn .gm-find-spark{fill:#ff9a91;stroke:none;transform-origin:10.5px 10.5px;animation:gmSpark 2.8s ease-in-out infinite}
 @keyframes gmSpark{0%,100%{opacity:.55;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
 .gm-find-btn:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
-.gm-find{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:var(--pk-sky),radial-gradient(120% 70% at 50% 40%,#0f1622,transparent 80%),#080b12;color:#f2eded;opacity:0;transform:translateY(14px);transition:opacity .18s ease,transform .22s cubic-bezier(.2,.8,.2,1)}
-.gm-find.is-open{opacity:1;transform:none}
+.gm-find{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:var(--pk-sky),radial-gradient(120% 70% at 50% 40%,#0f1622,transparent 80%),#080b12;color:#f2eded}
 .gm-find-head{position:relative;padding:calc(18px + env(safe-area-inset-top)) 20px 6px}
 .gm-find-head .eyebrow{color:#ff9a91;font:700 9.5px Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
 .gm-find-head h2{margin:6px 0 0;font:400 34px/1.05 "Cormorant Garamond",Georgia,serif;letter-spacing:-.5px}
