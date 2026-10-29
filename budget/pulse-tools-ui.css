@@ -29,17 +29,17 @@ html[data-field-embedded] body#pulse-page #pulse-goals :is(.goal-lbl,.vo2-chart-
 html[data-field-embedded] body#pulse-page #exercise-edit-modal-v9 .single-exercise-kicker-v9{color:#ff8a78!important}
 
 /* Fields: the builder's quiet tiles */
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]),select,textarea),
+html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=range]),select,textarea):not(.pbu-row *),
 html[data-field-embedded] body#pulse-page #pulse-goals :is(input:not([type=checkbox]):not([type=radio]):not([type=range]),select){
   min-height:50px!important;padding:0 16px!important;border:0!important;border-radius:16px!important;
   background-color:#ffffff07!important;box-shadow:inset 0 0 0 1px #ffffff12!important;
   color:#fff!important;-webkit-text-fill-color:#fff;font:600 16px/1.2 Inter,system-ui,sans-serif!important;outline:none!important;
 }
 html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal textarea{padding:14px 16px!important;min-height:84px!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal :is(input,select,textarea)::placeholder{color:#ffffff38!important;-webkit-text-fill-color:#ffffff38}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal :is(input,select,textarea):focus,
+html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal :is(input,select,textarea):not(.pbu-row *)::placeholder{color:#ffffff38!important;-webkit-text-fill-color:#ffffff38}
+html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal :is(input,select,textarea):not(.pbu-row *):focus,
 html[data-field-embedded] body#pulse-page #pulse-goals :is(input,select):focus{box-shadow:inset 0 0 0 1px #ff806f66,0 0 24px -10px #ff6a5a!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal select,
+html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal select:not(.pbu-row *),
 html[data-field-embedded] body#pulse-page #pulse-goals select{
   -webkit-appearance:none!important;appearance:none!important;padding-right:42px!important;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a5a0ae' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")!important;
@@ -73,18 +73,18 @@ html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-te
 html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal,#exercise-edit-modal-v9) .modal .modal-footer .btn-primary{flex:1 1 auto;max-width:280px}
 
 /* Styrka / Kondition: the builder's segmented choice; Kondition turns redder */
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#exercise-edit-modal-v9) .modal .ex-kind-btn{
+html[data-field-embedded] body#pulse-page :is(#template-modal,#exercise-edit-modal-v9) .modal .ex-kind-btn{
   min-height:30px!important;padding:0 12px!important;border:0!important;border-radius:999px!important;
   background:none!important;box-shadow:inset 0 0 0 1px #ffffff14!important;color:var(--pt-dim)!important;font:600 12px Inter,system-ui,sans-serif!important;
 }
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#exercise-edit-modal-v9) .modal .ex-kind-btn.active{background:#ff806f1f!important;color:var(--pt-pale)!important;box-shadow:none!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#exercise-edit-modal-v9) .modal .ex-kind-btn.active[onclick*="cardio"]{background:#ff4a3a3d!important;color:#ffd7cf!important;box-shadow:inset 0 0 0 1px #ff6a5a66!important}
+html[data-field-embedded] body#pulse-page :is(#template-modal,#exercise-edit-modal-v9) .modal .ex-kind-btn.active{background:#ff806f1f!important;color:var(--pt-pale)!important;box-shadow:none!important}
+html[data-field-embedded] body#pulse-page :is(#template-modal,#exercise-edit-modal-v9) .modal .ex-kind-btn.active[onclick*="cardio"]{background:#ff4a3a3d!important;color:#ffd7cf!important;box-shadow:inset 0 0 0 1px #ff6a5a66!important}
 
-/* Exercise rows in the log: tiles in a quiet list, no boxed cards */
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-row-item{
+/* Exercise rows in templates (the log uses the pass builder's rows): tiles in a quiet list, no boxed cards */
+html[data-field-embedded] body#pulse-page #template-modal .ex-row-item{
   padding:14px 0!important;margin:0!important;border:0!important;border-top:1px solid #ffffff14!important;border-radius:0!important;background:none!important;box-shadow:none!important;
 }
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-row-item :is(input,select){min-height:46px!important;border-radius:14px!important;font-size:15px!important}
+html[data-field-embedded] body#pulse-page #template-modal .ex-row-item :is(input,select){min-height:46px!important;border-radius:14px!important;font-size:15px!important}
 
 /* Week plan: days as rows with the shared colour meaning */
 html[data-field-embedded] body#pulse-page #plan-modal .pulse-plan-day-v2{border-radius:18px!important;background:#ffffff06!important;box-shadow:inset 0 0 0 1px #ffffff10!important;border-left:0!important}
@@ -98,11 +98,11 @@ html[data-field-embedded] body#pulse-page #pulse-goals :is(.goal-card-run-v34,.g
 html[data-field-embedded] body#pulse-page #pulse-goals :is(.goal-card-run-v34,.goal-card-vo2-v37) :is(.progress-bar,.goal-lbl,.run-goal-stat-v34 strong,.vo2-goal-stat-v37 strong){color:var(--pt-cyan)!important}
 html[data-field-embedded] body#pulse-page #pulse-goals :is(.goal-card-run-v34,.goal-card-vo2-v37) .progress-bar{background:linear-gradient(90deg,#3aa9b8,var(--pt-cyan))!important;box-shadow:0 0 12px #7fe3ef66!important}
 /* A logged exercise: the name on its own line, sets, reps and kg as equal tiles under it. */
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-row-item .ex-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr)) 32px!important;gap:8px!important;align-items:center!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-row-item .ex-row>input[class*="-name"],
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-row-item .ex-row>.exercise-name-picker-wrap-v1{grid-column:1/-1!important;width:100%!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-row-item .ex-row>input:not([class*="-name"]){width:100%!important;min-width:0!important;text-align:center!important;padding:0 6px!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-row-item.is-cardio .ex-row{grid-template-columns:repeat(2,minmax(0,1fr)) 32px!important}
+html[data-field-embedded] body#pulse-page #template-modal .ex-row-item .ex-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr)) 32px!important;gap:8px!important;align-items:center!important}
+html[data-field-embedded] body#pulse-page #template-modal .ex-row-item .ex-row>input[class*="-name"],
+html[data-field-embedded] body#pulse-page #template-modal .ex-row-item .ex-row>.exercise-name-picker-wrap-v1{grid-column:1/-1!important;width:100%!important}
+html[data-field-embedded] body#pulse-page #template-modal .ex-row-item .ex-row>input:not([class*="-name"]){width:100%!important;min-width:0!important;text-align:center!important;padding:0 6px!important}
+html[data-field-embedded] body#pulse-page #template-modal .ex-row-item.is-cardio .ex-row{grid-template-columns:repeat(2,minmax(0,1fr)) 32px!important}
 /* The app focuses the modal when it opens; that is for screen readers, not a visible frame. */
 html[data-field-embedded] body#pulse-page .modal-overlay>.modal:focus{outline:none!important}
 /* The builder's own close button draws its cross like every other close button. */
@@ -113,17 +113,17 @@ html[data-field-embedded] body#pulse-page #day-workout-modal .modal>.modal-close
 
 /* ---------- Details ---------- */
 /* Drawn plus and cross instead of text glyphs. */
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .pt-add{display:inline-flex!important;align-items:center;gap:8px}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .pt-add::before,
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-del::before{content:"";width:16px;height:16px;background:currentColor;
+html[data-field-embedded] body#pulse-page #template-modal .pt-add{display:inline-flex!important;align-items:center;gap:8px}
+html[data-field-embedded] body#pulse-page #template-modal .pt-add::before,
+html[data-field-embedded] body#pulse-page #template-modal .ex-del::before{content:"";width:16px;height:16px;background:currentColor;
   -webkit-mask:var(--pt-glyph) center/contain no-repeat;mask:var(--pt-glyph) center/contain no-repeat}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .pt-add{--pt-glyph:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E")}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal) .ex-del{--pt-glyph:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E");
+html[data-field-embedded] body#pulse-page #template-modal .pt-add{--pt-glyph:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E")}
+html[data-field-embedded] body#pulse-page #template-modal .ex-del{--pt-glyph:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E");
   display:grid!important;place-items:center;width:32px!important;height:32px!important;padding:0!important;border:0!important;background:none!important;color:var(--pt-dim)!important;font-size:0!important}
 /* Styrka / Kondition share one track, like every other choice. */
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#exercise-edit-modal-v9) .ex-row-head{display:inline-flex!important;width:max-content!important;max-width:100%!important;gap:0!important;padding:2px!important;border-radius:999px!important;box-shadow:inset 0 0 0 1px #ffffff14!important;margin-bottom:10px!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#exercise-edit-modal-v9) .ex-row-head .ex-kind-btn{box-shadow:none!important;margin:0!important}
-html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#exercise-edit-modal-v9) .ex-row-head .ex-kind-btn.active[onclick*="cardio"]{box-shadow:inset 0 0 0 1px #ff6a5a66!important}
+html[data-field-embedded] body#pulse-page :is(#template-modal,#exercise-edit-modal-v9) .ex-row-head{display:inline-flex!important;width:max-content!important;max-width:100%!important;gap:0!important;padding:2px!important;border-radius:999px!important;box-shadow:inset 0 0 0 1px #ffffff14!important;margin-bottom:10px!important}
+html[data-field-embedded] body#pulse-page :is(#template-modal,#exercise-edit-modal-v9) .ex-row-head .ex-kind-btn{box-shadow:none!important;margin:0!important}
+html[data-field-embedded] body#pulse-page :is(#template-modal,#exercise-edit-modal-v9) .ex-row-head .ex-kind-btn.active[onclick*="cardio"]{box-shadow:inset 0 0 0 1px #ff6a5a66!important}
 /* Only the footer's main action is a red pill; other actions inside a tool are quiet outlines. */
 html[data-field-embedded] body#pulse-page :is(#wk-modal,#template-modal,#week-template-modal,#plan-modal,#day-modal,#pr-modal) .modal .btn-primary:not(.modal-footer .btn-primary){
   min-height:44px!important;padding:0 18px!important;background:none!important;color:var(--pt-pale)!important;box-shadow:inset 0 0 0 1px #ff806f66!important;font-size:14px!important}

@@ -556,12 +556,13 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261027-kit-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261028-del-1">
-<link rel="stylesheet" href="pulse-tools-ui.css?v=20261028-guide-1">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-log-1">
+<link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-log-1">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-log-1">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261028-del-2"></script>
+<script defer src="pulse-builder-ui.js?v=20261029-log-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 </head>
@@ -781,38 +782,46 @@ if(!window.__FIELD_EMBEDDED__){
 <!-- ── WORKOUT MODAL ── -->
 <div class="modal-overlay pulse-editor" id="wk-modal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('wk-modal')">✕</button>
+    <button class="modal-close" onclick="closeModal('wk-modal')" aria-label="Stäng">✕</button>
     <h2>Logga träning</h2>
-    <div class="form-row">
-      <div class="form-group"><label>Datum</label><input type="date" id="wk-date"></div>
-      <div class="form-group"><label>Tid (min)</label><input type="number" id="wk-dur" placeholder="60" min="1"></div>
+    <div class="form-group pbu-log-title">
+      <label for="wk-type">Typ av träning</label>
+      <input type="text" id="wk-type" list="type-suggestions" maxlength="70" autocomplete="off" placeholder="Vad tränade du?">
     </div>
-    <div class="form-group">
-      <label>Typ av träning</label>
-      <input type="text" id="wk-type" list="type-suggestions" placeholder="Ex: Rygg + Triceps">
+    <div class="form-row pbu-log-meta">
+      <div class="form-group"><label for="wk-date">Datum</label><input type="date" id="wk-date"></div>
+      <div class="form-group"><label for="wk-dur">Tid (min)</label><input type="number" id="wk-dur" placeholder="60" min="1" inputmode="numeric"></div>
     </div>
-    <div class="form-group">
-      <label>Använd mall</label>
-      <div style="display:flex;gap:8px">
-        <select id="wk-template-select" style="flex:1"></select>
+    <div class="form-group pbu-log-template">
+      <label for="wk-template-select">Använd mall</label>
+      <div class="pbu-log-template-row">
+        <select id="wk-template-select" aria-label="Välj mallpass"></select>
         <button class="btn-sm" type="button" onclick="applyTemplateToWorkout()">Använd</button>
         <button class="btn-sm" type="button" onclick="saveCurrentAsTemplate()">Spara som mall</button>
       </div>
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>Löpdistans (km)</label><input type="number" id="wk-run-km" placeholder="10" step="0.1" min="0"></div>
-      <div class="form-group"><label>Löptid (min)</label><input type="number" id="wk-run-min" placeholder="50" min="0" step="0.1"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="wk-hr-avg" placeholder="145" min="40" max="230"></div>
-      <div class="form-group"><label>VO2 max (valfritt)</label><input type="number" id="wk-vo2" placeholder="45" min="10" max="100" step="0.1"></div>
-    </div>
-    <div class="form-group">
+    <div class="form-group pbu-log-exercises">
       <label>Övningar</label>
       <div class="ex-list" id="ex-list"></div>
-      <button class="btn-sm pt-add" style="margin-top:8px" onclick="addExRow()">Lägg till övning</button>
+      <button class="btn-sm pt-add" type="button" style="margin-top:8px" onclick="addExRow()">Lägg till övning</button>
     </div>
-    <div class="form-group"><label>Anteckningar</label><textarea id="wk-notes" rows="2" placeholder="Hur kändes det?"></textarea></div>
+    <section class="pbu-log-card" data-log-health aria-labelledby="wk-hr-title">
+      <h3 id="wk-hr-title">Puls</h3>
+      <div class="pbu-log-grid">
+        <label class="pbu-log-tile"><span>Medel <small>bpm</small></span><input type="number" id="wk-hr-avg" placeholder="–" min="40" max="230" inputmode="numeric"></label>
+        <label class="pbu-log-tile"><span>Max <small>bpm</small></span><input type="number" id="wk-hr-max" placeholder="–" min="40" max="240" inputmode="numeric"></label>
+        <label class="pbu-log-tile"><span>Min <small>bpm</small></span><input type="number" id="wk-hr-min" placeholder="–" min="30" max="230" inputmode="numeric"></label>
+      </div>
+    </section>
+    <section class="pbu-log-card" data-log-health aria-labelledby="wk-cardio-title">
+      <h3 id="wk-cardio-title">Kondition <output class="pbu-log-pace" id="wk-run-pace" for="wk-run-km wk-run-min"></output></h3>
+      <div class="pbu-log-grid">
+        <label class="pbu-log-tile"><span>Distans <small>km</small></span><input type="number" id="wk-run-km" placeholder="–" step="0.1" min="0" inputmode="decimal" oninput="updateWorkoutPace()"></label>
+        <label class="pbu-log-tile"><span>Tid <small>min</small></span><input type="number" id="wk-run-min" placeholder="–" min="0" step="0.1" inputmode="decimal" oninput="updateWorkoutPace()"></label>
+        <label class="pbu-log-tile"><span>VO₂ max</span><input type="number" id="wk-vo2" placeholder="–" min="10" max="100" step="0.1" inputmode="decimal"></label>
+      </div>
+    </section>
+    <div class="form-group pbu-log-notes"><label for="wk-notes">Anteckningar</label><textarea id="wk-notes" rows="2" placeholder="Hur kändes det?"></textarea></div>
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('wk-modal')">Avbryt</button>
       <button class="btn-primary" onclick="saveWorkout()">Spara träning</button>
@@ -3236,8 +3245,11 @@ function editWorkout(id){
   document.getElementById('wk-run-km').value=wk.runDistance||'';
   document.getElementById('wk-run-min').value=wk.runTime||'';
   document.getElementById('wk-hr-avg').value=wk.hrAvg||'';
+  document.getElementById('wk-hr-max').value=wk.hrMax||'';
+  document.getElementById('wk-hr-min').value=wk.hrMin||'';
   document.getElementById('wk-vo2').value=wk.vo2||'';
   document.getElementById('wk-notes').value=wk.notes||'';
+  updateWorkoutPace();
   var list=document.getElementById('ex-list');
   list.innerHTML='';
   var usedTimings={};
@@ -3261,17 +3273,28 @@ function openWorkoutModal(options){
   var modalTitle=document.querySelector('#wk-modal .modal > h2');
   if(modalTitle)modalTitle.textContent=options.editing?'Redigera pass':'Logga träning';
   document.getElementById('wk-date').value=todayISO();
-  document.getElementById('wk-type').value='Övrigt';
+  document.getElementById('wk-type').value='';  // Empty is saved as Övrigt.
   document.getElementById('wk-dur').value='';
   document.getElementById('wk-run-km').value='';
   document.getElementById('wk-run-min').value='';
   document.getElementById('wk-hr-avg').value='';
+  document.getElementById('wk-hr-max').value='';
+  document.getElementById('wk-hr-min').value='';
   document.getElementById('wk-vo2').value='';
   document.getElementById('wk-notes').value='';
+  updateWorkoutPace();
   document.getElementById('ex-list').innerHTML='';
   if(!options.skipBlank)addExRow();
   refreshTemplateSelectors();
   document.getElementById('wk-modal').classList.add('show');
+}
+/* Pace under "Kondition" in the log form, from distance and time. */
+function updateWorkoutPace(){
+  var out=document.getElementById('wk-run-pace');if(!out)return;
+  var km=parseFloat(document.getElementById('wk-run-km').value)||0,min=parseFloat(document.getElementById('wk-run-min').value)||0;
+  if(!(km>0&&min>0)){out.textContent='';return;}
+  var sec=Math.round(min*60/km);
+  out.textContent=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')+' /km';
 }
 function addExRow(ex,timing){
   var list=document.getElementById('ex-list');
@@ -3290,6 +3313,11 @@ function saveWorkout(){
   var typeRaw=document.getElementById('wk-type').value;
   var dur=parseInt(document.getElementById('wk-dur').value)||null;
   var hrAvg=parseInt(document.getElementById('wk-hr-avg').value)||null;
+  var hrMax=parseInt(document.getElementById('wk-hr-max').value)||null;
+  var hrMin=parseInt(document.getElementById('wk-hr-min').value)||null;
+  if(hrAvg&&hrMax&&hrMax<hrAvg){showToast('Maxpuls kan inte vara lägre än medelpuls.');return;}
+  if(hrAvg&&hrMin&&hrMin>hrAvg){showToast('Minpuls kan inte vara högre än medelpuls.');return;}
+  if(hrMin&&hrMax&&hrMin>hrMax){showToast('Minpuls kan inte vara högre än maxpuls.');return;}
   var vo2=parseFloat(document.getElementById('wk-vo2').value)||null;
   var runKm=parseFloat(document.getElementById('wk-run-km').value)||0;
   var runMin=parseFloat(document.getElementById('wk-run-min').value)||null;
@@ -3310,10 +3338,11 @@ function saveWorkout(){
   var finalRunKm=runKm>0?runKm:exerciseRunMetrics.distance;
   var finalRunMin=runMin>0?runMin:exerciseRunMetrics.time;
   var finalRunPace=finalRunKm>0&&finalRunMin>0?+(finalRunMin/finalRunKm).toFixed(4):null;
-  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,vo2:vo2,runDistance:finalRunKm||0,runTime:finalRunMin||null,avgPaceKm:finalRunPace,runMetricsDerived:!(runKm>0)&&exerciseRunMetrics.distance>0,notes:notes,exerciseTimings:exerciseTimings};
+  var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,hrMax:hrMax,hrMin:hrMin,vo2:vo2,runDistance:finalRunKm||0,runTime:finalRunMin||null,avgPaceKm:finalRunPace,runMetricsDerived:!(runKm>0)&&exerciseRunMetrics.distance>0,notes:notes,exerciseTimings:exerciseTimings};
   var wks=getWorkouts();
   if(editingWorkoutId){
-    wks=wks.map(function(x){return x.id===editingWorkoutId?wk:x;});
+    // Keep fields this form does not edit (e.g. imported watch data).
+    wks=wks.map(function(x){return x.id===editingWorkoutId?Object.assign({},x,wk):x;});
   } else {
     wks.push(wk);
   }

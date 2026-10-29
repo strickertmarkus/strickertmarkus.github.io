@@ -1,0 +1,106 @@
+/* "Logga träning" / "Redigera pass" (#wk-modal) in the pass builder's look.
+   The surface, the exercise rows and the add row come from pulse-builder-ui.css;
+   this file lays out the rest of the form: title, date and time, template,
+   heart rate and cardio. Fields, ids and saveWorkout() are the app's own. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal{max-width:620px!important;width:100%!important}
+
+/* Kicker instead of the big serif heading, the type as the pass title. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal>h2{
+  margin:2px 56px 6px 0!important;font:700 10.5px/1.3 Inter,system-ui,sans-serif!important;letter-spacing:.2em!important;
+  text-transform:uppercase;color:var(--pbu-accent-soft)!important;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-title{margin:0 0 18px!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-title>label{display:none!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log #wk-type{
+  height:auto!important;min-height:0!important;padding:0 0 2px!important;margin:0!important;width:100%!important;
+  background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  font:600 30px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.025em;color:var(--pbu-text)!important;-webkit-text-fill-color:var(--pbu-text)!important;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log #wk-type::placeholder{color:#ffffff3d!important;-webkit-text-fill-color:#ffffff3d!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log #wk-type:focus{outline:none!important;box-shadow:none!important}
+
+/* Section labels: the builder's small uppercase. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log :is(.form-group>label,.pbu-log-card>h3){
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px!important;
+  color:var(--pbu-dim)!important;font:700 9.5px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.16em!important;text-transform:uppercase!important;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .form-group{margin:0 0 18px!important}
+
+/* Date and duration side by side. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meta{display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:10px!important;margin:0 0 18px!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meta .form-group{margin:0!important;min-width:0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-meta :is(#wk-date,#wk-dur){width:100%!important;min-width:0!important}
+
+/* Template: the choice and two quiet actions on one line (wraps on narrow phones). */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-template-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log #wk-template-select{flex:1 1 150px;min-width:0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-template-row .btn-sm{flex:none;box-shadow:none!important;padding:0 10px!important}
+
+/* Exercises: the builder's list, its rows and add row. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-exercises{margin-bottom:8px!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-add{min-height:68px!important}
+/* "Tid för övningen" inside an opened row, as a quiet line under the numbers. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row .ex-duration-editor-v7.pbu-timing{
+  display:grid!important;grid-template-columns:minmax(0,1fr) 84px auto;align-items:center;gap:10px;
+  margin:12px 0 0!important;padding:0!important;border:0!important;color:var(--pbu-dim)!important;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row .pbu-timing>span{font:700 9.5px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.16em;text-transform:uppercase}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row .pbu-timing>small{font:500 12px Inter,system-ui,sans-serif!important;color:var(--pbu-dim)!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row .pbu-timing input.ex-duration-seconds-v7{
+  width:84px!important;max-width:none!important;height:42px!important;min-height:0!important;padding:0 8px!important;border:0!important;border-radius:14px!important;
+  background:#ffffff07!important;box-shadow:inset 0 0 0 1px #ffffff12!important;text-align:center;
+  color:#fff!important;-webkit-text-fill-color:#fff!important;font:600 17px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row.pbu-picking .pbu-timing{display:none!important}
+/* A logged pass has no between-sets timer: no clock, the cross takes its place. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row>.pbu-between-btn{display:none!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row>.pbu-quick-del{right:34px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row:not(.pbu-empty) .pbu-head{padding-right:78px}
+
+/* Heart rate and cardio: two cards of three number tiles. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card{
+  --tile:var(--pbu-accent);margin:10px 0 12px;padding:16px 14px 14px;border-radius:22px;
+  background:radial-gradient(120% 90% at 0% 0%,color-mix(in srgb,var(--tile) 9%,transparent),transparent 60%),#ffffff05;
+  box-shadow:inset 0 0 0 1px #ffffff10;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card+.pbu-log-card{--tile:#7fe3ef}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card>h3{padding-left:2px;color:color-mix(in srgb,var(--tile) 70%,#a5a0ae)!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-pace{color:var(--tile);font:600 13px Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile{
+  display:flex;flex-direction:column;gap:4px;min-width:0;margin:0;padding:10px 12px 8px;border-radius:16px;cursor:text;
+  background:#080b1266;box-shadow:inset 0 0 0 1px #ffffff12;transition:box-shadow .2s ease;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile:focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tile) 55%,transparent),0 0 24px -12px var(--tile)}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>span{
+  display:block;color:var(--pbu-dim)!important;font:700 9px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0!important;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>span small{font-size:9px;letter-spacing:.04em;text-transform:none}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input:is(#wk-hr-avg,#wk-hr-max,#wk-hr-min,#wk-run-km,#wk-run-min,#wk-vo2){
+  width:100%!important;min-width:0!important;height:32px!important;min-height:0!important;padding:0!important;margin:0!important;
+  border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  color:#fff!important;-webkit-text-fill-color:#fff!important;font:600 22px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input::-webkit-inner-spin-button,
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input::placeholder{color:#ffffff2e!important;-webkit-text-fill-color:#ffffff2e!important}
+@media(max-width:340px){
+  html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card{padding:14px 10px 10px}
+  html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-grid{gap:6px}
+  html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile{padding:9px 9px 7px}
+  html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-tile>input:is(#wk-hr-avg,#wk-hr-max,#wk-hr-min,#wk-run-km,#wk-run-min,#wk-vo2){font-size:19px!important}
+}
+
+/* Footer: one red pill, as in the builder; the close button cancels. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer{
+  position:sticky!important;bottom:0;z-index:3;margin:auto -20px 0!important;width:auto!important;
+  display:flex!important;justify-content:center!important;
+  padding:24px 20px max(14px,env(safe-area-inset-bottom,0px))!important;
+}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .btn-ghost{display:none!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .btn-primary{flex:1 0 100%!important;max-width:none!important;min-height:54px!important}
+
+/* Editing a template here: only the pass itself. */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log[data-field-editing-template] :is([data-log-health],.pbu-log-template,.pbu-log-notes,.pbu-log-meta>.form-group:first-child){display:none!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log[data-field-editing-template] .pbu-log-meta{grid-template-columns:minmax(0,1fr)}

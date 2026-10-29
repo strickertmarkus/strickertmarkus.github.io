@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261028-moon-2">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261029-heat-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -32,8 +32,8 @@
   <script defer src="auth-config.js?v=20261026-energy-loop-4"></script>
   <script defer src="auth-gate.js?v=20261026-energy-loop-4"></script>
   <script defer src="firebase-sync.js?v=20261020-exercise-history-v1"></script>
-  <script defer src="training-pulse-field.js?v=20261029-motion-1"></script>
-  <script defer src="training-pulse-editor.js?v=20261029-motion-9"></script>
+  <script defer src="training-pulse-field.js?v=20261029-heat-1"></script>
+  <script defer src="training-pulse-editor.js?v=20261029-log-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -230,7 +230,7 @@
       <div class="section-controls insight-controls">
         <div class="view-tabs insight-tabs" role="tablist" aria-label="Välj mätvärde">
           <button type="button" role="tab" data-insight="heart" aria-selected="true">Medelpuls</button>
-          <button type="button" role="tab" data-insight="pace" aria-selected="false">Snittakt</button>
+          <button type="button" role="tab" data-insight="pace" aria-selected="false">Löpning</button>
           <button type="button" role="tab" data-insight="vo2" aria-selected="false">VO₂</button>
         </div>
         <div class="segmented insight-mode" aria-label="Visa graf eller tabell">
@@ -257,7 +257,6 @@
         <div class="insight-special-legend" id="insight-special-legend"></div>
       </div>
       <div class="insight-chart" id="insight-chart" role="img" aria-label="Mätvärdesgraf"></div>
-      <section class="pace-distance-comparison" id="pace-distance-comparison" aria-label="Snittakt mot löpdistans" hidden></section>
       <div class="insight-table-wrap" id="insight-table-wrap" hidden>
         <table class="insight-table">
           <thead id="insight-table-head"></thead>

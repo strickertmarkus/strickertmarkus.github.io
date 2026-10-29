@@ -126,12 +126,14 @@ function enhanceRow(row){
  quick.innerHTML='<i class="pbu-cross" aria-hidden="true"></i>';
  row.appendChild(quick);
  row.appendChild(panel);row.appendChild(actions);
+ // The log form's "Tid för övningen" belongs with the numbers.
+ var timing=row.querySelector(':scope>.ex-duration-editor-v7');if(timing){timing.classList.add('pbu-timing');panel.appendChild(timing);}
  new MutationObserver(function(){syncBetween(row);}).observe(row,{attributes:true,attributeFilter:['data-between-sets-v7']});
  paintRow(row);
 }
 /* "Vill du verkligen ta bort …?" in the builder's own look. */
 function confirmRemove(row){
- var modal=byId('day-workout-modal');if(!modal)return;
+ var modal=row.closest('.modal-overlay');if(!modal)return;
  var name=((nameInput(row)||{}).value||'').trim()||'övningen';
  var old=modal.querySelector('.pbu-confirm');if(old)old.remove();
  var box=document.createElement('div');box.className='pbu-confirm';box.setAttribute('role','alertdialog');box.setAttribute('aria-modal','true');
@@ -185,12 +187,14 @@ function syncBetween(row){
  }
  row.querySelectorAll('[data-pbu-between-type]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.pbuBetweenType===cfg.type));});
 }
-function enhanceAll(){document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(enhanceRow);}
+/* The day builder's list and the log form's list ("Logga träning"). */
+var LISTS='#day-workout-ex-list,#wk-modal #ex-list';
+function enhanceAll(){document.querySelectorAll(LISTS.split(',').map(function(s){return s+' .ex-row-item';}).join(',')).forEach(enhanceRow);}
 
 /* ---------- Row: expanded panel ---------- */
 function openRow(row,opts){
  opts=opts||{};
- document.querySelectorAll('#day-workout-ex-list .pbu-row.pbu-open').forEach(function(r){if(r!==row)closeRow(r);});
+ row.parentNode.querySelectorAll('.pbu-row.pbu-open').forEach(function(r){if(r!==row)closeRow(r);});
  row.classList.add('pbu-open');
  row.querySelector('.pbu-head').setAttribute('aria-expanded','true');
  var empty=!(nameInput(row)||{}).value;
@@ -221,7 +225,9 @@ function renderSteps(row){
 
 /* ---------- Inline exercise choice (no popup) ---------- */
 function passContext(row){
- var name=(byId('day-workout-name')||{}).value||'',type=(byId('day-workout-type')||{}).value||'';
+ // The log form has no pass name; its type ("Bröst + Triceps") carries the muscles.
+ var log=!!row.closest('#wk-modal');
+ var name=log?'':(byId('day-workout-name')||{}).value||'',type=(byId(log?'wk-type':'day-workout-type')||{}).value||'';
  var muscles=musclesFromText(name),source=name;
  if(!muscles.length){muscles=musclesFromText(type);source=type;}
  var cardio=rowKind(row)==='cardio'||(!muscles.length&&(CARDIO.test(key(name))||CARDIO.test(key(type))));
@@ -244,7 +250,7 @@ function allOwnExercises(ctx,row){
 }
 function usedNames(except){
  var used={};
- document.querySelectorAll('#day-workout-ex-list .pbu-row').forEach(function(r){if(r===except)return;var v=(nameInput(r)||{}).value;if(v)used[key(v)]=1;});
+ except.parentNode.querySelectorAll('.pbu-row').forEach(function(r){if(r===except)return;var v=(nameInput(r)||{}).value;if(v)used[key(v)]=1;});
  return used;
 }
 function showPicker(row){
@@ -411,21 +417,16 @@ function paintTop(modal){
 }
 
 /* ---------- Wiring ---------- */
-function init(){
- var modal=byId('day-workout-modal'),list=byId('day-workout-ex-list');
- if(!modal||!list||typeof window.parseExerciseRow!=='function')return setTimeout(init,120);
- modal.classList.add('pbu-builder');
- if(typeof window.closeExerciseNamePicker==='function')window.closeExerciseNamePicker();
- buildTop(modal);
- var nameEl=byId('day-workout-name');if(nameEl)nameEl.placeholder='Namnge passet';
- var addBtn=modal.querySelector('[onclick="addDayWorkoutExRow()"]');
+/* Rows, add button and editing for one exercise list. */
+function bindList(modal,list,addSelector){
+ var addBtn=modal.querySelector(addSelector);
  if(addBtn){
+  addBtn.classList.remove('pt-add','btn-sm');addBtn.style.removeProperty('margin-top');
   addBtn.classList.add('pbu-add');addBtn.innerHTML='<i class="pbu-plus" aria-hidden="true"></i><span>Lägg till övning</span>';
   addBtn.addEventListener('click',function(){
    setTimeout(function(){var rows=list.querySelectorAll('.pbu-row'),row=rows[rows.length-1];if(row&&!(nameInput(row)||{}).value)openRow(row,{pick:true});},0);
   });
  }
- enhanceAll();
  new MutationObserver(function(records){
   records.forEach(function(r){r.addedNodes.forEach(function(n){if(n.nodeType===1&&n.classList.contains('ex-row-item')){
    enhanceRow(n);
@@ -433,27 +434,6 @@ function init(){
    if(n.classList.contains('pbu-open'))closeRow(n);
   }});});
  }).observe(list,{childList:true});
- var h=byId('day-workout-title');
- if(h)new MutationObserver(function(){paintTop(modal);}).observe(h,{childList:true,characterData:true,subtree:true});
- // Suggestions follow the pass name and type, also while a picker is open.
- var refreshPickers=function(){list.querySelectorAll('.pbu-row.pbu-picking').forEach(function(r){renderOptions(r,(r.querySelector('[data-pbu-search]')||{}).value||'');});};
- ['day-workout-type','day-workout-template-select','day-workout-name'].forEach(function(id){var el=byId(id);if(el){
-  // Not on change: that fires on blur, i.e. mid-tap on a suggestion, and a
-  // re-render would remove the tapped button before its click lands.
-  el.addEventListener('change',function(){paintTop(modal);});
-  el.addEventListener('input',function(){paintTop(modal);refreshPickers();});
- }});
- /* Opening another day or template rebuilds the rows; start collapsed. */
- // Only write the class when it actually changes: classList.remove() on an
- // absent token still rewrites the attribute and would re-trigger this observer.
- new MutationObserver(function(){
-  if(modal.classList.contains('show')){paintTop(modal);return;}
-  if(modal.classList.contains('pbu-settings-open')){
-   modal.classList.remove('pbu-settings-open');
-   var bar=modal.querySelector('.pbu-settings-toggle');if(bar)bar.setAttribute('aria-expanded','false');
-  }
- }).observe(modal,{attributes:true,attributeFilter:['class']});
-
  list.addEventListener('click',function(e){
   var t=e.target,row=t.closest('.pbu-row');if(!row)return;
   if(t.closest('.pbu-head')||t.closest('.pbu-thumb')){
@@ -508,6 +488,45 @@ function init(){
  });
  list.addEventListener('focusin',function(e){var t=e.target;if(t.matches&&t.matches('[data-pbu-value]'))setTimeout(function(){try{t.select();}catch(_e){}},0);});
  list.addEventListener('change',function(e){var row=e.target.closest('.pbu-row');if(row&&!e.target.closest('.pbu-panel'))paintRow(row);});
+}
+function init(){
+ var modal=byId('day-workout-modal'),list=byId('day-workout-ex-list');
+ if(!modal||!list||typeof window.parseExerciseRow!=='function')return setTimeout(init,120);
+ modal.classList.add('pbu-builder');
+ if(typeof window.closeExerciseNamePicker==='function')window.closeExerciseNamePicker();
+ buildTop(modal);
+ var nameEl=byId('day-workout-name');if(nameEl)nameEl.placeholder='Namnge passet';
+ bindList(modal,list,'[onclick="addDayWorkoutExRow()"]');
+ initLog();
+ enhanceAll();
+ var h=byId('day-workout-title');
+ if(h)new MutationObserver(function(){paintTop(modal);}).observe(h,{childList:true,characterData:true,subtree:true});
+ // Suggestions follow the pass name and type, also while a picker is open.
+ var refreshPickers=function(){list.querySelectorAll('.pbu-row.pbu-picking').forEach(function(r){renderOptions(r,(r.querySelector('[data-pbu-search]')||{}).value||'');});};
+ ['day-workout-type','day-workout-template-select','day-workout-name'].forEach(function(id){var el=byId(id);if(el){
+  // Not on change: that fires on blur, i.e. mid-tap on a suggestion, and a
+  // re-render would remove the tapped button before its click lands.
+  el.addEventListener('change',function(){paintTop(modal);});
+  el.addEventListener('input',function(){paintTop(modal);refreshPickers();});
+ }});
+ /* Opening another day or template rebuilds the rows; start collapsed. */
+ // Only write the class when it actually changes: classList.remove() on an
+ // absent token still rewrites the attribute and would re-trigger this observer.
+ new MutationObserver(function(){
+  if(modal.classList.contains('show')){paintTop(modal);return;}
+  if(modal.classList.contains('pbu-settings-open')){
+   modal.classList.remove('pbu-settings-open');
+   var bar=modal.querySelector('.pbu-settings-toggle');if(bar)bar.setAttribute('aria-expanded','false');
+  }
+ }).observe(modal,{attributes:true,attributeFilter:['class']});
+}
+/* "Logga träning": the same rows and choice, in the log form. */
+function initLog(){
+ var modal=byId('wk-modal'),list=byId('ex-list');if(!modal||!list)return;
+ modal.classList.add('pbu-log');
+ bindList(modal,list,'[onclick="addExRow()"]');
+ var type=byId('wk-type');
+ if(type)type.addEventListener('input',function(){list.querySelectorAll('.pbu-row.pbu-picking').forEach(function(r){renderOptions(r,(r.querySelector('[data-pbu-search]')||{}).value||'');});});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 window.PulseBuilderUI={openRow:openRow,closeRow:closeRow,musclesFromText:musclesFromText};
