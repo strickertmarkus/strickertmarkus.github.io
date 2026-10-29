@@ -558,7 +558,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-tpl-4">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-tpl-6">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-tpl-7">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
@@ -802,6 +802,7 @@ if(!window.__FIELD_EMBEDDED__){
     </div>
     <div class="form-group pbu-log-exercises">
       <label>Övningar</label>
+      <p class="pbu-log-between-global" id="wk-between-global" hidden></p>
       <div class="ex-list" id="ex-list"></div>
       <button class="btn-sm pt-add" type="button" style="margin-top:8px" onclick="addExRow()">Lägg till övning</button>
     </div>
@@ -2884,7 +2885,10 @@ function saveSessionWorkout(){
       var sets=logs.length;
       var reps=Math.round(logs.reduce(function(s,l){return s+(l.actualReps||0);},0)/sets);
       var weight=+(logs.reduce(function(s,l){return s+(l.actualWeight||0);},0)/sets).toFixed(1);
-      exercises.push(normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight,weightMode:ex.weightMode||'kg'}));
+      var done=normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight,weightMode:ex.weightMode||'kg'});
+      var between=betweenForWorkoutExercise({date:sessionState.date},ex,i)||(ex.betweenSets&&ex.betweenSets.enabled?ex.betweenSets:null);
+      if(between)done.betweenSets=between;
+      exercises.push(done);
     }
     exerciseTimings.push({name:ex.name,durationSec:dur,exerciseIndex:exercises.length-1});
   });
@@ -3324,7 +3328,10 @@ function editWorkout(id){
   var usedTimings={};
   (wk.exercises||[]).forEach(function(exercise,index){
     addExRow(exercise,workoutTimingForExercise(wk,exercise,index,usedTimings));
+    var between=betweenForWorkoutExercise(wk,exercise,index),row=list.lastElementChild;
+    if(between&&row)row.dataset.betweenSetsV7=JSON.stringify(between);
   });
+  showWorkoutBetweenExercises(betweenExercisesForWorkout(wk));
   // Distance and time are typed in the cardio rows. A pass that only has them
   // on the pass itself gets them as a Löpning row, so nothing is hidden.
   var fromRows=workoutRunMetrics({type:wk.type,exercises:wk.exercises||[]});
@@ -3361,6 +3368,7 @@ function openWorkoutModal(options){
   updateWorkoutMeters();
   document.getElementById('wk-notes').value='';
   document.getElementById('ex-list').innerHTML='';
+  showWorkoutBetweenExercises(null);
   if(!options.skipBlank)addExRow();
   refreshTemplateSelectors();
   document.getElementById('wk-modal').classList.add('show');
@@ -3467,6 +3475,7 @@ function saveWorkout(){
   rows.forEach(function(row){
     var parsed=parseExerciseRow(row,'ex');
     if(!parsed)return;
+    var between=rowBetween(row);if(between&&parsed.kind!=='cardio')parsed.betweenSets=between;
     exercises.push(parsed);
     var timingInput=row.querySelector('.ex-duration-seconds-v7');
     var durationSec=exerciseDurationSeconds(timingInput&&timingInput.value);
@@ -3478,6 +3487,8 @@ function saveWorkout(){
   var finalRunMin=runMin>0?runMin:exerciseRunMetrics.time;
   var finalRunPace=finalRunKm>0&&finalRunMin>0?+(finalRunMin/finalRunKm).toFixed(4):null;
   var wk={id:editingWorkoutId||Date.now(),date:date,type:type,exercises:exercises,duration:dur,hrAvg:hrAvg,hrMax:hrMax,hrMin:hrMin,vo2:vo2,runDistance:finalRunKm||0,runTime:finalRunMin||null,avgPaceKm:finalRunPace,runMetricsDerived:!(runKm>0)&&exerciseRunMetrics.distance>0,notes:notes,exerciseTimings:exerciseTimings};
+  var globalBetween=document.getElementById('wk-between-global');
+  if(globalBetween&&globalBetween.dataset.config){try{wk.betweenExercises=JSON.parse(globalBetween.dataset.config);}catch(_){}}
   var wks=getWorkouts();
   if(editingWorkoutId){
     // Keep fields this form does not edit (e.g. imported watch data).
@@ -3540,11 +3551,34 @@ function saveCurrentAsTemplate(){
   showToast('Mall sparad.');
 }
 
+/* Between sets of a logged pass: stored on its exercises, or (older passes)
+   taken from that day's planned pass by exercise name. */
+function betweenForWorkoutExercise(wk,ex,index){
+  if(ex&&ex.betweenSets&&ex.betweenSets.enabled)return ex.betweenSets;
+  var plan=getPlannedSessions()[wk&&wk.date],list=plan&&Array.isArray(plan.exercises)?plan.exercises:[];
+  var key=String(ex&&ex.name||'').trim().toLocaleLowerCase('sv-SE'),match=list.filter(function(p){return String(p&&p.name||'').trim().toLocaleLowerCase('sv-SE')===key;})[0];
+  var cfg=match&&match.betweenSets;
+  return cfg&&cfg.enabled?cfg:null;
+}
+function betweenExercisesForWorkout(wk){
+  var cfg=wk&&wk.betweenExercises;
+  if(!(cfg&&cfg.enabled)){var plan=getPlannedSessions()[wk&&wk.date];cfg=plan&&plan.betweenExercises;}
+  return cfg&&cfg.enabled&&cfg.type!=='none'?cfg:null;
+}
+function rowBetween(row){
+  try{var cfg=JSON.parse(row.dataset.betweenSetsV7||'null');return cfg&&cfg.enabled?cfg:null;}catch(_){return null;}
+}
+function showWorkoutBetweenExercises(cfg){
+  var el=document.getElementById('wk-between-global');if(!el)return;
+  el.hidden=!cfg;
+  el.textContent=cfg?'Mellan övningar · '+(cfg.type==='rest'?'Vila':(cfg.name||'Övning'))+' '+(cfg.seconds||30)+' s':'';
+  el.dataset.config=cfg?JSON.stringify(cfg):'';
+}
 /* "Spara som mall" in the log form: the pass's exercises become a template
    named after the pass (an existing template with that name is updated). */
 function saveWorkoutAsTemplate(){
   var exercises=[];
-  document.querySelectorAll('#ex-list .ex-row-item').forEach(function(row){var parsed=parseExerciseRow(row,'ex');if(parsed)exercises.push(parsed);});
+  document.querySelectorAll('#ex-list .ex-row-item').forEach(function(row){var parsed=parseExerciseRow(row,'ex');if(!parsed)return;var between=rowBetween(row);if(between&&parsed.kind!=='cardio')parsed.betweenSets=between;exercises.push(parsed);});
   if(!exercises.length){showToast('Passet har inga övningar att spara.');return;}
   var name=String(document.getElementById('wk-type').value||'').trim().slice(0,70)||'Mallpass';
   var key=name.toLocaleLowerCase('sv-SE'),templates=getTemplates();
