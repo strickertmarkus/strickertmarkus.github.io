@@ -12,13 +12,13 @@ function install(){
  var current=document.createElement('div');current.className='pulse-zen-current';picker.before(current);
  function showCurrent(){var plan=getPlannedSessions()[box.dataset.date];current.textContent='';if(!plan||!plan.zenRoutine||box.classList.contains('classic-template-edit-mode'))return;var a=document.createElement('a');a.href=PulseZen.url(plan);a.target='_top';a.innerHTML=PulseZen.icon(plan.zenRoutine.kind);a.appendChild(document.createTextNode(plan.name+' · Öppna i Zen'));current.appendChild(a);}
  var options=picker.querySelector('.pulse-zen-options');
- ['stretch','meditation'].forEach(function(k){var title=document.createElement('h3');title.textContent=k==='stretch'?'Stretch':'Meditation';options.appendChild(title);ZenModel.routines.filter(function(r){return r.kind===k;}).forEach(function(r){var b=document.createElement('button');b.type='button';b.dataset.zenRoutine=r.id;b.innerHTML=PulseZen.icon(k);var label=document.createElement('span');label.textContent=r.name+' · '+Math.round(ZenModel.duration(r)/60)+' min';b.appendChild(label);b.onclick=function(){
+ ['stretch','meditation'].forEach(function(k){var group=document.createElement('section');group.className='pulse-zen-group';group.dataset.zenKind=k;var title=document.createElement('h3');title.id='pulse-zen-heading-'+k;title.textContent=k==='stretch'?'Stretch':'Meditation';group.setAttribute('aria-labelledby',title.id);group.appendChild(title);options.appendChild(group);ZenModel.routines.filter(function(r){return r.kind===k;}).forEach(function(r){var b=document.createElement('button');b.type='button';b.dataset.zenRoutine=r.id;b.innerHTML=PulseZen.icon(k);var label=document.createElement('span');label.textContent=r.name+' · '+Math.round(ZenModel.duration(r)/60)+' min';b.appendChild(label);b.onclick=function(){
  var date=box.dataset.date;if(!date)return;
  var all=getPlannedSessions(),type=k==='stretch'?'Stretch':'Meditation';
  all[date]={type:type,name:r.name,zenRoutine:JSON.parse(JSON.stringify(r)),exercises:[]};savePlannedSessions(all);
  var monday=mondayISOOf(date),plan=Object.assign({},getPlanForWeek(monday));plan[dayKeyFromISO(date)]=type;setPlanForWeek(monday,plan);
  picker.open=false;closeModal('day-workout-modal');if(pulsePlanBuilderReturnV3)pulsePlanReturnFromBuilderV3();refreshAll();showToast(type+' planerad.');
- };options.appendChild(b);});});
+ };group.appendChild(b);});});
  new MutationObserver(function(){if(!box.classList.contains('show'))picker.open=false;showCurrent();}).observe(box,{attributes:true,attributeFilter:['class','data-date']});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
