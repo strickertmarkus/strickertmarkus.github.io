@@ -394,7 +394,7 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-kicker-date{positi
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open :is(.classic-pass-fields>.form-group:last-child,.classic-template-group,.classic-day-calendar){margin:0 0 12px!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open .classic-day-calendar #between-exercise-toggle-panel-v7{display:flex!important;justify-content:flex-start;gap:22px;margin:0!important;position:static!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions{display:flex!important;align-items:center;gap:8px}
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions select{flex:1 1 0;min-width:0;width:0!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions select{flex:1 1 0;min-width:0;width:0!important;height:42px!important;padding:0 28px 0 12px!important;line-height:normal!important;font-size:16px!important;-webkit-appearance:none;appearance:none}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder:not(.classic-template-edit-mode) [onclick="pulseClassicNewTemplate()"]{display:none!important}
 /* Edit the chosen template: a pencil, not a word. */
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-edit-template{flex:none;width:44px!important;height:44px!important;min-width:44px!important;padding:0!important;font-size:0!important;color:var(--pbu-pale)!important;display:grid!important;place-items:center}
