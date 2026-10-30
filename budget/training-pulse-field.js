@@ -350,7 +350,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       chosenRest?'Återhämtning':planned.length?planned.length+(planned.length===1?' övning':' övningar')+(estimate?' · ca '+estimate+' min':''):'Bygg passet för dagen';
     var box=byId('week-selected-session-v3'),thumb=byId('week-selected-thumb-v3'),metaLabel=byId('week-selected-meta-v3');
     if(box){
-      box.dataset.kind=chosenRest?'rest':chosenCardio?'cardio':'strength';
+      box.dataset.kind=chosenPlan&&chosenPlan.zenRoutine?chosenPlan.zenRoutine.kind:chosenRest?'rest':chosenCardio?'cardio':'strength';
       box.style.setProperty('--today-x',(((chosen.getDay()+6)%7)+.5)/7*100+'%');
       if(chosenRest&&!chosenPlan)nameLabel.textContent='Vila';
       if(chosenPlan&&chosenPlan.zenRoutine)meta=chosenType+' · '+Math.round(ZenModel.duration(chosenPlan.zenRoutine)/60)+' min';
