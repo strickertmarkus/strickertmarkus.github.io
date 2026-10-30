@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261029-tpl-7');
+  url.searchParams.set('v','20261030-zen-pr-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -246,6 +246,7 @@ function selectTool(win,tool,button,date){
   case 'build':case 'editDay':win.openDayWorkoutBuilder(dayName(iso),iso);break;
   case 'start':
    var planned=win.getPlannedSessions()[iso];
+   if(planned&&planned.zenRoutine){location.href=PulseZen.url(planned);break;}
    if(!planned||!(planned.exercises||[]).length){activeTool='build';$('field-workspace-title').textContent='Bygg pass';win.openDayWorkoutBuilder(dayName(iso),iso);}
    else {
     win.startWorkoutSessionForDate(iso);

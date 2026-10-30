@@ -556,7 +556,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261029-plan-5">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261029-tpl-4">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261030-zen-pr-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
 <link rel="stylesheet" href="pulse-log-ui.css?v=20261029-tpl-7">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
@@ -565,6 +565,8 @@ if(!window.__FIELD_EMBEDDED__){
 <script defer src="pulse-builder-ui.js?v=20261029-tpl-5"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
+<link rel="stylesheet" href="training-zen-plans.css?v=20261030-1">
+<script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261030-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -1205,6 +1207,7 @@ var pulsePlanDraftsV2={},pulsePlanExpandedV2=-1,pulsePlanDragV2=null,pulsePlanIn
 function pulsePlanCloneV2(obj){return obj==null?obj:JSON.parse(JSON.stringify(obj));}
 function pulsePlanKindV2(value){
   var t=String(value||'').trim().toLocaleLowerCase('sv-SE');
+  if(t==='stretch'||t==='meditation')return t;
   if(/^(vila|vilodag|ledig|återhämtning|rest)$/.test(t))return 'rest';
   if(/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(t))return 'cardio';
   return 'strength';
@@ -1296,11 +1299,11 @@ function pulsePlanRenderV2(){
     article.innerHTML='<div class="pulse-plan-top-v2">'+
       '<button type="button" class="pulse-plan-open-v2" data-pulse-open-builder-v2="'+i+'" aria-label="Öppna passbyggaren för '+day+'">'+
        '<span class="pulse-plan-date-v2"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></span>'+
-       '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?PULSE_PLAN_MOON+'Vila':pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
-       '<strong>'+escHtml(sessionName)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
+       '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?PULSE_PLAN_MOON+'Vila':window.PulseZen&&PulseZen.kind(type)?PulseZen.icon(PulseZen.kind(type))+escHtml(type):pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
+       '<strong>'+escHtml(sessionName)+'</strong><small>'+escHtml(rest?'Återhämtning':entry.session&&entry.session.zenRoutine?Math.round(ZenModel.duration(entry.session.zenRoutine)/60)+' min '+type.toLowerCase():exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
        '<span class="pulse-plan-arrow-v2" aria-hidden="true">'+PULSE_PLAN_ARROW+'</span></button>'+
       '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
-      '<button type="button" class="pulse-plan-quick-v3" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'"><span><b>Snabbplanera</b> · '+(rest?'välj pass':exercises.length+(exercises.length===1?' övning':' övningar'))+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
+      '<button type="button" class="pulse-plan-quick-v3" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'"><span><b>Snabbplanera</b> · '+(rest?'välj pass':entry.session&&entry.session.zenRoutine?Math.round(ZenModel.duration(entry.session.zenRoutine)/60)+' min':exercises.length+(exercises.length===1?' övning':' övningar'))+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       (pulsePlanCopied&&pulsePlanCopied.date!==date?'<button type="button" class="pulse-plan-copy-here-v2" data-pulse-copy-to-v2="'+i+'">Kopiera hit'+PULSE_PLAN_ARROW+'</button>':'')+
       (expanded?pulsePlanExpandedHtmlV2(entry,i):'');
     box.appendChild(article);
@@ -2621,6 +2624,7 @@ function persistDayWorkoutPlan(opts){
   var templateId=chosen&&chosen.value||'';
   var previous=byDate[date]||{};
   var record=Object.assign({},previous,{type:type,name:name,exercises:ex});
+  delete record.zenRoutine;
   if(templateId)record.templateId=templateId;
   else delete record.templateId;
   byDate[date]=record;
@@ -3807,7 +3811,7 @@ window.addEventListener('firebase-sync',function(event){
   },{once:true});
 })();
 </script>
-<script src="training-month-planner.js?v=20261029-plan-5"></script>
+<script src="training-month-planner.js?v=20261030-zen-pr-1"></script>
 <script src="training-pulse-classic-templates-v1.js?v=20261029-tpl-4"></script>
 </body>
 </html>

@@ -320,6 +320,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var lowerType=String(type).trim().toLocaleLowerCase('sv-SE');
       var signalKind=/^(vila|vilodag|ledig|återhämtning)$/.test(lowerType)?'rest':/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(lowerType)?'cardio':'strength';
       // One colour meaning across the training pages: red strength, cyan cardio, grey rest.
+      signalKind=window.PulseZen&&PulseZen.kind(type)||signalKind;
       var signalColor=signalKind==='rest'?'rest':signalKind==='cardio'?'cyan':'red';
       var classes=['week-day'];
       if(key===today)classes.push('is-today');
@@ -327,7 +328,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(logged.length)classes.push('is-complete');
       markup+='<div class="'+classes.join(' ')+'" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
         '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span>'+
-        '<span class="day-type">'+escapeHtml(displayName)+'</span></div>';
+        (window.PulseZen&&PulseZen.kind(type)?PulseZen.icon(PulseZen.kind(type)):'')+'<span class="day-type">'+escapeHtml(displayName)+'</span></div>';
     }
     byId('week-days').innerHTML=markup;
     var selected=state.selectedDate||today,chosen=dateAtNoon(selected),chosenPlan=planForDate(chosen),chosenLogged=workoutsOn(chosen);
@@ -349,11 +350,12 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       chosenRest?'Återhämtning':planned.length?planned.length+(planned.length===1?' övning':' övningar')+(estimate?' · ca '+estimate+' min':''):'Bygg passet för dagen';
     var box=byId('week-selected-session-v3'),thumb=byId('week-selected-thumb-v3'),metaLabel=byId('week-selected-meta-v3');
     if(box){
-      box.dataset.kind=chosenRest?'rest':chosenCardio?'cardio':'strength';
+      box.dataset.kind=chosenPlan&&chosenPlan.zenRoutine?chosenPlan.zenRoutine.kind:chosenRest?'rest':chosenCardio?'cardio':'strength';
       box.style.setProperty('--today-x',(((chosen.getDay()+6)%7)+.5)/7*100+'%');
       if(chosenRest&&!chosenPlan)nameLabel.textContent='Vila';
+      if(chosenPlan&&chosenPlan.zenRoutine)meta=chosenType+' · '+Math.round(ZenModel.duration(chosenPlan.zenRoutine)/60)+' min';
       if(metaLabel)metaLabel.textContent=meta;
-      if(thumb)thumb.innerHTML=chosenRest?'<span class="pk-thumb is-rest">'+PK_MOON+'</span>':pkThumb(chosenName+' '+chosenType,chosenCardio?'cardio':'strength');
+      if(thumb)thumb.innerHTML=chosenPlan&&chosenPlan.zenRoutine?PulseZen.icon(chosenPlan.zenRoutine.kind):chosenRest?'<span class="pk-thumb is-rest">'+PK_MOON+'</span>':pkThumb(chosenName+' '+chosenType,chosenCardio?'cardio':'strength');
       ['week-selected-open-v3','week-selected-play-v3'].forEach(function(id){var b=byId(id);if(b)b.dataset.fieldDate=selected;});
       var open=byId('week-selected-open-v3'),done=dayLogged(selected);
       if(open){open.dataset.fieldAction=done?'edit-log':'edit-day';if(done)open.dataset.workoutId=String(done.id);else delete open.dataset.workoutId;}
@@ -1149,7 +1151,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).forEach(function(workout){
       (workout.exercises||[]).forEach(function(raw){var ex=normalizeExercise(raw);if(ex.kind!=='strength'||!ex.name||!(ex.weight>0))return;var key=ex.name.trim().toLowerCase();if(!map[key])map[key]={name:ex.name,value:0,first:0,history:[],category:recordCategory(ex.name)};if(!map[key].first)map[key].first=ex.weight;map[key].value=Math.max(map[key].value,ex.weight);map[key].history.push(ex.weight);});
     });
-    Object.keys(data.prs||{}).forEach(function(name){var value=number(data.prs[name]);if(!value)return;var key=name.toLowerCase();if(!map[key])map[key]={name:name,value:value,first:value,history:[value],category:recordCategory(name)};else map[key].value=Math.max(map[key].value,value);});
+    Object.keys(data.prs||{}).forEach(function(name){var value=number(data.prs[name]);if(!Number.isFinite(value)||value<0)return;var key=name.toLowerCase();if(!map[key])map[key]={name:name,value:value,first:value,history:[value],category:recordCategory(name)};else map[key].value=value;});
     return Object.keys(map).map(function(key){var record=map[key];record.gain=Math.max(0,record.value-record.first);return record;}).sort(function(a,b){return b.value-a.value;});
   }
   function featuredRecordKeys(records) {
@@ -1191,7 +1193,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('record-podium').innerHTML=keys.map(function(key,index){
       var record=byKey[key];
       // The three chosen records lead as glowing rows, in the builder's row style.
-      return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><span class="rank">'+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></div><strong>'+formatKg(record.value)+'</strong>'+
+      return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><span class="rank">'+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></div><button type="button" class="record-weight-edit" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera vikt för '+escapeHtml(record.name)+'">'+formatKg(record.value)+'</button>'+
         '<button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för plats '+(index+1)+'">'+PK_ICON.pencil+'</button></article>';
     }).join('');
     byId('record-picker-fields').innerHTML=[0,1,2].map(function(slot){
