@@ -261,7 +261,8 @@ async function processCreatedEvents(events, devices) {
       : `En ny kalenderpåminnelse har lagts in den ${fullDateLabel(ev.date)}.`;
 
     const result = await sendToDevices(targets, {
-      title: 'Ny kalenderpåminnelse',
+      // The event's own title in the notification title, e.g. "Ny händelse: 🦷 Tandläkare".
+      title: `Ny händelse: ${ev.emoji ? `${ev.emoji} ` : ''}${String(ev.title).trim()}`,
       body,
       url: `calendar.html?date=${encodeURIComponent(ev.date)}&event=${encodeURIComponent(ev.id)}`,
       tag: `calendar-created-${key}`
