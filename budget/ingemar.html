@@ -10,17 +10,18 @@
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 85% 30% at 54% 0,#6521391a,transparent 90%),var(--bg);color:var(--text);min-height:100vh}body[data-builder-open="true"]{position:fixed;left:0;right:0;width:100%;overflow:hidden}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}input,select,textarea{background:#0f1520;border:1px solid #ffffff27;border-radius:12px;color:var(--text);padding:11px 12px;width:100%;min-width:0;font-size:16px}input[type=number]{font-variant-numeric:tabular-nums}a{color:inherit;text-decoration:none}a:hover{color:#fff}header{position:sticky;top:0;z-index:20;background:#0b1019ee;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-bottom:1px solid #bb738222}header .inner{max-width:1170px;margin:auto;padding:13px 24px;display:flex;justify-content:space-between;align-items:center;gap:14px}h1,h2,h3,p{margin-top:0}.brand{font-size:17px;font-weight:800;letter-spacing:.17em}.brand span{color:var(--rose);font-weight:500}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.08em;margin-top:3px}.demo{font:700 10px Inter,sans-serif;letter-spacing:.12em;background:#863e571d;color:#cb8899;border:1px solid #aa506846;border-radius:100px;padding:7px 10px;white-space:nowrap}.topnav{display:flex;gap:5px}.topnav button,.ghost{color:#bfc4d0;background:transparent;border:1px solid transparent;border-radius:12px;padding:11px 13px;font-size:12px;font-weight:700}.topnav button[aria-selected=true]{background:#ad415911;border-color:#ad415948;color:#d397a5}.topnav button:hover,.ghost:hover{color:white;border-color:#ffffff3b}main{max-width:1170px;margin:auto;padding:29px 24px 75px}.eyebrow{font-size:10px;letter-spacing:.19em;font-weight:800;color:#a96d82;text-transform:uppercase}.hero{display:grid;grid-template-columns:1fr 1.03fr;gap:25px;align-items:center;min-height:378px;position:relative}.hero h1{font-size:clamp(35px,4.9vw,62px);font-weight:400;letter-spacing:-.065em;line-height:1.08;margin:20px 0}.hero h1 em{color:var(--rose);font-style:normal}.hero p{color:#b29ba2;line-height:1.7;max-width:470px;font-size:13px}.hero .actions{display:flex;gap:10px;align-items:center;margin-top:26px;flex-wrap:wrap}.primary{background:linear-gradient(115deg,#a43b4e,#cf7180);border:0;color:#29121f;border-radius:14px;padding:13px 19px;font-weight:800;font-size:13px;box-shadow:0 8px 30px #7f1e3933}.primary:hover{filter:brightness(1.08)}.secondary{background:#ffffff07;border:1px solid #993e5951;color:#ebd1d6;border-radius:14px;padding:12px 17px;font-size:13px;font-weight:700}.secondary:hover{background:#89294714}.panel{background:linear-gradient(160deg,#1c1b294f,#141a2494);border:1px solid var(--line);border-radius:20px;padding:20px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:19px 0 40px}.stat-label{color:#aaa4b3;font-size:11px}.stat strong{display:block;font-weight:500;font-size:clamp(25px,3vw,40px);letter-spacing:-.05em;margin:14px 0 6px}.stat strong small{font-size:13px;color:#e4c9d4;margin-left:6px}.stat .sub{font-size:11px;color:#9c99a8}.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:35px 0 15px}.section-head h2{font-size:22px;letter-spacing:-.035em;font-weight:600;margin:0}.hint{font-size:12px;color:#a79aa9;line-height:1.6}.choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice{position:relative;overflow:hidden;background:#ffffff05;border:1px solid #ffffff1d;border-radius:17px;text-align:left;padding:18px;min-height:140px;color:var(--text);transition:transform .2s,border .2s,background .2s}.choice:hover{transform:translateY(-2px);border-color:#ab596e5d;background:#8929470a}.choice b{display:block;font-size:19px;font-weight:600;margin:20px 0 6px}.choice small{font-size:11px;color:#ada4b1}.choice .glyph{font-size:22px;color:var(--rose)}.choice.pull .glyph{color:var(--cyan)}.choice.cardio .glyph{color:#ff967f}.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.day{background:#ffffff05;border:1px solid #ffffff14;border-radius:14px;padding:12px 7px;min-width:0;color:var(--text);text-align:center}.day[aria-pressed=true]{border-color:#e65c66ae;background:#e65c6620;box-shadow:0 0 22px #d03f531e}.day.today{box-shadow:inset 0 0 0 1px #bbdef355}.day small{display:block;font-size:10px;color:#a49aa8}.day strong{display:block;font-size:16px;margin:10px 0;font-weight:500}.day span{font-size:10px;color:#d58c97;overflow-wrap:anywhere}/* Compact, equal-height calendar tiles, even with custom pass names. */
 #training-view .week .day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:76px;padding:8px 4px}
 #training-view .week .day strong{margin:0}
-#training-view .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:16px 0 30px;padding:12px 0;border:1px solid #ffffff13;border-radius:15px;background:linear-gradient(160deg,#0e121a,#090c13 85%)}
-#training-view .stats .panel.stat{min-width:0;margin:0;padding:2px 10px;border:0;border-left:1px solid #ffffff0e;border-radius:0;background:none;box-shadow:none}
-#training-view .stats .panel.stat:first-child{border-left:0}
-#training-view .stats .stat-label{overflow:hidden;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#958e9b;white-space:nowrap;text-overflow:ellipsis}
-#training-view .stats .stat strong{margin:7px 0 4px;font-size:22px;font-weight:600;letter-spacing:-.03em;white-space:nowrap}
-#training-view .stats .stat strong small{margin-left:2px;font-size:12px;color:#a99da6}
-#training-view .stats .stat .sub{overflow:hidden;font-size:11px;white-space:nowrap;text-overflow:ellipsis}
-#training-view .stats .stat-goal-tools{gap:4px;flex-wrap:nowrap}
-#training-view .stats .stat-goal-tools button{width:20px;height:20px;font-size:13px;border-radius:6px}
-@media(max-width:740px){#training-view .stats{padding:11px 0}#training-view .stats .panel.stat{padding:2px 7px}#training-view .stats .stat strong{font-size:18px}#training-view .stats .stat-label{font-size:9.5px;letter-spacing:.06em}#training-view .stats .stat .sub{font-size:10px}}
-@media(max-width:350px){#training-view .stats .stat strong{font-size:16px}#training-view .stats .stat-goal-tools span{display:none}}
+#training-view .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0 30px;padding:0;border:0;background:none}
+#training-view .stats .panel.stat{--stat-rgb:240,122,147;position:relative;min-width:0;margin:0;padding:12px 14px 11px;overflow:hidden;border:1px solid rgba(var(--stat-rgb),.24);border-radius:15px;background:radial-gradient(ellipse at 0% 0%,rgba(var(--stat-rgb),.14),transparent 70%),linear-gradient(160deg,#0e121a,#090c13 85%);box-shadow:inset 0 1px 0 #ffffff06}
+#training-view .stats .panel.stat::before{content:"";position:absolute;left:14px;right:14px;top:0;height:2px;border-radius:0 0 3px 3px;background:linear-gradient(90deg,rgba(var(--stat-rgb),.9),rgba(var(--stat-rgb),0))}
+#training-view .stats .panel.stat:nth-child(2){--stat-rgb:103,232,249}#training-view .stats .panel.stat:nth-child(3){--stat-rgb:230,184,135}#training-view .stats .panel.stat:nth-child(4){--stat-rgb:143,214,166}
+#training-view .stats .stat-label{overflow:hidden;font-size:10.5px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--stat-rgb));white-space:nowrap;text-overflow:ellipsis}
+#training-view .stats .stat strong{display:block;margin:6px 0 4px;font-size:25px;font-weight:600;letter-spacing:-.03em;color:#f6edf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#training-view .stats .stat strong small{margin-left:2px;font-size:13px;color:#a99da6}
+#training-view .stats .stat .sub{overflow:hidden;font-size:11.5px;color:#9a929f;white-space:nowrap;text-overflow:ellipsis}
+#training-view .stats .stat-goal-tools{gap:6px;flex-wrap:nowrap}
+#training-view .stats .stat-goal-tools button{width:26px;height:26px;font-size:15px;border-radius:8px;border-color:rgba(var(--stat-rgb),.35);color:rgb(var(--stat-rgb))}
+@media(max-width:740px){#training-view .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#training-view .stats .panel.stat{padding:10px 12px 9px}#training-view .stats .stat strong{margin:4px 0 2px;font-size:22px}#training-view .stats .stat-goal-tools button{width:24px;height:24px}}
+@media(max-width:350px){#training-view .stats .stat strong{font-size:20px}#training-view .stats .stat-goal-tools span{display:none}}
 #training-view .section-head>.hint{font-size:12px}
 @media(max-width:740px){#training-view .section-head>.hint{display:none}}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
@@ -45,8 +46,8 @@ dialog{color:var(--text);background:linear-gradient(145deg,#191b29,#0d121e);bord
 dialog .modal-head>div,dialog .modal-body,dialog .modal-actions,dialog .modal-actions .right{min-width:0;max-width:100%;box-sizing:border-box}
 dialog button,dialog input,dialog select,dialog textarea{box-sizing:border-box}
 dialog .modal-actions button{min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
-#history-detail{width:min(620px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overflow-y:auto}
-#history-detail .modal-head,#history-detail .modal-body,#history-detail .exercise-card,#history-detail .set-header,#history-detail .set-row{min-width:0;max-width:100%}.session-progress{height:5px;background:#ffffff12;border-radius:4px;overflow:hidden;margin:15px 0}.session-progress div{height:100%;background:linear-gradient(90deg,#a03b52,#be788c);transition:width .2s}.session-title{font-size:25px;font-weight:400;letter-spacing:-.04em;margin:0}.session-timer{font-size:46px;font-variant-numeric:tabular-nums;font-weight:400;margin:15px 0;color:#d39baa}.session-set{grid-template-columns:34px minmax(0,1fr) minmax(0,1fr) 44px}.done-button{height:40px;border:1px solid #ffffff3c;border-radius:11px;color:#b9b4c0;background:#ffffff05}.done-button[aria-pressed=true]{background:#61bd8e29;color:#acffcb;border-color:#83e8ae8c}.zen-view{max-width:800px;margin:auto}.zen-view .choice{min-height:145px}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);padding:12px 17px;border:1px solid #b45b7777;background:#1e1b29f5;border-radius:12px;font-size:12px;z-index:100;box-shadow:0 10px 40px #0009;max-width:calc(100vw - 28px);text-align:center}
+
+.session-progress{height:5px;background:#ffffff12;border-radius:4px;overflow:hidden;margin:15px 0}.session-progress div{height:100%;background:linear-gradient(90deg,#a03b52,#be788c);transition:width .2s}.session-title{font-size:25px;font-weight:400;letter-spacing:-.04em;margin:0}.session-timer{font-size:46px;font-variant-numeric:tabular-nums;font-weight:400;margin:15px 0;color:#d39baa}.session-set{grid-template-columns:34px minmax(0,1fr) minmax(0,1fr) 44px}.done-button{height:40px;border:1px solid #ffffff3c;border-radius:11px;color:#b9b4c0;background:#ffffff05}.done-button[aria-pressed=true]{background:#61bd8e29;color:#acffcb;border-color:#83e8ae8c}.zen-view{max-width:800px;margin:auto}.zen-view .choice{min-height:145px}.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);padding:12px 17px;border:1px solid #b45b7777;background:#1e1b29f5;border-radius:12px;font-size:12px;z-index:100;box-shadow:0 10px 40px #0009;max-width:calc(100vw - 28px);text-align:center}
 @media(max-width:740px){header .inner{padding:10px 13px;flex-wrap:wrap}header .brand{font-size:13px}header .demo{font-size:9px}.topnav{order:3;width:100%;justify-content:center}.topnav button{flex:1}.hero{grid-template-columns:1fr;min-height:0;gap:0}.hero .copy{padding-top:17px}.hero h1{font-size:41px}.stats{grid-template-columns:1fr 1fr}.week{grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.day{padding:9px 2px;border-radius:10px}.day strong{font-size:13px}.day span{font-size:9px}.history{grid-template-columns:1fr}main{padding:21px 13px 58px}.choices{gap:7px}.choice{min-height:115px;padding:12px}.choice b{font-size:15px;margin:16px 0 4px}.choice small{font-size:10px}.wellness .choice{min-height:185px;padding:16px}.wellness .choice b{font-size:23px}.panel{padding:14px}.modal-body{padding:14px}.modal-head{padding:16px}.exercise-card{padding:11px}.set-header,.set-row{grid-template-columns:25px minmax(0,1fr) minmax(0,1fr) 26px;gap:5px}.set-row input{padding:10px 3px}.set-row .remove-set{min-height:39px}}
 /* Ingemar week planner: visible choices first, detailed builder second. */
 .week-head-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}.week-plan-button{padding:10px 13px}
@@ -381,9 +382,9 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 
 
 /* Ingång till den fristående teknikguiden; sparade pass och utkast påverkas inte. */
-.explore-link{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:7px 13px 7px 10px;border:1px solid #e6b88738;border-radius:999px;background:#e6b8870a;color:#efcf9f;font-size:12px;font-weight:650;white-space:nowrap;transition:border-color .2s,background .2s}
+.explore-link{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:9px 18px 9px 13px;border:1px solid #e6b88748;border-radius:999px;background:linear-gradient(135deg,#e6b88716,#e6b88706);box-shadow:0 0 22px #e6b88712;color:#f2d4a6;font-size:14px;font-weight:650;white-space:nowrap;transition:border-color .2s,background .2s}
 .explore-link:hover,.explore-link:focus-visible{border-color:#e6b88770;background:#e6b88714}
-.explore-link svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}.explore-link path{fill:currentColor;fill-opacity:.25}
+.explore-link svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}.explore-link path{fill:currentColor;fill-opacity:.25}
 .exercise-guide-inline{display:inline-flex;align-items:center;margin:9px 0 0 11px;padding:8px 3px;color:#d8a3b3;font-size:11px;font-weight:650}.exercise-guide-inline:hover{text-decoration:underline}
 .explore-import{border:1px solid #c98ca480;border-radius:17px;padding:22px;margin:20px 0;background:#1d1926;scroll-margin-top:100px}.explore-import h2{font-size:23px;letter-spacing:-.035em;margin:9px 0}.explore-import p{font-size:12px;line-height:1.7;color:#bdacbc}.explore-import-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:430px}.explore-import label{display:grid;gap:7px;font-size:11px;color:#d5c3ce}.explore-import input{max-width:100%;min-width:0}.explore-import-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.builder-suggestion{font-size:11px;line-height:1.6;color:#d6a9bf;margin:6px 0 12px}
 @media(max-width:600px){.explore-import{padding:16px}.explore-import-fields{grid-template-columns:1fr}.explore-import-actions>*{width:100%}}
@@ -420,6 +421,10 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 .pr-group-list{border-top:1px solid #ffffff0c}
 .pr-row{display:grid;grid-template-columns:minmax(0,1fr) max-content 14px;align-items:center;gap:10px;min-width:0;width:100%;min-height:46px;padding:7px 13px;text-align:left;color:var(--text);border:0;border-top:1px solid #ffffff08;background:transparent}
 .pr-row:first-child{border-top:0}
+.pr-row{--tone:240,122,147;position:relative;padding-left:17px}.pr-row[data-tone=pull]{--tone:103,232,249}.pr-row[data-tone=cardio]{--tone:247,160,94}
+.pr-row::before{content:"";position:absolute;left:7px;top:11px;bottom:11px;width:3px;border-radius:3px;background:rgb(var(--tone));box-shadow:0 0 8px rgba(var(--tone),.5)}
+.pr-row .pr-value,.pr-group-top strong{color:rgb(var(--tone))}.pr-group-top{--tone:240,122,147}.pr-group-top[data-tone=pull]{--tone:103,232,249}.pr-group-top[data-tone=cardio]{--tone:247,160,94}
+.pr-legend{display:flex;gap:14px;margin:-4px 0 10px;font-size:11px;color:#958e9b}.pr-legend span::before{content:"";display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c)}
 .pr-row:hover{background:#ffffff05}.pr-name{min-width:0}.pr-name strong{display:block;font-size:13px;font-weight:600;overflow-wrap:anywhere;line-height:1.3}.pr-name small{display:block;color:#908995;font-size:10px;margin-top:2px}
 .pr-value{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px;font-weight:650;color:#e4bac4}.pr-value small{display:block;font-size:10px;font-weight:500;margin-top:2px}.pr-gain{color:#a5d4b5}.pr-edit-icon{width:14px;height:14px;color:#a1808e}.pr-empty{grid-column:1/-1;margin:4px 0;font-size:12px;line-height:1.6;color:#9c909d}
 @media(max-width:740px){.pr-section-head h2{font-size:20px}.pr-section-head>.secondary{font-size:11px;padding:9px 11px}}
@@ -427,9 +432,9 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 .stat-goal-tools button{border:1px solid #c1758940;border-radius:8px;color:#eab1c0;background:#ffffff06;width:24px;height:24px;padding:0;font-size:16px;line-height:1}
 .stat-goal-tools span{white-space:nowrap}
 
-#history-detail h2,#history-detail h3,#plan-preview-title{overflow-wrap:anywhere}
+#plan-preview-title{overflow-wrap:anywhere}
 #history .metric{flex-shrink:0}
-#history-detail .exercise-head{flex-wrap:wrap}
+
 .log-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 #history-editor{width:min(740px,calc(100dvw - 20px));max-width:calc(100dvw - 20px);max-height:calc(100dvh - 20px);overflow-x:hidden;overscroll-behavior:contain}
 #history-editor .modal-body{min-width:0;overflow-x:hidden}
@@ -464,9 +469,9 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 }
 
 /* Sammanhållen Observatory Black-design för loggning och träningslogg. */
-#history-editor,#history-detail{position:fixed!important;inset:0!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;border:0!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;background:radial-gradient(ellipse at 50% -20%,#ad415910,transparent 55%),#070a10}
-#history-editor .modal-head,#history-detail .modal-head{padding:10px max(14px,calc((100vw - 940px)/2));background:#0b0d15f5;border-bottom:1px solid #ad41592c}
-#history-editor .modal-head h2,#history-detail .modal-head h2{font-size:20px}
+#history-editor{position:fixed!important;inset:0!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;border:0!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;background:radial-gradient(ellipse at 50% -20%,#ad415910,transparent 55%),#070a10}
+#history-editor .modal-head{padding:10px max(14px,calc((100vw - 940px)/2));background:#0b0d15f5;border-bottom:1px solid #ad41592c}
+#history-editor .modal-head h2{font-size:20px}
 /* Live-pass: tickande timer i huvudet medan passet fylls i. */
 #history-editor .modal-head{position:sticky;top:0;z-index:6;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 #history-editor .log-head-tools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
@@ -491,7 +496,7 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #history-editor .log-live-start .primary{flex:0 0 auto;min-height:40px;padding:9px 15px;border-radius:10px;white-space:nowrap}
 #history-editor .log-live-start .primary span{font-size:10px;margin-right:3px}
 #history-editor #log-edit-minutes:disabled{opacity:.7;-webkit-text-fill-color:currentColor}
-#history-editor .modal-body,#history-detail .modal-body{width:min(100%,940px);max-width:940px;margin:auto;padding:11px 14px calc(20px + env(safe-area-inset-bottom))}
+#history-editor .modal-body{width:min(100%,940px);max-width:940px;margin:auto;padding:11px 14px calc(20px + env(safe-area-inset-bottom))}
 #history-editor .log-template-picker{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;margin:0 0 12px;padding:0;border:0;background:transparent}
 #history-editor .log-template-picker label{font-size:10px;color:#a9a1ae}
 #history-editor .log-template-picker select{height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019}
@@ -513,7 +518,7 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #history-editor .log-editor-meta .field input,#history-editor .log-editor-meta .field select,#history-editor .compact-date-control{height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019;font-size:16px}
 #history-editor .compact-date-control{padding:0}
 #history-editor #log-edit-exercises{display:grid;gap:8px}
-#history-editor .log-editor-exercise,#history-detail .exercise-card{min-width:0;margin:0;padding:10px 11px;border:1px solid #b3657b3f;border-radius:14px;background:radial-gradient(ellipse at 0% 0%,#ad415911,transparent 65%),linear-gradient(145deg,#0e121a,#090c13 80%);box-shadow:inset 0 1px 0 #ffffff04}
+#history-editor .log-editor-exercise{min-width:0;margin:0;padding:10px 11px;border:1px solid #b3657b3f;border-radius:14px;background:radial-gradient(ellipse at 0% 0%,#ad415911,transparent 65%),linear-gradient(145deg,#0e121a,#090c13 80%);box-shadow:inset 0 1px 0 #ffffff04}
 #history-editor .log-editor-exercise.is-collapsed{padding:7px 10px;border-color:#ffffff1b;background:#0c1018}
 #history-editor .log-editor-exercise .exercise-head{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin:0 0 8px}
 #history-editor .log-editor-exercise.is-collapsed .exercise-head{margin:0}
@@ -547,8 +552,8 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #history-editor .log-editor-set-row .mini{width:29px;min-height:37px;padding:0;border:0;border-radius:9px;background:#ffffff05}
 #history-editor .log-editor-add-set{min-height:32px;margin-top:6px;padding:5px 10px;border:1px solid #b7657b50;border-radius:9px;background:#ad41590c;color:#e7b5c5;font-size:11px}
 #history-editor .log-editor-add-exercise{display:block;width:100%;min-height:37px;margin-top:9px;padding:7px 10px;border:1px dashed #b7657b50;border-radius:10px;background:#ad41590d;color:#e7b5c5;font-size:12px}
-#history-editor .modal-actions,#history-detail .modal-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:13px}#history-detail .modal-actions>.ghost{justify-self:start}#history-detail .modal-actions .right{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin:0}
-#history-editor .modal-actions button,#history-detail .modal-actions button{min-height:38px;border-radius:9px}
+#history-editor .modal-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:13px}
+#history-editor .modal-actions button{min-height:38px;border-radius:9px}
 #history{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px;align-items:start}
 #history .log-week{min-width:0;border:1px solid #ffffff14;border-radius:14px;background:linear-gradient(160deg,#0e121a,#090c13 85%);overflow:hidden}
 #history .log-week-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 13px 8px;border-bottom:1px solid #ffffff0c}
@@ -568,7 +573,7 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #history .log-time{font-size:12px;font-weight:650;color:#d9cfd6;font-variant-numeric:tabular-nums;white-space:nowrap}
 #history .log-chev{color:#6f6876;font-size:18px;line-height:1}
 #history .log-more{grid-column:1/-1;justify-self:center;padding:9px 16px;border:1px solid #ffffff1c;border-radius:999px;background:#ffffff05;color:#c9bfc7;font-size:12px;font-weight:650}
-#history-detail{--form-rgb:192,82,99;--form-accent:#e6a0b2}#history-detail[data-tone=pull]{--form-rgb:103,232,249;--form-accent:#b1f1f6}#history-detail[data-tone=cardio]{--form-rgb:247,160,94;--form-accent:#f7bf91}
+
 #pass-summary{--form-rgb:192,82,99;--form-accent:#e6a0b2;width:min(520px,calc(100vw - 20px));max-height:calc(100dvh - 24px);overflow-y:auto;padding:0;border:1px solid rgba(var(--form-rgb),.35);border-radius:20px;background:radial-gradient(ellipse at 50% -10%,rgba(var(--form-rgb),.2),transparent 60%),#090c13}
 #pass-summary[data-tone=pull]{--form-rgb:103,232,249;--form-accent:#b1f1f6}#pass-summary[data-tone=cardio]{--form-rgb:247,160,94;--form-accent:#f7bf91}
 #pass-summary .modal-body{padding:22px 16px 16px}
@@ -585,21 +590,34 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #pass-summary .summary-template strong{color:#f6edf1}
 #pass-summary .summary-sets{max-height:42dvh;overflow-y:auto;border:1px solid #ffffff12;border-radius:14px}
 #pass-summary .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}#pass-summary .modal-actions button{min-height:42px;border-radius:10px}
-#pass-summary .detail-meta,#history-detail .detail-meta{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
-#pass-summary .detail-meta span,#history-detail .detail-meta span{padding:5px 9px;border:1px solid #ffffff14;border-radius:999px;background:#ffffff05;color:#a9a1ae;font-size:11px}
-#pass-summary .detail-meta strong,#history-detail .detail-meta strong{color:#f1e4eb;font-weight:650}
-#history-detail #history-detail-body,#pass-summary .summary-sets{display:block;border:1px solid #ffffff12;border-radius:14px;background:linear-gradient(160deg,#0e121a,#090c13 85%)}
-#pass-summary .detail-ex,#history-detail .detail-ex{padding:10px 13px;border-top:1px solid #ffffff0a}
-#pass-summary .detail-ex:first-child,#history-detail .detail-ex:first-child{border-top:0}
-#pass-summary .detail-ex-name,#history-detail .detail-ex-name{display:flex;align-items:center;gap:7px;margin:0 0 7px}
-#pass-summary .detail-ex-name strong,#history-detail .detail-ex-name strong{font-size:13px;font-weight:650;color:#f3e9ee;overflow-wrap:anywhere}
-#pass-summary .detail-pr,#history-detail .detail-pr{padding:2px 6px;border-radius:5px;background:rgba(var(--form-rgb),.16);color:var(--form-accent);font-size:9px;font-weight:800;letter-spacing:.08em}
-#pass-summary .detail-sets,#history-detail .detail-sets{display:flex;flex-wrap:wrap;gap:5px}
-#pass-summary .detail-set,#history-detail .detail-set{padding:4px 8px;border:1px solid rgba(var(--form-rgb),.28);border-radius:7px;background:rgba(var(--form-rgb),.07);color:#f1e4eb;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
-#pass-summary .detail-set small,#history-detail .detail-set small{margin:0 2px;color:#8f8796;font-weight:500}
-#pass-summary .detail-set.is-skipped,#history-detail .detail-set.is-skipped{border-color:#ffffff12;background:transparent;color:#77707d;text-decoration:line-through}
-@media(max-width:600px){#history-editor .modal-head,#history-detail .modal-head{padding:10px 12px}#history-editor .modal-body,#history-detail .modal-body{padding:10px 10px calc(20px + env(safe-area-inset-bottom))}#history-editor .log-editor-exercise .exercise-fields{grid-template-columns:minmax(0,1fr) minmax(125px,auto);gap:5px}#history-editor .log-editor-set-head,#history-editor .log-editor-set-row{grid-template-columns:20px repeat(2,minmax(0,1fr)) 32px 26px;gap:4px}#history-editor .log-editor-set-row .mini{width:26px}#history-editor .modal-actions{display:grid;grid-template-columns:1fr}#history-editor .modal-actions>.ghost{justify-self:start}#history-editor .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%}#history-editor .modal-actions .right button{width:100%;padding:8px 4px}}
+#pass-summary .summary-sets{display:block;border:1px solid #ffffff12;border-radius:14px;background:linear-gradient(160deg,#0e121a,#090c13 85%)}
+#pass-summary .detail-ex{padding:10px 13px;border-top:1px solid #ffffff0a}
+#pass-summary .detail-ex:first-child{border-top:0}
+#pass-summary .detail-ex-name{display:flex;align-items:center;gap:7px;margin:0 0 7px}
+#pass-summary .detail-ex-name strong{font-size:13px;font-weight:650;color:#f3e9ee;overflow-wrap:anywhere}
+#pass-summary .detail-pr{padding:2px 6px;border-radius:5px;background:rgba(var(--form-rgb),.16);color:var(--form-accent);font-size:9px;font-weight:800;letter-spacing:.08em}
+@media(max-width:600px){#history-editor .modal-head{padding:10px 12px}#history-editor .modal-body{padding:10px 10px calc(20px + env(safe-area-inset-bottom))}#history-editor .log-editor-exercise .exercise-fields{grid-template-columns:minmax(0,1fr) minmax(125px,auto);gap:5px}#history-editor .log-editor-set-head,#history-editor .log-editor-set-row{grid-template-columns:20px repeat(2,minmax(0,1fr)) 32px 26px;gap:4px}#history-editor .log-editor-set-row .mini{width:26px}#history-editor .modal-actions{display:grid;grid-template-columns:1fr}#history-editor .modal-actions>.ghost{justify-self:start}#history-editor .modal-actions .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:100%}#history-editor .modal-actions .right button{width:100%;padding:8px 4px}}
 @media(max-width:350px){#history-editor .log-editor-exercise .exercise-fields{grid-template-columns:1fr}#history-editor .log-editor-set-head,#history-editor .log-editor-set-row{grid-template-columns:18px repeat(2,minmax(0,1fr)) 28px 25px;gap:3px}}
+
+/* Logged pass: overview + readable set lines */
+#history-editor .log-overview{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 13px;padding:2px 2px 12px;border-bottom:1px solid rgba(var(--form-rgb),.18)}
+#history-editor .log-overview[hidden]{display:none}
+#history-editor .log-overview small{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#958e9b}
+#history-editor .log-overview strong{display:block;margin-top:2px;font-size:20px;font-weight:650;letter-spacing:-.02em;color:#f6edf1;font-variant-numeric:tabular-nums;white-space:nowrap}
+#history-editor .log-overview em{font-style:normal;font-size:12px;font-weight:500;color:#a99da6}
+#history-editor .log-overview .is-pr strong{color:var(--form-accent)}
+#history-editor .log-editor-exercise.is-collapsed{padding:10px 12px;border-color:rgba(var(--form-rgb),.2);border-left:3px solid rgba(var(--form-rgb),.55);background:linear-gradient(90deg,rgba(var(--form-rgb),.06),transparent 55%),#0c1018}
+#history-editor .log-editor-exercise.is-collapsed .builder-card-title{gap:4px}
+#history-editor .log-editor-exercise.is-collapsed .builder-card-title strong{font-size:14.5px;white-space:normal;overflow-wrap:anywhere}
+#history-editor .log-pr{margin-left:4px;padding:1px 5px;border-radius:4px;background:rgba(var(--form-rgb),.18);color:var(--form-accent);font-size:8.5px;font-weight:800;letter-spacing:.08em}
+.log-sets-line{display:flex!important;flex-wrap:wrap;gap:3px 14px;font-size:13px;color:#cfc5cd;font-variant-numeric:tabular-nums}
+#history-editor .log-editor-exercise:not(.is-collapsed) .log-sets-line{display:none!important}
+.log-sets-line .ls-seg{white-space:nowrap}
+.log-sets-line .ls-seg b{font-weight:650;color:#f6edf1}
+.log-sets-line .ls-seg em{margin-left:6px;font-style:normal;color:var(--form-accent,#e6a0b2);font-weight:600}
+.log-sets-line .ls-seg.is-skipped{color:#6f6a76;text-decoration:line-through}.log-sets-line .ls-seg.is-skipped b,.log-sets-line .ls-seg.is-skipped em{color:#6f6a76}
+.log-sets-line .ls-empty{color:#7d7783}
+#pass-summary .detail-ex .log-sets-line{margin-top:-1px}
 </style>
 <style id="ingemar-account-styles">
 html[data-ingemar-auth="locked"],html[data-ingemar-auth="locked"] body{height:100%;overflow:hidden}
@@ -754,7 +772,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       </div>
     </div>
   </section>
-  <div class="section-head pr-section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><div id="personal-records" aria-live="polite"></div>
+  <div class="section-head pr-section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><div class="pr-legend" aria-hidden="true"><span style="--c:#f07a93">Push</span><span style="--c:#67e8f9">Pull</span><span style="--c:#f7a05e">Kondition</span></div><div id="personal-records" aria-live="polite"></div>
   <div class="section-head log-section-head"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
 </section>
 <section id="zen-view" class="zen-view" data-kind="stretch" hidden>
@@ -861,7 +879,6 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
  <div class="modal-body"><div id="plan-preview-summary"></div><ol id="plan-preview-list"></ol><div class="modal-actions"><button type="button" class="ghost" data-action="preview-back">Tillbaka &amp; redigera</button><div class="right"><button type="button" class="secondary" id="preview-save" data-action="preview-save">Spara pass</button><button type="button" class="primary" id="preview-start" data-action="preview-start">Spara &amp; starta ↗</button></div></div></div>
 </dialog>
 <dialog id="pass-summary" aria-labelledby="pass-summary-title"><div class="modal-body"><div class="summary-hero"><span class="summary-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></span><span class="eyebrow">PASSET ÄR SPARAT</span><h2 id="pass-summary-title">Pass</h2></div><div class="summary-stats" id="pass-summary-stats"></div><p class="summary-template" id="pass-summary-template"></p><div class="summary-sets" id="pass-summary-body"></div><div class="modal-actions"><button type="button" class="secondary" data-action="summary-open-log">Visa i loggen</button><button type="button" class="primary" data-action="summary-close">Klar ✓</button></div></div></dialog>
-<dialog id="history-detail" aria-labelledby="history-detail-title"><div class="modal-head"><div><span class="eyebrow">TRÄNINGSLOGG</span><h2 id="history-detail-title">Träningslogg</h2></div><button type="button" class="x" data-action="close-history" aria-label="Stäng">×</button></div><div class="modal-body"><p class="detail-meta" id="history-detail-sub"></p><div id="history-detail-body"></div><div class="modal-actions"><button type="button" class="ghost log-editor-danger" data-action="delete-history-direct" aria-label="Ta bort detta loggade träningspass">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="history-to-template">Spara som mall</button><button type="button" class="primary" data-action="edit-history">Redigera pass</button></div></div></div></dialog>
 <dialog id="pr-editor" aria-labelledby="pr-editor-title">
  <div class="modal-head"><div><span class="eyebrow">PERSONLIGA REKORD · INGEMAR</span><h2 id="pr-editor-title">Registrera rekord</h2></div><button type="button" class="x" data-action="cancel-record" aria-label="Stäng">×</button></div>
  <div class="modal-body">
@@ -874,7 +891,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
  </div>
 </dialog>
 <dialog id="history-editor" aria-labelledby="history-editor-title">
- <div class="modal-head"><div><span class="eyebrow">TRÄNINGSLOGG · INGEMAR</span><h2 id="history-editor-title">Redigera pass</h2></div><div class="log-head-tools"><button type="button" class="log-live-timer" id="log-live-timer" data-action="log-live-toggle" hidden aria-live="off"><i aria-hidden="true"></i><span id="log-live-time" role="timer">00:00</span><small id="log-live-sets"></small></button><button type="button" class="x" data-action="cancel-history-edit" aria-label="Stäng">×</button></div></div>
+ <div class="modal-head"><div><span class="eyebrow" id="history-editor-eyebrow">TRÄNINGSLOGG · INGEMAR</span><h2 id="history-editor-title">Redigera pass</h2></div><div class="log-head-tools"><button type="button" class="log-live-timer" id="log-live-timer" data-action="log-live-toggle" hidden aria-live="off"><i aria-hidden="true"></i><span id="log-live-time" role="timer">00:00</span><small id="log-live-sets"></small></button><button type="button" class="x" data-action="cancel-history-edit" aria-label="Stäng">×</button></div></div>
  <div class="modal-body">
   <div class="log-template-picker" id="log-template-picker" hidden>
     <label for="log-template-select">Logga ett mallpass</label>
@@ -882,6 +899,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
     <small id="log-template-hint">Välj en mall så fylls övningar och set i automatiskt. Justera det du faktiskt genomfört innan du sparar.</small>
    </div>
    <div class="log-live-start" id="log-live-start" hidden><div><strong>Kör passet nu</strong><small>Tiden räknas uppe till höger. Fyll i vikter och reps medan du tränar.</small></div><button type="button" class="primary" data-action="log-live-start"><span aria-hidden="true">▶</span> Starta pass</button></div>
+   <div class="log-overview" id="log-overview" hidden></div>
    <div class="log-editor-meta">
    <div class="field"><label for="log-edit-date">Datum</label><div class="compact-date-control"><span class="compact-date-label" data-date-label-for="log-edit-date" aria-hidden="true"></span><input id="log-edit-date" data-log-field="date" type="date"></div></div>
    <div class="field log-editor-type-field"><span class="log-editor-type-label" id="log-type-label">Träningsform</span><div class="log-type-pills" id="log-type-pills" role="group" aria-labelledby="log-type-label"></div></div>
@@ -890,7 +908,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   </div>
   <div id="log-edit-exercises"></div>
   <button type="button" class="secondary log-editor-add-exercise" data-action="log-add-exercise">＋ Lägg till övning</button><a class="exercise-guide-inline" href="pulse-exercise-guide.html?user=ingemar" target="_blank" rel="noopener">Utforska träning ↗</a>
-  <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" data-action="cancel-history-edit">Avbryt</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
+  <div class="modal-actions"><button type="button" class="ghost log-editor-danger" id="log-edit-delete" data-action="log-delete">Ta bort pass</button><div class="right"><button type="button" class="secondary" id="log-edit-cancel" data-action="cancel-history-edit">Avbryt</button><button type="button" class="secondary" id="log-edit-to-template" data-action="history-to-template" hidden>Spara som mall</button><button type="button" class="primary" data-action="log-save">Spara ändringar ✓</button></div></div>
  </div>
 </dialog>
 <iframe id="family-session-frame" class="family-session-frame" data-src="ingemar-session/exercise.html?user=ingemar&v=20261021-preprogress-restore-1" title="Träningsläge" hidden></iframe>
@@ -1467,13 +1485,14 @@ function renderRecords(){
  var order=MUSCLE_GROUPS.map(function(g){return g[0];}).concat(['Kondition','Övrigt']),byGroup={};
  records.forEach(function(record){var group=muscleGroupFor(record);(byGroup[group]=byGroup[group]||[]).push(record);});
  var icon='<svg class="pr-edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z"/></svg>';
+ function recordTone(record){return record.minutes!=null||record.group==='Kondition'?'cardio':record.group==='Pull'?'pull':'push';}
  function valueText(record){var timed=record.minutes!=null;return (timed?record.minutes:record.weight).toLocaleString('sv-SE',{maximumFractionDigits:2})+(timed?' min':' kg');}
  var html=order.filter(function(group){return byGroup[group];}).map(function(group){
   var rows=byGroup[group].sort(function(a,b){var av=a.minutes!=null?a.minutes:a.weight,bv=b.minutes!=null?b.minutes:b.weight;return bv-av||a.name.localeCompare(b.name,'sv');});
   var top=rows[0],recent=rows.some(function(r){return r.date&&r.date>=offset(dayISO(new Date()),-14);});
-  return '<details class="pr-group" data-pr-group="'+clean(group)+'"'+(openMuscleGroups.has(group)?' open':'')+'><summary><span class="pr-group-name"><strong>'+clean(group)+'</strong><small>'+rows.length+' rekord'+(recent?' · <em>nytt senaste 2 v</em>':'')+'</small></span><span class="pr-group-top"><small>'+clean(top.name)+'</small><strong>'+valueText(top)+'</strong></span><span class="pr-group-chev" aria-hidden="true"></span></summary><div class="pr-group-list">'+rows.map(function(record){
+  return '<details class="pr-group" data-pr-group="'+clean(group)+'"'+(openMuscleGroups.has(group)?' open':'')+'><summary><span class="pr-group-name"><strong>'+clean(group)+'</strong><small>'+rows.length+' rekord'+(recent?' · <em>nytt senaste 2 v</em>':'')+'</small></span><span class="pr-group-top" data-tone="'+recordTone(top)+'"><small>'+clean(top.name)+'</small><strong>'+valueText(top)+'</strong></span><span class="pr-group-chev" aria-hidden="true"></span></summary><div class="pr-group-list">'+rows.map(function(record){
    var timed=record.minutes!=null,action=timed?'data-history="'+clean(record.workoutId)+'"':'data-pr-edit="'+clean(record.name)+'"';
-   return '<button type="button" class="pr-row" '+action+' aria-label="'+(timed?'Öppna passet för ':'Redigera rekord för ')+clean(record.name)+'"><span class="pr-name"><strong>'+clean(record.name)+'</strong><small>'+(record.date?pretty(record.date):'Datum saknas')+'</small></span><span class="pr-value">'+valueText(record)+(record.gain>0?'<small class="pr-gain">+'+record.gain.toLocaleString('sv-SE',{maximumFractionDigits:2})+(timed?' min':' kg')+'</small>':'')+'</span>'+(timed?'<span></span>':icon)+'</button>';
+   return '<button type="button" class="pr-row" data-tone="'+recordTone(record)+'" '+action+' aria-label="'+(timed?'Öppna passet för ':'Redigera rekord för ')+clean(record.name)+'"><span class="pr-name"><strong>'+clean(record.name)+'</strong><small>'+(record.date?pretty(record.date):'Datum saknas')+'</small></span><span class="pr-value">'+valueText(record)+(record.gain>0?'<small class="pr-gain">+'+record.gain.toLocaleString('sv-SE',{maximumFractionDigits:2})+(timed?' min':' kg')+'</small>':'')+'</span>'+(timed?'<span></span>':icon)+'</button>';
   }).join('')+'</div></details>';
  }).join('');
  $('personal-records').innerHTML=html||'<p class="pr-empty">Inga rekord ännu. Spara ett styrkepass eller lägg till ett rekord.</p>';
@@ -1558,12 +1577,13 @@ function backfillTemplatesFromHistory(){
  if(added.length){render();toast(added.length+' mallpass återskapade från loggen: '+added.slice(0,3).join(', ')+(added.length>3?' …':''));}
 }
 function saveHistoryAsTemplate(){
- var workout=state.history.find(function(h){return String(h.id)===String(selectedHistoryId);});
+ if(historyEditorDirty()){toast('Spara ändringarna först, sedan kan passet bli en mall.');return;}
+ var workout=state.history.find(function(h){return String(h.id)===String(historyEditId);});
  if(!workout||!(workout.exercises||[]).length){toast('Passet har inga övningar att spara som mall.');return;}
  if(hasTemplateNamed(workout.name)){toast('Det finns redan ett mallpass som heter "'+String(workout.name).trim()+'".');return;}
  var template=templateFromWorkout(workout);builderTemplates().push(template);
  if(!persist()){state.templates=builderTemplates().filter(function(t){return t.id!==template.id;});return;}
- render();toast('Sparat som mallpass "'+template.name+'".');
+ render();renderHistoryEditor();toast('Sparat som mallpass "'+template.name+'".');
 }
 function render(){
  renderExploreTransfer();
@@ -1844,7 +1864,7 @@ function lockBuilderBackground(){
  document.body.style.top=(-builderScrollY)+'px';
 }
 function unlockBuilderBackground(){
- if(document.querySelector('#builder[open],#week-planner[open],#history-detail[open],#history-editor[open],#pr-editor[open]'))return;
+ if(document.querySelector('#builder[open],#week-planner[open],#history-editor[open],#pr-editor[open]'))return;
  if(document.body.dataset.builderOpen!=='true')return;
  delete document.body.dataset.builderOpen;
  document.body.style.top='';
@@ -2909,20 +2929,36 @@ function workoutTotals(workout){
  var done=0,volume=0;(workout.exercises||[]).forEach(function(e){(e.sets||[]).forEach(function(set){if(set.done&&!set.skipped){done++;if(e.mode!=='min')volume+=(Number(set.weight)||0)*(Number(set.reps)||0);}});});
  return {sets:done,volume:Math.round(volume),time:workout.elapsedSeconds?formatQuickTime(Number(workout.elapsedSeconds)):workout.minutes+' min'};
 }
-function workoutMetaHtml(workout){
- var t=workoutTotals(workout),exercises=workout.exercises||[];
- return '<span>'+pretty(workout.date)+'</span><span>'+clean(workout.type)+'</span><span><strong>'+t.time+'</strong></span>'+(exercises.length?'<span><strong>'+t.sets+'</strong> set</span>':'')+(t.volume?'<span><strong>'+t.volume.toLocaleString('sv-SE')+'</strong> kg volym</span>':'');
+function numberText(n){return Number(n).toLocaleString('sv-SE',{maximumFractionDigits:2});}
+// Sets as a readable line: identical consecutive sets are grouped ("60 kg 3 × 8").
+function setsLineHtml(ex){
+ var timed=ex.mode==='min',runs=[];
+ (ex.sets||[]).forEach(function(set){
+  var done=!!set.done&&!set.skipped,w=timed?set.minutes:set.weight,r=set.reps,last=runs[runs.length-1];
+  if(last&&last.done===done&&last.w===w&&last.r===r)last.n++;else runs.push({done:done,w:w,r:r,n:1});
+ });
+ if(!runs.length)return '<span class="ls-empty">Inga set</span>';
+ return runs.map(function(run){
+  var head=run.w!=null&&run.w!==''?'<b>'+numberText(run.w)+'</b> '+(timed?'min':'kg'):(timed?'<b>–</b> min':'<b>kropp</b>');
+  var tail=timed?(run.n>1?run.n+' set':''):run.n+' × '+(run.r!=null&&run.r!==''?run.r:'–');
+  return '<span class="ls-seg'+(run.done?'':' is-skipped')+'" title="'+(run.done?'Genomfört':'Inte genomfört')+'">'+head+(tail?'<em>'+tail+'</em>':'')+'</span>';
+ }).join('');
+}
+function isWorkoutPr(ex,workoutId){
+ if(ex.mode==='min'||!workoutId)return false;
+ var pr=state.prs[window.IngemarRecords.key(ex.name)];
+ return !!pr&&String(pr.workoutId)===String(workoutId);
 }
 function workoutSetsHtml(workout){
  var exercises=workout.exercises||[];
  if(!exercises.length)return '<p class="hint detail-empty">Endast tid registrerad. Inga set eller repetitioner har loggats.</p>';
  return exercises.map(function(e){
-  var timed=e.mode==='min',pr=!timed&&state.prs[window.IngemarRecords.key(e.name)],isPr=pr&&String(pr.workoutId)===String(workout.id);
-  return '<div class="detail-ex"><div class="detail-ex-name"><strong>'+clean(e.name)+'</strong>'+(isPr?'<span class="detail-pr">PR</span>':'')+'</div><div class="detail-sets">'+(e.sets||[]).map(function(set){
-   var done=set.done&&!set.skipped,text=timed?(set.minutes!=null?Number(set.minutes).toLocaleString('sv-SE')+' min':'–'):(set.weight!=null?Number(set.weight).toLocaleString('sv-SE'):'–')+'<small>×</small>'+(set.reps||'–');
-   return '<span class="detail-set'+(done?'':' is-skipped')+'" title="'+(done?'Genomfört':'Inte genomfört')+'">'+text+'</span>';
-  }).join('')+'</div></div>';
+  return '<div class="detail-ex"><div class="detail-ex-name"><strong>'+clean(e.name)+'</strong>'+(isWorkoutPr(e,workout.id)?'<span class="detail-pr">PR</span>':'')+'</div><div class="log-sets-line">'+setsLineHtml(e)+'</div></div>';
  }).join('');
+}
+function workoutOverviewHtml(workout){
+ var t=workoutTotals(workout),prs=(workout.exercises||[]).filter(function(e){return isWorkoutPr(e,workout.id);}).length;
+ return '<div><small>Tid</small><strong>'+t.time+'</strong></div><div><small>Set</small><strong>'+t.sets+'</strong></div><div><small>Volym</small><strong>'+(t.volume?t.volume.toLocaleString('sv-SE')+'<em> kg</em>':'–')+'</strong></div>'+(prs?'<div class="is-pr"><small>Rekord</small><strong>'+prs+'<em> PR</em></strong></div>':'');
 }
 function openPassSummary(workout,templateInfo){
  var t=workoutTotals(workout),dialog=$('pass-summary');
@@ -2933,16 +2969,6 @@ function openPassSummary(workout,templateInfo){
  $('pass-summary-body').innerHTML=workoutSetsHtml(workout);
  selectedHistoryId=workout.id;
  SurfaceMotion.showDialog(dialog);
-}
-function openHistory(id){
- selectedHistoryId=id;
- var workout=state.history.find(function(h){return String(h.id)===String(id);});
- if(!workout)return;
- $('history-detail-title').textContent=workout.name||workout.type;
- $('history-detail').dataset.tone=workoutTone(workout);
- $('history-detail-sub').innerHTML=workoutMetaHtml(workout);
- $('history-detail-body').innerHTML=workoutSetsHtml(workout);
- lockBuilderBackground();SurfaceMotion.showDialog($('history-detail'));
 }
 // Keep completed sets separate from planned/uncompleted sets, as on the family log.
 function logEditorSet(source){
@@ -3025,7 +3051,11 @@ function renderHistoryEditor(){
  $('history-editor').dataset.tone=w.type==='Pull'?'pull':w.type==='Kondition'?'cardio':'push';
  syncHistoryCardExpansion();
  renderHistoryLogTemplates();
- $('history-editor-title').textContent=historyEditId?'Redigera pass':'Logga nytt pass';
+ var saved=historyEditId?state.history.find(function(h){return String(h.id)===String(historyEditId);}):null;
+ $('log-overview').hidden=!saved;
+ if(saved)$('log-overview').innerHTML=workoutOverviewHtml(saved);
+ var canTemplate=!!saved&&(saved.exercises||[]).length>0&&!hasTemplateNamed(saved.name);
+ $('log-edit-to-template').hidden=!canTemplate;$('log-edit-cancel').hidden=canTemplate;
  $('log-edit-date').value=w.date;syncDateDisplay('log-edit-date');
  $('log-type-pills').innerHTML=(w.type==='Övrigt'?['Push','Pull','Kondition','Övrigt']:['Push','Pull','Kondition']).map(function(t){return '<button type="button" class="pill'+(w.type===t?' active':'')+'" data-log-type="'+t+'" aria-pressed="'+(w.type===t)+'">'+t+'</button>';}).join('');
  $('log-edit-name').value=w.name||'';
@@ -3034,8 +3064,9 @@ function renderHistoryEditor(){
  $('history-editor').querySelector('[data-action="log-save"]').textContent=historyEditId?'Spara ändringar ✓':'Spara pass ✓';
  $('log-edit-exercises').innerHTML=w.exercises.map(function(ex,i){
   var timed=ex.mode==='min',expanded=historyExpandedCardIds.has(String(ex.id)),name=String(ex.name||'').trim()||'Ny övning';
+  var doneSets=ex.sets.filter(function(set){return set.done&&!set.skipped;}).length,pr=isWorkoutPr(ex,historyEditId);
   return '<article class="exercise-card log-editor-exercise'+(expanded?'':' is-collapsed')+'" data-log-exercise="'+i+'">'+
-   '<div class="exercise-head"><button type="button" class="builder-card-toggle" data-log-toggle="'+i+'" aria-expanded="'+expanded+'" aria-controls="log-card-body-'+i+'"><span class="builder-card-chevron" aria-hidden="true">›</span><span class="builder-card-title"><small>ÖVNING '+pad(i+1)+'</small><strong>'+clean(name)+'</strong><span class="builder-card-summary">'+clean(builderExerciseSummary(ex))+'</span></span></button><div class="log-editor-tools">'+
+   '<div class="exercise-head"><button type="button" class="builder-card-toggle" data-log-toggle="'+i+'" aria-expanded="'+expanded+'" aria-controls="log-card-body-'+i+'"><span class="builder-card-chevron" aria-hidden="true">›</span><span class="builder-card-title"><small>ÖVNING '+pad(i+1)+' · '+doneSets+'/'+ex.sets.length+' SET'+(pr?' <span class="log-pr">PR</span>':'')+'</small><strong>'+clean(name)+'</strong><span class="builder-card-summary log-sets-line">'+setsLineHtml(ex)+'</span></span></button><div class="log-editor-tools">'+
    '<button type="button" class="mini" data-log-move="'+i+':-1" '+(i===0?'disabled':'')+' aria-label="Flytta övning upp">↑</button>'+
    '<button type="button" class="mini" data-log-move="'+i+':1" '+(i===w.exercises.length-1?'disabled':'')+' aria-label="Flytta övning ned">↓</button>'+
    '<details class="builder-card-menu"><summary aria-label="Fler åtgärder för '+clean(name)+'">⋯</summary><div class="builder-card-menu-content"><button type="button" data-log-remove-ex="'+i+'">Ta bort övning</button></div></details></div></div>'+
@@ -3150,8 +3181,9 @@ function renderLiveLog(){
  $('log-edit-minutes').disabled=!!liveLog;
  if(isNew)editor.querySelector('[data-action="log-save"]').textContent=liveLog?'Avsluta pass ✓':'Spara pass ✓';
  if(liveLog&&historyEditDraft){var total=0,done=0;historyEditDraft.exercises.forEach(function(ex){ex.sets.forEach(function(set){total++;if(set.done&&!set.skipped&&setHasValue(ex,set))done++;});});$('log-live-sets').textContent=done+'/'+total+' set';}
- $('history-editor').querySelector('.modal-head .eyebrow').textContent=liveLog?(liveLog.running?'● LIVE · PASSET PÅGÅR':'PAUSAT PASS · TRYCK PÅ TIDEN FÖR ATT FORTSÄTTA'):'TRÄNINGSLOGG · INGEMAR';
- $('history-editor-title').textContent=historyEditId?'Redigera pass':liveLog?'Pågående pass':'Logga nytt pass';
+ var saved=historyEditId?state.history.find(function(h){return String(h.id)===String(historyEditId);}):null;
+ $('history-editor-eyebrow').textContent=liveLog?(liveLog.running?'● LIVE · PASSET PÅGÅR':'PAUSAT PASS · TRYCK PÅ TIDEN FÖR ATT FORTSÄTTA'):saved?'TRÄNINGSLOGG · '+pretty(saved.date).toUpperCase():'TRÄNINGSLOGG · INGEMAR';
+ $('history-editor-title').textContent=saved?(String(saved.name||'').trim()||saved.type):liveLog?'Pågående pass':'Logga nytt pass';
  scheduleLiveLogPaint();
 }
 function startLiveLog(){
@@ -3302,12 +3334,7 @@ function deleteLoggedHistoryById(id,source){
   state.history=previousHistory;state.prs=previousPrs;
   return false;
  }
- if(source==='detail'){
-  if($('history-detail').open)SurfaceMotion.closeDialog($('history-detail'));
-  selectedHistoryId='';
- }else if(source==='editor'){
-  closeHistoryEditor(true);
- }
+ if(source==='editor')closeHistoryEditor(true);
  render();
  offerUndo('Träningspasset togs bort.',function(){
   if(state.history.some(function(w){return String(w.id)===String(removed.id);}))return;
@@ -3317,9 +3344,6 @@ function deleteLoggedHistoryById(id,source){
   render();
  });
  return true;
-}
-function deleteHistoryDirect(){
- if(selectedHistoryId)deleteLoggedHistoryById(selectedHistoryId,'detail');
 }
 function deleteHistoryEditor(){
  if(historyEditId&&historyEditDraft)deleteLoggedHistoryById(historyEditId,'editor');
@@ -3830,7 +3854,7 @@ document.addEventListener('click',function(event){
   persist();render();return;
  }
  if(b.dataset.prEdit!=null){openRecordEditor(b.dataset.prEdit);return;}
- if(b.dataset.history){openHistory(b.dataset.history);return;}
+ if(b.dataset.history){openHistoryEditor(b.dataset.history);return;}
  if(b.dataset.logToggle!=null){toggleHistoryCard(Number(b.dataset.logToggle));return;}
  if(b.dataset.logAddSet!=null){mutateHistoryEditor('add-set',b);return;}
  if(b.dataset.logRemoveSet!=null){mutateHistoryEditor('remove-set',b);return;}
@@ -3852,7 +3876,7 @@ document.addEventListener('click',function(event){
  if(b.dataset.day){selected=b.dataset.day;render();openBuilder(null,true);return;}
  if(b.dataset.choice){selectedTrainingKind=selectedTrainingKind===b.dataset.choice?'':b.dataset.choice;renderTrainingKinds();return;}
  if(b.dataset.kindClose!=null){selectedTrainingKind='';renderTrainingKinds();return;}
- if(b.dataset.kindHistory!=null){openHistory(b.dataset.kindHistory);return;}
+ if(b.dataset.kindHistory!=null){openHistoryEditor(b.dataset.kindHistory);return;}
  if(b.dataset.kindLogTemplate!=null){var t=builderTemplates().find(function(x){return String(x.id)===String(b.dataset.kindLogTemplate);});if(t)openTrainingKindLog(t.type,t.id);else toast('Mallpasset finns inte längre.');return;}
  if(b.dataset.kindEditTemplate!=null){var t=builderTemplates().find(function(x){return String(x.id)===String(b.dataset.kindEditTemplate);});if(t)openTrainingKindBuilder(t.type,t.id);else toast('Mallpasset finns inte längre.');return;}
  if(b.dataset.kindLog!=null){openTrainingKindLog(b.dataset.kindLog);return;}
@@ -3956,7 +3980,6 @@ document.addEventListener('click',function(event){
    case 'preview-back':SurfaceMotion.closeDialog($('plan-preview'));break;
    case 'preview-save':confirmPlanPreview(false);break;
    case 'preview-start':confirmPlanPreview(true);break;
-   case 'close-history':SurfaceMotion.closeDialog($('history-detail'));selectedHistoryId='';break;
    case 'new-history':openHistoryEditor('');break;
    case 'history-more':historyShowAll=!historyShowAll;renderHistoryLog();break;
    case 'log-live-start':startLiveLog();break;
@@ -3973,11 +3996,9 @@ document.addEventListener('click',function(event){
    case 'cancel-record':closeRecordEditor();break;
    case 'save-record':saveRecordEditor();break;
    case 'remove-record':removeRecordEditor();break;
-   case 'edit-history':if(selectedHistoryId){SurfaceMotion.closeDialog($('history-detail'));openHistoryEditor(selectedHistoryId);}break;
-   case 'delete-history-direct':deleteHistoryDirect();break;
    case 'history-to-template':saveHistoryAsTemplate();break;
    case 'summary-close':SurfaceMotion.closeDialog($('pass-summary'));break;
-   case 'summary-open-log':SurfaceMotion.closeDialog($('pass-summary'));openHistory(selectedHistoryId);break;
+   case 'summary-open-log':SurfaceMotion.closeDialog($('pass-summary'));openHistoryEditor(selectedHistoryId);break;
    case 'cancel-history-edit':closeHistoryEditor();break;
    case 'log-add-exercise':mutateHistoryEditor('add-exercise',b);break;
    case 'log-save':if(liveLog)finishLiveLog();else saveHistoryEditor();break;
@@ -4127,8 +4148,6 @@ $('week-planner').addEventListener('close',function(){endWeekDrag();weekCopyFrom
 $('plan-preview').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('plan-preview'));});
 $('builder').addEventListener('cancel',function(event){event.preventDefault();if(builderOpenExerciseIndex>=0){closeBuilderExercisePicker();return;}closeBuilder();});
 $('builder').addEventListener('close',function(){endBuilderDrag();builderOpenExerciseIndex=-1;builderFreeExerciseIndex=-1;builderTemplateId='';builderMode='day';builderDayStage='choose';builderDayDraft=null;builderTemplateDraft=null;builderTemplateDraftId='';builderTemplateCreating=false;builderTemplateDraftCreating=false;builderTemplateRenaming=false;builderDayRenaming=false;unlockBuilderBackground();restoreWeekPlannerFromBuilder();});
-$('history-detail').addEventListener('close',unlockBuilderBackground);
-$('history-detail').addEventListener('cancel',function(event){event.preventDefault();SurfaceMotion.closeDialog($('history-detail'));selectedHistoryId='';});
 $('history-editor').addEventListener('cancel',function(event){event.preventDefault();closeHistoryEditor();});
 $('pr-edit-group').addEventListener('change',function(){recordGroupChosen=true;});
 $('pr-edit-name').addEventListener('input',function(){if(!recordEditKey&&!recordGroupChosen)$('pr-edit-group').value=window.IngemarRecords.group(this.value);});

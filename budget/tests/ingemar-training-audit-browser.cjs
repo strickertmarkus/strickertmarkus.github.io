@@ -123,11 +123,11 @@ async function run(browserType,label,width){
  page.once('dialog',d=>d.dismiss());await page.locator('#history-editor .modal-head [data-action="cancel-history-edit"]').click();assert.equal(await page.locator('#history-editor').evaluate(e=>e.open),true);
  await shot(page,label+'-log-editor');await geometry(page,'#history-editor');await page.locator('[data-action="log-save"]').click();await synced(page);
  let log=(await data(page)).history.find(h=>h.name==='Registrerat presspass');assert.equal((await data(page)).prs['bänkpress'].weight,60.5);
- await page.locator(`[data-history="${log.id}"]`).first().click();await shot(page,label+'-log-detail');await page.locator('[data-action="edit-history"]').click();await page.locator('#log-edit-name').fill('Ändrat passnamn');
+ await page.locator(`[data-history="${log.id}"]`).first().click();await shot(page,label+'-log-detail');await page.locator('#log-edit-name').fill('Ändrat passnamn');
  await page.evaluate(id=>window.__auditRemote(d=>{d.history.find(h=>h.id===id).exercises[0].sets[0].weight=65;}),log.id);
  assert.equal(await page.locator('#log-edit-name').inputValue(),'Ändrat passnamn');await page.locator('[data-action="log-save"]').click();await synced(page);
  log=(await data(page)).history.find(h=>h.id===log.id);assert.equal(log.name,'Ändrat passnamn');assert.equal(log.exercises[0].sets[0].weight,65);
- await page.locator(`[data-history="${log.id}"]`).first().click();await page.locator('[data-action="edit-history"]').click();page.once('dialog',d=>d.accept());await page.locator('[data-action="log-delete"]').click();await page.locator('[data-action="undo-delete"]').click();await synced(page);assert.equal((await data(page)).history.length,1);
+ await page.locator(`[data-history="${log.id}"]`).first().click();page.once('dialog',d=>d.accept());await page.locator('[data-action="log-delete"]').click();await page.locator('[data-action="undo-delete"]').click();await synced(page);assert.equal((await data(page)).history.length,1);
  // Manual records and correction; entered fractions must survive reload.
  await page.locator('[data-action="new-record"]').click();await page.locator('#pr-edit-name').fill('Marklyft');await page.locator('#pr-edit-weight').fill('103.75');await page.locator('#pr-edit-group').selectOption('Pull');await page.locator('[data-action="save-record"]').click();await synced(page);assert.equal((await data(page)).manualPrs.marklyft.weight,103.75);
  console.log(label+': history, records and concurrent edits passed');
@@ -148,7 +148,7 @@ async function run(browserType,label,width){
  await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-mature');
  // Responsive review and input geometry on narrow mobile and desktop.
  for(const size of [{width:320,height:740},{width:1440,height:1000}]){
-  await page.setViewportSize(size);await page.locator('#history [data-history]').first().click();await geometry(page,'#history-detail');await shot(page,label+'-long-log-'+size.width);await page.locator('#history-detail .modal-head [data-action="close-history"]').click();await page.locator('[data-action="build"]').first().click();await geometry(page,'#builder');
+  await page.setViewportSize(size);await page.locator('#history [data-history]').first().click();await geometry(page,'#history-editor');await shot(page,label+'-long-log-'+size.width);await page.locator('#history-editor .modal-head [data-action="cancel-history-edit"]').click();await page.locator('[data-action="build"]').first().click();await geometry(page,'#builder');
   const bad=await page.locator('#builder input').evaluateAll(els=>els.filter(el=>el.getClientRects().length).some(el=>parseFloat(getComputedStyle(el).fontSize)<16));assert.equal(bad,false);
   assert.equal(await page.locator('#builder .builder-session-settings').evaluate(el=>getComputedStyle(el).display),'grid','Session settings retain their layout at '+size.width);
   assert.equal(await page.locator('#builder-pre-timer-toggle').evaluate(el=>getComputedStyle(el).display),'flex','Timer switch retains its layout at '+size.width);

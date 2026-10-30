@@ -412,10 +412,9 @@ async function verifyTouchDrag(page,label){
  await page.locator('#personal-records').scrollIntoViewIfNeeded();
  await page.screenshot({path:'test-results/ingemar-private/records-390.png'});
  await page.locator('[data-history="test-real-session"]').click();
- assert.match(await page.locator('#history-detail').textContent(),/PR 52.5 kg/);
+ assert.match(await page.locator('#history-editor').textContent(),/PR/);
  await page.screenshot({path:'test-results/ingemar-private/record-details-390.png'});
  // Training log supports full CRUD and automatically rebuilds PRs on edits.
- await page.locator('[data-action="edit-history"]').click();
  assert.equal(await page.locator('#history-editor').evaluate(el=>el.open),true);
  assert.equal(await page.locator('#log-edit-name').inputValue(),'Push · Styrka');
  await page.screenshot({path:'test-results/ingemar-private/log-edit-390.png'});
@@ -449,7 +448,6 @@ async function verifyTouchDrag(page,label){
   return data.history.find(w=>w.name==='Nyregistrerat styrkepass').id;
  });
  await page.locator('[data-history="'+newId+'"]').click();
- await page.locator('[data-action="edit-history"]').click();
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('[data-action="log-delete"]').click();
  await page.waitForFunction(()=>{
@@ -464,13 +462,11 @@ async function verifyTouchDrag(page,label){
  });
  await page.screenshot({path:'test-results/ingemar-private/undo-history-webkit.png'});
  await page.locator('[data-history="'+newId+'"]').click();
- await page.locator('[data-action="edit-history"]').click();
  page.once('dialog',dialog=>dialog.accept());
  await page.locator('[data-action="log-delete"]').click();
  await page.waitForFunction(()=>JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).history.length===1);
  await page.setViewportSize({width:320,height:740});
  await page.locator('[data-history="test-real-session"]').click();
- await page.locator('[data-action="edit-history"]').click();
  await page.screenshot({path:'test-results/ingemar-private/log-edit-320.png'});
  assert.equal(await page.locator('#history-editor').evaluate(el=>el.scrollWidth<=el.clientWidth+1),true,'Log editor may not overflow horizontally at 320px');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Document may not scroll horizontally when editing logs');
@@ -745,8 +741,8 @@ async function verifyTouchDrag(page,label){
  assert.match(await androidPage.locator('[data-pr-panel="Kondition"]').textContent(),/25 min/);
  await androidPage.screenshot({path:'test-results/ingemar-private/compact-records-cardio-android.png'});
  await androidPage.locator('[data-pr-panel="Kondition"] .pr-row').click();
- assert.match(await androidPage.locator('#history-detail-title').textContent(),/Kondition/);
- await androidPage.locator('#history-detail .modal-head [data-action="close-history"]').click();
+ assert.match(await androidPage.locator('#history-editor-title').textContent(),/Kondition/);
+ await androidPage.locator('#history-editor .modal-head [data-action="cancel-history-edit"]').click();
  await androidPage.locator('[data-pr-filter="Push"]').click();await androidPage.locator('[data-pr-edit="Bänkpress"]').click();
  await androidPage.locator('#pr-edit-weight').fill('60');await androidPage.locator('[data-action="save-record"]').click();
  await androidPage.waitForFunction(()=>JSON.parse(JSON.parse(localStorage.getItem('__ingemar_test_db')).ex_ingemar).manualPrs?.['bänkpress']?.weight===60);
