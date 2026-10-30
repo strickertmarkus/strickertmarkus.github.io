@@ -394,7 +394,7 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal .pbu-kicker-date{positi
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open :is(.classic-pass-fields>.form-group:last-child,.classic-template-group,.classic-day-calendar){margin:0 0 12px!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.pbu-settings-open .classic-day-calendar #between-exercise-toggle-panel-v7{display:flex!important;justify-content:flex-start;gap:22px;margin:0!important;position:static!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions{display:flex!important;align-items:center;gap:8px}
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions select{flex:1 1 auto;min-width:0}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-template-actions select{flex:1 1 0;min-width:0;width:0!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder:not(.classic-template-edit-mode) [onclick="pulseClassicNewTemplate()"]{display:none!important}
 /* Edit the chosen template: a pencil, not a word. */
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-edit-template{flex:none;width:44px!important;height:44px!important;min-width:44px!important;padding:0!important;font-size:0!important;color:var(--pbu-pale)!important;display:grid!important;place-items:center}
@@ -426,3 +426,5 @@ html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-lis
 html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .per-set-fields-v7 .pbu-step-value{font-size:18px!important}
 html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .per-set-fields-v7 .per-set-name-v7{height:44px!important;min-height:44px!important;padding:0 14px!important;font:500 16px Inter,system-ui,sans-serif!important}
 html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .per-set-fields-v7 .per-set-name-v7::placeholder{color:#ffffff38!important;-webkit-text-fill-color:#ffffff38!important}
+
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder [onclick="pulseClassicNewTemplate()"]{flex:0 0 auto!important;min-width:76px!important;width:auto!important;padding:0 12px!important;white-space:nowrap!important}

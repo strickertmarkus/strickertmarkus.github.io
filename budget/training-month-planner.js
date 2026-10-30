@@ -31,7 +31,7 @@ function pulsePlanRenderMonth(){
     var selected=date===pulsePlanSelected,copy=pulsePlanCopied&&pulsePlanCopied.date!==date;
     html+='<div class="planner-month-day'+(!inMonth?' is-outside':'')+(selected?' is-selected':'')+'" data-calendar-date="'+date+'" data-kind="'+pulsePlanKindV2(entry.type)+'">'+
       '<button type="button" class="planner-day-open" data-plan-date="'+date+'" aria-pressed="'+selected+'"'+(today===date?' aria-current="date"':'')+' aria-label="'+escHtml(parseISODate(date).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'})+', '+name+(exercises.length?', '+exercises.length+' övningar':''))+'">'+
-      '<span class="planner-day-head"><span class="planner-day-number">'+parseISODate(date).getDate()+'</span>'+(rest?PULSE_PLAN_MOON:'<i class="planner-day-dot" aria-hidden="true"></i>')+'</span><span class="planner-day-name">'+escHtml(name)+'</span>'+
+      '<span class="planner-day-head"><span class="planner-day-number">'+parseISODate(date).getDate()+'</span>'+(rest?PULSE_PLAN_MOON:window.PulseZen&&PulseZen.kind(entry.type)?PulseZen.icon(PulseZen.kind(entry.type)):'<i class="planner-day-dot" aria-hidden="true"></i>')+'</span><span class="planner-day-name">'+escHtml(name)+'</span>'+
       (!rest?'<span class="planner-day-count">'+exercises.length+' övn.</span>':'')+'</button>'+
       (copy?'<button type="button" class="planner-day-paste" data-plan-date="'+date+'" data-plan-paste aria-label="Kopiera pass till '+date+'">Hit</button>':
       '<button type="button" class="planner-day-drag" data-plan-drag-date="'+date+'" aria-label="Flytta pass '+date+'. Dra eller använd piltangenterna."><svg viewBox="0 0 20 12" aria-hidden="true"><path d="M5 4h10M5 8h10"/></svg></button>')+'</div>';

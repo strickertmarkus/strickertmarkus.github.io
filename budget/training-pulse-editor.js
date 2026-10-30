@@ -246,6 +246,7 @@ function selectTool(win,tool,button,date){
   case 'build':case 'editDay':win.openDayWorkoutBuilder(dayName(iso),iso);break;
   case 'start':
    var planned=win.getPlannedSessions()[iso];
+   if(planned&&planned.zenRoutine){location.href=PulseZen.url(planned);break;}
    if(!planned||!(planned.exercises||[]).length){activeTool='build';$('field-workspace-title').textContent='Bygg pass';win.openDayWorkoutBuilder(dayName(iso),iso);}
    else {
     win.startWorkoutSessionForDate(iso);
