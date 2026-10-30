@@ -23,7 +23,7 @@ fs.mkdirSync('test-results/zen-plans',{recursive:true});
  assert.equal(await frame.evaluate(date=>getPlannedSessions()[date].zenRoutine.kind,date),k);
  }
  await page.reload();await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.__embeddedBuilderReadyV1);frame=page.frames().find(f=>f.url().includes('archive/exercise.html'));await page.locator('#edit-week-link').click();await frame.waitForSelector('#plan-modal.show');await frame.locator('[data-plan-view="month"]').click();
- await page.screenshot({path:`test-results/zen-plans/${width}-month.jpg`});assert.ok(await frame.locator('.planner-month-grid .pulse-zen-icon').count()>=2);
+ await page.screenshot({path:`test-results/zen-plans/${width}-month.jpg`});assert.ok(await frame.locator('.planner-month-grid .pulse-zen-icon').count()>=2);assert.match(await frame.locator('[data-kind=meditation] .planner-day-count').first().textContent(),/10 min/);
  const geo=await frame.evaluate(()=>({w:innerWidth,s:document.documentElement.scrollWidth}));assert.ok(geo.s<=geo.w+1);assert.deepEqual(errors,[]);
  await context.close();await browser.close();
 }console.log('ZEN_PLANS_PASS');})().catch(e=>{console.error(e);process.exit(1)});

@@ -1300,10 +1300,10 @@ function pulsePlanRenderV2(){
       '<button type="button" class="pulse-plan-open-v2" data-pulse-open-builder-v2="'+i+'" aria-label="Öppna passbyggaren för '+day+'">'+
        '<span class="pulse-plan-date-v2"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></span>'+
        '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?PULSE_PLAN_MOON+'Vila':window.PulseZen&&PulseZen.kind(type)?PulseZen.icon(PulseZen.kind(type))+escHtml(type):pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
-       '<strong>'+escHtml(sessionName)+'</strong><small>'+escHtml(rest?'Återhämtning':exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
+       '<strong>'+escHtml(sessionName)+'</strong><small>'+escHtml(rest?'Återhämtning':entry.session&&entry.session.zenRoutine?Math.round(ZenModel.duration(entry.session.zenRoutine)/60)+' min '+type.toLowerCase():exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
        '<span class="pulse-plan-arrow-v2" aria-hidden="true">'+PULSE_PLAN_ARROW+'</span></button>'+
       '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
-      '<button type="button" class="pulse-plan-quick-v3" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'"><span><b>Snabbplanera</b> · '+(rest?'välj pass':exercises.length+(exercises.length===1?' övning':' övningar'))+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
+      '<button type="button" class="pulse-plan-quick-v3" data-pulse-expand-v2="'+i+'" aria-expanded="'+String(expanded)+'"><span><b>Snabbplanera</b> · '+(rest?'välj pass':entry.session&&entry.session.zenRoutine?Math.round(ZenModel.duration(entry.session.zenRoutine)/60)+' min':exercises.length+(exercises.length===1?' övning':' övningar'))+'</span><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       (pulsePlanCopied&&pulsePlanCopied.date!==date?'<button type="button" class="pulse-plan-copy-here-v2" data-pulse-copy-to-v2="'+i+'">Kopiera hit'+PULSE_PLAN_ARROW+'</button>':'')+
       (expanded?pulsePlanExpandedHtmlV2(entry,i):'');
     box.appendChild(article);
