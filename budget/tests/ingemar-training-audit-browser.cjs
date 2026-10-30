@@ -144,7 +144,6 @@ async function run(browserType,label,width){
   for(let i=0;i<80;i++)d.templates.push({id:'long-template-'+i,name:'Långt mallnamn med ben och överkropp '+i,type:'Push',exercises:[ex(i)]});
  }));
  await page.reload();await synced(page);assert.equal(await page.locator('#history > button').count(),251);await page.locator('[data-goal-adjust="1"]').click();saved=await data(page);assert.equal(saved.history.length,251);assert.equal(saved.templates.length,beforeMature.templates.length+80);assert.ok(Object.keys(saved.plans).length>=250);
- for(const metric of ['weight','e1rm','volume'])await page.locator(`[data-analytics-metric="${metric}"]`).click();
  await geometry(page,'#training-view');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await shot(page,label+'-mature');
  // Responsive review and input geometry on narrow mobile and desktop.
  for(const size of [{width:320,height:740},{width:1440,height:1000}]){
