@@ -11,15 +11,14 @@
 #training-view .week .day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:76px;padding:8px 4px}
 #training-view .week .day strong{margin:0}
 #training-view .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0 30px;padding:0;border:0;background:none}
-#training-view .stats .panel.stat{--stat-rgb:240,122,147;position:relative;min-width:0;margin:0;padding:12px 14px 11px;overflow:hidden;border:1px solid rgba(var(--stat-rgb),.24);border-radius:15px;background:radial-gradient(ellipse at 0% 0%,rgba(var(--stat-rgb),.14),transparent 70%),linear-gradient(160deg,#0e121a,#090c13 85%);box-shadow:inset 0 1px 0 #ffffff06}
-#training-view .stats .panel.stat::before{content:"";position:absolute;left:14px;right:14px;top:0;height:2px;border-radius:0 0 3px 3px;background:linear-gradient(90deg,rgba(var(--stat-rgb),.9),rgba(var(--stat-rgb),0))}
-#training-view .stats .panel.stat:nth-child(2){--stat-rgb:103,232,249}#training-view .stats .panel.stat:nth-child(3){--stat-rgb:230,184,135}#training-view .stats .panel.stat:nth-child(4){--stat-rgb:143,214,166}
-#training-view .stats .stat-label{overflow:hidden;font-size:10.5px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--stat-rgb));white-space:nowrap;text-overflow:ellipsis}
+#training-view .stats .panel.stat{--stat-rgb:226,150,170;position:relative;min-width:0;margin:0;padding:12px 14px 11px;overflow:hidden;border:1px solid #ffffff12;border-radius:15px;background:linear-gradient(160deg,#0e121a,#090c13 85%);box-shadow:inset 0 1px 0 #ffffff05}
+#training-view .stats .panel.stat:nth-child(2){--stat-rgb:150,214,222}#training-view .stats .panel.stat:nth-child(3){--stat-rgb:222,190,150}#training-view .stats .panel.stat:nth-child(4){--stat-rgb:160,205,175}
+#training-view .stats .stat-label{overflow:hidden;font-size:10.5px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:rgba(var(--stat-rgb),.85);white-space:nowrap;text-overflow:ellipsis}
 #training-view .stats .stat strong{display:block;margin:6px 0 4px;font-size:25px;font-weight:600;letter-spacing:-.03em;color:#f6edf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #training-view .stats .stat strong small{margin-left:2px;font-size:13px;color:#a99da6}
 #training-view .stats .stat .sub{overflow:hidden;font-size:11.5px;color:#9a929f;white-space:nowrap;text-overflow:ellipsis}
 #training-view .stats .stat-goal-tools{gap:6px;flex-wrap:nowrap}
-#training-view .stats .stat-goal-tools button{width:26px;height:26px;font-size:15px;border-radius:8px;border-color:rgba(var(--stat-rgb),.35);color:rgb(var(--stat-rgb))}
+#training-view .stats .stat-goal-tools button{width:26px;height:26px;font-size:15px;border-radius:8px;border-color:#ffffff1c;color:#cfc5cd}
 @media(max-width:740px){#training-view .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#training-view .stats .panel.stat{padding:10px 12px 9px}#training-view .stats .stat strong{margin:4px 0 2px;font-size:22px}#training-view .stats .stat-goal-tools button{width:24px;height:24px}}
 @media(max-width:350px){#training-view .stats .stat strong{font-size:20px}#training-view .stats .stat-goal-tools span{display:none}}
 #training-view .section-head>.hint{font-size:12px}
@@ -390,7 +389,7 @@ html.ingemar-builder-drag-active,html.ingemar-builder-drag-active *{-webkit-user
 @media(max-width:600px){.explore-import{padding:16px}.explore-import-fields{grid-template-columns:1fr}.explore-import-actions>*{width:100%}}
 
 </style>
-<link rel="stylesheet" href="ingemar-preview-modes.css?v=20261030-live-log-2"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
+<link rel="stylesheet" href="ingemar-preview-modes.css?v=20261030-live-log-3"><link rel="stylesheet" href="ingemar-zen-session.css?v=20261013-zen-3">
 
 <style id="ingemar-log-editor-styles">
 /* Training log controls share the existing Ingemar dialog design and field sizes. */
@@ -423,10 +422,10 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 .pr-row:first-child{border-top:0}
 .pr-row{--tone:240,122,147;position:relative;padding-left:17px}.pr-row[data-tone=pull]{--tone:103,232,249}.pr-row[data-tone=cardio]{--tone:247,160,94}
 .pr-row::before{content:"";position:absolute;left:7px;top:11px;bottom:11px;width:3px;border-radius:3px;background:rgb(var(--tone));box-shadow:0 0 8px rgba(var(--tone),.5)}
-.pr-row .pr-value,.pr-group-top strong{color:rgb(var(--tone))}.pr-group-top{--tone:240,122,147}.pr-group-top[data-tone=pull]{--tone:103,232,249}.pr-group-top[data-tone=cardio]{--tone:247,160,94}
+.pr-row .pr-value,.pr-group-top strong{color:#f3e9ee}.pr-group-top{--tone:240,122,147}.pr-group-top[data-tone=pull]{--tone:103,232,249}.pr-group-top[data-tone=cardio]{--tone:247,160,94}
 .pr-legend{display:flex;gap:14px;margin:-4px 0 10px;font-size:11px;color:#958e9b}.pr-legend span::before{content:"";display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c)}
 .pr-row:hover{background:#ffffff05}.pr-name{min-width:0}.pr-name strong{display:block;font-size:13px;font-weight:600;overflow-wrap:anywhere;line-height:1.3}.pr-name small{display:block;color:#908995;font-size:10px;margin-top:2px}
-.pr-value{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px;font-weight:650;color:#e4bac4}.pr-value small{display:block;font-size:10px;font-weight:500;margin-top:2px}.pr-gain{color:#a5d4b5}.pr-edit-icon{width:14px;height:14px;color:#a1808e}.pr-empty{grid-column:1/-1;margin:4px 0;font-size:12px;line-height:1.6;color:#9c909d}
+.pr-value{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px;font-weight:650;color:#e4bac4}.pr-value small{display:block;font-size:10px;font-weight:500;margin-top:2px}.pr-gain{display:inline-block!important;margin-top:3px!important;padding:1px 6px;border-radius:999px;background:#a5d4b514;color:#a5d4b5;font-weight:650!important}.pr-edit-icon{width:14px;height:14px;color:#a1808e}.pr-empty{grid-column:1/-1;margin:4px 0;font-size:12px;line-height:1.6;color:#9c909d}
 @media(max-width:740px){.pr-section-head h2{font-size:20px}.pr-section-head>.secondary{font-size:11px;padding:9px 11px}}
 .stat-goal-tools{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
 .stat-goal-tools button{border:1px solid #c1758940;border-radius:8px;color:#eab1c0;background:#ffffff06;width:24px;height:24px;padding:0;font-size:16px;line-height:1}
@@ -518,7 +517,7 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #history-editor .log-editor-meta .field input,#history-editor .log-editor-meta .field select,#history-editor .compact-date-control{height:36px;min-height:36px;padding:5px 9px;border:1px solid #ffffff22;border-radius:9px;background:#0b1019;font-size:16px}
 #history-editor .compact-date-control{padding:0}
 #history-editor #log-edit-exercises{display:grid;gap:8px}
-#history-editor .log-editor-exercise{min-width:0;margin:0;padding:10px 11px;border:1px solid #b3657b3f;border-radius:14px;background:radial-gradient(ellipse at 0% 0%,#ad415911,transparent 65%),linear-gradient(145deg,#0e121a,#090c13 80%);box-shadow:inset 0 1px 0 #ffffff04}
+#history-editor .log-editor-exercise{min-width:0;margin:0;padding:10px 11px;border:1px solid #b3657b3f;border-radius:14px;background:#0c1018;box-shadow:inset 0 1px 0 #ffffff04}
 #history-editor .log-editor-exercise.is-collapsed{padding:7px 10px;border-color:#ffffff1b;background:#0c1018}
 #history-editor .log-editor-exercise .exercise-head{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;margin:0 0 8px}
 #history-editor .log-editor-exercise.is-collapsed .exercise-head{margin:0}
@@ -600,13 +599,13 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 @media(max-width:350px){#history-editor .log-editor-exercise .exercise-fields{grid-template-columns:1fr}#history-editor .log-editor-set-head,#history-editor .log-editor-set-row{grid-template-columns:18px repeat(2,minmax(0,1fr)) 28px 25px;gap:3px}}
 
 /* Logged pass: overview + readable set lines */
-#history-editor .log-overview{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 13px;padding:2px 2px 12px;border-bottom:1px solid rgba(var(--form-rgb),.18)}
+#history-editor .log-overview{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 13px;padding:2px 2px 12px;border-bottom:1px solid #ffffff10}
 #history-editor .log-overview[hidden]{display:none}
 #history-editor .log-overview small{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#958e9b}
 #history-editor .log-overview strong{display:block;margin-top:2px;font-size:20px;font-weight:650;letter-spacing:-.02em;color:#f6edf1;font-variant-numeric:tabular-nums;white-space:nowrap}
 #history-editor .log-overview em{font-style:normal;font-size:12px;font-weight:500;color:#a99da6}
 #history-editor .log-overview .is-pr strong{color:var(--form-accent)}
-#history-editor .log-editor-exercise.is-collapsed{padding:10px 12px;border-color:rgba(var(--form-rgb),.2);border-left:3px solid rgba(var(--form-rgb),.55);background:linear-gradient(90deg,rgba(var(--form-rgb),.06),transparent 55%),#0c1018}
+#history-editor .log-editor-exercise.is-collapsed{padding:9px 11px}
 #history-editor .log-editor-exercise.is-collapsed .builder-card-title{gap:4px}
 #history-editor .log-editor-exercise.is-collapsed .builder-card-title strong{font-size:14.5px;white-space:normal;overflow-wrap:anywhere}
 #history-editor .log-pr{margin-left:4px;padding:1px 5px;border-radius:4px;background:rgba(var(--form-rgb),.18);color:var(--form-accent);font-size:8.5px;font-weight:800;letter-spacing:.08em}
@@ -1198,7 +1197,7 @@ function comparisonChartSvg(seriesList,labels,unitClass,containerId){
  var xlabels=labels.map(function(label,i){return '<text class="pp-axis-label" x="'+g.x(i,count)+'" y="'+(g.height-10)+'" text-anchor="middle">'+label+'</text>';}).join('');
  seriesList.forEach(function(series,seriesIndex){var color=chartSeriesColor(series.className),grad=serial+'-area-'+seriesIndex,glow=serial+'-glow-'+seriesIndex;defs+='<linearGradient id="'+grad+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+color+'" stop-opacity="'+(series.className.indexOf('comparison')>=0?'.10':'.19')+'"/><stop offset=".72" stop-color="'+color+'" stop-opacity=".025"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></linearGradient><filter id="'+glow+'" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="'+(series.className.indexOf('comparison')>=0?'1.1':'2.2')+'" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';var pts=series.values.map(function(v,i){return {x:g.x(i,count),y:g.y(v),v:v};}),line=pts.map(function(p,i){return (i?'L':'M')+p.x.toFixed(1)+' '+p.y.toFixed(1);}).join(' '),area=pts.length?'M'+pts[0].x.toFixed(1)+' '+baseY.toFixed(1)+' L'+pts.map(function(p){return p.x.toFixed(1)+' '+p.y.toFixed(1);}).join(' L')+' L'+pts[pts.length-1].x.toFixed(1)+' '+baseY.toFixed(1)+' Z':'';var nodes=pts.map(function(p){var comparison=series.className.indexOf('comparison')>=0;return '<circle class="pp-node-halo '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="8"/><circle class="pp-dot '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="'+(comparison?'3':'3.8')+'"><title>'+clean(series.label)+': '+metricDisplay(p.v,unitClass)+'</title></circle><circle class="pp-dot-core '+series.className+'" cx="'+p.x+'" cy="'+p.y+'" r="'+(comparison?'1.05':'1.35')+'" aria-hidden="true"/>';}).join('');layers+='<path class="pp-area '+series.className+'" d="'+area+'" fill="url(#'+grad+')"/><path class="pp-line '+series.className+'" d="'+line+'" stroke="'+color+'" style="color:'+color+'"/>'+nodes;});
  var pointWidth=(g.width-g.left-g.right)/count,primary=seriesList[0];
- var hits=labels.map(function(label,i){var x=g.x(i,count),y=g.y(primary.values[i]),details=seriesList.map(function(series){return clean(series.label)+': '+metricDisplay(series.values[i],unitClass);}).join(' · '),accessible=clean(label+' · '+details);return '<g class="pp-chart-point '+primary.className+'" data-chart-point="'+i+'" role="button" tabindex="0" aria-label="'+accessible+'" aria-pressed="false"><line class="pp-guide" x1="'+x+'" x2="'+x+'" y1="'+g.top+'" y2="'+baseY+'"/><circle class="pp-selector-halo" cx="'+x+'" cy="'+y+'" r="12"/><circle class="pp-selector-core" cx="'+x+'" cy="'+y+'" r="4"/><rect class="pp-hit" x="'+(x-pointWidth*.55)+'" y="'+g.top+'" width="'+(pointWidth*1.1)+'" height="'+g.innerH+'" fill="transparent"/><title>'+accessible+'</title></g>';}).join('');
+ var hits=labels.map(function(label,i){var x=g.x(i,count),details=seriesList.map(function(series){return clean(series.label)+': '+metricDisplay(series.values[i],unitClass);}).join(' · '),accessible=clean(label+' · '+details);return '<g class="pp-chart-point '+primary.className+'" data-chart-point="'+i+'" role="button" tabindex="0" aria-label="'+accessible+'" aria-pressed="false"><line class="pp-guide" x1="'+x+'" x2="'+x+'" y1="'+g.top+'" y2="'+baseY+'"/>'+seriesList.map(function(series){var sy=g.y(series.values[i]);return '<circle class="pp-selector-halo '+series.className+'" cx="'+x+'" cy="'+sy+'" r="12"/><circle class="pp-selector-core" cx="'+x+'" cy="'+sy+'" r="4"/>';}).join('')+'<rect class="pp-hit" x="'+(x-pointWidth*.55)+'" y="'+g.top+'" width="'+(pointWidth*1.1)+'" height="'+g.innerH+'" fill="transparent"/><title>'+accessible+'</title></g>';}).join('');
  return '<svg viewBox="0 0 '+g.width+' '+g.height+'" role="group" aria-label="Välj vecka för att se värden"><defs>'+defs+'</defs>'+grid+xlabels+layers+hits+'</svg>';
 }
 
@@ -1492,7 +1491,7 @@ function renderRecords(){
   var top=rows[0],recent=rows.some(function(r){return r.date&&r.date>=offset(dayISO(new Date()),-14);});
   return '<details class="pr-group" data-pr-group="'+clean(group)+'"'+(openMuscleGroups.has(group)?' open':'')+'><summary><span class="pr-group-name"><strong>'+clean(group)+'</strong><small>'+rows.length+' rekord'+(recent?' · <em>nytt senaste 2 v</em>':'')+'</small></span><span class="pr-group-top" data-tone="'+recordTone(top)+'"><small>'+clean(top.name)+'</small><strong>'+valueText(top)+'</strong></span><span class="pr-group-chev" aria-hidden="true"></span></summary><div class="pr-group-list">'+rows.map(function(record){
    var timed=record.minutes!=null,action=timed?'data-history="'+clean(record.workoutId)+'"':'data-pr-edit="'+clean(record.name)+'"';
-   return '<button type="button" class="pr-row" data-tone="'+recordTone(record)+'" '+action+' aria-label="'+(timed?'Öppna passet för ':'Redigera rekord för ')+clean(record.name)+'"><span class="pr-name"><strong>'+clean(record.name)+'</strong><small>'+(record.date?pretty(record.date):'Datum saknas')+'</small></span><span class="pr-value">'+valueText(record)+(record.gain>0?'<small class="pr-gain">+'+record.gain.toLocaleString('sv-SE',{maximumFractionDigits:2})+(timed?' min':' kg')+'</small>':'')+'</span>'+(timed?'<span></span>':icon)+'</button>';
+   return '<button type="button" class="pr-row" data-tone="'+recordTone(record)+'" '+action+' aria-label="'+(timed?'Öppna passet för ':'Redigera rekord för ')+clean(record.name)+'"><span class="pr-name"><strong>'+clean(record.name)+'</strong><small>'+(record.date?pretty(record.date):'Datum saknas')+'</small></span><span class="pr-value">'+valueText(record)+(record.gain>0?'<small class="pr-gain">↑ +'+record.gain.toLocaleString('sv-SE',{maximumFractionDigits:2})+(timed?' min':' kg')+'</small>':'')+'</span>'+(timed?'<span></span>':icon)+'</button>';
   }).join('')+'</div></details>';
  }).join('');
  $('personal-records').innerHTML=html||'<p class="pr-empty">Inga rekord ännu. Spara ett styrkepass eller lägg till ett rekord.</p>';
