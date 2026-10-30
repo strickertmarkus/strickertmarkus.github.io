@@ -553,7 +553,7 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return:hover{background:#28202a}
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20261029-plan-5">
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20261030-zen-integrated-3">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261030-zen-pr-1">
@@ -562,11 +562,11 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261029-tpl-5"></script>
+<script defer src="pulse-builder-ui.js?v=20261030-zen-integrated-3"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
-<link rel="stylesheet" href="training-zen-plans.css?v=20261030-groups-2">
-<script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261030-groups-2"></script>
+<link rel="stylesheet" href="training-zen-plans.css?v=20261030-integrated-3">
+<script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261030-integrated-3"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -1215,7 +1215,7 @@ function pulsePlanKindV2(value){
 function pulsePlanColorV2(type){
   // One colour meaning across the training pages: red strength, cyan cardio, grey rest.
   var kind=pulsePlanKindV2(type);
-  return kind==='rest'?'rest':kind==='cardio'?'cyan':'red';
+  return kind==='rest'?'rest':kind==='cardio'?'cyan':kind==='stretch'||kind==='meditation'?kind:'red';
 }
 function pulsePlanWeekDraftV2(monday){
   if(!pulsePlanDraftsV2[monday]){
@@ -1275,12 +1275,14 @@ function pulsePlanExpandedHtmlV2(entry,i){
   // Saved template passes in the same drop-down: choosing one fills the day with it.
   if(templates.length)options='<optgroup label="Pass">'+options+'</optgroup><optgroup label="Mallpass">'+
     templates.map(function(t){return '<option value="tpl:'+escHtml(String(t.id))+'">'+escHtml(t.name||t.type||'Mallpass')+' · '+t.exercises.length+' övn.</option>';}).join('')+'</optgroup>';
+  var zen=entry.session&&entry.session.zenRoutine;
+  if(window.PulseZen){if(zen)options=options.replace(/ selected/g,'');options+=PulseZen.selectOptions(zen&&zen.id);}
   var copying=pulsePlanCopied&&pulsePlanCopied.date===shiftISODate(planTargetMondayISO,i);
   return '<div class="pulse-plan-editor-v2 pp-quick">'+
-    '<div class="pp-row"><label class="pp-select is-pass"><span>Pass</span><select data-pulse-type-select="'+i+'" aria-label="Pass för '+DAYS[i]+'">'+options+'</select></label>'+
+    '<div class="pp-row"><label class="pp-select is-pass"'+(zen?' data-zen-kind="'+zen.kind+'"':'')+'><span>'+(zen?PulseZen.icon(zen.kind):'')+'Pass</span><select data-pulse-type-select="'+i+'" aria-label="Pass för '+DAYS[i]+'">'+options+'</select></label>'+
       '<button type="button" class="pp-builder" data-pulse-open-builder-v2="'+i+'">Passbyggaren'+PULSE_PLAN_ARROW+'</button></div>'+
     '<label class="pp-custom"'+(known?' hidden':'')+'><span>Eget namn</span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" autocomplete="off" value="'+escHtml(type)+'" aria-label="Eget namn på passet för '+DAYS[i]+'"></label>'+
-    (kind==='rest'?'':'<p class="pp-summary">'+(exercises.length?'<b>'+exercises.length+(exercises.length===1?' övning':' övningar')+'</b> · '+escHtml(pulsePlanPreviewV2(entry)):'Inga övningar ännu · lägg till dem i passbyggaren')+'</p>')+
+    (kind==='rest'?'':'<p class="pp-summary">'+(zen?escHtml(entry.session.name)+' · '+Math.round(ZenModel.duration(zen)/60)+' min':exercises.length?'<b>'+exercises.length+(exercises.length===1?' övning':' övningar')+'</b> · '+escHtml(pulsePlanPreviewV2(entry)):'Inga övningar ännu · lägg till dem i passbyggaren')+'</p>')+
     '<div class="pp-foot"><button type="button" class="pp-quiet" data-pulse-copy-v2="'+i+'">'+(copying?'Avbryt kopiering':'Kopiera pass')+'</button>'+
       (kind==='rest'?'':'<button type="button" class="pp-quiet" data-pulse-rest-v2="'+i+'">Gör till vilodag</button>')+'</div>'+
     '</div>';
@@ -1476,6 +1478,7 @@ function pulsePlanInstallV2(){
     if(event.target.matches('input[data-day]')){pulsePlanRenderV2();return;}
     var pick=event.target.closest('[data-pulse-type-select]');if(!pick)return;
     var index=Number(pick.dataset.pulseTypeSelect),editor=pick.closest('.pp-quick'),custom=editor&&editor.querySelector('.pp-custom');
+    if(pick.value.indexOf('zen:')===0&&window.PulseZen){PulseZen.planDraft(index,pick.value.slice(4));return;}
     if(pick.value.indexOf('tpl:')===0){pulsePlanApplyTemplateV2(index,pick.value.slice(4));return;}
     if(pick.value==='__custom'){if(custom){custom.hidden=false;var input=custom.querySelector('input');input.value='';input.focus();}return;}
     if(custom){custom.hidden=true;custom.querySelector('input').value=pick.value;}
@@ -1989,6 +1992,8 @@ function ensureExerciseNamePicker(){
       showToast('"'+removeName+'" togs bort från listan.');
       return;
     }
+    var zen=event.target.closest('[data-zen-routine]');
+    if(zen&&input&&window.PulseZen&&PulseZen.canPlan(input)){closeExerciseNamePicker();PulseZen.planDay(zen.dataset.zenRoutine);return;}
     var option=event.target.closest('.exercise-name-picker-option-v1');
     if(option&&input){
       var context=exercisePickerContext(input);
@@ -2084,7 +2089,7 @@ function renderExerciseNamePickerOptions(input){
   var shown=catalog.filter(function(entry){return exerciseNameMatchesV2(entry.name,query);});
   var options=picker.querySelector('.exercise-name-picker-options-v1');
   picker.querySelector('.exercise-name-picker-context-v1').textContent=(context.kind==='cardio'?'Kondition':(cleanExerciseName(context.type)||'Styrka'))+' · '+catalog.length+' registrerade';
-  options.innerHTML='';
+  options.innerHTML=window.PulseZen&&PulseZen.canPlan(input)?PulseZen.options(query):'';
   var current=exerciseNameKey(input.value);
   if(!shown.length){
     var empty=document.createElement('div');

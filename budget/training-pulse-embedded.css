@@ -365,6 +365,8 @@ html[data-field-embedded] body #plan-modal .pulse-plan-day-v2::before{
 }
 html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="red"]{--plan-color:#ff5a48;--plan-rgb:255,90,72}
 html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="cyan"]{--plan-color:#7fe3ef;--plan-rgb:127,227,239}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="stretch"]{--plan-color:#d4eea7;--plan-rgb:191,230,145}
+html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="meditation"]{--plan-color:#fff0b7;--plan-rgb:255,240,183}
 html[data-field-embedded] body #plan-modal .pulse-plan-day-v2[data-color="rest"]{--plan-color:#81909e;--plan-rgb:129,144,158}
 html[data-field-embedded] body #plan-modal .pulse-plan-day-v2.is-expanded{
   border-color:rgba(var(--plan-rgb),.47);
@@ -1197,7 +1199,7 @@ html[data-field-embedded] body #plan-modal .pulse-plan-copy-here-v2{display:inli
 html[data-field-embedded] body #plan-modal .pp-moon{width:14px;height:14px;flex:none;fill:#dfe6ee;fill-opacity:.18;stroke:#dfe6ee;stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 0 3px #e8f1ffcc) drop-shadow(0 0 9px #9fb7d899);animation:planMoonGlow 4.5s ease-in-out infinite}
 @keyframes planMoonGlow{0%,100%{opacity:.82}50%{opacity:1}}
 @media(prefers-reduced-motion:reduce){html[data-field-embedded] body #plan-modal .pp-moon{animation:none}}
-html[data-field-embedded] body #plan-modal [data-color="rest"] .pulse-plan-badge-v2::before{display:none!important}
+html[data-field-embedded] body #plan-modal [data-color="rest"] .pulse-plan-badge-v2::before,html[data-field-embedded] body #plan-modal .pulse-plan-badge-v2:has(.pulse-zen-icon)::before{display:none!important}
 html[data-field-embedded] body #plan-modal [data-color="rest"] .pulse-plan-badge-v2{color:#c9d2dc!important}
 /* Month cells: the date with a glowing dot (red strength, cyan cardio) or the moon. */
 html[data-field-embedded] #plan-modal .planner-day-head{display:flex;align-items:center;justify-content:space-between;gap:4px;width:100%}

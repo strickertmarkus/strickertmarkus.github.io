@@ -394,6 +394,7 @@ function renderOptions(row,query){
  if(typed&&!exact)html+='<button type="button" class="pbu-new" data-pbu-pick="'+esc(typed.slice(0,70))+'" data-pbu-kind-pick="'+(ctx.cardio?'cardio':rowKind(row))+'">Lägg till <b>'+esc(typed.slice(0,70))+'</b> som ny övning</button>';
  if(!html)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden, eller skriv ett eget namn ovan.</p>';
  else if(!guide.length&&!q&&!ctx.cardio)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden.</p>'+html;
+ if(window.PulseZen&&PulseZen.canPlan(row))html=PulseZen.options(query)+html;
  box.innerHTML=html;
 }
 function choose(row,name,kind,guideId){
@@ -538,6 +539,8 @@ function bindList(modal,list,addSelector,single){
   if(kind){setKind(row,kind.dataset.pbuKind);renderSteps(row);syncActions(row);paintRow(row);if(!row.querySelector('.pbu-pick').hidden)renderOptions(row,(row.querySelector('[data-pbu-search]')||{}).value||'');return;}
   if(t.closest('[data-pbu-change]')){if(row.classList.contains('pbu-picking'))hidePicker(row);else{showPicker(row);}return;}
   if(t.closest('[data-pbu-delete]')){var del=row.querySelector('.ex-del');if(del)del.click();return;}
+  var zen=t.closest('[data-zen-routine]');
+  if(zen&&window.PulseZen){PulseZen.planDay(zen.dataset.zenRoutine);return;}
   var info=t.closest('[data-pbu-guide]');
   if(info){openGuide(Number(info.dataset.pbuGuide),row);return;}
   var pick=t.closest('[data-pbu-pick]');

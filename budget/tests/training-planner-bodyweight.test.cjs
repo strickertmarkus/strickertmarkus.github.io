@@ -57,3 +57,40 @@ test('editing this week does not change the fallback plan for other months',()=>
  ctx.setPlanForWeek(ctx.weekStartISO(),{...initial,thu:'Helkropp'});
  assert.equal(ctx.getPlan().thu,'Vila');assert.equal(ctx.getPlanForWeek(ctx.weekStartISO()).thu,'Helkropp');
 });
+
+function zenRuntime(profile){
+ const result=runtime(profile),ctx=result.ctx;
+ ctx.ZenModel=require('../zen-model.js');
+ vm.runInContext(read('training-zen-plans.js'),ctx);
+ return result;
+}
+test('Zen quick choices persist full routines across month/week navigation without changing other days',()=>{
+ for(const profile of ['markus','maja']){
+  const {ctx}=zenRuntime(profile);
+  ctx.savePlannedSessions({'2026-10-27':{type:'Styrka',name:'Bevarat pass',exercises:[bw]}});
+  ctx.PulseZen.planDraft(0,'water');
+  assert.equal(ctx.getPlannedSessions()['2026-10-26'],undefined);
+  ctx.pulsePlanSetView('month');
+  assert.equal(ctx.pulsePlanEntryForDate('2026-10-26').session.zenRoutine.id,'water');
+  const html=ctx.pulsePlanExpandedHtmlV2(ctx.pulsePlanEntryForDate('2026-10-26'),0);
+  assert.match(html,/<option value="zen:water" selected>/);
+  assert.match(html,/Guidad andning · 10 min/);
+  assert.match(html,/<optgroup label="Stretch"/);
+  assert.match(html,/<optgroup label="Meditation"/);
+  ctx.savePlan();
+  assert.equal(ctx.getPlannedSessions()['2026-10-26'].zenRoutine.seconds,600);
+  assert.equal(ctx.getPlannedSessions()['2026-10-27'].name,'Bevarat pass');
+  assert.equal(ctx.getPlannedSessions()['2026-10-27'].exercises[0].weightMode,'bodyweight');
+  assert.equal(ctx.getPlanForWeek('2026-10-26').mon,'Meditation');
+ }
+});
+test('integrated Zen search finds kind or name and routine snapshots are independent',()=>{
+ const {ctx}=zenRuntime();
+ assert.match(ctx.PulseZen.options('meditation'),/data-zen-routine="water"/);
+ assert.doesNotMatch(ctx.PulseZen.options('meditation'),/data-zen-routine="forest"/);
+ assert.match(ctx.PulseZen.options('axlar'),/data-zen-routine="shoulders"/);
+ assert.equal(ctx.PulseZen.options('ingen match här'),'');
+ const a=ctx.PulseZen.session('forest'),b=ctx.PulseZen.session('forest');
+ a.zenRoutine.steps[0].seconds=999;assert.notEqual(b.zenRoutine.steps[0].seconds,999);
+ assert.equal(ctx.PulseZen.session('missing'),null);
+});
