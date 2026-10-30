@@ -109,7 +109,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-builder-style-v5.js',attr:'data-exercise-builder-style-v5',group:'builder'},
     {src:'exercise-log-mobile-fix-v5.js',attr:'data-exercise-log-mobile-fix-v5',group:'training-log'},
     {src:'exercise-session-set-cards-v6.js',attr:'data-exercise-session-set-cards-v6',group:'session-presentation'},
-    {src:'exercise-builder-between-preview-v7.js',attr:'data-exercise-builder-between-preview-v7',group:'builder'},
+    {src:'exercise-builder-between-preview-v7.js',version:'20261030-zen-modes-4',attr:'data-exercise-builder-between-preview-v7',group:'builder'},
     {src:'exercise-session-shell-v19.js',attr:'data-exercise-session-shell-v19',group:'session-presentation'},
     {src:'exercise-session-ux-v20.js',attr:'data-exercise-session-ux-v20',group:'session-ux'},
     {src:'exercise-motion-v1.js',attr:'data-exercise-motion-v1',group:'motion'},
@@ -149,7 +149,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
 
   function preloadEmbeddedAssets(manifest, marker) {
     manifest.forEach(function (item) {
-      var href = item.src + '?v=' + (item.src === 'exercise-shell-v13.js' ? '20261019-week-glow-1' : exerciseFastVersion);
+      var href = item.src + '?v=' + (item.src === 'exercise-shell-v13.js' ? '20261019-week-glow-1' : (item.version||exerciseFastVersion));
       if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
       var preload = document.createElement('link');
       preload.rel = 'preload';
@@ -166,7 +166,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
         if (document.querySelector('script[' + item.attr + ']')) return;
         return new Promise(function (resolve,reject) {
           var script = document.createElement('script');
-          script.src = item.src + '?v=' + (item.src === 'exercise-shell-v13.js' ? '20261019-week-glow-1' : exerciseFastVersion);
+          script.src = item.src + '?v=' + (item.src === 'exercise-shell-v13.js' ? '20261019-week-glow-1' : (item.version||exerciseFastVersion));
           script.async = false;
           script.setAttribute(item.attr,'true');
           script.addEventListener('load',resolve,{once:true});
@@ -218,7 +218,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   /* Start all network transfers together. Script execution remains ordered in
      auth-gate, so this removes waterfall latency without changing dependencies. */
   exerciseAssetManifestV2.forEach(function (item) {
-    var href = item.src + '?v=' + (item.src === 'exercise-shell-v13.js' ? '20261019-week-glow-1' : exerciseFastVersion);
+    var href = item.src + '?v=' + (item.src === 'exercise-shell-v13.js' ? '20261019-week-glow-1' : (item.version||exerciseFastVersion));
     if (document.querySelector('link[rel="preload"][href="' + href + '"]')) return;
     var link = document.createElement('link');
     link.rel = 'preload';

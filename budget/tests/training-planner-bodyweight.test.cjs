@@ -68,6 +68,7 @@ test('Zen quick choices persist full routines across month/week navigation witho
  for(const profile of ['markus','maja']){
   const {ctx}=zenRuntime(profile);
   ctx.savePlannedSessions({'2026-10-27':{type:'Styrka',name:'Bevarat pass',exercises:[bw]}});
+  ctx.PulseZen.setPlannerMode(0,'meditation');
   ctx.PulseZen.planDraft(0,'water');
   assert.equal(ctx.getPlannedSessions()['2026-10-26'],undefined);
   ctx.pulsePlanSetView('month');
@@ -75,8 +76,8 @@ test('Zen quick choices persist full routines across month/week navigation witho
   const html=ctx.pulsePlanExpandedHtmlV2(ctx.pulsePlanEntryForDate('2026-10-26'),0);
   assert.match(html,/<option value="zen:water" selected>/);
   assert.match(html,/Guidad andning · 10 min/);
-  assert.match(html,/<optgroup label="Stretch"/);
-  assert.match(html,/<optgroup label="Meditation"/);
+  assert.doesNotMatch(html,/value="zen:forest"/);
+  assert.doesNotMatch(html,/value="Helkropp"/);
   ctx.savePlan();
   assert.equal(ctx.getPlannedSessions()['2026-10-26'].zenRoutine.seconds,600);
   assert.equal(ctx.getPlannedSessions()['2026-10-27'].name,'Bevarat pass');
@@ -84,13 +85,33 @@ test('Zen quick choices persist full routines across month/week navigation witho
   assert.equal(ctx.getPlanForWeek('2026-10-26').mon,'Meditation');
  }
 });
-test('integrated Zen search finds kind or name and routine snapshots are independent',()=>{
+test('Zen mode limits routine options and switching back restores the ordinary planner session',()=>{
  const {ctx}=zenRuntime();
- assert.match(ctx.PulseZen.options('meditation'),/data-zen-routine="water"/);
- assert.doesNotMatch(ctx.PulseZen.options('meditation'),/data-zen-routine="forest"/);
- assert.match(ctx.PulseZen.options('axlar'),/data-zen-routine="shoulders"/);
- assert.equal(ctx.PulseZen.options('ingen match här'),'');
+ const normal={type:'Helkropp',name:'Bevarat',exercises:[bw]};
+ ctx.pulsePlanWeekDraftV2(ctx.planTargetMondayISO)[0]={type:normal.type,session:normal};
+ ctx.PulseZen.setPlannerMode(0,'stretch');ctx.PulseZen.planDraft(0,'forest');
+ ctx.PulseZen.planDraft(0,'water');
+ assert.equal(ctx.pulsePlanWeekDraftV2(ctx.planTargetMondayISO)[0].session.zenRoutine.id,'forest');
+ ctx.PulseZen.setPlannerMode(0,'stretch');
+ assert.equal(JSON.stringify(ctx.pulsePlanWeekDraftV2(ctx.planTargetMondayISO)[0].session),JSON.stringify(normal));
+ const html=ctx.pulsePlanExpandedHtmlV2(ctx.pulsePlanWeekDraftV2(ctx.planTargetMondayISO)[0],0);
+ assert.doesNotMatch(html,/value="zen:/);
+ assert.match(ctx.PulseZen.selectOptions('water','meditation'),/value="zen:water" selected/);
+ assert.doesNotMatch(ctx.PulseZen.selectOptions('water','meditation'),/zen:forest/);
  const a=ctx.PulseZen.session('forest'),b=ctx.PulseZen.session('forest');
  a.zenRoutine.steps[0].seconds=999;assert.notEqual(b.zenRoutine.steps[0].seconds,999);
- assert.equal(ctx.PulseZen.session('missing'),null);
+});
+test('builder mode changes preserve ordinary name and type and never save the day',()=>{
+ const {ctx,node}=zenRuntime();
+ node('day-workout-name').value='Mitt styrkepass';node('day-workout-type').value='Bröst + Triceps';
+ node('day-workout-type').dispatchEvent=()=>{};
+ ctx.PulseZen.loadBuilder({type:'Bröst + Triceps'});
+ ctx.PulseZen.setBuilderMode('stretch');assert.equal(ctx.PulseZen.builderKind(),'stretch');
+ assert.equal(ctx.PulseZen.builderRecord(),null);
+ ctx.PulseZen.setBuilderMode('meditation');assert.equal(ctx.PulseZen.builderKind(),'meditation');
+ ctx.PulseZen.setBuilderMode('meditation');assert.equal(ctx.PulseZen.builderKind(),'');
+ assert.equal(node('day-workout-name').value,'Mitt styrkepass');
+ assert.equal(node('day-workout-type').value,'Bröst + Triceps');
+ assert.equal(Object.keys(ctx.getPlannedSessions()).length,0);
+ ctx.PulseZen.loadBuilder(ctx.PulseZen.session('forest'));assert.equal(ctx.PulseZen.builderRecord().zenRoutine.id,'forest');
 });

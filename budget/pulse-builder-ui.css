@@ -402,11 +402,11 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workou
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-edit-template:disabled{opacity:.35}
 
 /* Template builder: no date, no day settings; the template switcher on top. */
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode :is(.pbu-kicker .pbu-chev,.pbu-kicker-date,.pbu-settings-toggle,.classic-day-calendar,#pretimer-builder-v2,#between-exercise-global-editor-v7,#day-workout-edit-template,.classic-start-pass,.classic-save-as-template){display:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode :is(.pbu-kicker .pbu-chev,.pbu-kicker-date,.classic-day-calendar,#pretimer-builder-v2,#between-exercise-global-editor-v7,#day-workout-edit-template,.classic-start-pass,.classic-save-as-template){display:none!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode .pbu-kicker{pointer-events:none}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode :is(.classic-template-group,#pbu-none){display:block!important;order:1;margin:6px 0 14px!important;padding-right:52px!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode .classic-template-group>label{display:none!important}
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode .classic-pass-fields>.form-group:last-child{display:block!important;margin:12px 0 4px!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode.pbu-settings-open .classic-pass-fields>.form-group:last-child{display:block!important;margin:12px 0 4px!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode .classic-pass-fields>.form-group:last-child label{display:block!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-delete-template{display:none}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode .classic-delete-template:not([hidden]){display:inline-flex!important;flex:0 0 auto;min-height:40px!important;padding:0 4px!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important;color:#ff8a78!important;font:600 13.5px Inter,system-ui,sans-serif!important}

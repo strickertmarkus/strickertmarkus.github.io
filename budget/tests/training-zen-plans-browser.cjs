@@ -17,9 +17,9 @@ fs.mkdirSync('test-results/zen-plans',{recursive:true});
  for(const [routine,k,offset] of [['forest','stretch',1],['water','meditation',2]]){
  const date=await frame.evaluate(n=>shiftISODate(todayISO(),n),offset);
  await page.evaluate(date=>window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'editDay',date}})),date);
- await frame.waitForSelector('#day-workout-modal.show');await page.waitForSelector('body.field-workspace-active');await frame.locator('#day-workout-ex-list .pbu-head').first().click();await frame.locator('.pbu-options .pulse-zen-group[data-zen-kind="'+k+'"] > summary').click();await frame.locator(`[data-zen-routine="${routine}"]`).waitFor({state:'visible'});await page.waitForTimeout(300);
+ await frame.waitForSelector('#day-workout-modal.show');await page.waitForSelector('body.field-workspace-active');await frame.locator('.pbu-settings-toggle').click();await frame.locator('.pulse-zen-builder-modes [data-zen-mode="'+k+'"]').click();await frame.locator('.pulse-zen-builder > summary').click();await frame.locator(`[data-zen-routine="${routine}"]`).waitFor({state:'visible'});await page.waitForTimeout(300);
  await page.screenshot({path:`test-results/zen-plans/${width}-${k}-picker.jpg`});
- await frame.locator(`[data-zen-routine="${routine}"]`).click();await page.waitForFunction(()=>!document.getElementById('field-workspace').open);
+ await frame.locator(`[data-zen-routine="${routine}"]`).click();await frame.locator('.classic-save-pass').click();await page.waitForFunction(()=>!document.getElementById('field-workspace').open);
  assert.equal(await frame.evaluate(date=>getPlannedSessions()[date].zenRoutine.kind,date),k);
  }
  await page.reload();await page.waitForFunction(()=>document.querySelector('iframe')?.contentWindow?.__embeddedBuilderReadyV1);frame=page.frames().find(f=>f.url().includes('archive/exercise.html'));await page.locator('#edit-week-link').click();await frame.waitForSelector('#plan-modal.show');await frame.locator('[data-plan-view="month"]').click();

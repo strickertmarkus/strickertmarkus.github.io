@@ -45,7 +45,7 @@ function populateSelect(selected){
  var ph=document.createElement('option');
  ph.value='';ph.textContent=mode==='template'?'Nytt mallpass':getTemplates().length?'Välj mallpass':'Inga mallpass ännu';
  select.appendChild(ph);
- getTemplates().slice().sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'sv');}).forEach(function(t){
+ getTemplates().filter(function(t){return !window.PulseZen||PulseZen.modeFor(t)===PulseZen.builderKind();}).sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''),'sv');}).forEach(function(t){
   var opt=document.createElement('option');opt.value=String(t.id);opt.textContent=t.name||t.type||'Mallpass';select.appendChild(opt);
  });
  select.value=selected!=null?String(selected):'';
@@ -92,6 +92,7 @@ function apply(id){
    var nameEl=byId('day-workout-name');
    if(nameEl&&old&&nameEl.value===(old.name||old.type||''))nameEl.value='';
    setRows([]);
+   if(old&&old.zenRoutine&&window.PulseZen)PulseZen.loadBuilder({type:old.type});
    sel.dataset.current='';
    toast('Mallpasset borttaget. Dagen är tom.');
   }
@@ -99,10 +100,11 @@ function apply(id){
  }
  var found=getTemplates().find(function(t){return String(t.id)===String(id);});
  if(!found){populateSelect('');toast('Mallpasset finns inte längre.');return;}
- if(!(found.exercises||[]).length){populateSelect(found.id);toast('Mallpasset har inga övningar ännu. Lägg till dem via mallpassknappen.');return;}
+ if(!found.zenRoutine&&!(found.exercises||[]).length){populateSelect(found.id);toast('Mallpasset har inga övningar ännu. Lägg till dem via mallpassknappen.');return;}
  byId('day-workout-name').value=found.name||found.type||'';
  byId('day-workout-type').value=found.type||'Helkropp';
  setRows(found.exercises||[]);
+ if(window.PulseZen)PulseZen.loadBuilder(found);
  populateSelect(found.id);
  toast('Mallpass valt. Justera eller spara dagen.');
 }
@@ -116,6 +118,7 @@ function openTemplate(id,date,opts){
  byId('day-workout-name').value=tpl?tpl.name||'':'';
  byId('day-workout-type').value=tpl?tpl.type||'Helkropp':'Helkropp';
  setRows(tpl&&tpl.exercises||[]);
+ if(window.PulseZen)PulseZen.loadBuilder(tpl);
  populateSelect(editTemplateId);
  refreshMode();
  var name=byId('day-workout-name');
@@ -139,6 +142,8 @@ function updateLinkedNames(id,oldName,newName){
 }
 function saveTemplate(options){
  options=options||{};
+ var zenMode=window.PulseZen&&PulseZen.builderKind(),zenRecord=zenMode&&PulseZen.builderRecord();
+ if(zenMode&&!zenRecord&&!options.nameOnly){toast('Välj ett pass först.');return false;}
  var name=String(byId('day-workout-name').value||'').trim().slice(0,70);
  if(!name){toast('Skriv ett namn på mallpasset.');byId('day-workout-name').focus();return false;}
  var list=getTemplates(),at=list.findIndex(function(t){return String(t.id)===String(editTemplateId);});
@@ -148,6 +153,9 @@ function saveTemplate(options){
   id:id,name:name,type:String(byId('day-workout-type').value||'').trim()||'Helkropp',
   exercises:options.nameOnly&&previous?(previous.exercises||[]):options.nameOnly?[]:rows()
  });
+ if(options.nameOnly&&previous){entry=Object.assign({},previous,{name:name});}
+ else if(zenMode){entry.exercises=[];if(zenRecord)entry.zenRoutine=zenRecord.zenRoutine;else delete entry.zenRoutine;}
+ else delete entry.zenRoutine;
  if(at>=0)list[at]=entry;else list.push(entry);
  saveTemplates(list);
  updateLinkedNames(id,previous&&previous.name,name);
@@ -166,10 +174,14 @@ function saveAsTemplate(){
 function confirmSaveAsTemplate(){
  var name=String(byId('day-workout-new-template-name').value||'').trim().slice(0,70);
  if(!name){toast('Ange ett namn för mallen.');byId('day-workout-new-template-name').focus();return;}
- var ex=rows();
- if(!ex.length){toast('Lägg till minst en namngiven övning först.');return;}
+ var zenMode=window.PulseZen&&PulseZen.builderKind(),zenRecord=zenMode&&PulseZen.builderRecord();
+ if(zenMode&&!zenRecord){toast('Välj ett pass först.');return;}
+ var ex=zenMode?[]:rows();
+ if(!zenMode&&!ex.length){toast('Lägg till minst en namngiven övning först.');return;}
  var list=getTemplates(),id=makeId();
- list.push({id:id,name:name,type:String(byId('day-workout-type').value||'').trim()||'Helkropp',exercises:ex});
+ var entry={id:id,name:name,type:String(byId('day-workout-type').value||'').trim()||'Helkropp',exercises:ex};
+ if(zenRecord)entry.zenRoutine=zenRecord.zenRoutine;
+ list.push(entry);
  saveTemplates(list);
  populateSelect(id);
  byId('day-workout-inline-template').hidden=true;
@@ -215,7 +227,7 @@ byId('day-workout-new-template-name').addEventListener('keydown',function(event)
   openTemplate(next?next.id:null,originDay,{fromPage:fromPage});
  });
 })();
-window.PulseClassicTemplates={syncDay:syncDay,openTemplate:openTemplate,apply:apply,backToDay:backToDay,saveAsTemplate:saveAsTemplate,confirmSaveAsTemplate:confirmSaveAsTemplate,saveTemplate:saveTemplate};
+window.PulseClassicTemplates={refreshChoices:populateSelect,syncDay:syncDay,openTemplate:openTemplate,apply:apply,backToDay:backToDay,saveAsTemplate:saveAsTemplate,confirmSaveAsTemplate:confirmSaveAsTemplate,saveTemplate:saveTemplate};
 window.pulseClassicApplyTemplate=apply;
 window.pulseClassicNewTemplate=function(){openTemplate(null,originDay,{fromPage:mode==='template'&&fromPage});};
 window.pulseClassicEditTemplate=function(){var id=byId('day-workout-template-select').value;if(id)openTemplate(id);};

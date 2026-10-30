@@ -529,6 +529,7 @@
   }
 
   function showPreview() {
+    if(window.PulseZen&&PulseZen.builderKind())return originalPersist({startAfterSave:false});
     var draft=captureDraft();
     if (!draft || !draft.exercises.length) {
       try { if (typeof window.showToast==='function') window.showToast('Lägg till minst en övning.'); } catch (_) {}
@@ -606,6 +607,7 @@
 
     window.saveDayWorkoutPlan=function () { return showPreview(); };
     window.startDayWorkoutFromBuilder=function () {
+      if(window.PulseZen&&PulseZen.builderKind())return originalStartBuilder();
       var draft=captureDraft();
       if (!draft || !draft.exercises.length) {
         try { if (typeof window.showToast==='function') window.showToast('Lägg till minst en övning.'); } catch (_) {}
