@@ -9,7 +9,6 @@ function install(){
  var picker=document.createElement('details');picker.className='pulse-zen-picker';
  picker.innerHTML='<summary aria-label="Välj färdigt stretch- eller meditationspass">'+PulseZen.icon('stretch')+'<span>Välj Zen-pass</span></summary><div class="pulse-zen-options"></div>';
  box.querySelector('.classic-pass-fields').after(picker);
- picker.querySelector('summary').addEventListener('click',function(event){event.preventDefault();event.stopPropagation();if(window.SurfaceMotion)SurfaceMotion.setDetails(picker,!picker.open);else picker.open=!picker.open;});
  var current=document.createElement('div');current.className='pulse-zen-current';picker.before(current);
  function showCurrent(){var plan=getPlannedSessions()[box.dataset.date];current.textContent='';if(!plan||!plan.zenRoutine||box.classList.contains('classic-template-edit-mode'))return;var a=document.createElement('a');a.href=PulseZen.url(plan);a.target='_top';a.innerHTML=PulseZen.icon(plan.zenRoutine.kind);a.appendChild(document.createTextNode(plan.name+' · Öppna i Zen'));current.appendChild(a);}
  var options=picker.querySelector('.pulse-zen-options');
