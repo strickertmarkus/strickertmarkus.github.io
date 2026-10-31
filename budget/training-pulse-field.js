@@ -177,6 +177,25 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var distance=workoutDistance(workout),time=workoutRunTime(workout);
     return number(workout.avgPaceKm)||(distance>0&&time>0?time/distance:0);
   }
+  // Exercise rows are authoritative: a cycling leg must never enter running totals.
+  // Older logs without rows can still use their dedicated runDistance/runTime fields.
+  function workoutRunningMetrics(workout) {
+    var isRun=function(value){return /(^|[^a-zåäö])(löp|jogg|running|run|treadmill)/i.test(String(value||''));};
+    var otherCardio=function(value){return /cyk|cycl|bik|spinning|cross[ -]?trainer|ellipt|rodd|rowing|promenad|walk|simning|swim/i.test(String(value||''));};
+    var cardio=(workout.exercises||[]).map(normalizeExercise).filter(function(ex){return ex.kind==='cardio';});
+    var runType=isRun(workout.type),running=cardio.filter(function(ex){
+      return !otherCardio(ex.name)&&(isRun(ex.name)||(runType&&/^(övning|kondition)?$/i.test(ex.name.trim())));
+    });
+    if(cardio.length&&!running.length)return {distance:0,time:0,pace:0};
+    if(!cardio.length&&otherCardio(workout.type||workout.name))return {distance:0,time:0,pace:0};
+    var distance=running.length?running.reduce(function(sum,ex){return sum+Math.max(0,ex.distance);},0):Math.max(0,number(workout.runDistance));
+    var time=running.length?running.reduce(function(sum,ex){return sum+Math.max(0,ex.time);},0):Math.max(0,number(workout.runTime));
+    var complete=running.every(function(ex){return ex.distance>0&&ex.time>0;});
+    // A pass-level pace is only safe when no other cardio activity is mixed in.
+    var pace=distance>0&&time>0&&complete?time/distance:
+      distance>0&&running.length===cardio.length?Math.max(0,number(workout.avgPaceKm)):0;
+    return {distance:distance,time:time,pace:pace};
+  }
   function workoutType(workout) {
     return String(workout.type||workout.name||'Träningspass');
   }
@@ -484,7 +503,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);}).filter(function(w){return number(w.hrAvg)>0;}).map(function(w){return {date:w.date,value:number(w.hrAvg),min:number(w.hrMin),max:number(w.hrMax),kind:workoutKind(w),type:workoutType(w)};});
   }
   function distanceData() {
-    return data.workouts.filter(function(w){return workoutDistance(w)>0;}).sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).map(function(w){return {date:w.date,value:workoutDistance(w),pace:workoutPace(w),time:workoutRunTime(w),type:workoutType(w)};});
+    return data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).map(function(w){var run=workoutRunningMetrics(w);return {date:w.date,value:run.distance,pace:run.pace,time:run.time,type:workoutType(w)};}).filter(function(entry){return entry.value>0;});
   }
   function paceData() {
     return distanceData().filter(function(entry){return entry.pace>0;}).map(function(entry){
@@ -907,7 +926,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var latest=entries.length?entries[entries.length-1]:null;
     if(state.insight==='pace'){
       var goalDistance=number(data.goals.runDistanceGoal)||10;
-      var allRuns=data.workouts.filter(function(workout){return withinChartRange(workout);}).map(workoutDistance).filter(function(distance){return distance>0;});
+      var allRuns=data.workouts.filter(function(workout){return withinChartRange(workout);}).map(function(workout){return workoutRunningMetrics(workout).distance;}).filter(function(distance){return distance>0;});
       var maxDistance=allRuns.length?Math.max.apply(Math,allRuns):0;
       var totalDistance=allRuns.reduce(function(total,distance){return total+distance;},0);
       var distanceRatio=clamp(maxDistance/goalDistance*100,0,100);
@@ -933,7 +952,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var maxValue=entries.reduce(function(max,entry){return Math.max(max,number(entry.value));},0);
     var scaleMin=Math.min(40,goal-1),range=Math.max(1,goal-scaleMin);
     var progress=maxValue>0?clamp((maxValue-scaleMin)/range*100,0,100):0;
-    var longestRun=data.workouts.filter(withinChartRange).reduce(function(max,workout){return Math.max(max,workoutRunTime(workout));},0);
+    var longestRun=data.workouts.filter(withinChartRange).reduce(function(max,workout){return Math.max(max,workoutRunningMetrics(workout).time);},0);
     summary.innerHTML=
       '<div class="insight-special-goal-title">Högsta VO₂ <span>(ml/kg/min)</span></div>'+
       '<div class="insight-special-progress" style="--metric-progress:'+progress.toFixed(2)+'%" role="progressbar" aria-label="VO₂ mot mål" aria-valuemin="'+scaleMin+'" aria-valuemax="'+goal+'" aria-valuenow="'+formatNumber(maxValue,1)+'">'+
