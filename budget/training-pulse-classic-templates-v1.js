@@ -203,6 +203,15 @@ box.addEventListener('click',function(event){
  event.preventDefault();event.stopPropagation();
  saveTemplate();
 },true);
+/* A day named Vila (or similar) with no exercises is saved as a rest day
+   instead of asking for an exercise. */
+box.addEventListener('click',function(event){
+ if(mode==='template'||!event.target.closest('.classic-save-pass'))return;
+ var type=String((byId('day-workout-type')||{}).value||'').trim().toLocaleLowerCase('sv-SE');
+ if(!/^(vila|vilodag|ledig|återhämtning|rest)$/.test(type)||rows().length)return;
+ event.preventDefault();event.stopPropagation();
+ window.setDayWorkoutRest();
+},true);
 /* Nor can the template builder change the day it was opened over. */
 var dateInput=byId('day-workout-date');
 if(dateInput)dateInput.addEventListener('change',function(event){if(mode==='template'){event.stopImmediatePropagation();}},true);

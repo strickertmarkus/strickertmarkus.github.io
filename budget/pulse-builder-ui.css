@@ -402,7 +402,7 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workou
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-edit-template:disabled{opacity:.35}
 
 /* Template builder: no date, no day settings; the template switcher on top. */
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode :is(.pbu-kicker .pbu-chev,.pbu-kicker-date,.classic-day-calendar,#pretimer-builder-v2,#between-exercise-global-editor-v7,#day-workout-edit-template,.classic-start-pass,.classic-save-as-template){display:none!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode :is(.pbu-kicker .pbu-chev,.pbu-kicker-date,.classic-day-calendar,#pretimer-builder-v2,#between-exercise-global-editor-v7,#day-workout-edit-template,.classic-start-pass,.classic-save-as-template,.classic-rest-day){display:none!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode .pbu-kicker{pointer-events:none}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode :is(.classic-template-group,#pbu-none){display:block!important;order:1;margin:6px 0 14px!important;padding-right:52px!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder.classic-template-edit-mode .classic-template-group>label{display:none!important}
@@ -428,3 +428,6 @@ html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-lis
 html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .per-set-fields-v7 .per-set-name-v7::placeholder{color:#ffffff38!important;-webkit-text-fill-color:#ffffff38!important}
 
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder [onclick="pulseClassicNewTemplate()"]{flex:0 0 auto!important;min-width:76px!important;width:auto!important;padding:0 12px!important;white-space:nowrap!important}
+/* Vilodag beside Spara som mall and Starta pass, with the rest moon. */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer .classic-rest-day{display:inline-flex!important;align-items:center;gap:6px;flex:0 0 auto;width:auto!important;min-height:40px!important;padding:0 4px!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important;color:#c9d2dc!important;font:600 13.5px Inter,system-ui,sans-serif!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer .classic-rest-day svg{width:15px;height:15px;fill:#dfe6ee;fill-opacity:.18;stroke:#dfe6ee;stroke-width:1.6;stroke-linejoin:round;filter:drop-shadow(0 0 3px #e8f1ffcc) drop-shadow(0 0 8px #9fb7d899)}

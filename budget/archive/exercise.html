@@ -556,7 +556,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261030-zen-integrated-3">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261030-zen-modes-4">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261031-rest-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
 <link rel="stylesheet" href="pulse-log-ui.css?v=20261029-tpl-7">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
@@ -1028,6 +1028,7 @@ if(!window.__FIELD_EMBEDDED__){
       <button class="btn-ghost" onclick="pulsePlanCancelBuilderV3()">Tillbaka</button>
       <button class="btn-sm classic-save-as-template" type="button" onclick="pulseClassicSaveAsTemplate()">Spara som mall</button>
       <button class="btn-sm classic-start-pass" type="button" onclick="startDayWorkoutFromBuilder()">Starta pass</button>
+      <button class="btn-sm classic-rest-day" type="button" onclick="setDayWorkoutRest()" aria-label="Gör dagen till vilodag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>Vilodag</button>
       <button class="btn-primary classic-save-pass" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
     </div>
   </div>
@@ -2654,6 +2655,25 @@ function persistDayWorkoutPlan(opts){
   return true;
 }
 
+/* "Vilodag" in the day builder: the day becomes rest without any exercise
+   (its planned pass is removed; logged passes are not touched). */
+function setDayWorkoutRest(){
+  var modal=document.getElementById('day-workout-modal');
+  var dateInput=byId('day-workout-date');
+  var date=(dateInput&&dateInput.value)||modal.dataset.date;
+  if(!date)return false;
+  var byDate=getPlannedSessions();
+  if(byDate[date]){delete byDate[date];savePlannedSessions(byDate);}
+  var mondayISO=mondayISOOf(date),plan=Object.assign({},getPlanForWeek(mondayISO));
+  plan[dayKeyFromISO(date)]='Vila';
+  setPlanForWeek(mondayISO,plan);
+  viewedMondayISO=mondayISO;
+  renderWeekGrid();
+  closeModal('day-workout-modal');
+  if(pulsePlanBuilderReturnV3)pulsePlanReturnFromBuilderV3();
+  showToast('Dagen är nu en vilodag.');
+  return true;
+}
 function startDayWorkoutFromBuilder(){
   var modal=document.getElementById('day-workout-modal');
   var date=modal.dataset.date;
@@ -3826,6 +3846,6 @@ window.addEventListener('firebase-sync',function(event){
 </script>
 <script src="training-month-planner.js?v=20261030-zen-pr-1"></script>
 <script src="training-pass-autofill.js?v=20261031-cardio-name-1"></script>
-<script src="training-pulse-classic-templates-v1.js?v=20261031-cardio-name-1"></script>
+<script src="training-pulse-classic-templates-v1.js?v=20261031-rest-1"></script>
 </body>
 </html>
