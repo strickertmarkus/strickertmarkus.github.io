@@ -11,13 +11,13 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     weekStart: startOfWeek(new Date()),
     selectedDate: isoDate(new Date()),
     activityView: 'history',
-    activityMetric: 'minutes',
+    activityMetric: 'sessions',
     insight: 'heart',
     insightMode: 'chart',
     chartRange: 'all',
     openLogId: null,
     logTouched: false,
-    logVisibleCount: 12,
+    logVisibleCount: 5,
   };
   var data = {};
 
@@ -345,6 +345,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
       if(logged.length)classes.push('is-complete');
+      if(key<today)classes.push('is-past');
       markup+='<div class="'+classes.join(' ')+'" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
         '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span>'+
         (window.PulseZen&&PulseZen.kind(type)?PulseZen.icon(PulseZen.kind(type)):'')+'<span class="day-type">'+escapeHtml(displayName)+'</span></div>';
@@ -384,17 +385,24 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(startLink)startLink.dataset.fieldDate=state.selectedDate;
   }
 
+  // Totals plus the strength / cardio share of passes and minutes.
+  function activitySplit(bucket,sessions){
+    var parts={strength:{sessions:0,minutes:0},cardio:{sessions:0,minutes:0}};
+    sessions.forEach(function(w){var p=parts[workoutKind(w)==='cardio'?'cardio':'strength'];p.sessions++;p.minutes+=number(w.duration);});
+    bucket.parts=parts;bucket.sessions=sessions.length;bucket.minutes=parts.strength.minutes+parts.cardio.minutes;
+    return bucket;
+  }
   function activityBuckets() {
     if(state.activityView==='week'){
       return Array.from({length:7},function(_,index){
         var date=shiftDate(state.weekStart,index),sessions=workoutsOn(date);
-        return {label:dayNames[index],date:isoDate(date),sessions:sessions.length,minutes:sessions.reduce(function(sum,w){return sum+number(w.duration);},0),current:isoDate(date)===isoDate(new Date())};
+        return activitySplit({label:dayNames[index],date:isoDate(date),current:isoDate(date)===isoDate(new Date())},sessions);
       });
     }
     return Array.from({length:8},function(_,index){
       var start=shiftDate(startOfWeek(new Date()),(index-7)*7),end=shiftDate(start,6),startKey=isoDate(start),endKey=isoDate(end);
       var sessions=data.workouts.filter(function(w){return w.date>=startKey&&w.date<=endKey;});
-      return {label:'v'+weekNumber(start),date:startKey,sessions:sessions.length,minutes:sessions.reduce(function(sum,w){return sum+number(w.duration);},0),current:index===7};
+      return activitySplit({label:'v'+weekNumber(start),date:startKey,current:index===7},sessions);
     });
   }
   function chartAxisUnit(label,left,top) {
@@ -470,16 +478,32 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('activity-total').textContent=formatNumber(total,0);
     byId('activity-unit').textContent=metric==='minutes'?'minuter':'pass';
     byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
-    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4])),width=clamp(byId('activity-chart').clientWidth||800,320,1600),height=clamp(byId('activity-chart').clientHeight||180,164,275),left=27,right=9,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24),highestValue=Math.max.apply(Math,values.concat([0])),highestBarH=highestValue?Math.max(4,plotH*highestValue/max):4,gradientBottom=top+plotH,gradientTop=gradientBottom-highestBarH;
-    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="bar-light" gradientUnits="userSpaceOnUse" x1="0" y1="'+gradientBottom+'" x2="0" y2="'+gradientTop+'"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffd1ba"/></linearGradient></defs>';
+    var history=state.activityView==='history',goal=Math.max(1,number(data.goals.weeklyWk)||4),showGoal=history&&metric==='sessions';
+    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4,showGoal?goal+1:0])),width=clamp(byId('activity-chart').clientWidth||800,320,1600),height=clamp(byId('activity-chart').clientHeight||180,164,275),left=27,right=9,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24);
+    if(metric==='sessions')max=Math.ceil(max);
+    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs>'+
+      '<linearGradient id="bar-light" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffb6a4"/></linearGradient>'+
+      '<linearGradient id="bar-cool" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#3fb6c8"/><stop offset="1" stop-color="#a9f1f8"/></linearGradient></defs>';
     svg+=chartAxisUnit(metric==='minutes'?'MIN':'PASS',left,top);
     [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
+    // The week goal as a dashed line (history in passes).
+    if(showGoal){var gy=top+plotH*(1-goal/max);svg+='<line class="activity-goal" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="activity-goal-label" x="'+(left+4)+'" y="'+(gy-6)+'" text-anchor="start">mål '+goal+'</text>';}
     buckets.forEach(function(bucket,index){
-      var x=left+step*(index+.5),value=bucket[metric],barH=value?Math.max(4,plotH*value/max):0,y=top+plotH-barH;
-      if(value)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+y+'" width="'+barW+'" height="'+barH+'" rx="'+(barW/2)+'" fill="url(#bar-light)"/>'+(bucket.current?'<text class="chart-value" x="'+x+'" y="'+clamp(y-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>':'');
-      else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+(top+plotH)+'" x2="'+(x+4)+'" y2="'+(top+plotH)+'"/>';
-      svg+='<rect class="chart-hit-zone" x="'+(left+step*index)+'" y="'+top+'" width="'+step+'" height="'+plotH+'"'+chartTipAttrs(bucket.label,formatNumber(value,0)+' '+(metric==='minutes'?'min':'pass'),state.activityView==='week'?shortDate(bucket.date):'Vecka '+bucket.label.replace(/^v/,''),'#ff9a91')+'/>';
-      svg+='<text class="chart-axis-label" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
+      var x=left+step*(index+.5),value=bucket[metric],base=top+plotH;
+      // The current week (or today) stands out; the rest are history.
+      if(bucket.current)svg+='<rect class="activity-current" x="'+(left+step*index+2)+'" y="'+top+'" width="'+(step-4)+'" height="'+plotH+'" rx="10"/>';
+      if(value){
+        var s=bucket.parts.strength[metric],c=bucket.parts.cardio[metric],sh=s?Math.max(4,plotH*s/max):0,ch=c?Math.max(4,plotH*c/max):0,gap=s&&c?2:0;
+        // Strength from the base, cardio on top, a 2px gap between.
+        if(sh)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+(base-sh)+'" width="'+barW+'" height="'+sh+'" rx="'+(barW/2)+'" fill="url(#bar-light)" data-glow="#ff657a"/>';
+        if(ch)svg+='<rect class="activity-bar is-cardio" x="'+(x-barW/2)+'" y="'+(base-sh-gap-ch)+'" width="'+barW+'" height="'+ch+'" rx="'+(barW/2)+'" fill="url(#bar-cool)" data-glow="#7fe3ef"/>';
+        var topY=base-sh-gap-ch;
+        if(bucket.current)svg+='<text class="chart-value" x="'+x+'" y="'+clamp(topY-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>';
+      }
+      else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+base+'" x2="'+(x+4)+'" y2="'+base+'"/>';
+      var unit=metric==='minutes'?'min':'pass',detail=(state.activityView==='week'?shortDate(bucket.date):'Vecka '+bucket.label.replace(/^v/,''))+' · styrka '+formatNumber(bucket.parts.strength[metric],0)+', kondition '+formatNumber(bucket.parts.cardio[metric],0);
+      svg+='<rect class="chart-hit-zone" x="'+(left+step*index)+'" y="'+top+'" width="'+step+'" height="'+plotH+'"'+chartTipAttrs(bucket.label,formatNumber(value,0)+' '+unit,detail,'#ff9a91')+'/>';
+      svg+='<text class="chart-axis-label'+(bucket.current?' is-current':'')+'" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
     });
     svg+='</svg>';
     byId('activity-chart').innerHTML=svg;
@@ -744,7 +768,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       canvasNeonDot(ctx,p.x,p.y,r,glowRgb(dot.getAttribute('fill'),[255,101,122]));
     });
     container.querySelectorAll('rect.activity-bar').forEach(function(bar){
-      canvasNeonBar(ctx,bar.getBoundingClientRect(),size.rect,[255,101,122]);
+      canvasNeonBar(ctx,bar.getBoundingClientRect(),size.rect,glowRgb(bar.getAttribute('data-glow'),[255,101,122]));
     });
   }
   function paintMiniIntervalGlows() {
@@ -1109,6 +1133,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     chevron:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
     down:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',
     clock:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+    // Swap which record sits in a podium place (the weight itself is tapped to edit).
+    swap:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>',
     pencil:'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4L15.8 5.2a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.5 18.5z"/><path d="M13.5 7.5l3 3"/></svg>'
   };
   var PK_ART=[[/triceps|dips/,'triceps'],[/biceps|curl/,'biceps'],[/bröst|press|fly|armhäv|push/,'chest'],[/rygg|rodd|lats|pull/,'back'],[/axl|axel|shoulder/,'shoulders'],[/mage|core|plank/,'abs'],[/säte|höft|glute/,'glutes'],[/baksida|lårcurl|marklyft/,'hamstrings'],[/vad/,'calves'],[/ben|knä|utfall|squat|lår|underkropp|helkropp/,'quads']];
@@ -1213,7 +1239,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var record=byKey[key];
       // The three chosen records lead as glowing rows, in the builder's row style.
       return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><span class="rank">'+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></div><button type="button" class="record-weight-edit" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera vikt för '+escapeHtml(record.name)+'">'+formatKg(record.value)+'</button>'+
-        '<button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för plats '+(index+1)+'">'+PK_ICON.pencil+'</button></article>';
+        '<button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för plats '+(index+1)+'">'+PK_ICON.swap+'</button></article>';
     }).join('');
     byId('record-picker-fields').innerHTML=[0,1,2].map(function(slot){
       return '<label class="record-picker-field"><span>Plats '+String(slot+1).padStart(2,'0')+'</span><select data-featured-select="'+slot+'" aria-label="Välj rekord för plats '+(slot+1)+'">'+
@@ -1256,7 +1282,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);
       var loadMore=event.target.closest('[data-log-more]');
       if(loadMore){
-        state.logVisibleCount+=12;
+        state.logVisibleCount+=10;
         renderLog();
         return;
       }

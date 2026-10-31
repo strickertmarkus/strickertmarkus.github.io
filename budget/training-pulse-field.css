@@ -783,3 +783,17 @@ main{position:relative;z-index:2;display:block}
 .planner-calendar-entry:hover{color:var(--field-peach)}
 .planner-calendar-entry:focus-visible{outline:1px solid currentColor;outline-offset:3px;border-radius:8px}
 .section-head-actions{display:flex;align-items:center;gap:2px}
+/* Aktivitetsljus: week goal, current week, strength (red) and cardio (cyan) stacked. */
+.activity-goal{stroke:#ffd1ba80;stroke-width:1;stroke-dasharray:4 6;vector-effect:non-scaling-stroke}
+.activity-goal-label{fill:#ffd1bacc;font:600 9px var(--field-ui);letter-spacing:.3px}
+.activity-current{fill:#ff9a910d;stroke:#ff9a9124;stroke-width:1;vector-effect:non-scaling-stroke}
+.activity-bar.is-cardio{filter:drop-shadow(0 0 5px #7fe3ef80) drop-shadow(0 0 13px #7fe3ef45)}
+.chart-axis-label.is-current{fill:#ffd1ba;font-weight:700}
+.activity-legend{display:flex;gap:14px;margin:6px 0 0;color:#a4aeba;font:500 10.5px var(--field-ui)}
+.activity-legend span{display:inline-flex;align-items:center;gap:6px}
+.activity-legend i{width:8px;height:8px;border-radius:50%;background:#ff657a;box-shadow:0 0 7px #ff657a}
+.activity-legend .is-cardio i{background:#7fe3ef;box-shadow:0 0 7px #7fe3ef}
+/* Week field: a filled glowing dot for a logged pass, a ring for one only planned
+   (dimmer once the day has passed), the plain grey dot for rest. */
+.week-day:not(.is-complete):not([data-plan-kind="rest"]) .day-date::after{width:7px;height:7px;bottom:4px;background:transparent!important;box-shadow:inset 0 0 0 1.4px var(--week-kind),0 0 6px color-mix(in srgb,var(--week-kind) 35%,transparent)!important;animation:none}
+.week-day.is-past:not(.is-complete):not([data-plan-kind="rest"]) .day-date::after{opacity:.45;box-shadow:inset 0 0 0 1.4px var(--week-kind)!important}
