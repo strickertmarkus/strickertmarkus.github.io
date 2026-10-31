@@ -633,8 +633,8 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 #pass-summary .detail-ex .log-sets-line{margin-top:-1px}
 
 /* Section dock: small floating jump bar on mobile */
-.section-dock{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;align-items:center;gap:2px;width:min(340px,calc(100vw - 32px));padding:4px 5px;border:1px solid #ffffff14;border-radius:999px;background:#0b1019e6;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 30px #0009;transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.22,1,.36,1),opacity .2s}
-.section-dock[data-shown=true]{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.section-dock{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;align-items:center;gap:2px;width:min(340px,calc(100vw - 32px));padding:4px 5px;border:1px solid #ffffff14;border-radius:999px;background:#0b1019e6;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 30px #0009;transform:translateX(-50%)}
+.section-dock[hidden],body[data-builder-open=true] .section-dock{display:none}
 .section-dock button{position:relative;display:grid;justify-items:center;gap:1px;min-width:0;min-height:42px;padding:4px 2px 5px;border:0;border-radius:999px;background:none;color:#8f8796;font-size:9.5px;font-weight:600;letter-spacing:.02em}
 .section-dock button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .section-dock button[aria-current=true]{color:#f1e4eb}
@@ -643,7 +643,6 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 .section-dock .dock-add svg{width:20px;height:20px;stroke-width:2.2}
 #training-view{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
 @media(min-width:901px){.section-dock{display:none}#training-view{padding-bottom:0}}
-@media(prefers-reduced-motion:reduce){.section-dock{transition:none}}
 </style>
 <style id="ingemar-account-styles">
 html[data-ingemar-auth="locked"],html[data-ingemar-auth="locked"] body{height:100%;overflow:hidden}
@@ -900,7 +899,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" data-action="remove-record" id="pr-edit-remove" hidden>Ta bort manuellt rekord</button><div class="right"><button type="button" class="secondary" data-action="cancel-record">Avbryt</button><button type="button" class="primary" data-action="save-record">Spara rekord ✓</button></div></div>
  </div>
 </dialog>
-<nav class="section-dock" id="section-dock" aria-label="Hoppa till del av sidan" data-shown="false">
+<nav class="section-dock" id="section-dock" aria-label="Hoppa till del av sidan">
  <button type="button" data-dock="top"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><span>Idag</span></button>
  <button type="button" data-dock="sec-week"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Vecka</span></button>
  <button type="button" class="dock-add" data-action="new-history" aria-label="Logga pass"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -1655,7 +1654,7 @@ function renderHistoryLog(){
 function switchView(next){
  if(familySessionOpen||activeZen){toast('Avsluta det pågående passet först.');return;}
  view=next;
- $('training-view').hidden=next!=='training';$('zen-view').hidden=next==='training';
+ $('training-view').hidden=next!=='training';$('zen-view').hidden=next==='training';$('section-dock').hidden=next!=='training';
  document.querySelectorAll('[data-view]').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.view===next));});
  if(next!=='training')renderZen(); else {delete document.body.dataset.overview;renderPushPullAnalytics();}
  window.scrollTo({top:0,behavior:'instant'});
@@ -4175,25 +4174,20 @@ function whenAccountEditable(fn){
  if(accountReadyWaiting)return;accountReadyWaiting=true;
  var tries=0,timer=setInterval(function(){tries++;if(window.IngemarAccount.canEdit||tries>120){clearInterval(timer);accountReadyWaiting=false;if(window.IngemarAccount.canEdit)fn();}},500);
 }
-// Section dock: appears after the hero, hides while scrolling down, marks the current section.
+// Section dock: always visible in the training view, marks the current section.
 (function(){
- var dock=$('section-dock'),lastY=window.scrollY,idle=0,raf=0,pinnedUntil=0,targets=['top','sec-week','sec-records','sec-log'];
+ var dock=$('section-dock'),raf=0,targets=['sec-week','sec-records','sec-log'];
  function headerOffset(){var h=document.querySelector('header');return (h?h.offsetHeight:0)+10;}
  function sectionTop(id){return id==='top'?0:$(id).getBoundingClientRect().top+window.scrollY-headerOffset();}
  function update(){
   raf=0;
-  var y=window.scrollY,down=y>lastY+4,up=y<lastY-4,allowed=view==='training'&&!document.body.dataset.builderOpen&&y>320;
-  if(!allowed)dock.dataset.shown='false';else if(down&&Date.now()>pinnedUntil)dock.dataset.shown='false';else if(up)dock.dataset.shown='true';
-  if(up||down)lastY=y;
-  clearTimeout(idle);if(allowed)idle=setTimeout(function(){dock.dataset.shown='true';},700);
-  var current='top',probe=y+window.innerHeight*.2;
-  targets.forEach(function(id){if(id!=='top'&&$(id)&&sectionTop(id)<=probe)current=id;});
+  var current='top',probe=window.scrollY+window.innerHeight*.2;
+  targets.forEach(function(id){if($(id)&&sectionTop(id)<=probe)current=id;});
   dock.querySelectorAll('[data-dock]').forEach(function(b){b.setAttribute('aria-current',String(b.dataset.dock===current));});
  }
  window.addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(update);},{passive:true});
  dock.addEventListener('click',function(event){
   var b=event.target.closest('[data-dock]');if(!b)return;
-  pinnedUntil=Date.now()+1200;dock.dataset.shown='true';
   window.scrollTo({top:Math.max(0,sectionTop(b.dataset.dock)),behavior:'smooth'});
  });
  update();
