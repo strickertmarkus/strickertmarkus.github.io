@@ -157,8 +157,6 @@ body[data-mode-open="true"]{overflow:hidden;touch-action:pan-y}
    but keep their own calm flow language and accent ownership. */
 body[data-overview="stretch"]{background:radial-gradient(ellipse 86% 34% at 52% 0,#47795828,transparent 76%),#08110e}
 body[data-overview="meditation"]{background:radial-gradient(ellipse 86% 34% at 52% 0,#b38d4526,transparent 76%),#10100c}
-body[data-overview="stretch"] .topnav button[aria-selected="true"]{background:#9ee6b012;border-color:#9ee6b05c;color:#d9ffe3;box-shadow:0 0 20px #65c98514}
-body[data-overview="meditation"] .topnav button[aria-selected="true"]{background:#f2d48812;border-color:#f2d48862;color:#fff0ba;box-shadow:0 0 20px #d9b34d17}
 
 .zen-view{
   --zen-accent:#9fe0ad;

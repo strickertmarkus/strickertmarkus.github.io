@@ -106,7 +106,7 @@ async function verifyTouchDrag(page,label){
  const details=await page.evaluate(()=>({apps:firebase.apps.map(a=>a.name),db:JSON.parse(localStorage.getItem('__ingemar_test_db')||'{}')}));
  assert.deepEqual(details.apps,['[DEFAULT]']);
  assert.equal(Object.keys(details.db).length,0,'Empty account should not receive seeded fake data');
- await page.locator('[data-view="stretch"]').click();
+ await page.locator('#app-menu-toggle').click();await page.locator('[data-view="stretch"]').click();
  await page.locator('#zen-main-start').click();
  await page.waitForSelector('#zen-session:not([hidden])');
  await page.screenshot({path:'test-results/ingemar-private/stretch-390.png'});
@@ -159,19 +159,19 @@ async function verifyTouchDrag(page,label){
  assert.equal(await page.locator('main').evaluate(el=>el.inert),false);
  // Restore the fixture goal so later weekly-target checks remain independent.
  await page.evaluate(()=>{const db=JSON.parse(localStorage.getItem('__ingemar_test_db'));const data=JSON.parse(db.ex_ingemar);data.goal=4;db.ex_ingemar=JSON.stringify(data);localStorage.setItem('__ingemar_test_db',JSON.stringify(db));window.__deliverIngemar();});
- await page.locator('[data-view="stretch"]').click();
+ await page.locator('#app-menu-toggle').click();await page.locator('[data-view="stretch"]').click();
  assert.match(await page.locator('#zen-history').textContent(),/sparad stund/,'Zen log survives reload');
- await page.locator('#ingemar-logout').click();
+ await page.locator('#app-menu-toggle').click();await page.locator('#ingemar-logout').click();
  await page.waitForSelector('html[data-ingemar-auth="locked"]');
  await page.locator('#ingemar-login-email').fill('other-fixture@test.invalid');
  await page.locator('#ingemar-login-password').fill('testing-12345');
  await page.locator('#ingemar-register-submit').click();
  await page.waitForSelector('html[data-ingemar-auth="ready"]');
- await page.locator('[data-view="stretch"]').click();
+ await page.locator('#app-menu-toggle').click();await page.locator('[data-view="stretch"]').click();
  assert.match(await page.locator('#zen-history').textContent(),/sparad stund/,'Markus can read the same Ingemar profile with his own login');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+2),true,'No unintended mobile horizontal overflow');
  assert.deepEqual(errors,[],errors.join(' | '));
- await page.locator('[data-view="training"]').click();
+ await page.locator('#app-menu-toggle').click();await page.locator('[data-view="training"]').click();
  assert.equal(await page.locator('#family-session-frame').getAttribute('src'),null);
  await page.locator('[data-choice="Push"]').click();
  await page.locator('#builder-start-from-builder').click();
@@ -538,7 +538,7 @@ async function verifyTouchDrag(page,label){
  await page.screenshot({path:'test-results/ingemar-private/records-desktop.png'});
  assert.deepEqual(errors,[],errors.join(' | '));
  await page.setViewportSize({width:390,height:844});
- await page.locator('#ingemar-logout').click();
+ await page.locator('#app-menu-toggle').click();await page.locator('#ingemar-logout').click();
  await page.waitForSelector('html[data-ingemar-auth="locked"]');
  await page.evaluate(()=>localStorage.setItem('__deny_ingemar','1'));
  await page.locator('#ingemar-login-email').fill('ingemar-fixture@test.invalid');
@@ -570,7 +570,7 @@ async function verifyTouchDrag(page,label){
  await screenshotDuringBoot(reopenedPage,'test-results/ingemar-private/reopened-before-firebase-390.png');
  releaseReopened();
  await reopenedPage.waitForFunction(()=>IngemarAccount.canEdit);
- await reopenedPage.locator('#ingemar-logout').click();
+ await reopenedPage.locator('#app-menu-toggle').click();await reopenedPage.locator('#ingemar-logout').click();
  await reopenedPage.waitForSelector('html[data-ingemar-auth="locked"]');
  assert.equal(await reopenedPage.evaluate(()=>localStorage.getItem('ex_ingemar_verified_uid')),null);
  await reopenedPage.reload({waitUntil:'domcontentloaded'});
@@ -971,7 +971,7 @@ async function verifyTouchDrag(page,label){
  await recordPage.waitForFunction(()=>document.getElementById('ingemar-sync-status').dataset.syncState==='synced');
  assert.match(await recordPage.locator('#ingemar-sync-status').textContent(),/Firebase/);
  // Both Zen pages need the same durable create / edit / plan / log / delete behavior.
- await recordPage.locator('[data-view="stretch"]').click();
+ await recordPage.locator('#app-menu-toggle').click();await recordPage.locator('[data-view="stretch"]').click();
  await recordPage.locator('[data-zen-action="create"]').click();
  await recordPage.locator('#zen-edit-name').fill('QA Stretch');
  await recordPage.locator('[data-zen-step-field="name"]').first().fill('Rörlighet QA');
@@ -990,14 +990,14 @@ async function verifyTouchDrag(page,label){
  await recordPage.locator('[data-zen-step-field="name"]').first().fill('Rörlighet loggad');
  await recordPage.locator('[data-zen-action="save-editor"]').click();
  await recordPage.reload();await recordPage.waitForFunction(()=>IngemarAccount.canEdit);
- await recordPage.locator('[data-view="stretch"]').click();
+ await recordPage.locator('#app-menu-toggle').click();await recordPage.locator('[data-view="stretch"]').click();
  assert.match(await recordPage.locator('#zen-history').textContent(),/QA stretchlogg/);
  await recordPage.locator('[data-zen-history]').filter({hasText:'QA stretchlogg'}).click();
  await recordPage.locator('#zen-edit-notes').fill('Redigerad efter omladdning');
  await recordPage.locator('[data-zen-action="save-editor"]').click();
  const savedZen=await recordPage.evaluate(()=>JSON.parse(localStorage.getItem('ex_ingemar')));
  assert.equal(savedZen.zenHistory.find(x=>x.name==='QA stretchlogg').notes,'Redigerad efter omladdning');
- await recordPage.locator('[data-view="meditation"]').click();
+ await recordPage.locator('#app-menu-toggle').click();await recordPage.locator('[data-view="meditation"]').click();
  await recordPage.locator('[data-zen-action="create"]').click();
  await recordPage.locator('#zen-edit-name').fill('QA Meditation');
  await recordPage.locator('[data-zen-step-field="name"]').first().fill('Andning QA');
