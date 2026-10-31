@@ -70,6 +70,7 @@ function refreshMode(){
  if(back)back.hidden=!editing||fromPage;
 }
 function syncDay(iso,p){
+ if(window.PulsePassAutofill)PulsePassAutofill.reset(p);
  mode='day';originDay=iso;editTemplateId='';fromPage=false;
  populateSelect(p&&p.templateId);
  refreshMode();
@@ -105,6 +106,7 @@ function apply(id){
  byId('day-workout-type').value=found.type||'Helkropp';
  setRows(found.exercises||[]);
  if(window.PulseZen)PulseZen.loadBuilder(found);
+ if(window.PulsePassAutofill)PulsePassAutofill.reset(found);
  populateSelect(found.id);
  toast('Mallpass valt. Justera eller spara dagen.');
 }
@@ -119,6 +121,7 @@ function openTemplate(id,date,opts){
  byId('day-workout-type').value=tpl?tpl.type||'Helkropp':'Helkropp';
  setRows(tpl&&tpl.exercises||[]);
  if(window.PulseZen)PulseZen.loadBuilder(tpl);
+ if(window.PulsePassAutofill)PulsePassAutofill.reset(tpl);
  populateSelect(editTemplateId);
  refreshMode();
  var name=byId('day-workout-name');
@@ -156,6 +159,7 @@ function saveTemplate(options){
  if(options.nameOnly&&previous){entry=Object.assign({},previous,{name:name});}
  else if(zenMode){entry.exercises=[];if(zenRecord)entry.zenRoutine=zenRecord.zenRoutine;else delete entry.zenRoutine;}
  else delete entry.zenRoutine;
+ if(window.PulsePassAutofill)PulsePassAutofill.stamp(entry);
  if(at>=0)list[at]=entry;else list.push(entry);
  saveTemplates(list);
  updateLinkedNames(id,previous&&previous.name,name);
@@ -181,6 +185,7 @@ function confirmSaveAsTemplate(){
  var list=getTemplates(),id=makeId();
  var entry={id:id,name:name,type:String(byId('day-workout-type').value||'').trim()||'Helkropp',exercises:ex};
  if(zenRecord)entry.zenRoutine=zenRecord.zenRoutine;
+ if(window.PulsePassAutofill)PulsePassAutofill.stamp(entry);
  list.push(entry);
  saveTemplates(list);
  populateSelect(id);

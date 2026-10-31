@@ -1347,6 +1347,7 @@ function pulsePlanApplyTemplateV2(index,id){
   entry.type=template.type||entry.type;
   entry.session={type:entry.type,name:template.name||entry.type,templateId:template.id,exercises:pulsePlanCloneV2(template.exercises||[])};
   if(template.zenRoutine)entry.session.zenRoutine=pulsePlanCloneV2(template.zenRoutine);
+  if(template.autoPassName===template.name)entry.session.autoPassName=template.autoPassName;
   pulsePlanRenderV2();
 }
 function pulsePlanCopyV2To(index){
@@ -2570,9 +2571,9 @@ function loadDayWorkoutBuilder(iso){
   var title=byId('day-workout-title','day-workout-title');
   if(title) title.textContent='Passupplägg · '+label+' '+fmtDate(iso);
   var typeEl=byId('day-workout-type','day-workout-type');
-  if(typeEl) typeEl.value=p.type||'Övrigt';
+  if(typeEl) typeEl.value=/^vila$/i.test(p.type||'')?'':p.type||'Övrigt';
   var nameEl=byId('day-workout-name');
-  if(nameEl)nameEl.value=p.name||p.type||'';
+  if(nameEl)nameEl.value=/^vila$/i.test(p.name||p.type||'')?'':p.name||p.type||'';
   var list=byId('day-workout-ex-list','day-workout-ex-list','day-workout-ex-list');
   if(list){
     list.innerHTML='';
@@ -2633,6 +2634,7 @@ function persistDayWorkoutPlan(opts){
   var previous=byDate[date]||{};
   var record=zenRecord||Object.assign({},previous,{type:type,name:name,exercises:ex});
   if(!zenMode)delete record.zenRoutine;
+  if(window.PulsePassAutofill)PulsePassAutofill.stamp(record);
   type=record.type;
   if(templateId)record.templateId=templateId;
   else delete record.templateId;
@@ -3823,6 +3825,7 @@ window.addEventListener('firebase-sync',function(event){
 })();
 </script>
 <script src="training-month-planner.js?v=20261030-zen-pr-1"></script>
-<script src="training-pulse-classic-templates-v1.js?v=20261030-zen-modes-4"></script>
+<script src="training-pass-autofill.js?v=20261031-cardio-name-1"></script>
+<script src="training-pulse-classic-templates-v1.js?v=20261031-cardio-name-1"></script>
 </body>
 </html>
