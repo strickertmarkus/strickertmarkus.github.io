@@ -631,6 +631,19 @@ dialog .field input,dialog .field select,dialog .field textarea{max-width:100%;m
 .log-sets-line .ls-seg.is-skipped{color:#6f6a76;text-decoration:line-through}.log-sets-line .ls-seg.is-skipped b,.log-sets-line .ls-seg.is-skipped em{color:#6f6a76}
 .log-sets-line .ls-empty{color:#7d7783}
 #pass-summary .detail-ex .log-sets-line{margin-top:-1px}
+
+/* Section dock: small floating jump bar on mobile */
+.section-dock{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;align-items:center;gap:2px;width:min(340px,calc(100vw - 32px));padding:4px 5px;border:1px solid #ffffff14;border-radius:999px;background:#0b1019e6;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 30px #0009;transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.22,1,.36,1),opacity .2s}
+.section-dock[data-shown=true]{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.section-dock button{position:relative;display:grid;justify-items:center;gap:1px;min-width:0;min-height:42px;padding:4px 2px 5px;border:0;border-radius:999px;background:none;color:#8f8796;font-size:9.5px;font-weight:600;letter-spacing:.02em}
+.section-dock button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.section-dock button[aria-current=true]{color:#f1e4eb}
+.section-dock button[aria-current=true]::after{content:"";position:absolute;bottom:1px;width:4px;height:4px;border-radius:50%;background:#f07a93;box-shadow:0 0 6px #f07a93}
+.section-dock .dock-add{width:44px;height:44px;min-height:44px;margin:0 4px;padding:0;place-items:center;border:1px solid #e6a0b266;background:linear-gradient(145deg,#b24a63,#8a3149);color:#fff;box-shadow:0 0 16px #ad41594d}
+.section-dock .dock-add svg{width:20px;height:20px;stroke-width:2.2}
+#training-view{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+@media(min-width:901px){.section-dock{display:none}#training-view{padding-bottom:0}}
+@media(prefers-reduced-motion:reduce){.section-dock{transition:none}}
 </style>
 <style id="ingemar-account-styles">
 html[data-ingemar-auth="locked"],html[data-ingemar-auth="locked"] body{height:100%;overflow:hidden}
@@ -753,7 +766,7 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="section-head kinds-head"><h2>Träningsformer</h2><a class="explore-link" href="pulse-exercise-guide.html?user=ingemar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4 13.3 13.3 8.4 15.6 10.7 10.7Z"/></svg><span>Utforska övningar</span></a></div>
   <div class="choices training-kind-cards" id="training-kind-cards"></div><section class="training-kind-detail" id="training-kind-detail" hidden aria-live="polite"></section>
   <div class="stats"><div class="panel stat"><div class="stat-label" id="stat-week-label">Pass denna vecka</div><strong><span id="stat-week">0</span><small>/<span id="stat-week-goal">4</span></small></strong><div class="sub stat-goal-tools"><button type="button" data-goal-adjust="-1" aria-label="Minska veckomål">−</button><span>mål</span><button type="button" data-goal-adjust="1" aria-label="Öka veckomål">＋</button></div></div><div class="panel stat"><div class="stat-label" id="stat-time-label">Tid</div><strong id="stat-minutes">0<small>min</small></strong><div class="sub">denna vecka</div></div><div class="panel stat"><div class="stat-label">Totalt</div><strong id="stat-total">0</strong><div class="sub">pass</div></div><div class="panel stat"><div class="stat-label">Senaste</div><strong id="stat-last">–</strong><div class="sub" id="stat-last-kind">Inget registrerat</div></div></div>
-  <div class="section-head"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="edit-selected-day">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="training-week-nav" id="training-week-nav" role="group" aria-label="Välj träningsvecka"><button type="button" class="training-week-arrow" data-training-week-shift="-1" aria-label="Föregående vecka">‹</button><div class="training-week-period" aria-live="polite" aria-atomic="true"><strong id="training-week-label">Vecka</strong><span id="training-week-range"></span></div><button type="button" class="training-week-arrow" data-training-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="training-week-today" data-training-week-today="true" aria-label="Visa aktuell vecka och dagens datum">Idag</button></div><div class="week" id="week" aria-label="Veckans pass"></div>
+  <div class="section-head" id="sec-week"><h2>Veckoplan</h2><div class="week-head-actions"><button type="button" class="ghost" data-action="edit-selected-day">Redigera vald dag</button><button type="button" class="secondary week-plan-button" data-action="plan-week">Planera vecka ↗</button></div></div><div class="training-week-nav" id="training-week-nav" role="group" aria-label="Välj träningsvecka"><button type="button" class="training-week-arrow" data-training-week-shift="-1" aria-label="Föregående vecka">‹</button><div class="training-week-period" aria-live="polite" aria-atomic="true"><strong id="training-week-label">Vecka</strong><span id="training-week-range"></span></div><button type="button" class="training-week-arrow" data-training-week-shift="1" aria-label="Nästa vecka">›</button><button type="button" class="training-week-today" data-training-week-today="true" aria-label="Visa aktuell vecka och dagens datum">Idag</button></div><div class="week" id="week" aria-label="Veckans pass"></div>
   <p class="hint week-tap-hint">Tryck på en dag för att bygga eller redigera passet.</p>
   <div class="section-head"><h2>Framsteg</h2><span class="hint">Historik – fram till vald vecka</span></div><div class="panel training-chart-panel"><div class="training-chart-head"><div><div class="eyebrow">GENOMFÖRDA TRÄNINGSPASS</div><strong>7 veckor i rörelse</strong></div><span>Tryck på en stapel för exakt värde</span></div><div class="pulse-bar-shell"><div class="bars" id="bars" aria-label="Träningspass per vecka"></div><div class="chart-inspect bar-inspect" id="bars-inspect" role="status" aria-live="polite"></div></div></div>
   <div class="section-head pp-section-head"><div><div class="eyebrow">PUSH / PULL · BELASTNING</div><h2>Jämför utvecklingen</h2></div><span class="hint">Fram till vald vecka</span></div>
@@ -769,8 +782,8 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
       <span class="pp-balance-caption" id="pp-balance-caption">Push / Pull</span>
     </div>
   </section>
-  <div class="section-head pr-section-head"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><div class="pr-legend" aria-hidden="true"><span style="--c:#f07a93">Push</span><span style="--c:#67e8f9">Pull</span><span style="--c:#f7a05e">Kondition</span></div><div id="personal-records" aria-live="polite"></div>
-  <div class="section-head log-section-head"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
+  <div class="section-head pr-section-head" id="sec-records"><h2>Personliga rekord</h2><button type="button" class="secondary" data-action="new-record">＋ Lägg till rekord</button></div><div class="pr-legend" aria-hidden="true"><span style="--c:#f07a93">Push</span><span style="--c:#67e8f9">Pull</span><span style="--c:#f7a05e">Kondition</span></div><div id="personal-records" aria-live="polite"></div>
+  <div class="section-head log-section-head" id="sec-log"><h2>Träningslogg</h2><div class="log-head-actions"><button type="button" class="secondary" data-action="new-history">＋ Logga pass</button></div></div><div class="history" id="history"></div>
 </section>
 <section id="zen-view" class="zen-view" data-kind="stretch" hidden>
   <div class="zen-dashboard-hero">
@@ -887,6 +900,13 @@ html[data-ingemar-auth="locked"] body>header,html[data-ingemar-auth="locked"] bo
   <div class="modal-actions"><button type="button" class="ghost log-editor-danger" data-action="remove-record" id="pr-edit-remove" hidden>Ta bort manuellt rekord</button><div class="right"><button type="button" class="secondary" data-action="cancel-record">Avbryt</button><button type="button" class="primary" data-action="save-record">Spara rekord ✓</button></div></div>
  </div>
 </dialog>
+<nav class="section-dock" id="section-dock" aria-label="Hoppa till del av sidan" data-shown="false">
+ <button type="button" data-dock="top"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><span>Idag</span></button>
+ <button type="button" data-dock="sec-week"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Vecka</span></button>
+ <button type="button" class="dock-add" data-action="new-history" aria-label="Logga pass"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+ <button type="button" data-dock="sec-records"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 3 4M17 6h2.5a2.5 2.5 0 0 1-3 4M12 14v3M8.5 20.5h7M10 17h4"/></svg><span>Rekord</span></button>
+ <button type="button" data-dock="sec-log"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r="1"/><circle cx="4.8" cy="12" r="1"/><circle cx="4.8" cy="17.5" r="1"/></svg><span>Logg</span></button>
+</nav>
 <dialog id="history-editor" aria-labelledby="history-editor-title">
  <div class="modal-head"><div><span class="eyebrow" id="history-editor-eyebrow">TRÄNINGSLOGG · INGEMAR</span><h2 id="history-editor-title">Redigera pass</h2></div><div class="log-head-tools"><button type="button" class="log-live-timer" id="log-live-timer" data-action="log-live-toggle" hidden aria-live="off"><i aria-hidden="true"></i><span id="log-live-time" role="timer">00:00</span><small id="log-live-sets"></small></button><button type="button" class="x" data-action="cancel-history-edit" aria-label="Stäng">×</button></div></div>
  <div class="modal-body">
@@ -2917,6 +2937,7 @@ function setsLineHtml(ex){
  });
  if(!runs.length)return '<span class="ls-empty">Inga set</span>';
  return runs.map(function(run){
+  if((run.w==null||run.w==='')&&(run.r==null||run.r===''))return '<span class="ls-seg ls-empty">'+run.n+' set · ej ifyllt</span>';
   var head=run.w!=null&&run.w!==''?'<b>'+numberText(run.w)+'</b> '+(timed?'min':'kg'):(timed?'<b>–</b> min':'<b>kropp</b>');
   var tail=timed?(run.n>1?run.n+' set':''):run.n+' × '+(run.r!=null&&run.r!==''?run.r:'–');
   return '<span class="ls-seg'+(run.done?'':' is-skipped')+'" title="'+(run.done?'Genomfört':'Inte genomfört')+'">'+head+(tail?'<em>'+tail+'</em>':'')+'</span>';
@@ -4154,6 +4175,29 @@ function whenAccountEditable(fn){
  if(accountReadyWaiting)return;accountReadyWaiting=true;
  var tries=0,timer=setInterval(function(){tries++;if(window.IngemarAccount.canEdit||tries>120){clearInterval(timer);accountReadyWaiting=false;if(window.IngemarAccount.canEdit)fn();}},500);
 }
+// Section dock: appears after the hero, hides while scrolling down, marks the current section.
+(function(){
+ var dock=$('section-dock'),lastY=window.scrollY,idle=0,raf=0,pinnedUntil=0,targets=['top','sec-week','sec-records','sec-log'];
+ function headerOffset(){var h=document.querySelector('header');return (h?h.offsetHeight:0)+10;}
+ function sectionTop(id){return id==='top'?0:$(id).getBoundingClientRect().top+window.scrollY-headerOffset();}
+ function update(){
+  raf=0;
+  var y=window.scrollY,down=y>lastY+4,up=y<lastY-4,allowed=view==='training'&&!document.body.dataset.builderOpen&&y>320;
+  if(!allowed)dock.dataset.shown='false';else if(down&&Date.now()>pinnedUntil)dock.dataset.shown='false';else if(up)dock.dataset.shown='true';
+  if(up||down)lastY=y;
+  clearTimeout(idle);if(allowed)idle=setTimeout(function(){dock.dataset.shown='true';},700);
+  var current='top',probe=y+window.innerHeight*.2;
+  targets.forEach(function(id){if(id!=='top'&&$(id)&&sectionTop(id)<=probe)current=id;});
+  dock.querySelectorAll('[data-dock]').forEach(function(b){b.setAttribute('aria-current',String(b.dataset.dock===current));});
+ }
+ window.addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(update);},{passive:true});
+ dock.addEventListener('click',function(event){
+  var b=event.target.closest('[data-dock]');if(!b)return;
+  pinnedUntil=Date.now()+1200;dock.dataset.shown='true';
+  window.scrollTo({top:Math.max(0,sectionTop(b.dataset.dock)),behavior:'smooth'});
+ });
+ update();
+})();
 initializeExploreTransfer();
 document.addEventListener('toggle',function(event){var d=event.target;if(d&&d.classList&&d.classList.contains('pr-group')){if(d.open){openMuscleGroups.add(d.dataset.prGroup);if(d.querySelector('#pr-chart')&&!d.querySelector('#pr-chart svg'))renderRecords();}else openMuscleGroups.delete(d.dataset.prGroup);}},true);
 render();
