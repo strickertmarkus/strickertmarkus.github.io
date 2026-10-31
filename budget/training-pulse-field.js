@@ -309,6 +309,34 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('next-session-link').dataset.fieldDate=isoDate(found.date);
   }
 
+  function weekPassCount(start){var key=isoDate(start),end=isoDate(shiftDate(start,6));return data.workouts.filter(function(w){return w.date>=key&&w.date<=end;}).length;}
+  /* Weeks in a row with the goal reached: this week counts once it is reached. */
+  function weekStreak(goal){
+    var start=startOfWeek(new Date()),n=weekPassCount(start)>=goal?1:0;
+    for(var i=1;i<104;i++){if(weekPassCount(shiftDate(start,-7*i))>=goal)n++;else break;}
+    return n;
+  }
+  function nextPlanned(){
+    var today=new Date();
+    for(var i=0;i<14;i++){var d=shiftDate(today,i),plan=planForDate(d);
+      if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())&&!(i===0&&workoutsOn(d).length))
+        return (i===0?'Idag':i===1?'Imorgon':dayNames[(d.getDay()+6)%7])+' · '+String(plan.name||plan.type);}
+    return '';
+  }
+  // One arc per pass toward the goal, in the pass's colour; extra passes as small sparks on an outer orbit.
+  function rhythmOrbit(week,goal){
+    var R=46,c=60,gap=goal>6?6:10,seg=360/goal,s='<svg class="rhythm-orbit-svg" viewBox="0 0 120 120" aria-hidden="true"><defs><filter id="ro-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4.5"/></filter><filter id="ro-glow-tight" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.8"/></filter></defs>';
+    var sorted=week.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);});
+    function arc(i){var a0=(-90+i*seg+gap/2)*Math.PI/180,a1=(-90+(i+1)*seg-gap/2)*Math.PI/180;return 'M '+(c+R*Math.cos(a0)).toFixed(2)+' '+(c+R*Math.sin(a0)).toFixed(2)+' A '+R+' '+R+' 0 0 1 '+(c+R*Math.cos(a1)).toFixed(2)+' '+(c+R*Math.sin(a1)).toFixed(2);}
+    for(var i=0;i<goal;i++){
+      var w=sorted[i];
+      if(w){var col=workoutKind(w)==='cardio'?'#7fe3ef':'#ff657a';s+='<path d="'+arc(i)+'" stroke="'+col+'" stroke-width="12" opacity=".5" filter="url(#ro-glow)"/><path d="'+arc(i)+'" stroke="'+col+'" stroke-width="6" opacity=".7" filter="url(#ro-glow-tight)"/><path class="ro-arc" d="'+arc(i)+'" stroke="'+col+'" stroke-width="4"/><path d="'+arc(i)+'" stroke="#fff" stroke-width="1.2" opacity=".45"/>';}
+      else s+='<path class="ro-empty" d="'+arc(i)+'"/>';
+    }
+    var bonus=Math.max(0,sorted.length-goal);
+    if(bonus){s+='<g class="ro-bonus">';for(var j=0;j<Math.min(bonus,6);j++){var ang=(-90+j*(360/Math.min(bonus,6)))*Math.PI/180;s+='<circle cx="'+(c+56*Math.cos(ang)).toFixed(2)+'" cy="'+(c+56*Math.sin(ang)).toFixed(2)+'" r="2.2"/>';}s+='</g>';}
+    return s+'</svg>';
+  }
   function renderRhythm() {
     var week=workoutsInWeek(new Date()),goal=Math.max(1,number(data.goals.weeklyWk)||4);
     var minutes=week.reduce(function(sum,w){return sum+number(w.duration);},0);
@@ -318,10 +346,22 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('week-goal').textContent=goal;
     byId('week-minutes').textContent=formatNumber(minutes,0);
     byId('week-volume').textContent=volume?formatNumber(Math.round(volume),0)+' kg':'—';
-    byId('latest-workout').textContent=sorted.length?workoutType(sorted[0]):'—';
-    byId('rhythm-message').textContent=week.length>=goal?'Veckomålet lyser klart. Allt mer är bonus.':week.length===0?'Din vecka börjar med ett pass.':(goal-week.length)+' pass kvar tills rytmen är komplett.';
-    var markup='';for(var i=0;i<goal;i++)markup+='<i'+(i<week.length?' class="is-lit"':'')+'></i>';
-    byId('rhythm-track').innerHTML=markup;
+    var latest=byId('latest-workout');if(latest)latest.textContent=sorted.length?workoutType(sorted[0]):'—';
+    var left=goal-week.length,bonus=week.length-goal;
+    byId('rhythm-message').innerHTML=left>0?'<b>'+left+' kvar</b> till målet':bonus>0?'<b>Målet nått</b> · +'+bonus+' bonus':'<b>Målet nått</b>';
+    var streak=weekStreak(goal);
+    byId('rhythm-streak').innerHTML=streak?'<b>'+streak+(streak===1?' vecka':' veckor')+'</b> i rad':'Starta en ny svit';
+    byId('rhythm-next').textContent=nextPlanned()||'Inget planerat';
+    var orbit=byId('rhythm-orbit');
+    orbit.classList.toggle('is-complete',week.length>=goal);orbit.classList.toggle('is-bonus',bonus>0);
+    byId('rhythm-orbit-art').innerHTML=rhythmOrbit(week,goal);
+    // The eight latest weeks: filled when the goal was reached, a ring when missed, this week part-filled.
+    var start=startOfWeek(new Date()),dots='';
+    for(var k=7;k>=0;k--){
+      var ws=shiftDate(start,-7*k),count=weekPassCount(ws),cur=k===0,state=count>=goal?'hit':cur?'now':'miss';
+      dots+='<span class="rw-week is-'+state+'" title="Vecka '+weekNumber(ws)+': '+count+' av '+goal+' pass"><i'+(cur&&state==='now'?' style="--fill:'+Math.round(Math.min(1,count/goal)*100)+'%"':'')+'></i><small>'+weekNumber(ws)+'</small></span>';
+    }
+    byId('rhythm-weeks').innerHTML=dots;
   }
 
   function updateWeekNavigators() {
@@ -329,28 +369,41 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     document.querySelectorAll('[data-week-label]').forEach(function(node){node.textContent=label;});
     document.querySelectorAll('[data-week-range]').forEach(function(node){node.textContent=range;});
   }
+  // Heights of the seven nodes on the week curve (px below the highest).
+  var WEEK_WAVE=[20,4,16,34,12,0,14],WEEK_NODE_TOP=30;
+  function weekCurve(){
+    // x in 0..700 across the seven columns, y in px; drawn without stretching the stroke.
+    var pts=WEEK_WAVE.map(function(y,i){return [(i+.5)*100,WEEK_NODE_TOP+11+y];});
+    var d='M0 '+(pts[0][1]+10)+' C'+(25)+' '+(pts[0][1]+4)+' '+(pts[0][0]-20)+' '+pts[0][1]+' '+pts[0][0]+' '+pts[0][1];
+    for(var i=1;i<pts.length;i++){var a=pts[i-1],b=pts[i],m=(b[0]-a[0])/2;d+=' C'+(a[0]+m)+' '+a[1]+' '+(b[0]-m)+' '+b[1]+' '+b[0]+' '+b[1];}
+    var last=pts[pts.length-1];d+=' C'+(last[0]+25)+' '+last[1]+' '+(700-20)+' '+(last[1]+8)+' 700 '+(last[1]+10);
+    return '<svg class="wd-curve" viewBox="0 0 700 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wd-curve-grad" x1="0" x2="1"><stop stop-color="#ff657a" stop-opacity=".12"/><stop offset=".45" stop-color="#ff9a91" stop-opacity=".6"/><stop offset="1" stop-color="#7fe3ef" stop-opacity=".14"/></linearGradient></defs><path d="'+d+'"/></svg>';
+  }
   function renderWeek() {
     updateWeekNavigators();
     var today=isoDate(new Date()),markup='';
     for(var i=0;i<7;i++){
       var date=shiftDate(state.weekStart,i),key=isoDate(date),plan=planForDate(date),logged=workoutsOn(date);
-      var type=plan&&plan.type || (logged[0]&&workoutType(logged[0])) || 'Vila';
-      var displayName=String(plan&&plan.name || type).trim()||String(type);
+      // A logged pass decides the colour and name; otherwise the plan does.
+      var type=logged.length?workoutType(logged[0]):plan&&plan.type||'Vila';
+      var displayName=String(logged.length?type:plan&&plan.name||type).trim()||String(type);
       var lowerType=String(type).trim().toLocaleLowerCase('sv-SE');
       var signalKind=/^(vila|vilodag|ledig|återhämtning)$/.test(lowerType)?'rest':/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(lowerType)?'cardio':'strength';
       // One colour meaning across the training pages: red strength, cyan cardio, grey rest.
       signalKind=window.PulseZen&&PulseZen.kind(type)||signalKind;
       var signalColor=signalKind==='rest'?'rest':signalKind==='cardio'?'cyan':'red';
-      var classes=['week-day'];
+      var classes=['week-day','wd4'];
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
       if(logged.length)classes.push('is-complete');
       if(key<today)classes.push('is-past');
-      markup+='<div class="'+classes.join(' ')+'" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+'. Öppna passbyggaren." aria-pressed="'+(key===state.selectedDate)+'">'+
-        '<span class="day-name">'+dayNames[i]+'</span><span class="day-date">'+date.getDate()+'</span>'+
-        (window.PulseZen&&PulseZen.kind(type)?PulseZen.icon(PulseZen.kind(type)):'')+'<span class="day-type">'+escapeHtml(displayName)+'</span></div>';
+      // The day as a node on the week's curve: glowing dot when logged, a ring when only
+      // planned (faint once passed), the moon for rest. Its name lives in the card below.
+      var zen=window.PulseZen&&PulseZen.kind(type),mark=zen?PulseZen.icon(zen):signalKind==='rest'&&!logged.length?'<span class="wd-moon">'+PK_MOON+'</span>':'<i class="wd-dot"></i>';
+      markup+='<div class="'+classes.join(' ')+'" style="--lift:'+WEEK_WAVE[i]+'px" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+(logged.length?', loggat':'')+'." aria-pressed="'+(key===state.selectedDate)+'">'+
+        '<span class="wd-name">'+dayNames[i]+'</span><span class="wd-node">'+mark+'</span><span class="wd-date">'+date.getDate()+'</span></div>';
     }
-    byId('week-days').innerHTML=markup;
+    byId('week-days').innerHTML=weekCurve()+markup+'<p class="wd-legend" aria-hidden="true"><span><i class="wd-dot"></i>loggat</span><span><i class="wd-dot is-ring"></i>planerat</span><span>'+PK_MOON+'vila</span></p>';
     var selected=state.selectedDate||today,chosen=dateAtNoon(selected),chosenPlan=planForDate(chosen),chosenLogged=workoutsOn(chosen);
     var chosenType=chosenPlan&&chosenPlan.type || (chosenLogged[0]&&workoutType(chosenLogged[0])) || 'Vila';
     var chosenName=String(chosenPlan&&chosenPlan.name || chosenType).trim()||'Vila';
@@ -469,46 +522,36 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     setTimeout(function(){if(!tip.classList.contains('is-visible'))tip.hidden=true;},160);
   }
 
+  /* Aktivitetsljus as a rhythm map: one row per week (eight weeks), one dot per day:
+     filled in the pass colour, a ring for a planned day still ahead, a speck for rest. */
   function renderActivity() {
-    root.dataset.fieldView=state.activityView;
-    byId('activity-week-nav').hidden=state.activityView!=='week';
-    document.querySelectorAll('[data-activity-view]').forEach(function(button){button.setAttribute('aria-selected',String(button.dataset.activityView===state.activityView));});
-    document.querySelectorAll('[data-activity-metric]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.activityMetric===state.activityMetric));});
-    var buckets=activityBuckets(),metric=state.activityMetric,total=buckets.reduce(function(sum,b){return sum+b[metric];},0);
-    byId('activity-total').textContent=formatNumber(total,0);
-    byId('activity-unit').textContent=metric==='minutes'?'minuter':'pass';
-    byId('activity-caption').textContent=state.activityView==='history'?'De senaste åtta veckorna':'Samma vecka som i veckofältet';
-    var history=state.activityView==='history',goal=Math.max(1,number(data.goals.weeklyWk)||4),showGoal=history&&metric==='sessions';
-    var values=buckets.map(function(b){return b[metric];}),max=Math.max.apply(Math,values.concat([metric==='minutes'?60:4,showGoal?goal+1:0])),width=clamp(byId('activity-chart').clientWidth||800,320,1600),height=clamp(byId('activity-chart').clientHeight||180,164,275),left=27,right=9,top=26,bottom=38,plotW=width-left-right,plotH=height-top-bottom,step=plotW/buckets.length,barW=Math.min(18,step*.24);
-    if(metric==='sessions')max=Math.ceil(max);
-    var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="none" aria-hidden="true"><defs>'+
-      '<linearGradient id="bar-light" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#ff657a"/><stop offset="1" stop-color="#ffb6a4"/></linearGradient>'+
-      '<linearGradient id="bar-cool" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#3fb6c8"/><stop offset="1" stop-color="#a9f1f8"/></linearGradient></defs>';
-    svg+=chartAxisUnit(metric==='minutes'?'MIN':'PASS',left,top);
-    [0,.5,1].forEach(function(ratio){var y=top+plotH*(1-ratio);svg+='<line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(y+3)+'" text-anchor="end">'+Math.round(max*ratio)+'</text>';});
-    // The week goal as a dashed line (history in passes).
-    if(showGoal){var gy=top+plotH*(1-goal/max);svg+='<line class="activity-goal" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="activity-goal-label" x="'+(left+4)+'" y="'+(gy-6)+'" text-anchor="start">mål '+goal+'</text>';}
-    buckets.forEach(function(bucket,index){
-      var x=left+step*(index+.5),value=bucket[metric],base=top+plotH;
-      // The current week (or today) stands out; the rest are history.
-      if(bucket.current)svg+='<rect class="activity-current" x="'+(left+step*index+2)+'" y="'+top+'" width="'+(step-4)+'" height="'+plotH+'" rx="10"/>';
-      if(value){
-        var s=bucket.parts.strength[metric],c=bucket.parts.cardio[metric],sh=s?Math.max(4,plotH*s/max):0,ch=c?Math.max(4,plotH*c/max):0,gap=s&&c?2:0;
-        // Strength from the base, cardio on top, a 2px gap between.
-        if(sh)svg+='<rect class="activity-bar" x="'+(x-barW/2)+'" y="'+(base-sh)+'" width="'+barW+'" height="'+sh+'" rx="'+(barW/2)+'" fill="url(#bar-light)" data-glow="#ff657a"/>';
-        if(ch)svg+='<rect class="activity-bar is-cardio" x="'+(x-barW/2)+'" y="'+(base-sh-gap-ch)+'" width="'+barW+'" height="'+ch+'" rx="'+(barW/2)+'" fill="url(#bar-cool)" data-glow="#7fe3ef"/>';
-        var topY=base-sh-gap-ch;
-        if(bucket.current)svg+='<text class="chart-value" x="'+x+'" y="'+clamp(topY-8,top+9,height-bottom-8)+'" text-anchor="middle">'+formatNumber(value,0)+'</text>';
+    var start=startOfWeek(new Date()),today=isoDate(new Date()),goal=Math.max(1,number(data.goals.weeklyWk)||4),total=0,rows='';
+    var head='<span></span>'+dayNames.map(function(d){return '<span class="rm-head">'+d.charAt(0)+'</span>';}).join('')+'<span></span>';
+    for(var k=7;k>=0;k--){
+      var ws=shiftDate(start,-7*k),count=0,cells='';
+      for(var d=0;d<7;d++){
+        var date=shiftDate(ws,d),key=isoDate(date),list=workoutsOn(date),cls='rm-cell',color='',tip='';
+        if(list.length){
+          count+=list.length;
+          var kinds=list.map(workoutKind),cardio=kinds.indexOf('cardio')>=0,strength=kinds.indexOf('strength')>=0;
+          cls+=' is-pass'+(cardio&&strength?' is-both':'');color=cardio&&!strength?'#7fe3ef':'#ff657a';
+          tip=list.map(function(w){return workoutType(w)+(number(w.duration)?' · '+formatNumber(w.duration,0)+' min':'');}).join(', ');
+        }else if(key>=today){
+          var plan=planForDate(date);
+          if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())){cls+=' is-planned';color=/kondition|löp|run|cardio|cykel|hopprep|rodd|crosstrainer|intervall/i.test(plan.type)?'#7fe3ef':'#ff657a';tip='Planerat: '+String(plan.name||plan.type);}
+        }
+        if(key===today)cls+=' is-today';
+        cells+='<span class="'+cls+'"'+(color?' style="--c:'+color+'"':'')+(tip?chartTipAttrs(dayNames[d]+' '+shortDate(date),tip,'','#ff9a91'):'')+'><i></i></span>';
       }
-      else svg+='<line class="activity-zero" x1="'+(x-4)+'" y1="'+base+'" x2="'+(x+4)+'" y2="'+base+'"/>';
-      var unit=metric==='minutes'?'min':'pass',detail=(state.activityView==='week'?shortDate(bucket.date):'Vecka '+bucket.label.replace(/^v/,''))+' · styrka '+formatNumber(bucket.parts.strength[metric],0)+', kondition '+formatNumber(bucket.parts.cardio[metric],0);
-      svg+='<rect class="chart-hit-zone" x="'+(left+step*index)+'" y="'+top+'" width="'+step+'" height="'+plotH+'"'+chartTipAttrs(bucket.label,formatNumber(value,0)+' '+unit,detail,'#ff9a91')+'/>';
-      svg+='<text class="chart-axis-label'+(bucket.current?' is-current':'')+'" x="'+x+'" y="'+(height-10)+'" text-anchor="middle">'+bucket.label+'</text>';
-    });
-    svg+='</svg>';
-    byId('activity-chart').innerHTML=svg;
-    byId('activity-chart').setAttribute('aria-label',buckets.map(function(b){return b.label+': '+b[metric]+' '+(metric==='minutes'?'minuter':'pass');}).join('. '));
-    scheduleChartCanvasGlow('activity-chart');
+      total+=count;
+      rows+='<span class="rm-week'+(k===0?' is-current':'')+'">v'+weekNumber(ws)+'</span>'+cells+'<span class="rm-total'+(count>=goal?' is-goal':'')+'">'+count+'</span>';
+    }
+    byId('activity-total').textContent=formatNumber(total,0);
+    byId('activity-unit').textContent='pass';
+    byId('activity-caption').textContent='Åtta veckor, dag för dag';
+    var chart=byId('activity-chart');
+    chart.innerHTML='<div class="rmap">'+head+rows+'</div>';
+    chart.setAttribute('aria-label',total+' pass de senaste åtta veckorna, dag för dag.');
   }
 
   function chartRangeStart() {

@@ -797,3 +797,85 @@ main{position:relative;z-index:2;display:block}
    (dimmer once the day has passed), the plain grey dot for rest. */
 .week-day:not(.is-complete):not([data-plan-kind="rest"]) .day-date::after{width:7px;height:7px;bottom:4px;background:transparent!important;box-shadow:inset 0 0 0 1.4px var(--week-kind),0 0 6px color-mix(in srgb,var(--week-kind) 35%,transparent)!important;animation:none}
 .week-day.is-past:not(.is-complete):not([data-plan-kind="rest"]) .day-date::after{opacity:.45;box-shadow:inset 0 0 0 1.4px var(--week-kind)!important}
+
+/* ---------- Veckans signal: orbit, facts and the eight latest weeks ---------- */
+.rhythm-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rhythm-orbit-row{display:flex;align-items:center;gap:22px}
+.rhythm-orbit{position:relative;flex:none;width:132px;height:132px}
+.rhythm-orbit-svg{display:block;width:100%;height:100%;overflow:visible}
+.rhythm-orbit-svg path{fill:none;stroke-linecap:round}
+.rhythm-orbit-svg .ro-empty{stroke:#ffffff26;stroke-width:4;stroke-dasharray:1.5 5.5}
+.rhythm-orbit.is-complete .rhythm-orbit-svg{filter:drop-shadow(0 0 10px #ff657a40);animation:orbitBreath 5.5s ease-in-out infinite}
+.rhythm-orbit-svg .ro-bonus{transform-origin:60px 60px;animation:orbitSpin 40s linear infinite}
+.rhythm-orbit-svg .ro-bonus circle{fill:#ffe2d4;filter:drop-shadow(0 0 3px #ffd1ba) drop-shadow(0 0 7px #ff9a91)}
+.rhythm-orbit.is-bonus .rhythm-orbit-count strong{text-shadow:0 0 18px #ffd1ba99,0 0 34px #ff657a66}
+@keyframes orbitBreath{0%,100%{filter:drop-shadow(0 0 8px #ff657a33)}50%{filter:drop-shadow(0 0 16px #ff9a9166)}}
+@keyframes orbitSpin{to{transform:rotate(360deg)}}
+.rhythm-orbit-count{position:absolute;inset:0;display:flex;align-items:baseline;justify-content:center;padding-top:44px;gap:5px;pointer-events:none}
+.rhythm-orbit-count strong{font:400 40px/1 var(--field-serif);color:#f5eee9;text-shadow:0 0 22px #ff657a45}
+.rhythm-orbit-count span{color:var(--field-muted);font:400 17px var(--field-serif)}
+.rhythm-orbit-count b{color:var(--field-muted);font-weight:400}
+.rhythm-facts{display:grid;gap:12px;margin:0;min-width:0}
+.rhythm-facts dt{color:var(--field-muted);font:700 9.5px/1.2 var(--field-ui);letter-spacing:.16em;text-transform:uppercase}
+.rhythm-facts dd{margin:4px 0 0;color:#e8e2e2;font:450 14px/1.35 var(--field-ui);overflow-wrap:anywhere}
+.rhythm-facts dd b{color:var(--field-peach);font-weight:600}
+.rhythm-weeks-row{margin-top:20px;padding-top:14px;border-top:1px solid #ffffff0f}
+.rhythm-weeks-label{color:var(--field-muted);font:700 9.5px var(--field-ui);letter-spacing:.16em;text-transform:uppercase}
+.rhythm-weeks{display:flex;gap:10px;margin-top:10px}
+.rw-week{display:flex;flex-direction:column;align-items:center;gap:6px;width:24px}
+.rw-week i{display:block;width:15px;height:15px;border-radius:50%}
+.rw-week small{color:#6c7680;font:500 9px var(--field-ui)}
+.rw-week.is-hit i{background:#ffd1ba;box-shadow:0 0 8px #ff9a91,0 0 17px #ff657a66}
+.rw-week.is-miss i{box-shadow:inset 0 0 0 1.4px #ffd1ba55}
+.rw-week.is-now i{box-shadow:inset 0 0 0 1.4px #ffd1ba,0 0 10px #ff9a9155;background:conic-gradient(#ffd1ba 0 var(--fill,0%),transparent 0)}
+.rw-week:last-child small{color:var(--field-peach);font-weight:700}
+
+/* ---------- Veckofält: the days as nodes on the week's curve ---------- */
+.week-field-shell{min-height:0;padding-top:6px}
+.week-field-shell>.week-orbit-art{display:none}
+.week-days{position:relative;height:150px;gap:0!important}
+.wd-curve{position:absolute;left:0;top:0;width:100%;height:120px;pointer-events:none;overflow:visible}
+.wd-curve path{fill:none;stroke:url(#wd-curve-grad);stroke-width:1.3;vector-effect:non-scaling-stroke}
+.week-day.wd4{display:block;min-height:0;height:120px;padding:0;justify-content:flex-start}
+.wd4 .wd-name{position:absolute;top:0;left:0;right:0;text-align:center;color:var(--field-muted);font:500 9.5px var(--field-ui);letter-spacing:1.2px;text-transform:uppercase}
+.wd4.is-today .wd-name{color:var(--field-peach);font-weight:700}
+.wd4 .wd-node{position:absolute;left:50%;top:calc(30px + var(--lift));width:22px;height:22px;margin-left:-11px;display:grid;place-items:center;border-radius:50%}
+.wd4 .wd-date{position:absolute;left:0;right:0;top:calc(58px + var(--lift));text-align:center;color:#e8e2e2;font:500 15px var(--field-ui);font-variant-numeric:tabular-nums}
+.wd4[data-plan-kind="rest"]:not(.is-complete) .wd-date{color:#6c7680}
+.wd4.is-today .wd-date{color:var(--field-peach);font-weight:700}
+.wd-dot{display:block;width:11px;height:11px;border-radius:50%;background:var(--week-kind,#ff657a);box-shadow:0 0 8px var(--week-kind,#ff657a),0 0 18px color-mix(in srgb,var(--week-kind,#ff657a) 50%,transparent)}
+.wd4.is-complete .wd-dot{animation:wdPulse 3.8s ease-in-out infinite}
+@keyframes wdPulse{0%,100%{opacity:.8;filter:brightness(.95)}50%{opacity:1;filter:brightness(1.15)}}
+.wd4:not(.is-complete) .wd-dot,.wd-dot.is-ring{background:#090d13;box-shadow:inset 0 0 0 1.6px var(--week-kind,#ff9a91),0 0 8px color-mix(in srgb,var(--week-kind,#ff9a91) 40%,transparent)}
+.wd4.is-past:not(.is-complete) .wd-dot{opacity:.42;box-shadow:inset 0 0 0 1.4px var(--week-kind)}
+.wd-moon{display:grid;place-items:center;width:20px;height:20px;color:#dfe6ee}
+.wd-moon .pk-icon,.wd-legend .pk-icon{width:17px;height:17px;fill:currentColor;fill-opacity:.2;stroke:currentColor;stroke-width:1.6;filter:drop-shadow(0 0 4px #e8f1ffcc) drop-shadow(0 0 10px #9fb7d8aa) drop-shadow(0 0 18px #9fb7d855);animation:restMoonGlow 4.5s ease-in-out infinite}
+/* Today: a dashed halo; a chosen other day: a soft solid one. */
+.wd4 .wd-node::after{content:"";position:absolute;inset:-7px;border-radius:50%;pointer-events:none}
+.wd4.is-today .wd-node::after{border:1px dashed #ffd1ba8c}
+.wd4.is-selected:not(.is-today) .wd-node::after{border:1px solid #ff9a9166;background:radial-gradient(circle,#ff9a9118,transparent 70%)}
+.wd4:focus-visible .wd-node::after{box-shadow:0 0 0 2px #ff9a9155}
+.wd4>.pulse-zen-icon,.wd4 .wd-node>.pulse-zen-icon{width:18px;height:18px}
+.wd-legend{position:absolute;left:0;right:0;bottom:0;display:flex;gap:14px;justify-content:center;margin:0;color:#6c7680;font:500 10px var(--field-ui)}
+.wd-legend span{display:inline-flex;align-items:center;gap:5px}
+.wd-legend .wd-dot{width:8px;height:8px;animation:none}
+.wd-legend .pk-icon{width:12px;height:12px;color:#c9d2dc;animation:none}
+@media(prefers-reduced-motion:reduce){.rhythm-orbit-svg .ro-bonus,.rhythm-orbit.is-complete .rhythm-orbit-svg{animation:none}}
+
+/* ---------- Aktivitetsljus: rhythm map, eight weeks day by day ---------- */
+.activity-controls,#activity-week-nav{display:none!important}
+.rmap{display:grid;grid-template-columns:34px repeat(7,minmax(0,1fr)) 28px;row-gap:4px;align-items:center;margin-top:8px}
+.rmap .rm-head{color:#6c7680;font:500 9.5px var(--field-ui);letter-spacing:1px;text-align:center;padding-bottom:4px}
+.rmap .rm-week{color:#6c7680;font:500 10px var(--field-ui);text-align:right;padding-right:10px}
+.rmap .rm-week.is-current{color:var(--field-peach);font-weight:700}
+.rmap .rm-total{color:#8f99a4;font:600 11px var(--field-ui);text-align:right;font-variant-numeric:tabular-nums}
+.rmap .rm-total.is-goal{color:var(--field-peach)}
+.rmap .rm-cell{display:grid;place-items:center;height:24px;border-radius:8px;cursor:default}
+.rmap .rm-cell i{display:block;width:3.5px;height:3.5px;border-radius:50%;background:#3a434d}
+.rmap .rm-cell.is-pass i{width:10px;height:10px;background:var(--c);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent),0 0 9px var(--c),0 0 16px color-mix(in srgb,var(--c) 45%,transparent)}
+.rmap .rm-cell.is-both i{background:linear-gradient(90deg,#ff657a 50%,#7fe3ef 50%);--c:#ff9a91}
+.rmap .rm-cell.is-planned i{width:10px;height:10px;background:transparent;box-shadow:inset 0 0 0 1.4px var(--c)}
+.rmap .rm-cell.is-today{background:#ff9a910e;box-shadow:inset 0 0 0 1px #ff9a9126}
+.rmap .rm-row-current{display:contents}
+#activity-chart.luminous-chart{height:auto!important}
+#activity-chart canvas.chart-canvas-glow{display:none!important}
