@@ -1651,7 +1651,20 @@ function render(){
  $('bars').innerHTML=glowBarsMarkup(trainingBars,'training');selectGlowBar($('bars').querySelector('[data-bar-index="'+(trainingBars.length-1)+'"]'));
  renderHistoryLog();
  renderPushPullAnalytics();
+ fitHeroToViewport();
 }
+// On phones, grow the hero visual so "Träningsformer / Utforska övningar" sits just above the bottom bar.
+var heroFitWidth=0,heroFitHeight=0;
+function fitHeroToViewport(){
+ var visual=document.querySelector('#training-view .training-flow-visual'),head=document.querySelector('#training-view .kinds-head'),dock=$('section-dock');
+ if(!visual||!head||view!=='training')return;
+ if(window.innerWidth>740){visual.style.height='';heroFitWidth=0;return;}
+ heroFitWidth=window.innerWidth;heroFitHeight=heroFitHeight||window.innerHeight;
+ visual.style.height='';
+ var base=visual.offsetHeight,headBottom=head.getBoundingClientRect().bottom+window.scrollY,limit=heroFitHeight-(dock.offsetHeight||0)-12;
+ visual.style.height=Math.max(base,Math.min(base+160,base+limit-headBottom))+'px';
+}
+window.addEventListener('resize',function(){if(window.innerWidth!==heroFitWidth){heroFitHeight=0;fitHeroToViewport();}});
 // Kompakt träningslogg: en sammanfattning per vecka, en rad per pass. Tryck på en rad för detaljer och redigering.
 var HISTORY_WEEKS_SHOWN=4,historyShowAll=false;
 function renderHistoryLog(){
