@@ -15,7 +15,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     insight: 'heart',
     insightMode: 'chart',
     chartRange: 'all',
-    volumeMode: 'total',
+    volumeMode: 'perExercise',
     recordMetrics: {},
     openLogId: null,
     logTouched: false,
@@ -98,6 +98,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       syncScene();
     });
     syncScene();
+    // Sections far from the viewport keep their looping glows paused, so idle
+    // scrolling only pays for what is on screen.
+    if('IntersectionObserver' in window){
+      var sectionObserver=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){entry.target.classList.toggle('is-offscreen',!entry.isIntersecting);});
+      },{root:null,rootMargin:'120px 0px',threshold:0});
+      document.querySelectorAll('.field-header,main > section').forEach(function(section){sectionObserver.observe(section);});
+    }
   }
   function number(value) { var n = Number(value); return Number.isFinite(n) ? n : 0; }
   function clamp(value,min,max) { return Math.max(min,Math.min(max,value)); }
@@ -352,11 +360,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var orbit=byId('rhythm-orbit');
     orbit.classList.toggle('is-complete',week.length>=goal);orbit.classList.toggle('is-bonus',bonus>0);
     byId('rhythm-orbit-art').innerHTML=rhythmOrbit(week,goal);
-    // The eight latest weeks: filled when the goal was reached, a ring when missed, this week part-filled.
+    // The eight latest weeks: filled when the goal was reached, otherwise filled by the share of the goal.
     var start=startOfWeek(new Date()),dots='';
     for(var k=7;k>=0;k--){
       var ws=shiftDate(start,-7*k),count=weekPassCount(ws),cur=k===0,state=count>=goal?'hit':cur?'now':'miss';
-      dots+='<span class="rw-week is-'+state+'" title="Vecka '+weekNumber(ws)+': '+count+' av '+goal+' pass"><i'+(cur&&state==='now'?' style="--fill:'+Math.round(Math.min(1,count/goal)*100)+'%"':'')+'></i><small>'+weekNumber(ws)+'</small></span>';
+      dots+='<span class="rw-week is-'+state+'" title="Vecka '+weekNumber(ws)+': '+count+' av '+goal+' pass"><i'+(state!=='hit'?' style="--fill:'+Math.round(Math.min(1,count/goal)*100)+'%"':'')+'></i><small>'+weekNumber(ws)+'</small></span>';
     }
     byId('rhythm-weeks').innerHTML=dots;
   }
@@ -1251,8 +1259,19 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var points=entries.map(function(e,i){return [last===first?width/2:left+(times[i]-first)/(last-first)*(width-left-right),hi===lo?(height-bottom+top)/2:top+(hi-e[metric])/span*(height-top-bottom),e];});
     var unit=metric==='reps'?'reps':'kg',svg='<svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+escapeHtml(record.name+' · '+unit+' över tid')+'">';
     if(!mini){[lo,hi].filter(function(v,i,a){return a.indexOf(v)===i;}).forEach(function(v){var y=hi===lo?(height-bottom+top)/2:top+(hi-v)/span*(height-top-bottom);svg+='<text x="0" y="'+(y+4)+'">'+formatNumber(v,0)+'</text><line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/>';});}
-    if(points.length>1)svg+='<polyline fill="none" stroke="currentColor" stroke-width="2" points="'+points.map(function(p){return p[0]+','+p[1];}).join(' ')+'"/>';
-    points.forEach(function(p){svg+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(mini?2:3.5)+'" fill="currentColor"><title>'+escapeHtml(logDate(p[2].date)+' · '+formatNumber(p[2][metric],1)+' '+unit)+'</title></circle>';});
+    var line=seriesPath(points),base=height-bottom,peak='#ff9d8f',core='#ffd1ba';
+    svg+='<defs><linearGradient id="rec-area-'+(mini?'m':'f')+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff657a" stop-opacity="'+(mini?'.32':'.28')+'"/><stop offset="1" stop-color="#ff657a" stop-opacity="0"/></linearGradient></defs>';
+    if(points.length>1){
+      svg+='<path class="rec-area" d="'+line+' L '+points[points.length-1][0]+' '+base+' L '+points[0][0]+' '+base+' Z" fill="url(#rec-area-'+(mini?'m':'f')+')"/>';
+      // Layered strokes give the neon halo without SVG filters (WebKit bands them).
+      svg+='<path class="rec-halo" d="'+line+'" stroke="#ff657a" stroke-width="'+(mini?6:11)+'" stroke-opacity=".12"/><path class="rec-halo" d="'+line+'" stroke="'+peak+'" stroke-width="'+(mini?3.4:5.5)+'" stroke-opacity=".28"/><path class="rec-line" d="'+line+'" stroke="'+core+'" stroke-width="'+(mini?1.4:2.2)+'"/>';
+    }
+    points.forEach(function(p,i){
+      var lastPoint=i===points.length-1,r=mini?(lastPoint?2.2:0):(lastPoint?4.2:3);
+      if(!r)return;
+      var label=logDate(p[2].date),value=formatNumber(p[2][metric],1)+' '+unit;
+      svg+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(r*2.6)+'" fill="#ff657a" opacity="'+(lastPoint?'.22':'.12')+'"/><circle class="rec-point'+(lastPoint?' is-last':'')+'" cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'" fill="'+(lastPoint?core:peak)+'"'+(mini?'':chartTipAttrs(record.name,value,label,peak))+'><title>'+escapeHtml(label+' · '+value)+'</title></circle>';
+    });
     if(!mini)svg+='<text x="'+left+'" y="'+(height-5)+'">'+logDate(entries[0].date)+'</text>'+(entries.length>1?'<text text-anchor="end" x="'+(width-right)+'" y="'+(height-5)+'">'+logDate(entries[entries.length-1].date)+'</text>':'');
     return svg+'</svg>';
   }
