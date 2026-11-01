@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261101-perf-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261101-compact-2">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -31,10 +31,10 @@
   <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
   <script defer src="auth-config.js?v=20261026-energy-loop-4"></script>
   <script defer src="auth-gate.js?v=20261026-energy-loop-4"></script>
-  <script defer src="firebase-sync.js?v=20261020-exercise-history-v1"></script>
+  <script defer src="firebase-sync.js?v=20261101-bw78-1"></script>
 <script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261030-zen-modes-4"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261101-perf-1"></script>
+  <script defer src="training-pulse-field.js?v=20261101-compact-2"></script>
   <script defer src="training-pulse-editor.js?v=20261101-progress-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
@@ -100,7 +100,7 @@
         </div>
       </div>
       <a href="#week-field">Veckoplan</a>
-      <a href="#activity-field">Aktivitet</a>
+      <a href="#progress-field">Utveckling</a>
       <a href="#training-log">Träningslogg</a>
     </nav>
   </header>
@@ -155,7 +155,15 @@
       </div>
     </section>
 
-    <section class="rhythm-section" aria-labelledby="rhythm-title">
+    <nav class="field-jump" id="field-jump" aria-label="Hoppa till del av sidan">
+      <a href="#rhythm-field" data-jump="rhythm-field">Vecka</a>
+      <a href="#week-field" data-jump="week-field">Plan</a>
+      <a href="#progress-field" data-jump="progress-field">Utveckling</a>
+      <a href="#training-log" data-jump="training-log">Logg</a>
+      <a href="#records" data-jump="records">Rekord</a>
+    </nav>
+
+    <section class="rhythm-section" id="rhythm-field" aria-labelledby="rhythm-title">
       <div class="section-intro">
         <p class="eyebrow">VECKANS SIGNAL</p>
         <h2 id="rhythm-title">Din rytm, i ett ögonblick.</h2>
@@ -171,14 +179,10 @@
               <div><dt>Pass denna vecka</dt><dd id="rhythm-message"></dd></div>
               <div><dt>Svit</dt><dd id="rhythm-streak"></dd></div>
               <div><dt>Nästa</dt><dd id="rhythm-next"></dd></div>
+              <div><dt>Rörelse · belastning</dt><dd class="rhythm-load"><span id="week-minutes">0</span> min · <span id="week-volume">0 kg</span></dd></div>
             </dl>
           </div>
-          <div class="rhythm-weeks-row"><span class="rhythm-weeks-label">Senaste 8 veckorna</span><div class="rhythm-weeks" id="rhythm-weeks" aria-label="Veckomålet de senaste åtta veckorna"></div></div>
         </div>
-        <dl class="rhythm-stats">
-          <div><dt>Rörelsetid</dt><dd><span id="week-minutes">0</span><small>min</small></dd></div>
-          <div><dt>Belastning</dt><dd id="week-volume">0 kg</dd></div>
-        </dl>
       </div>
     </section>
 
@@ -211,10 +215,16 @@
       </div>
     </section>
 
-    <section class="field-section activity-section" id="activity-field" aria-labelledby="activity-title">
-      <div class="section-head activity-heading">
-        <div><p class="eyebrow">BELASTNING ÖVER TID</p><h2 id="activity-title">Aktivitetsljus</h2></div>
+    <section class="field-section progress-section" id="progress-field" aria-labelledby="progress-title">
+      <div class="section-head">
+        <div><p class="eyebrow">ÖVER TID</p><h2 id="progress-title">Utveckling</h2></div>
       </div>
+      <div class="view-tabs progress-tabs" role="tablist" aria-label="Välj graf">
+        <button type="button" role="tab" id="progress-tab-rhythm" data-progress-tab="rhythm" aria-selected="true" aria-controls="activity-field">Rytm</button>
+        <button type="button" role="tab" id="progress-tab-volume" data-progress-tab="volume" aria-selected="false" aria-controls="exercise-volume">Volym</button>
+        <button type="button" role="tab" id="progress-tab-body" data-progress-tab="body" aria-selected="false" aria-controls="insights">Mått</button>
+      </div>
+      <div class="progress-panel activity-section" id="activity-field" role="tabpanel" aria-labelledby="progress-tab-rhythm" data-progress-panel="rhythm">
       <div class="section-controls activity-controls">
         <div class="view-tabs" role="tablist" aria-label="Aktivitetens tidsvy">
           <button type="button" role="tab" data-activity-view="history" aria-selected="true">Historik</button>
@@ -238,12 +248,21 @@
         <p class="activity-legend" aria-hidden="true"><span><i></i>Styrka</span><span class="is-cardio"><i></i>Kondition</span></p>
       </div>
       <div class="luminous-chart" id="activity-chart" role="img" aria-label="Aktivitet över tid"></div>
-    </section>
-
-    <section class="field-section insight-section" id="insights" aria-labelledby="insight-title">
-      <div class="section-head">
-        <div><p class="eyebrow">MÄTVÄRDEN</p><h2 id="insight-title">Kroppens svar</h2></div>
       </div>
+      <div class="progress-panel volume-section" id="exercise-volume" role="tabpanel" aria-labelledby="progress-tab-volume" data-progress-panel="volume" hidden>
+      <div class="chart-period-row chart-period-row--volume">
+        <div class="segmented" role="group" aria-label="Volymmått"><button type="button" data-volume-mode="total" aria-pressed="false">Total volym</button><button type="button" data-volume-mode="perExercise" aria-pressed="true">Per övning</button></div>
+        <div class="segmented chart-period-toggle" role="group" aria-label="Välj tidsperiod för passvolym">
+          <button type="button" data-chart-range="all" aria-pressed="true">Alla data</button>
+          <button type="button" data-chart-range="month" aria-pressed="false">Senaste månaden</button>
+        </div>
+      </div>
+      <p class="volume-formula">volym ÷ genomförda styrkeövningar</p>
+      <p class="volume-lead" hidden>Genomsnittlig volym per genomförd styrkeövning, inom varje träningsgrupp.</p>
+      <div class="volume-legend" id="volume-legend" aria-label="Träningsgrupper"></div>
+      <div class="volume-chart" id="volume-chart" role="img" aria-label="Passvolym per träningsgrupp över tid"></div>
+      </div>
+      <div class="progress-panel insight-section" id="insights" role="tabpanel" aria-labelledby="progress-tab-body" data-progress-panel="body" hidden>
       <div class="section-controls insight-controls">
         <div class="view-tabs insight-tabs" role="tablist" aria-label="Välj mätvärde">
           <button type="button" role="tab" data-insight="heart" aria-selected="true">Medelpuls</button>
@@ -280,26 +299,7 @@
           <tbody id="insight-table-body"></tbody>
         </table>
       </div>
-    </section>
-
-    <section class="field-section volume-section" id="exercise-volume" aria-labelledby="volume-title">
-      <div class="section-head volume-heading">
-        <div>
-          <p class="eyebrow">PASSVOLYM</p>
-          <h2 id="volume-title">Volym per träningsgrupp</h2>
-        </div>
-        <p class="volume-formula">volym ÷ genomförda styrkeövningar</p>
       </div>
-      <p class="volume-lead">Genomsnittlig volym per genomförd styrkeövning, inom varje träningsgrupp.</p>
-      <div class="chart-period-row chart-period-row--volume">
-        <div class="segmented" role="group" aria-label="Volymmått"><button type="button" data-volume-mode="total" aria-pressed="false">Total volym</button><button type="button" data-volume-mode="perExercise" aria-pressed="true">Per övning</button></div>
-        <div class="segmented chart-period-toggle" role="group" aria-label="Välj tidsperiod för passvolym">
-          <button type="button" data-chart-range="all" aria-pressed="true">Alla data</button>
-          <button type="button" data-chart-range="month" aria-pressed="false">Senaste månaden</button>
-        </div>
-      </div>
-      <div class="volume-legend" id="volume-legend" aria-label="Träningsgrupper"></div>
-      <div class="volume-chart" id="volume-chart" role="img" aria-label="Passvolym per träningsgrupp över tid"></div>
     </section>
 
     <section class="field-section log-section" id="training-log" aria-labelledby="log-title">
@@ -307,7 +307,6 @@
         <div><p class="eyebrow">PASS FÖR PASS</p><h2 id="log-title">Träningslogg</h2></div>
         <a class="quiet-action" id="log-action-link" href="#training-log" data-field-action="log">Logga eller redigera <svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
       </div>
-      <p class="section-lead">En lugn tidslinje. Öppna bara det pass du vill läsa.</p>
       <div class="log-timeline" id="log-timeline"></div>
     </section>
 

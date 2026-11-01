@@ -164,9 +164,71 @@ async function bootstrapFirebaseSync(app) {
   }
 
   await loadAllFromFirebase();
+  await runBodyweight78Migration();
   setupRealtimeListeners();
   startRemotePolling();
   startLocalPolling();
+}
+
+/**
+ * One-time data fix for Markus: every strength exercise he logged at exactly
+ * 78 kg was really bodyweight. Convert those to weightMode 'bodyweight' and keep
+ * the 78 kg as the session's body mass so volume stays the same. Idempotent:
+ * once converted nothing matches any more, so other devices can safely re-run it.
+ */
+const MARKUS_BODY_MASS = 78;
+function isMass78(v) { return Number(v) === MARKUS_BODY_MASS; }
+function bodyweight78Exercise(ex) {
+  if (!ex || typeof ex !== 'object' || ex.weightMode === 'bodyweight') return false;
+  if ((ex.kind || ((ex.distance || ex.time) ? 'cardio' : 'strength')) !== 'strength') return false;
+  const logs = Array.isArray(ex.logs) ? ex.logs : [];
+  const logWeights = logs.map(log => Number(log && log.actualWeight) || 0).filter(Boolean);
+  if (logWeights.length) return logWeights.every(isMass78) && (!Number(ex.weight) || isMass78(ex.weight));
+  return isMass78(ex.weight);
+}
+function convertBodyweight78(ex) {
+  ex.weightMode = 'bodyweight';
+  ex.weight = 0;
+  if (Array.isArray(ex.logs)) ex.logs.forEach(log => { if (log) { log.actualWeight = 0; log.weightMode = 'bodyweight'; } });
+}
+function migrateBodyweight78(store) {
+  const names = new Set();
+  let changed = false;
+  const fixList = (list, workout) => (Array.isArray(list) ? list : []).forEach(ex => {
+    if (!bodyweight78Exercise(ex)) return;
+    convertBodyweight78(ex);
+    names.add(String(ex.name || '').trim().toLocaleLowerCase('sv-SE'));
+    if (workout && !(Number(workout.bodyweightKg) > 0)) workout.bodyweightKg = MARKUS_BODY_MASS;
+    changed = true;
+  });
+  (Array.isArray(store.ex_wk) ? store.ex_wk : []).forEach(w => w && fixList(w.exercises, w));
+  const templates = store.ex_templates;
+  (Array.isArray(templates) ? templates : Object.values(templates || {})).forEach(t => t && fixList(t.exercises));
+  Object.values(store.ex_plannedSessions || {}).forEach(day => day && fixList(day.exercises));
+  if (store.ex_prs && typeof store.ex_prs === 'object') Object.keys(store.ex_prs).forEach(name => {
+    if (isMass78(store.ex_prs[name]) && names.has(name.trim().toLocaleLowerCase('sv-SE'))) { delete store.ex_prs[name]; changed = true; }
+  });
+  if (changed && store.ex_goals && typeof store.ex_goals === 'object' && !(Number(store.ex_goals.bodyweightKg) > 0)) store.ex_goals.bodyweightKg = MARKUS_BODY_MASS;
+  return changed;
+}
+async function runBodyweight78Migration() {
+  if (!isExercisePage) return;
+  const keys = ['ex_wk', 'ex_templates', 'ex_plannedSessions', 'ex_prs', 'ex_goals'];
+  const before = {}, store = {};
+  keys.forEach(key => {
+    try { before[key] = _realGetItem(key); store[key] = before[key] ? JSON.parse(before[key]) : null; } catch (_) { store[key] = null; }
+  });
+  if (!migrateBodyweight78(store)) return;
+  for (const key of keys) {
+    if (store[key] == null) continue;
+    const value = JSON.stringify(store[key]);
+    if (value === before[key]) continue;
+    safeSetLocal(key, value);
+    lastKnownValues[key] = value;
+    try { if (db && syncEnabled) await db.ref(key).set(value); } catch (error) { console.warn('[Firebase] Bodyweight fix sync failed', key, error.message); }
+    if (exerciseUser === 'markus') window.dispatchEvent(new CustomEvent('firebase-sync', { detail: { key, value } }));
+  }
+  console.log('[Firebase] Converted 78 kg entries to bodyweight');
 }
 
 /**

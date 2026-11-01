@@ -19,7 +19,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     recordMetrics: {},
     openLogId: null,
     logTouched: false,
-    logVisibleCount: 5,
+    logVisibleCount: 8,
+    progressTab: (function(){try{return localStorage.getItem('pulseFieldProgressTab')||'rhythm';}catch(_){return 'rhythm';}})(),
   };
   var data = {};
 
@@ -360,15 +361,38 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var orbit=byId('rhythm-orbit');
     orbit.classList.toggle('is-complete',week.length>=goal);orbit.classList.toggle('is-bonus',bonus>0);
     byId('rhythm-orbit-art').innerHTML=rhythmOrbit(week,goal);
-    // The eight latest weeks: filled when the goal was reached, otherwise filled by the share of the goal.
-    var start=startOfWeek(new Date()),dots='';
-    for(var k=7;k>=0;k--){
-      var ws=shiftDate(start,-7*k),count=weekPassCount(ws),cur=k===0,state=count>=goal?'hit':cur?'now':'miss';
-      dots+='<span class="rw-week is-'+state+'" title="Vecka '+weekNumber(ws)+': '+count+' av '+goal+' pass"><i'+(state!=='hit'?' style="--fill:'+Math.round(Math.min(1,count/goal)*100)+'%"':'')+'></i><small>'+weekNumber(ws)+'</small></span>';
-    }
-    byId('rhythm-weeks').innerHTML=dots;
   }
 
+  var PROGRESS_CHART={rhythm:'activity-chart',volume:'volume-chart',body:'insight-chart'};
+  function renderProgressTabs(){
+    if(!PROGRESS_CHART[state.progressTab])state.progressTab='rhythm';
+    document.querySelectorAll('[data-progress-tab]').forEach(function(tab){var on=tab.dataset.progressTab===state.progressTab;tab.setAttribute('aria-selected',String(on));tab.tabIndex=on?0:-1;});
+    document.querySelectorAll('[data-progress-panel]').forEach(function(panel){panel.hidden=panel.dataset.progressPanel!==state.progressTab;});
+    // Charts measure their box when drawn, so draw the shown one again after a switch.
+    if(state.progressTab==='volume')renderVolume();else if(state.progressTab==='body')renderInsight();else renderActivity();
+    scheduleChartCanvasGlow(PROGRESS_CHART[state.progressTab]);
+  }
+  function installJumpNav(){
+    var nav=byId('field-jump');if(!nav)return;
+    var links=Array.from(nav.querySelectorAll('[data-jump]'));
+    nav.addEventListener('click',function(event){
+      var link=event.target.closest('[data-jump]');if(!link)return;
+      var target=byId(link.dataset.jump);if(!target)return;
+      event.preventDefault();
+      var top=target.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-6;
+      window.scrollTo({top:top,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    });
+    if(!('IntersectionObserver' in window))return;
+    var visible={};
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){visible[entry.target.id]=entry.isIntersecting;});
+      var current=links.map(function(l){return l.dataset.jump;}).filter(function(id){return visible[id];})[0];
+      links.forEach(function(l){l.classList.toggle('is-active',l.dataset.jump===current);});
+    },{rootMargin:'-30% 0px -60% 0px'});
+    links.forEach(function(l){var t=byId(l.dataset.jump);if(t)io.observe(t);});
+    var hero=document.querySelector('.field-hero');
+    if(hero)new IntersectionObserver(function(entries){nav.classList.toggle('is-stuck',!entries[0].isIntersecting);},{threshold:0}).observe(hero);
+  }
   function updateWeekNavigators() {
     var start=state.weekStart,end=shiftDate(start,6),label='Vecka '+weekNumber(start),range=shortDate(start)+' – '+shortDate(end)+(start.getFullYear()!==new Date().getFullYear()?' '+start.getFullYear():'');
     document.querySelectorAll('[data-week-label]').forEach(function(node){node.textContent=label;});
@@ -1321,8 +1345,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     records.forEach(function(record){byKey[record.key]=record;});
     byId('record-podium').innerHTML=keys.map(function(key,index){
       var record=byKey[key];
-      // The three chosen records lead as glowing rows, in the builder's row style.
-      return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><span class="rank">'+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><p>'+recordNote(record)+'</p></div><button type="button" class="record-weight-edit"'+(record.bodyweight?' disabled':'')+' data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera vikt för '+escapeHtml(record.name)+'">'+recordValue(record)+'</button>'+
+      // The three chosen records lead as compact rows, styled like the list below.
+      return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><h3><span class="rank">'+String(index+1).padStart(2,'0')+'</span>'+escapeHtml(record.name)+'</h3><p>'+recordNote(record)+'</p></div><span class="record-row-result"><button type="button" class="record-weight-edit"'+(record.bodyweight?' disabled':'')+' data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera vikt för '+escapeHtml(record.name)+'">'+recordValue(record)+'</button><span class="record-spark">'+recordGraph(record,record.bodyweight?'reps':'weight',true)+'</span></span>'+
         '<button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för plats '+(index+1)+'">'+PK_ICON.swap+'</button></article>';
     }).join('');
     byId('record-picker-fields').innerHTML=[0,1,2].map(function(slot){
@@ -1377,7 +1401,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);
       var loadMore=event.target.closest('[data-log-more]');
       if(loadMore){
-        state.logVisibleCount+=10;
+        state.logVisibleCount+=8;
         renderLog();
         return;
       }
@@ -1409,6 +1433,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
         else window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'edit-day',date:state.selectedDate,origin:day}}));
         return;
       }
+      var ptab=event.target.closest('[data-progress-tab]');if(ptab){state.progressTab=ptab.dataset.progressTab;try{localStorage.setItem('pulseFieldProgressTab',state.progressTab);}catch(_){}renderProgressTabs();return;}
       var view=event.target.closest('[data-activity-view]');if(view){state.activityView=view.dataset.activityView;renderActivity();return;}
       var metric=event.target.closest('[data-activity-metric]');if(metric){state.activityMetric=metric.dataset.activityMetric;renderActivity();return;}
       var range=event.target.closest('[data-chart-range]');
@@ -1467,7 +1492,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
     updateCompactControl(false);
     installCompactBridge();
     installFieldSceneVisibility();
-    wireProfileLinks();loadData();installEvents();renderAll();
+    wireProfileLinks();loadData();installEvents();renderAll();renderProgressTabs();installJumpNav();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
