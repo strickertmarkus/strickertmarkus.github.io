@@ -805,12 +805,9 @@ main{position:relative;z-index:2;display:block}
 .rhythm-orbit-svg{display:block;width:100%;height:100%;overflow:visible}
 .rhythm-orbit-svg path{fill:none;stroke-linecap:round}
 .rhythm-orbit-svg .ro-empty{stroke:#ffffff26;stroke-width:4;stroke-dasharray:1.5 5.5}
-.rhythm-orbit.is-complete .rhythm-orbit-svg{filter:drop-shadow(0 0 10px #ff657a40)}
-.rhythm-orbit.is-complete::before{content:"";position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,transparent 52%,#ff657a2e 62%,transparent 74%);pointer-events:none;animation:orbitBreath 5.5s ease-in-out infinite}
 .rhythm-orbit-svg .ro-bonus{transform-origin:60px 60px;animation:orbitSpin 40s linear infinite}
 .rhythm-orbit-svg .ro-bonus circle{fill:#ffe2d4;filter:drop-shadow(0 0 3px #ffd1ba) drop-shadow(0 0 7px #ff9a91)}
 .rhythm-orbit.is-bonus .rhythm-orbit-count strong{text-shadow:0 0 18px #ffd1ba99,0 0 34px #ff657a66}
-@keyframes orbitBreath{0%,100%{opacity:.35}50%{opacity:1}}
 @keyframes orbitSpin{to{transform:rotate(360deg)}}
 .rhythm-orbit-count{position:absolute;inset:0;display:flex;align-items:baseline;justify-content:center;padding-top:44px;gap:5px;pointer-events:none}
 .rhythm-orbit-count strong{font:400 40px/1 var(--field-serif);color:#f5eee9;text-shadow:0 0 22px #ff657a45}
@@ -959,3 +956,21 @@ main{position:relative;z-index:2;display:block}
 .record-feature p{font-size:11px;color:var(--field-faint)}
 .record-feature .record-weight-edit{font:600 15px var(--pk-ui);font-variant-numeric:tabular-nums}
 .record-feature-edit{width:32px;height:32px;margin-left:-4px}
+
+/* Week field: the thread runs from the chosen day's date straight down to its card */
+.week-days{height:122px}
+.week-section>.wd-legend{position:static;margin:12px 0 0}
+.week-selected-session-v3::before{top:calc(-1 * var(--link-h,16px));height:var(--link-h,16px);width:1.5px;background:linear-gradient(#ff9a9122,#ff9a91d0);box-shadow:0 0 5px #ff657a,0 0 10px #ff657a66}
+.week-selected-session-v3[data-kind="cardio"]::before{background:linear-gradient(#7fe3ef22,#7fe3efd0);box-shadow:0 0 5px #7fe3ef,0 0 10px #7fe3ef66}
+.week-selected-session-v3[data-kind="rest"]::before{background:linear-gradient(#d8e6ff1a,#d8e6ffc0);box-shadow:0 0 5px #b8cdf0,0 0 10px #9fb7d866}
+
+/* Utveckling: tabs and the shared period on one line, compact chart controls */
+.progress-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 12px}
+.progress-bar .progress-tabs{margin:0}
+.progress-range[hidden]{display:none}
+.progress-section .segmented,.progress-section .view-tabs:not(.progress-tabs){gap:2px}
+.progress-range,.progress-section .chart-period-row--volume .segmented,.progress-section .insight-mode{padding:3px;border-radius:12px;background:#ffffff06;box-shadow:inset 0 0 0 1px #ffffff0d}
+.progress-range button,.progress-section .chart-period-row--volume button,.progress-section .insight-controls button{min-height:30px;padding:0 10px;border-radius:9px;font-size:12px}
+.progress-section .chart-period-row--volume{margin:0 0 6px;flex-wrap:nowrap}
+.progress-section .insight-controls{margin:0 0 4px;flex-wrap:nowrap;justify-content:space-between}
+@media(max-width:380px){.progress-tabs button{padding:0 12px}.progress-range button{padding:0 8px}}

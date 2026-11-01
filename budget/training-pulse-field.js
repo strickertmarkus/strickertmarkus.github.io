@@ -368,6 +368,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(!PROGRESS_CHART[state.progressTab])state.progressTab='rhythm';
     document.querySelectorAll('[data-progress-tab]').forEach(function(tab){var on=tab.dataset.progressTab===state.progressTab;tab.setAttribute('aria-selected',String(on));tab.tabIndex=on?0:-1;});
     document.querySelectorAll('[data-progress-panel]').forEach(function(panel){panel.hidden=panel.dataset.progressPanel!==state.progressTab;});
+    var range=byId('progress-range');if(range)range.hidden=state.progressTab==='rhythm';
     // Charts measure their box when drawn, so draw the shown one again after a switch.
     if(state.progressTab==='volume')renderVolume();else if(state.progressTab==='body')renderInsight();else renderActivity();
     scheduleChartCanvasGlow(PROGRESS_CHART[state.progressTab]);
@@ -432,7 +433,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       markup+='<div class="'+classes.join(' ')+'" style="--lift:'+WEEK_WAVE[i]+'px" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+(logged.length?', loggat':'')+'." aria-pressed="'+(key===state.selectedDate)+'">'+
         '<span class="wd-name">'+dayNames[i]+'</span><span class="wd-node">'+mark+'</span><span class="wd-date">'+date.getDate()+'</span></div>';
     }
-    byId('week-days').innerHTML=weekCurve()+markup+'<p class="wd-legend" aria-hidden="true"><span><i class="wd-dot"></i>loggat</span><span><i class="wd-dot is-ring"></i>planerat</span><span>'+PK_MOON+'vila</span></p>';
+    byId('week-days').innerHTML=weekCurve()+markup;
+    // The legend sits under the day card so the thread from the day to its card stays clear.
+    var legendHost=byId('week-field');
+    if(legendHost&&!legendHost.querySelector(':scope > .wd-legend'))legendHost.insertAdjacentHTML('beforeend','<p class="wd-legend" aria-hidden="true"><span><i class="wd-dot"></i>loggat</span><span><i class="wd-dot is-ring"></i>planerat</span><span>'+PK_MOON+'vila</span></p>');
     var selected=state.selectedDate||today,chosen=dateAtNoon(selected),chosenPlan=planForDate(chosen),chosenLogged=workoutsOn(chosen);
     var chosenType=chosenPlan&&chosenPlan.type || (chosenLogged[0]&&workoutType(chosenLogged[0])) || 'Vila';
     var chosenName=String(chosenPlan&&chosenPlan.name || chosenType).trim()||'Vila';
@@ -454,6 +458,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(box){
       box.dataset.kind=chosenPlan&&chosenPlan.zenRoutine?chosenPlan.zenRoutine.kind:chosenRest?'rest':chosenCardio?'cardio':'strength';
       box.style.setProperty('--today-x',(((chosen.getDay()+6)%7)+.5)/7*100+'%');
+      requestAnimationFrame(function(){
+        var date=document.querySelector('#week-days .is-selected .wd-date');if(!date)return;
+        var gap=box.getBoundingClientRect().top-date.getBoundingClientRect().bottom-5;
+        if(gap>0)box.style.setProperty('--link-h',Math.round(gap)+'px');
+      });
       if(chosenRest&&!chosenPlan)nameLabel.textContent='Vila';
       if(chosenPlan&&chosenPlan.zenRoutine)meta=chosenType+' · '+Math.round(ZenModel.duration(chosenPlan.zenRoutine)/60)+' min';
       if(metaLabel)metaLabel.textContent=meta;
