@@ -373,26 +373,32 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(state.progressTab==='volume')renderVolume();else if(state.progressTab==='body')renderInsight();else renderActivity();
     scheduleChartCanvasGlow(PROGRESS_CHART[state.progressTab]);
   }
+  // The short word under a day: the first part of the pass name ("Bröst + Triceps" -> "Bröst").
+  function weekDayShortName(name,rest){
+    if(rest)return 'Vila';
+    var first=String(name||'').split(/\s*[+&\/,·]\s*/)[0].trim();
+    return first||'Pass';
+  }
   function installJumpNav(){
-    var nav=byId('field-jump');if(!nav)return;
+    var nav=byId('field-dock');if(!nav)return;
     var links=Array.from(nav.querySelectorAll('[data-jump]'));
     nav.addEventListener('click',function(event){
+      if(event.target.closest('#dock-start')){var start=byId('next-session-link');if(start)start.click();return;}
       var link=event.target.closest('[data-jump]');if(!link)return;
       var target=byId(link.dataset.jump);if(!target)return;
       event.preventDefault();
-      var top=target.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-6;
+      var top=target.getBoundingClientRect().top+window.scrollY-12;
       window.scrollTo({top:top,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
     });
+    window.addEventListener('training-overlay:change',function(event){document.body.classList.toggle('field-dock-hidden',!!(event.detail&&event.detail.locked));});
     if(!('IntersectionObserver' in window))return;
     var visible={};
     var io=new IntersectionObserver(function(entries){
       entries.forEach(function(entry){visible[entry.target.id]=entry.isIntersecting;});
       var current=links.map(function(l){return l.dataset.jump;}).filter(function(id){return visible[id];})[0];
-      links.forEach(function(l){l.classList.toggle('is-active',l.dataset.jump===current);});
-    },{rootMargin:'-30% 0px -60% 0px'});
+      links.forEach(function(l){var on=l.dataset.jump===current;l.classList.toggle('is-active',on);if(on)l.setAttribute('aria-current','true');else l.removeAttribute('aria-current');});
+    },{rootMargin:'-35% 0px -55% 0px'});
     links.forEach(function(l){var t=byId(l.dataset.jump);if(t)io.observe(t);});
-    var hero=document.querySelector('.field-hero');
-    if(hero)new IntersectionObserver(function(entries){nav.classList.toggle('is-stuck',!entries[0].isIntersecting);},{threshold:0}).observe(hero);
   }
   function updateWeekNavigators() {
     var start=state.weekStart,end=shiftDate(start,6),label='Vecka '+weekNumber(start),range=shortDate(start)+' – '+shortDate(end)+(start.getFullYear()!==new Date().getFullYear()?' '+start.getFullYear():'');
@@ -431,7 +437,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       // planned (faint once passed), the moon for rest. Its name lives in the card below.
       var zen=window.PulseZen&&PulseZen.kind(type),mark=zen?PulseZen.icon(zen):signalKind==='rest'&&!logged.length?'<span class="wd-moon">'+PK_MOON+'</span>':'<i class="wd-dot"></i>';
       markup+='<div class="'+classes.join(' ')+'" style="--lift:'+WEEK_WAVE[i]+'px" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+(logged.length?', loggat':'')+'." aria-pressed="'+(key===state.selectedDate)+'">'+
-        '<span class="wd-name">'+dayNames[i]+'</span><span class="wd-node">'+mark+'</span><span class="wd-date">'+date.getDate()+'</span></div>';
+        '<span class="wd-name">'+dayNames[i]+'</span><span class="wd-node">'+mark+'</span><span class="wd-date">'+date.getDate()+'</span><span class="wd-type">'+escapeHtml(weekDayShortName(displayName,signalKind==='rest'&&!logged.length))+'</span></div>';
     }
     byId('week-days').innerHTML=weekCurve()+markup;
     // The legend sits under the day card so the thread from the day to its card stays clear.

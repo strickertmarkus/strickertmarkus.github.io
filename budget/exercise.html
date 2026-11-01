@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261101-compact-4">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261101-dock-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -34,7 +34,7 @@
   <script defer src="firebase-sync.js?v=20261101-bw78-1"></script>
 <script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261030-zen-modes-4"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261101-compact-4"></script>
+  <script defer src="training-pulse-field.js?v=20261101-dock-1"></script>
   <script defer src="training-pulse-editor.js?v=20261101-progress-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
@@ -154,14 +154,6 @@
         </svg>
       </div>
     </section>
-
-    <nav class="field-jump" id="field-jump" aria-label="Hoppa till del av sidan">
-      <a href="#rhythm-field" data-jump="rhythm-field">Vecka</a>
-      <a href="#week-field" data-jump="week-field">Plan</a>
-      <a href="#progress-field" data-jump="progress-field">Utveckling</a>
-      <a href="#training-log" data-jump="training-log">Logg</a>
-      <a href="#records" data-jump="records">Rekord</a>
-    </nav>
 
     <section class="rhythm-section" id="rhythm-field" aria-labelledby="rhythm-title">
       <div class="section-intro">
@@ -320,6 +312,14 @@
       <div class="record-groups" id="record-groups"></div>
     </section>
   </main>
+
+  <nav class="field-dock" id="field-dock" aria-label="Hoppa till del av sidan">
+    <a href="#rhythm-field" data-jump="rhythm-field"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Vecka</span></a>
+    <a href="#progress-field" data-jump="progress-field"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 17l5-5 4 3 8-8"/><path d="M15.5 7h5v5"/></svg><span>Utveckling</span></a>
+    <button type="button" class="dock-start" id="dock-start" aria-label="Starta pass"><span class="dock-start-ring" aria-hidden="true"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5c.7 5 2.5 6.8 7.5 7.5-5 .7-6.8 2.5-7.5 7.5-.7-5-2.5-6.8-7.5-7.5 5-.7 6.8-2.5 7.5-7.5z"/></svg></button>
+    <a href="#training-log" data-jump="training-log"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r="1"/><circle cx="4.8" cy="12" r="1"/><circle cx="4.8" cy="17.5" r="1"/></svg><span>Logg</span></a>
+    <a href="#records" data-jump="records"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 3 4M17 6h2.5a2.5 2.5 0 0 1-3 4M12 14v3M8.5 20.5h7M10 17h4"/></svg><span>Rekord</span></a>
+  </nav>
 
   <footer class="field-footer">
     <span>Pulse Field · Träning</span>
