@@ -15,6 +15,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     insight: 'heart',
     insightMode: 'chart',
     chartRange: 'all',
+    volumeMode: 'total',
+    recordMetrics: {},
     openLogId: null,
     logTouched: false,
     logVisibleCount: 5,
@@ -157,12 +159,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       durationSec:number(exercise.durationSec)
     };
   }
-  function workoutVolume(workout) {
-    return (workout.exercises||[]).reduce(function(sum,raw){
-      var ex=normalizeExercise(raw);
-      return sum+(ex.kind==='strength'?ex.sets*ex.reps*ex.weight:0);
-    },0);
-  }
+  function workoutVolume(workout) { return PulseStrength.workout(workout,profile).volume; }
   function workoutDistance(workout) {
     var explicit=number(workout.runDistance);
     if (explicit>0) return explicit;
@@ -594,14 +591,15 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var volume=workoutVolume(workout);
       if(!(volume>0)||!workout.date)return;
       var name=trainingGroupName(workout),key=name.toLocaleLowerCase('sv-SE');
-      if(!map[key])map[key]={key:key,name:name,byDate:{},lastDate:'',sessionCount:0};
+      if(!map[key])map[key]={key:key,name:name,byDate:{},counts:{},lastDate:'',sessionCount:0};
       map[key].sessionCount+=1;
       map[key].byDate[workout.date]=(map[key].byDate[workout.date]||0)+volume;
+      map[key].counts[workout.date]=(map[key].counts[workout.date]||0)+PulseStrength.workout(workout,profile).count;
       if(String(workout.date)>map[key].lastDate)map[key].lastDate=String(workout.date);
     });
     return Object.keys(map).map(function(key){
       var item=map[key];
-      item.entries=Object.keys(item.byDate).sort().map(function(date){return {date:date,value:item.byDate[date]};});
+      item.entries=Object.keys(item.byDate).sort().map(function(date){return {date:date,value:state.volumeMode==='perExercise'?item.byDate[date]/Math.max(1,item.counts[date]):item.byDate[date]};});
       item.count=item.entries.length;
       return item;
     }).filter(function(group){
@@ -636,12 +634,12 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     function x(date){return dateKeys.length===1?left+plotW/2:left+(dateAtNoon(date).getTime()-firstDate)*plotW/span;}
     function y(value){return top+(axisMax-value)*plotH/(axisMax-axisMin);}
     var svg='<svg viewBox="0 0 '+width+' '+height+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true">';
-    svg+=chartAxisUnit('KG',left,top);
+    svg+=chartAxisUnit(state.volumeMode==='perExercise'?'KG/ÖVN':'KG',left,top);
     [0,.5,1].forEach(function(ratio){var value=axisMin+(axisMax-axisMin)*ratio,gy=y(value);svg+='<line class="chart-grid" x1="'+left+'" y1="'+gy+'" x2="'+(width-right)+'" y2="'+gy+'"/><text class="chart-axis-label" x="'+(left-8)+'" y="'+(gy+3)+'" text-anchor="end">'+formatNumber(Math.round(value),0)+'</text>';});
     series.forEach(function(group,index){
       var color=groupVolumeColor(index),points=group.entries.filter(withinChartRange).map(function(entry){return [x(entry.date),y(entry.value),entry];});
       if(points.length>1)svg+=glowingLine(seriesPath(points),color,'group-volume-line');
-      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"'+chartTipAttrs(group.name,formatNumber(Math.round(point[2].value),0)+' kg',logDate(point[2].date),color)+'/>';});
+      points.forEach(function(point){svg+='<circle class="group-volume-point" cx="'+point[0]+'" cy="'+point[1]+'" r="3.7" fill="'+color+'" style="color:'+color+'"'+chartTipAttrs(group.name,formatNumber(Math.round(point[2].value),0)+(state.volumeMode==='perExercise'?' kg/övning':' kg'),logDate(point[2].date),color)+'/>';});
     });
     var daySpan=Math.round((dateAtNoon(dateKeys[dateKeys.length-1])-dateAtNoon(dateKeys[0]))/86400000);
     var tickCount=daySpan===0?1:Math.min(5,daySpan+1);
@@ -1104,6 +1102,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function renderVolume() {
+    document.querySelectorAll('[data-volume-mode]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.volumeMode===state.volumeMode));});
+    document.querySelector('.volume-formula').textContent=state.volumeMode==='perExercise'?'volym ÷ genomförda styrkeövningar':'summa set × reps × vikt';
+    document.querySelector('.volume-lead').textContent=state.volumeMode==='perExercise'?'Genomsnittlig volym per genomförd styrkeövning, inom varje träningsgrupp.':'Varje linje följer den totala styrkevolymen för en träningsgrupp över tid.';
+
     var legend=byId('volume-legend'),chart=byId('volume-chart'),series=trainingGroupVolumeSeries().filter(function(group){return group.entries.some(withinChartRange);});
     document.querySelectorAll('[data-chart-range]').forEach(function(button){button.setAttribute('aria-pressed',String(button.dataset.chartRange===state.chartRange));});
     if(!series.length){
@@ -1118,7 +1120,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     }).join('');
     chart.innerHTML=groupVolumeChart(series);
     chart.setAttribute('aria-label','Passvolym per träningsgrupp. '+series.map(function(group){
-      return group.name+': '+group.entries.map(function(entry){return logDate(entry.date)+' '+Math.round(entry.value)+' kg';}).join(', ');
+      return group.name+': '+group.entries.map(function(entry){return logDate(entry.date)+' '+Math.round(entry.value)+(state.volumeMode==='perExercise'?' kg per övning':' kg');}).join(', ');
     }).join('. '));
     scheduleChartCanvasGlow('volume-chart');
   }
@@ -1235,24 +1237,43 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return'Övrigt';
   }
   function recordData() {
-    var map={};
-    data.workouts.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).forEach(function(workout){
-      (workout.exercises||[]).forEach(function(raw){var ex=normalizeExercise(raw);if(ex.kind!=='strength'||!ex.name||!(ex.weight>0))return;var key=ex.name.trim().toLowerCase();if(!map[key])map[key]={name:ex.name,value:0,first:0,history:[],category:recordCategory(ex.name)};if(!map[key].first)map[key].first=ex.weight;map[key].value=Math.max(map[key].value,ex.weight);map[key].history.push(ex.weight);});
-    });
-    Object.keys(data.prs||{}).forEach(function(name){var value=number(data.prs[name]);if(!Number.isFinite(value)||value<0)return;var key=name.toLowerCase();if(!map[key])map[key]={name:name,value:value,first:value,history:[value],category:recordCategory(name)};else map[key].value=value;});
-    return Object.keys(map).map(function(key){var record=map[key];record.gain=Math.max(0,record.value-record.first);return record;}).sort(function(a,b){return b.value-a.value;});
+    return PulseStrength.records(data.workouts,data.prs,profile).map(function(r){r.category=recordCategory(r.name);return r;});
+  }
+  function recordValue(r){return r.bodyweight?'Kroppsvikt':formatKg(r.value);}
+  function recordNote(r){return r.bodyweight?formatNumber(r.value,0)+' reps · bästa set':r.gain?'+'+formatNumber(r.gain,1)+' kg från första':'registrerat max';}
+  function recordMetric(r){return state.recordMetrics[r.key]||(r.bodyweight?'reps':'weight');}
+  function recordGraph(record,metric,mini){
+    var entries=record.entries.filter(function(e){return e.date&&Number.isFinite(e[metric])&&(metric!=='volume'||e.volume>0);});
+    if(!entries.length)return mini?'':'<p class="record-empty">Inga loggade värden för detta mått ännu.</p>';
+    var width=mini?72:320,height=mini?24:150,left=mini?3:40,right=mini?3:12,top=mini?3:18,bottom=mini?3:30;
+    var values=entries.map(function(e){return e[metric];}),lo=Math.min.apply(Math,values),hi=Math.max.apply(Math,values),span=Math.max(1,hi-lo);
+    var times=entries.map(function(e){return dateAtNoon(e.date).getTime();}),first=times[0],last=times[times.length-1];
+    var points=entries.map(function(e,i){return [last===first?width/2:left+(times[i]-first)/(last-first)*(width-left-right),hi===lo?(height-bottom+top)/2:top+(hi-e[metric])/span*(height-top-bottom),e];});
+    var unit=metric==='reps'?'reps':'kg',svg='<svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+escapeHtml(record.name+' · '+unit+' över tid')+'">';
+    if(!mini){[lo,hi].filter(function(v,i,a){return a.indexOf(v)===i;}).forEach(function(v){var y=hi===lo?(height-bottom+top)/2:top+(hi-v)/span*(height-top-bottom);svg+='<text x="0" y="'+(y+4)+'">'+formatNumber(v,0)+'</text><line class="chart-grid" x1="'+left+'" y1="'+y+'" x2="'+(width-right)+'" y2="'+y+'"/>';});}
+    if(points.length>1)svg+='<polyline fill="none" stroke="currentColor" stroke-width="2" points="'+points.map(function(p){return p[0]+','+p[1];}).join(' ')+'"/>';
+    points.forEach(function(p){svg+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(mini?2:3.5)+'" fill="currentColor"><title>'+escapeHtml(logDate(p[2].date)+' · '+formatNumber(p[2][metric],1)+' '+unit)+'</title></circle>';});
+    if(!mini)svg+='<text x="'+left+'" y="'+(height-5)+'">'+logDate(entries[0].date)+'</text>'+(entries.length>1?'<text text-anchor="end" x="'+(width-right)+'" y="'+(height-5)+'">'+logDate(entries[entries.length-1].date)+'</text>':'');
+    return svg+'</svg>';
+  }
+  function recordPanel(record){
+    var metric=recordMetric(record),entries=record.entries.filter(function(e){return metric!=='volume'||e.volume>0;}),unit=metric==='reps'?'reps':'kg';
+    var latest=entries[entries.length-1],previous=entries[entries.length-2],delta=latest&&previous?latest[metric]-previous[metric]:null;
+    var text=latest?'Senast '+formatNumber(latest[metric],1)+' '+unit+' · '+logDate(latest.date):'Inga loggade värden för detta mått';
+    if(delta!==null)text+=' · '+(delta>0?'+':'')+formatNumber(delta,1)+' '+unit+' sedan förra passet';
+    return '<div class="record-progress-controls"><div class="segmented" role="group" aria-label="Utvecklingsmått">'+(record.bodyweight?['reps','volume']:['weight','reps','volume']).map(function(m){return '<button type="button" data-record-metric="'+m+'" aria-pressed="'+String(metric===m)+'">'+({weight:'Vikt',reps:'Reps',volume:'Volym'})[m]+'</button>';}).join('')+'</div>'+(record.bodyweight?'':'<button type="button" class="record-weight-edit" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'">Redigera PR</button>')+'</div><p class="record-progress-note">'+escapeHtml(text)+'</p><div class="record-progress-chart">'+recordGraph(record,metric,false)+'</div>';
   }
   function featuredRecordKeys(records) {
-    var available=records.map(function(record){return record.name.toLocaleLowerCase('sv-SE');});
+    var available=records.map(function(record){return record.key;});
     var stored=readJSON('pulseFieldFeaturedRecords_'+profile,[]);
     var selected=[];
-    if(Array.isArray(stored))stored.forEach(function(key){if(typeof key==='string'&&available.includes(key)&&!selected.includes(key)&&selected.length<3)selected.push(key);});
+    if(Array.isArray(stored))stored.forEach(function(key){if(available.indexOf(key)<0)key=available.find(function(candidate){return candidate===key+'|kg'||candidate===key+'|bodyweight';});if(typeof key==='string'&&available.includes(key)&&!selected.includes(key)&&selected.length<3)selected.push(key);});
     available.forEach(function(key){if(selected.length<3&&!selected.includes(key))selected.push(key);});
     return selected;
   }
   function setFeaturedRecord(slot,key) {
     var records=recordData(),keys=featuredRecordKeys(records),oldKey=keys[slot],otherSlot=keys.indexOf(key);
-    if(!records.some(function(record){return record.name.toLocaleLowerCase('sv-SE')===key;}))return;
+    if(!records.some(function(record){return record.key===key;}))return;
     if(otherSlot>=0&&otherSlot!==slot)keys[otherSlot]=oldKey||'';
     keys[slot]=key;
     try{localStorage.setItem('pulseFieldFeaturedRecords_'+profile,JSON.stringify(keys));}catch(_){}
@@ -1269,6 +1290,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function renderRecords() {
+    var openKeys=Array.from(document.querySelectorAll('.record-progress[open]')).map(function(el){return el.dataset.recordKey;});
     var records=recordData();byId('record-count').textContent=records.length+' rekord';
     if(!records.length){
       byId('record-podium').innerHTML='';byId('record-picker-fields').innerHTML='';
@@ -1277,20 +1299,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     }
     byId('record-customize').disabled=false;
     var keys=featuredRecordKeys(records),byKey={};
-    records.forEach(function(record){byKey[record.name.toLocaleLowerCase('sv-SE')]=record;});
+    records.forEach(function(record){byKey[record.key]=record;});
     byId('record-podium').innerHTML=keys.map(function(key,index){
       var record=byKey[key];
       // The three chosen records lead as glowing rows, in the builder's row style.
-      return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><span class="rank">'+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><p>'+(record.gain?'+'+formatNumber(record.gain,1)+' kg från första':'registrerat max')+'</p></div><button type="button" class="record-weight-edit" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera vikt för '+escapeHtml(record.name)+'">'+formatKg(record.value)+'</button>'+
+      return '<article class="record-feature">'+pkThumb(record.name,'strength')+'<div class="record-feature-copy"><span class="rank">'+String(index+1).padStart(2,'0')+'</span><h3>'+escapeHtml(record.name)+'</h3><p>'+recordNote(record)+'</p></div><button type="button" class="record-weight-edit"'+(record.bodyweight?' disabled':'')+' data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera vikt för '+escapeHtml(record.name)+'">'+recordValue(record)+'</button>'+
         '<button type="button" class="record-feature-edit" data-record-edit-slot="'+index+'" aria-label="Byt rekord för plats '+(index+1)+'">'+PK_ICON.swap+'</button></article>';
     }).join('');
     byId('record-picker-fields').innerHTML=[0,1,2].map(function(slot){
       return '<label class="record-picker-field"><span>Plats '+String(slot+1).padStart(2,'0')+'</span><select data-featured-select="'+slot+'" aria-label="Välj rekord för plats '+(slot+1)+'">'+
-        records.map(function(record){var key=record.name.toLocaleLowerCase('sv-SE');return '<option value="'+escapeHtml(key)+'"'+(keys[slot]===key?' selected':'')+'>'+escapeHtml(record.name)+'</option>';}).join('')+
+        records.map(function(record){var key=record.key;return '<option value="'+escapeHtml(key)+'"'+(keys[slot]===key?' selected':'')+'>'+escapeHtml(record.name)+'</option>';}).join('')+
       '</select></label>';
     }).join('');
     var groups={};records.forEach(function(record){(groups[record.category]||(groups[record.category]=[])).push(record);});
-    byId('record-groups').innerHTML=Object.keys(groups).map(function(category,index){var rows=groups[category].map(function(record){return '<button type="button" class="record-row" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera rekord '+escapeHtml(record.name)+'">'+pkThumb(record.name,'strength')+'<span>'+escapeHtml(record.name)+(record.gain?'<small>+'+formatNumber(record.gain,1)+' kg utveckling</small>':'')+'</span><strong>'+formatKg(record.value)+'</strong></button>';}).join('');return '<details class="record-group"'+(index===0?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>'+PK_ICON.chevron+'</i></summary><div class="record-list">'+rows+'</div></details>';}).join('');
+    byId('record-groups').innerHTML=Object.keys(groups).map(function(category,index){
+      var rows=groups[category].map(function(record){return '<details class="record-progress" data-record-key="'+escapeHtml(record.key)+'"'+(openKeys.includes(record.key)?' open':'')+'><summary class="record-row">'+pkThumb(record.name,'strength')+'<span>'+escapeHtml(record.name)+'<small>'+escapeHtml(recordNote(record))+'</small></span><span class="record-row-result"><strong>'+recordValue(record)+'</strong><span class="record-spark">'+recordGraph(record,record.bodyweight?'reps':'weight',true)+'</span></span></summary><div class="record-progress-panel">'+recordPanel(record)+'</div></details>';}).join('');
+      return '<details class="record-group"'+(index===0||groups[category].some(function(r){return openKeys.includes(r.key);})?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>'+PK_ICON.chevron+'</i></summary><div class="record-list">'+rows+'</div></details>';
+    }).join('');
   }
 
   var renderPending=false;
@@ -1311,6 +1336,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     menu.addEventListener('click',function(event){if(event.target.closest('a'))setMenu(false);});
     var compactToggle=byId('training-overview-toggle');
     if(compactToggle)compactToggle.addEventListener('click',openOriginalCompact);
+    byId('record-groups').addEventListener('click',function(event){
+      var button=event.target.closest('[data-record-metric]');if(!button)return;
+      var detail=button.closest('[data-record-key]'),record=recordData().find(function(r){return r.key===detail.dataset.recordKey;});if(!record)return;
+      state.recordMetrics[record.key]=button.dataset.recordMetric;
+      detail.querySelector('.record-progress-panel').innerHTML=recordPanel(record);
+      detail.querySelector('[data-record-metric="'+state.recordMetrics[record.key]+'"]').focus({preventScroll:true});
+    });
+    document.querySelector('[data-volume-mode]').parentElement.addEventListener('click',function(event){var button=event.target.closest('[data-volume-mode]');if(button){state.volumeMode=button.dataset.volumeMode;renderVolume();}});
     byId('record-customize').addEventListener('click',function(){setRecordPicker(byId('record-picker').hidden);});
     byId('record-picker-close').addEventListener('click',function(){setRecordPicker(false);});
     byId('record-picker-fields').addEventListener('change',function(event){

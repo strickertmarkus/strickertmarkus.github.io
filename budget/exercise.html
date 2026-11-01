@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261101-orbit-2">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261101-progress-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -33,8 +33,9 @@
   <script defer src="auth-gate.js?v=20261026-energy-loop-4"></script>
   <script defer src="firebase-sync.js?v=20261020-exercise-history-v1"></script>
 <script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261030-zen-modes-4"></script>
-  <script defer src="training-pulse-field.js?v=20261101-orbit-2"></script>
-  <script defer src="training-pulse-editor.js?v=20261031-rest-1"></script>
+  <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
+  <script defer src="training-pulse-field.js?v=20261101-progress-1"></script>
+  <script defer src="training-pulse-editor.js?v=20261101-progress-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -88,6 +89,7 @@
       <a href="home.html">Startsida</a>
       <a id="menu-build" href="#field-templates" data-field-action="build">Bygg pass</a>
       <a id="menu-log" href="#training-log" data-field-action="log">Logga ett pass</a>
+      <a id="menu-training-settings" href="#pulse-goals" data-field-action="goals">Träningsinställningar</a>
       <a id="menu-records" href="#records" data-field-action="records">Hantera rekord</a>
       <a id="menu-explore-training" href="pulse-exercise-guide.html"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg> Utforska träning</a>
       <div class="field-profile-control" role="group" aria-label="Välj träningsprofil">
@@ -290,6 +292,7 @@
       </div>
       <p class="volume-lead">Varje linje följer den totala styrkevolymen för en träningsgrupp över tid.</p>
       <div class="chart-period-row chart-period-row--volume">
+        <div class="segmented" role="group" aria-label="Volymmått"><button type="button" data-volume-mode="total" aria-pressed="true">Total volym</button><button type="button" data-volume-mode="perExercise" aria-pressed="false">Per övning</button></div>
         <div class="segmented chart-period-toggle" role="group" aria-label="Välj tidsperiod för passvolym">
           <button type="button" data-chart-range="all" aria-pressed="true">Alla data</button>
           <button type="button" data-chart-range="month" aria-pressed="false">Senaste månaden</button>

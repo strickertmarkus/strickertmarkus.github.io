@@ -413,13 +413,13 @@ main{position:relative;z-index:2;display:block}
 .record-feature-edit{display:grid;place-items:center;flex:none;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:var(--pk-dim);cursor:pointer}
 .record-feature-edit .pk-icon{width:16px;height:16px}
 .record-groups{display:grid;gap:4px}
-.record-group summary{display:grid;grid-template-columns:minmax(0,1fr) auto 22px;align-items:center;gap:10px;min-height:46px;cursor:pointer;list-style:none}
-.record-group summary::-webkit-details-marker{display:none}
-.record-group summary strong{color:#ff8a78;font:700 10px var(--pk-ui);letter-spacing:.16em;text-transform:uppercase}
-.record-group summary span{color:var(--pk-muted);font-size:11px}
-.record-group summary i{display:grid;place-items:center;color:var(--pk-red-soft);transition:transform .3s}
-.record-group summary i .pk-icon{width:18px;height:18px}
-.record-group[open] summary i{transform:rotate(180deg)}
+.record-group>summary{display:grid;grid-template-columns:minmax(0,1fr) auto 22px;align-items:center;gap:10px;min-height:46px;cursor:pointer;list-style:none}
+.record-group>summary::-webkit-details-marker{display:none}
+.record-group>summary strong{color:#ff8a78;font:700 10px var(--pk-ui);letter-spacing:.16em;text-transform:uppercase}
+.record-group>summary span{color:var(--pk-muted);font-size:11px}
+.record-group>summary i{display:grid;place-items:center;color:var(--pk-red-soft);transition:transform .3s}
+.record-group>summary i .pk-icon{width:18px;height:18px}
+.record-group[open]>summary i{transform:rotate(180deg)}
 .record-list{display:grid;padding-bottom:12px}
 .record-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:12px;min-height:56px;padding:6px 0;border:0;border-top:1px solid #ffffff0a;background:none;color:inherit;text-align:left;cursor:pointer}
 .record-row .pk-thumb{width:40px;height:40px}
@@ -879,3 +879,22 @@ main{position:relative;z-index:2;display:block}
 .rmap .rm-row-current{display:contents}
 #activity-chart.luminous-chart{height:auto!important}
 #activity-chart canvas.chart-canvas-glow{display:none!important}
+
+/* Inline PR histories; use the same selected-only controls as other graphs. */
+.chart-period-row--volume{flex-wrap:wrap;gap:12px;justify-content:space-between}
+.record-row{list-style:none;width:100%;box-sizing:border-box}
+.record-row::-webkit-details-marker{display:none}
+.record-row-result{display:flex;align-items:flex-end;flex-direction:column;gap:5px}
+.record-spark{display:block;width:72px;height:24px;color:#ff9d8f}
+.record-spark svg{width:100%;height:100%}
+.record-progress-panel{padding:8px 0 20px 52px}
+.record-progress-controls{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.record-progress-controls .record-weight-edit{font-size:12px}
+.record-progress-note{font-size:12px;line-height:1.6;color:var(--field-muted);margin:12px 0}
+.record-progress-chart{color:#ff9d8f;max-width:640px}
+.record-progress-chart svg{display:block;width:100%;height:auto;overflow:visible}
+.record-progress-chart text{fill:var(--field-muted);font:10px Inter,sans-serif}
+.record-feature .record-weight-edit:disabled{opacity:1;cursor:default;font-size:13px}
+.record-feature .record-weight-edit:disabled::after{display:none}
+.record-progress>summary:focus-visible{outline:1px solid #ff9d8f;outline-offset:3px}
+@media(max-width:480px){.record-progress-panel{padding-left:0}.record-row-result strong{white-space:normal}.record-progress-controls .segmented button{padding:8px 10px}}

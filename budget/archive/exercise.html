@@ -674,6 +674,7 @@ if(!window.__FIELD_EMBEDDED__){
     <hr class="rule compact-only">
 <section class="observatory-only observatory-activity" id="pulse-activity" aria-label="Veckans aktivitet"></section>
 <section class="pulse-section pulse-goals" id="pulse-goals">
+<div id="markus-bodyweight-setting" hidden style="margin:12px 0 20px"><label for="markus-bodyweight-kg">Kroppsvikt · kg</label><div style="display:flex;gap:12px;align-items:center;margin-top:8px"><input id="markus-bodyweight-kg" type="number" inputmode="decimal" min="1" max="500" step="0.1" placeholder="Ej angiven" style="font-size:16px;min-width:0;width:130px"><button type="button" class="btn-sm" onclick="saveBodyweight()">Spara kroppsvikt</button></div></div>
     <!-- GOALS -->
     <div class="section-hdr fade-in"><h2>Mål</h2><button class="btn-sm" onclick="saveGoals()">Spara mål</button></div>
     <div class="goals-grid fade-in">
@@ -1096,6 +1097,7 @@ if(!window.__FIELD_EMBEDDED__){
   </div>
 </div>
 
+<script src="training-strength-metrics.js?v=20261101-progress-1"></script>
 <script>
 // ══ DATA ════════════════════════════════════════════════════════
 function trainingStorageKey(k){
@@ -1104,7 +1106,11 @@ function trainingStorageKey(k){
 }
 var DB={get:function(k){try{return JSON.parse(localStorage.getItem(trainingStorageKey(k))||'null');}catch(_){return null;}},set:function(k,v){localStorage.setItem(trainingStorageKey(k),JSON.stringify(v));}};
 function getWorkouts(){return DB.get('wk')||[];}
-function saveWorkouts(w){DB.set('wk',w);}
+function saveWorkouts(w){
+  var previous=getWorkouts(),profile=new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus';
+  w.forEach(function(workout){PulseStrength.snapshot(workout,previous.find(function(old){return String(old.id)===String(workout.id);}),profile,getGoals().bodyweightKg);});
+  DB.set('wk',w);
+}
 function getGoals(){return DB.get('goals')||{weeklyWk:4,runDistanceGoal:10,vo2Goal:45};}
 function getTemplates(){return DB.get('templates')||[];}
 function saveTemplates(t){DB.set('templates',t);}
@@ -1567,7 +1573,7 @@ function normalizeExercise(ex){
   }
   return {kind:'strength',name:ex.name||'',sets:+ex.sets||1,reps:+ex.reps||0,weight:ex.weightMode==='bodyweight'?0:(+ex.weight||0),weightMode:ex.weightMode==='bodyweight'?'bodyweight':'kg'};
 }
-function calcVol(wk){var v=0;(wk.exercises||[]).forEach(function(ex){var e=normalizeExercise(ex);if(e.kind==='strength')v+=(e.sets||0)*(e.reps||0)*(e.weight||0);});return v;}
+function calcVol(wk){return PulseStrength.workout(wk,new URLSearchParams(location.search).get('user')==='maja'?'maja':'markus').volume;}
 function fmtDate(iso){if(!iso)return'—';var p=iso.split('-');return p[2]+'/'+p[1];}
 function daysSince(iso){if(!iso)return null;return Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -2427,6 +2433,9 @@ function getVo2Timeline(){
   return Object.keys(byDate).sort().map(function(d){return {date:d,score:byDate[d]};});
 }
 function refreshGoals(){
+  var massSetting=byId('markus-bodyweight-setting');
+  if(massSetting){massSetting.hidden=new URLSearchParams(location.search).get('user')==='maja';byId('markus-bodyweight-kg').value=getGoals().bodyweightKg||'';}
+
   var goals=getGoals(), wks=getWorkouts(), ws=weekStartISO();
   var thisWk=wks.filter(function(w){return w.date>=ws;});
   var runEntries=wks.map(function(workout){
@@ -2499,12 +2508,19 @@ function refreshGoals(){
   var longestRunEl=document.getElementById('g3-longest-run');
   if(longestRunEl)longestRunEl.textContent=longestRunTime?String(+longestRunTime.toFixed(1)).replace(/\.0$/,'')+' min':'— min';
 }
+function saveBodyweight(){
+  if(new URLSearchParams(location.search).get('user')==='maja')return;
+  var raw=byId('markus-bodyweight-kg').value,value=Number(raw);
+  if(raw&&(!Number.isFinite(value)||value<1||value>500)){showToast('Ange en kroppsvikt mellan 1 och 500 kg.');return;}
+  DB.set('goals',Object.assign({},getGoals(),{bodyweightKg:raw?value:null}));
+  showToast('Kroppsvikt sparad för kommande pass.');
+}
 function saveGoals(){
-  DB.set('goals',{
+  DB.set('goals',Object.assign({},getGoals(),{
     weeklyWk:+(document.getElementById('g1-goal').value)||4,
     runDistanceGoal:+(document.getElementById('g2-goal').value)||10,
     vo2Goal:+(document.getElementById('g3-goal').value)||45
-  });
+  }));
   refreshAll(); showToast('Mål sparade.');
 }
 function logKondition(){
@@ -2925,6 +2941,7 @@ function saveSessionWorkout(){
       var done=normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight,weightMode:ex.weightMode||'kg'});
       var between=betweenForWorkoutExercise({date:sessionState.date},ex,i)||(ex.betweenSets&&ex.betweenSets.enabled?ex.betweenSets:null);
       if(between)done.betweenSets=between;
+      done.logs=logs.map(function(log){return {actualReps:Number(log.actualReps)||0,actualWeight:ex.weightMode==='bodyweight'?0:Number(log.actualWeight)||0,weightMode:ex.weightMode||'kg'};});
       exercises.push(done);
     }
     exerciseTimings.push({name:ex.name,durationSec:dur,exerciseIndex:exercises.length-1});

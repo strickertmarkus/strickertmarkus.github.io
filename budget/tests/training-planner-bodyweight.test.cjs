@@ -4,7 +4,7 @@ function runtime(profile='markus'){
  const data=new Map(),nodes=new Map();
  const node=id=>{if(!nodes.has(id))nodes.set(id,{value:'',dataset:{},textContent:'',innerHTML:'',scrollTop:0,classList:{add(){},remove(){},toggle(){}},querySelector(){return null;},querySelectorAll(){return [];},addEventListener(){},setAttribute(){}});return nodes.get(id);};
  const document={readyState:'loading',addEventListener(){},querySelectorAll(){return [];},querySelector(){return null;},getElementById:node};
- const ctx={document,localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)},location:{search:profile==='maja'?'?user=maja':''},URLSearchParams,console,MutationObserver:class{observe(){} disconnect(){}},setTimeout(){},clearTimeout(){},setInterval(){},clearInterval(){},Date,Event:function(){},CustomEvent:function(){}};
+ const ctx={PulseStrength:require('../training-strength-metrics.js'),document,localStorage:{getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)},location:{search:profile==='maja'?'?user=maja':''},URLSearchParams,console,MutationObserver:class{observe(){} disconnect(){}},setTimeout(){},clearTimeout(){},setInterval(){},clearInterval(){},Date,Event:function(){},CustomEvent:function(){}};
  ctx.window=ctx;ctx.__FIELD_EMBEDDED__=true;ctx.addEventListener=()=>{};
  const script=read('archive/exercise.html').match(/<script>\s*\/\/ ══ DATA[\s\S]*?<\/script>/)[0].replace(/^<script>|<\/script>$/g,'');
  vm.createContext(ctx);vm.runInContext(script,ctx);vm.runInContext(read('training-month-planner.js'),ctx);
@@ -114,4 +114,14 @@ test('builder mode changes preserve ordinary name and type and never save the da
  assert.equal(node('day-workout-type').value,'Bröst + Triceps');
  assert.equal(Object.keys(ctx.getPlannedSessions()).length,0);
  ctx.PulseZen.loadBuilder(ctx.PulseZen.session('forest'));assert.equal(ctx.PulseZen.builderRecord().zenRoutine.id,'forest');
+});
+test('Markus mass settings snapshot new logs and preserve goals; Maja cannot write mass',()=>{
+ const {ctx,node}=runtime();ctx.DB.set('goals',{weeklyWk:4,custom:'keep'});node('markus-bodyweight-kg').value='75';ctx.saveBodyweight();
+ assert.equal(ctx.getGoals().bodyweightKg,75);assert.equal(ctx.getGoals().custom,'keep');
+ ctx.saveWorkouts([{id:42,date:'2026-11-01',exercises:[bw]}]);assert.equal(ctx.getWorkouts()[0].bodyweightKg,75);
+ node('markus-bodyweight-kg').value='80';ctx.saveBodyweight();ctx.saveWorkouts(ctx.getWorkouts());assert.equal(ctx.getWorkouts()[0].bodyweightKg,75);
+ ctx.refreshAll=()=>{};ctx.saveGoals();assert.equal(ctx.getGoals().bodyweightKg,80);
+ const maja=runtime('maja');maja.node('markus-bodyweight-kg').value='75';maja.ctx.saveBodyweight();assert.equal(maja.ctx.getGoals().bodyweightKg,undefined);
+ maja.ctx.saveWorkouts([{id:42,exercises:[bw]}]);assert.equal(maja.ctx.getWorkouts()[0].bodyweightKg,undefined);
+ assert.equal(maja.data.has('ex_wk'),false);
 });
