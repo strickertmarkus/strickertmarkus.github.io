@@ -1509,6 +1509,7 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
   }
 
   function install() {
+    if(/Android/i.test(navigator.userAgent||''))root.classList.add('is-android');
     updateCompactControl(false);
     installCompactBridge();
     installFieldSceneVisibility();

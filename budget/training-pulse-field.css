@@ -1017,3 +1017,14 @@ body.field-dock-hidden .field-dock,body.field-compact-active .field-dock{display
 /* Heart rate range: a fine line from min to max with clear caps at both ends */
 .range-bar,.insight-chart .range-bar{stroke-width:1.4;opacity:.6}
 .range-cap,.insight-chart .range-cap{stroke-width:3.2;opacity:.95}
+
+/* Dock, slimmer: on a home-screen iPhone the home-indicator space is used instead of added */
+.field-dock{padding-top:4px;padding-bottom:max(6px,calc(env(safe-area-inset-bottom,0px) - 14px))}
+.field-dock a{padding:3px 0 5px}
+.dock-start{width:46px;height:46px}
+.dock-start svg{width:19px;height:19px}
+body{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
+@media(max-width:900px){.toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}}
+@media(min-width:901px){body{padding-bottom:0}}
+/* Android browsers (e.g. Opera) can flicker with a blurred fixed bar over the animated page */
+html.is-android .field-dock{-webkit-backdrop-filter:none;backdrop-filter:none;background:#090d14f0}
