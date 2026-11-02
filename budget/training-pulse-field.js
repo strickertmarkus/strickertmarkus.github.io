@@ -1245,6 +1245,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
     });
     var workouts=allWorkouts.slice(0,state.logVisibleCount);
+    var editLatest=byId('log-edit-latest');
+    if(editLatest){editLatest.hidden=!allWorkouts.length;if(allWorkouts.length)editLatest.dataset.workoutId=String(allWorkouts[0].id);}
     var timeline=byId('log-timeline');
     if(!workouts.length){
       timeline.innerHTML='<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';
@@ -1270,7 +1272,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     }).join('');
     if(allWorkouts.length>workouts.length){
       var more=allWorkouts.length-workouts.length;
-      timeline.insertAdjacentHTML('beforeend','<button class="log-more-button" type="button" data-log-more aria-label="Visa fler sparade träningspass">Visa äldre pass <span>'+more+' kvar</span>'+PK_ICON.down+'</button>');
+      timeline.insertAdjacentHTML('beforeend','<button class="log-more-button" type="button" data-log-more aria-label="Visa äldre pass, '+more+' kvar" title="Visa äldre pass">'+PK_ICON.down+'<span>'+more+'</span></button>');
     }
     if(chartGlowMq.matches)paintMiniIntervalGlows();
   }
@@ -1320,7 +1322,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var latest=entries[entries.length-1],previous=entries[entries.length-2],delta=latest&&previous?latest[metric]-previous[metric]:null;
     var text=latest?'Senast '+formatNumber(latest[metric],1)+' '+unit+' · '+logDate(latest.date):'Inga loggade värden för detta mått';
     if(delta!==null)text+=' · '+(delta>0?'+':'')+formatNumber(delta,1)+' '+unit+' sedan förra passet';
-    return '<div class="record-progress-controls"><div class="segmented" role="group" aria-label="Utvecklingsmått">'+(record.bodyweight?['reps','volume']:['weight','reps','volume']).map(function(m){return '<button type="button" data-record-metric="'+m+'" aria-pressed="'+String(metric===m)+'">'+({weight:'Vikt',reps:'Reps',volume:'Volym'})[m]+'</button>';}).join('')+'</div>'+(record.bodyweight?'':'<button type="button" class="record-weight-edit" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'">Redigera PR</button>')+'</div><p class="record-progress-note">'+escapeHtml(text)+'</p><div class="record-progress-chart">'+recordGraph(record,metric,false)+'</div>';
+    return '<div class="record-progress-controls"><div class="segmented" role="group" aria-label="Utvecklingsmått">'+(record.bodyweight?['reps','volume']:['weight','reps','volume']).map(function(m){return '<button type="button" data-record-metric="'+m+'" aria-pressed="'+String(metric===m)+'">'+({weight:'Vikt',reps:'Reps',volume:'Volym'})[m]+'</button>';}).join('')+'</div>'+(record.bodyweight?'':'<button type="button" class="record-weight-edit record-pr-edit" data-field-action="edit-record" data-record-name="'+escapeHtml(record.name)+'" data-record-value="'+record.value+'" aria-label="Redigera PR för '+escapeHtml(record.name)+'" title="Redigera PR"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4L15.8 5.2a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.5 18.5z"/><path d="M13.5 7.5l3 3"/></svg></button>')+'</div><p class="record-progress-note">'+escapeHtml(text)+'</p><div class="record-progress-chart">'+recordGraph(record,metric,false)+'</div>';
   }
   function featuredRecordKeys(records) {
     var available=records.map(function(record){return record.key;});
@@ -1350,7 +1352,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
 
   function renderRecords() {
     var openKeys=Array.from(document.querySelectorAll('.record-progress[open]')).map(function(el){return el.dataset.recordKey;});
-    var records=recordData();byId('record-count').textContent=records.length+' rekord';
+    var records=recordData();var countBadge=byId('record-count');countBadge.textContent=records.length;countBadge.setAttribute('aria-label',records.length+' rekord');countBadge.title=records.length+' rekord';
     if(!records.length){
       byId('record-podium').innerHTML='';byId('record-picker-fields').innerHTML='';
       byId('record-customize').disabled=true;

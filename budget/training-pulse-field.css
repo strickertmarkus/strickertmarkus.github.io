@@ -1006,3 +1006,15 @@ body.field-dock-hidden .field-dock,body.field-compact-active .field-dock{display
 .rmap .rm-week.is-current,.rmap .rm-total.is-current-week{height:24px;line-height:24px}
 .rmap .rm-cell.is-today i{transform:scale(1.25);box-shadow:0 0 10px #ff9a91aa}
 .rmap .rm-cell.is-today.is-pass i{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 16%,transparent),0 0 10px var(--c),0 0 16px color-mix(in srgb,var(--c) 45%,transparent)}
+
+/* Header text as symbols */
+.record-actions{display:flex;align-items:center;gap:6px}
+.record-count{display:grid;place-items:center;min-width:26px;height:26px;padding:0 7px;border-radius:999px;background:#ff9a9112;color:var(--field-peach);font:700 11px var(--field-ui);font-variant-numeric:tabular-nums}
+.record-customize.planner-calendar-entry{min-height:0;padding:0;box-shadow:none;background:none;font-size:inherit}
+.record-customize.planner-calendar-entry[aria-expanded=true]{background:#ff9a9112;border-radius:12px}
+.log-more-button{display:flex;align-items:center;justify-content:center;gap:6px;width:auto;margin:14px auto 0;padding:8px 16px}
+.log-more-button .pk-icon{width:17px;height:17px}
+.log-more-button span{color:var(--field-muted);font-size:12px;font-variant-numeric:tabular-nums}
+.record-progress-controls .record-pr-edit{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:var(--field-coral);filter:drop-shadow(0 0 8px #ff9a9138)}
+.record-pr-edit::after{display:none}
+.record-pr-edit .pk-icon{width:18px;height:18px}
