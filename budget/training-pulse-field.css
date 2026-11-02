@@ -1036,3 +1036,7 @@ html.is-android .field-dock{-webkit-backdrop-filter:none;backdrop-filter:none;ba
 .dock-start svg{width:17px;height:17px}
 body{padding-bottom:calc(52px + env(safe-area-inset-bottom,0px))}
 @media(min-width:901px){body{padding-bottom:0}}
+/* Dock: halfway between the original height and the lowest version */
+.field-dock{padding-top:5px;padding-bottom:max(6px,calc(env(safe-area-inset-bottom,0px) - 10px))}
+body{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
+@media(min-width:901px){body{padding-bottom:0}}
