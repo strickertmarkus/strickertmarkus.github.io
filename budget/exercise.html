@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261102-android-lite-3">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261102-hero-flow-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -34,7 +34,7 @@
   <script defer src="firebase-sync.js?v=20261102-safe-sync-1"></script>
 <script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261030-zen-modes-4"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261102-android-lite-3"></script>
+  <script defer src="training-pulse-field.js?v=20261102-hero-flow-1"></script>
   <script defer src="training-pulse-editor.js?v=20261102-between-place-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261027-handoff-1"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
@@ -144,12 +144,17 @@
             <filter id="field-glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
           <path class="signal-ghost" d="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170"/>
-          <path class="signal-main" d="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170" pathLength="100"/>
           <g filter="url(#field-glow)">
             <circle cx="318" cy="244" r="9" fill="url(#field-node)"/>
             <circle cx="655" cy="202" r="7" fill="url(#field-node)"/>
             <circle cx="828" cy="126" r="5" fill="url(#field-node)"/>
           </g>
+        </svg>
+        <!-- The flowing dashes live in their own layer: redrawing them each frame then never
+             re-renders the blurred glow and nodes above (that cost made Android stutter). -->
+        <svg class="signal-landscape signal-landscape--flow" viewBox="0 0 920 430" preserveAspectRatio="none">
+          <defs><linearGradient id="field-line-flow" x1="0" x2="1"><stop stop-color="#ff6f7d" stop-opacity="0"/><stop offset=".2" stop-color="#ff9a91"/><stop offset=".62" stop-color="#ffd4bd"/><stop offset="1" stop-color="#ff6f7d" stop-opacity="0"/></linearGradient></defs>
+          <path class="signal-main" d="M-30 350 C120 325 195 208 320 244 S535 355 655 202 S800 112 960 170" pathLength="100"/>
         </svg>
       </div>
     </section>
