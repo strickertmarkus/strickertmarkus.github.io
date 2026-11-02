@@ -1028,3 +1028,11 @@ body{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
 @media(min-width:901px){body{padding-bottom:0}}
 /* Android browsers (e.g. Opera) can flicker with a blurred fixed bar over the animated page */
 html.is-android .field-dock{-webkit-backdrop-filter:none;backdrop-filter:none;background:#090d14f0}
+/* Dock, slimmer still */
+.field-dock{padding-top:3px;padding-bottom:max(4px,calc(env(safe-area-inset-bottom,0px) - 22px))}
+.field-dock a{gap:2px;padding:2px 0 4px;font-size:9px}
+.field-dock svg{width:18px;height:18px}
+.dock-start{width:42px;height:42px}
+.dock-start svg{width:17px;height:17px}
+body{padding-bottom:calc(52px + env(safe-area-inset-bottom,0px))}
+@media(min-width:901px){body{padding-bottom:0}}
