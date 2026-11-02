@@ -250,21 +250,40 @@ function isoPlusDays(iso, days) { const d = new Date(iso + 'T12:00:00Z'); d.setU
 function isCardioWorkout(w) {
   return !!w && (Number(w.runDistance) > 0 || (w.exercises || []).some(ex => ex && (ex.kind === 'cardio' || Number(ex.distance) > 0)));
 }
+function isRunWorkout(w) {
+  if (!w) return false;
+  const words = [w.type, w.name].concat((w.exercises || []).map(ex => ex && ex.name)).join(' ');
+  return /löp|run|jogg/i.test(words);
+}
 function addWatchVo2(store) {
+  // Only running passes without a VO2 of their own get the week's value.
   if (store.ex_goals && store.ex_goals[WATCH_VO2_MARK]) return false;
   if (!Array.isArray(store.ex_wk)) store.ex_wk = [];
-  if (!Array.isArray(store.ex_vo2)) store.ex_vo2 = [];
   WATCH_VO2_WEEKS.forEach(([monday, score]) => {
     const sunday = isoPlusDays(monday, 6);
-    const inWeek = date => date >= monday && date <= sunday;
-    const runs = store.ex_wk.filter(w => w && inWeek(String(w.date)) && isCardioWorkout(w));
-    runs.forEach(w => { if (!(Number(w.vo2) > 0)) w.vo2 = score; });
-    if (store.ex_vo2.some(e => e && inWeek(String(e.date)))) return;
-    const date = runs.length ? runs.map(w => String(w.date)).sort().pop() : sunday;
-    store.ex_vo2.push({ date, score });
+    store.ex_wk.forEach(w => {
+      if (w && String(w.date) >= monday && String(w.date) <= sunday && isRunWorkout(w) && !(Number(w.vo2) > 0)) w.vo2 = score;
+    });
   });
-  store.ex_vo2.sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  store.ex_goals = Object.assign({ weeklyWk: 4, runDistanceGoal: 10, vo2Goal: 45 }, store.ex_goals || {}, { [WATCH_VO2_MARK]: true });
+  store.ex_goals = Object.assign({ weeklyWk: 4, runDistanceGoal: 10, vo2Goal: 45 }, store.ex_goals || {}, { [WATCH_VO2_MARK]: true, [WATCH_VO2_FIX_MARK]: true });
+  return true;
+}
+/**
+ * Undo the first VO2 import's extras: the history entries it added for each week and
+ * the week values it put on cardio passes that are not runs.
+ */
+const WATCH_VO2_FIX_MARK = 'watchVo2Fixed20261102';
+function fixWatchVo2(store) {
+  if (!store.ex_goals || !store.ex_goals[WATCH_VO2_MARK] || store.ex_goals[WATCH_VO2_FIX_MARK]) return false;
+  const workouts = Array.isArray(store.ex_wk) ? store.ex_wk : [];
+  WATCH_VO2_WEEKS.forEach(([monday, score]) => {
+    const sunday = isoPlusDays(monday, 6);
+    const inWeek = date => String(date) >= monday && String(date) <= sunday;
+    workouts.forEach(w => { if (w && inWeek(w.date) && isCardioWorkout(w) && !isRunWorkout(w) && Number(w.vo2) === score) w.vo2 = null; });
+    const cardioDates = workouts.filter(w => w && inWeek(w.date) && isCardioWorkout(w)).map(w => String(w.date));
+    if (Array.isArray(store.ex_vo2)) store.ex_vo2 = store.ex_vo2.filter(e => !(e && inWeek(e.date) && Number(e.score) === score && (String(e.date) === sunday || cardioDates.includes(String(e.date)))));
+  });
+  store.ex_goals[WATCH_VO2_FIX_MARK] = true;
   return true;
 }
 async function runBodyweight78Migration() {
@@ -276,8 +295,9 @@ async function runBodyweight78Migration() {
   });
   const fixed = migrateBodyweight78(store);
   const added = addWatchRuns(store);
+  const vo2Fixed = fixWatchVo2(store);
   const vo2Added = addWatchVo2(store);
-  if (!fixed && !added && !vo2Added) return;
+  if (!fixed && !added && !vo2Added && !vo2Fixed) return;
   for (const key of keys) {
     if (store[key] == null) continue;
     const value = JSON.stringify(store[key]);
@@ -287,7 +307,7 @@ async function runBodyweight78Migration() {
     try { if (db && syncEnabled) await db.ref(key).set(value); } catch (error) { console.warn('[Firebase] Bodyweight fix sync failed', key, error.message); }
     if (exerciseUser === 'markus') window.dispatchEvent(new CustomEvent('firebase-sync', { detail: { key, value } }));
   }
-  console.log('[Firebase] One-time training data fixes applied', { fixed, added, vo2Added });
+  console.log('[Firebase] One-time training data fixes applied', { fixed, added, vo2Added, vo2Fixed });
 }
 
 /**
