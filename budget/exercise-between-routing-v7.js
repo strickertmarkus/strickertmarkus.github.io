@@ -104,6 +104,43 @@
     archiveSummary(state,current);
   }
 
+  // Between exercises (e.g. jump rope between sets) are saved right after the
+  // exercise they were done in, not summed into one row at the end of the pass.
+  window.__placeBetweenLogsV8 = window.__placeBetweenLogsV8 || function (state, name, seconds, logs, flag) {
+    if (!state || !Array.isArray(state.exercises) || !Array.isArray(logs) || !logs.length) return;
+    if (!Array.isArray(state.logs)) state.logs = [];
+    if (!Array.isArray(state.__betweenOrigIndexV8) || state.__betweenOrigIndexV8.length !== state.exercises.length) {
+      state.__betweenOrigIndexV8 = state.exercises.map(function (_, i) { return i; });
+    }
+    var map = state.__betweenOrigIndexV8, groups = {}, order = [], tail = [];
+    logs.forEach(function (log) {
+      var after = Number(log && log.afterExercise);
+      if (Number.isInteger(after) && map.indexOf(after) >= 0) {
+        if (!groups[after]) { groups[after] = []; order.push(after); }
+        groups[after].push(log);
+      } else tail.push(log);
+    });
+    function entry(list) {
+      var exercise = { kind: 'cardio', name: name || 'Valfri övning', distance: 0, time: (Number(seconds) || 30) / 60, plannedSets: list.length };
+      exercise[flag] = true;
+      return { exercise: exercise, logs: list.map(function (log, index) { var copy = Object.assign({}, log); copy.setNo = index + 1; return copy; }) };
+    }
+    order.forEach(function (after) {
+      var pos = map.lastIndexOf(after) + 1;
+      while (pos < map.length && map[pos] === -1) pos++;
+      var item = entry(groups[after]);
+      state.exercises.splice(pos, 0, item.exercise);
+      state.logs.splice(pos, 0, item.logs);
+      map.splice(pos, 0, -1);
+    });
+    if (tail.length) {
+      var rest = entry(tail);
+      state.exercises.push(rest.exercise);
+      state.logs.push(rest.logs);
+      map.push(-1);
+    }
+  };
+
   function injectArchivesForSave(state) {
     if (!state || state.__betweenCustomArchiveInjectedV7) return;
 
@@ -121,19 +158,7 @@
     Object.keys(map).forEach(function (key) {
       var summary = map[key];
       if (!summary || !summary.logs.length) return;
-      state.exercises.push({
-        kind:'cardio',
-        name:summary.name,
-        distance:0,
-        time:summary.seconds / 60,
-        plannedSets:summary.logs.length,
-        __betweenCustomSavedV7:true
-      });
-      state.logs.push(summary.logs.map(function (log,index) {
-        var copy = Object.assign({},log);
-        copy.setNo = index + 1;
-        return copy;
-      }));
+      window.__placeBetweenLogsV8(state, summary.name, summary.seconds, summary.logs, '__betweenCustomSavedV7');
     });
     state.__betweenCustomArchiveInjectedV7 = true;
   }

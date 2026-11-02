@@ -356,7 +356,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var left=goal-week.length,bonus=week.length-goal;
     byId('rhythm-message').innerHTML=left>0?'<b>'+left+' kvar</b> till målet':bonus>0?'<b>Målet nått</b> · +'+bonus+' bonus':'<b>Målet nått</b>';
     var streak=weekStreak(goal);
-    byId('rhythm-streak').innerHTML=streak?'<b>'+streak+(streak===1?' vecka':' veckor')+'</b> i rad':'Starta en ny svit';
+    var streakNode=byId('rhythm-streak');if(streakNode)streakNode.innerHTML=streak?'<b>'+streak+(streak===1?' vecka':' veckor')+'</b> i rad':'Starta en ny svit';
     byId('rhythm-next').textContent=nextPlanned()||'Inget planerat';
     var orbit=byId('rhythm-orbit');
     orbit.classList.toggle('is-complete',week.length>=goal);orbit.classList.toggle('is-bonus',bonus>0);
@@ -1352,6 +1352,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
 
   function renderRecords() {
     var openKeys=Array.from(document.querySelectorAll('.record-progress[open]')).map(function(el){return el.dataset.recordKey;});
+    // Categories start collapsed; one the user opened stays open across re-renders.
+    var openGroups=Array.from(document.querySelectorAll('.record-group[open]')).map(function(el){return el.dataset.recordCategory;});
     var records=recordData();var countBadge=byId('record-count');countBadge.textContent=records.length;countBadge.setAttribute('aria-label',records.length+' rekord');countBadge.title=records.length+' rekord';
     if(!records.length){
       byId('record-podium').innerHTML='';byId('record-picker-fields').innerHTML='';
@@ -1375,7 +1377,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var groups={};records.forEach(function(record){(groups[record.category]||(groups[record.category]=[])).push(record);});
     byId('record-groups').innerHTML=Object.keys(groups).map(function(category,index){
       var rows=groups[category].map(function(record){return '<details class="record-progress" data-record-key="'+escapeHtml(record.key)+'"'+(openKeys.includes(record.key)?' open':'')+'><summary class="record-row">'+pkThumb(record.name,'strength')+'<span>'+escapeHtml(record.name)+'<small>'+escapeHtml(recordNote(record))+'</small></span><span class="record-row-result"><strong>'+recordValue(record)+'</strong><span class="record-spark">'+recordGraph(record,record.bodyweight?'reps':'weight',true)+'</span></span></summary><div class="record-progress-panel">'+recordPanel(record)+'</div></details>';}).join('');
-      return '<details class="record-group"'+(index===0||groups[category].some(function(r){return openKeys.includes(r.key);})?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>'+PK_ICON.chevron+'</i></summary><div class="record-list">'+rows+'</div></details>';
+      return '<details class="record-group" data-record-category="'+escapeHtml(category)+'"'+(openGroups.includes(category)||groups[category].some(function(r){return openKeys.includes(r.key);})?' open':'')+'><summary><strong>'+escapeHtml(category)+'</strong><span>'+groups[category].length+' rekord</span><i>'+PK_ICON.chevron+'</i></summary><div class="record-list">'+rows+'</div></details>';
     }).join('');
   }
 

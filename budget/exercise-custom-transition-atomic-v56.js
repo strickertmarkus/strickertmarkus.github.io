@@ -40,6 +40,7 @@
     tempLogs.forEach(function (log) {
       var copy = Object.assign({}, log);
       copy.setNo = summary.logs.length + 1;
+      if (runtime && Number.isInteger(Number(runtime.index))) copy.afterExercise = Number(runtime.index);
       summary.logs.push(copy);
     });
   }
