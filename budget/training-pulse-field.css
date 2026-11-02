@@ -996,3 +996,13 @@ body.field-dock-hidden .field-dock,body.field-compact-active .field-dock{display
 .progress-tabs button{min-height:34px;padding:0 13px;border-radius:9px;font-size:13px}
 .progress-tabs button[aria-selected=true]{background:#ff9a9112;color:var(--field-coral);box-shadow:0 0 14px #ff9a910f}
 .progress-range,.progress-section .chart-period-row--volume .segmented,.progress-section .insight-mode{padding:0;background:none;box-shadow:none}
+
+/* Rhythm map: the current week as a soft band, today's dot a little larger */
+.rmap .rm-cell.is-today{box-shadow:none}
+.rmap .rm-week.is-current,.rmap .is-current-week{background:#ff9a910f}
+.rmap .rm-week.is-current{background:linear-gradient(90deg,#ff9a9100,#ff9a910f 70%);border-radius:10px 0 0 10px}
+.rmap .rm-total.is-current-week{background:linear-gradient(90deg,#ff9a910f 30%,#ff9a9100);border-radius:0 10px 10px 0;padding-right:4px}
+.rmap .rm-cell.is-current-week{border-radius:0;height:24px;background:#ff9a910f}
+.rmap .rm-week.is-current,.rmap .rm-total.is-current-week{height:24px;line-height:24px}
+.rmap .rm-cell.is-today i{transform:scale(1.25);box-shadow:0 0 10px #ff9a91aa}
+.rmap .rm-cell.is-today.is-pass i{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 16%,transparent),0 0 10px var(--c),0 0 16px color-mix(in srgb,var(--c) 45%,transparent)}

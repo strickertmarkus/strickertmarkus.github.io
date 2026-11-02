@@ -585,10 +585,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())){cls+=' is-planned';color=/kondition|löp|run|cardio|cykel|hopprep|rodd|crosstrainer|intervall/i.test(plan.type)?'#7fe3ef':'#ff657a';tip='Planerat: '+String(plan.name||plan.type);}
         }
         if(key===today)cls+=' is-today';
+        if(k===0)cls+=' is-current-week';
         cells+='<span class="'+cls+'"'+(color?' style="--c:'+color+'"':'')+(tip?chartTipAttrs(dayNames[d]+' '+shortDate(date),tip,'','#ff9a91'):'')+'><i></i></span>';
       }
       total+=count;
-      rows+='<span class="rm-week'+(k===0?' is-current':'')+'">v'+weekNumber(ws)+'</span>'+cells+'<span class="rm-total'+(count>=goal?' is-goal':'')+'">'+count+'</span>';
+      rows+='<span class="rm-week'+(k===0?' is-current':'')+'">v'+weekNumber(ws)+'</span>'+cells+'<span class="rm-total'+(count>=goal?' is-goal':'')+(k===0?' is-current-week':'')+'">'+count+'</span>';
     }
     byId('activity-total').textContent=formatNumber(total,0);
     byId('activity-unit').textContent='pass';
