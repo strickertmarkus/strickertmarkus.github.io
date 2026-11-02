@@ -1140,7 +1140,9 @@ function dayLabelFromISO(iso){var d=parseISODate(iso);return DAYS[d.getDay()===0
 function byId(){for(var i=0;i<arguments.length;i++){var el=document.getElementById(arguments[i]);if(el)return el;}return null;}
 function getWeekPlans(){return DB.get('weekPlans')||{};}
 function saveWeekPlans(p){DB.set('weekPlans',p);}
-function getPlanForWeek(mondayISO){var stored=getWeekPlans()[mondayISO];return stored?stored:getPlan();}
+// A week nobody planned is a rest week; the standard week is only applied on request.
+var REST_WEEK={mon:'Vila',tue:'Vila',wed:'Vila',thu:'Vila',fri:'Vila',sat:'Vila',sun:'Vila'};
+function getPlanForWeek(mondayISO){var stored=getWeekPlans()[mondayISO];return stored?stored:Object.assign({},REST_WEEK);}
 function setPlanForWeek(mondayISO,plan){
   var all=getWeekPlans();
   all[mondayISO]=plan;

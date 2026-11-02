@@ -256,7 +256,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function planForDate(value) {
     var key=isoDate(value);
     if (data.planned&&data.planned[key]) return data.planned[key];
-    var d=dateAtNoon(value),index=(d.getDay()+6)%7,week=data.weekPlans&&data.weekPlans[isoDate(startOfWeek(d))],type=(week||data.plan||{})[dayKeys[index]];
+    var d=dateAtNoon(value),index=(d.getDay()+6)%7,week=data.weekPlans&&data.weekPlans[isoDate(startOfWeek(d))],type=(week||{})[dayKeys[index]]; // unplanned weeks are rest
     if (!type||/^vila$/i.test(type)) return null;
     return {type:type,exercises:[]};
   }
@@ -570,7 +570,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
      filled in the pass colour, a ring for a planned day still ahead, a speck for rest. */
   function renderActivity() {
     var start=startOfWeek(new Date()),today=isoDate(new Date()),goal=Math.max(1,number(data.goals.weeklyWk)||4),total=0,rows='';
-    var head='<span></span>'+dayNames.map(function(d){return '<span class="rm-head">'+d.charAt(0)+'</span>';}).join('')+'<span></span>';
+    var todayIndex=(new Date().getDay()+6)%7;
+    var head='<span></span>'+dayNames.map(function(d,i){return '<span class="rm-head'+(i===todayIndex?' is-today':'')+'">'+d.charAt(0)+'</span>';}).join('')+'<span></span>';
     for(var k=7;k>=0;k--){
       var ws=shiftDate(start,-7*k),count=0,cells='';
       for(var d=0;d<7;d++){
@@ -585,11 +586,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())){cls+=' is-planned';color=/kondition|löp|run|cardio|cykel|hopprep|rodd|crosstrainer|intervall/i.test(plan.type)?'#7fe3ef':'#ff657a';tip='Planerat: '+String(plan.name||plan.type);}
         }
         if(key===today)cls+=' is-today';
-        if(k===0)cls+=' is-current-week';
         cells+='<span class="'+cls+'"'+(color?' style="--c:'+color+'"':'')+(tip?chartTipAttrs(dayNames[d]+' '+shortDate(date),tip,'','#ff9a91'):'')+'><i></i></span>';
       }
       total+=count;
-      rows+='<span class="rm-week'+(k===0?' is-current':'')+'">v'+weekNumber(ws)+'</span>'+cells+'<span class="rm-total'+(count>=goal?' is-goal':'')+(k===0?' is-current-week':'')+'">'+count+'</span>';
+      rows+='<span class="rm-week'+(k===0?' is-current':'')+'">v'+weekNumber(ws)+'</span>'+cells+'<span class="rm-total'+(count>=goal?' is-goal':'')+'">'+count+'</span>';
     }
     byId('activity-total').textContent=formatNumber(total,0);
     byId('activity-unit').textContent='pass';
