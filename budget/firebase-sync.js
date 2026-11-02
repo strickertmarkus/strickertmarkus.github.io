@@ -19,6 +19,9 @@ const syncQueue = {};
 let remotePollInterval = null;
 let localPollInterval = null;
 const lastKnownValues = {};
+// Keys whose server value was actually read this session. A key the first load never
+// reached (e.g. the request failed) is not pushed from the local copy, which may be old.
+const remoteCheckedKeys = new Set();
 const isShoppingPage = /\/(?:budget\/)?shopping\.html$/i.test(window.location.pathname);
 let shoppingRefreshPromise = null;
 let lastShoppingRefreshAt = 0;
@@ -287,12 +290,21 @@ function fixWatchVo2(store) {
   return true;
 }
 async function runBodyweight78Migration() {
-  if (!isExercisePage) return;
+  if (!isExercisePage || !db || !syncEnabled) return;
   const keys = ['ex_wk', 'ex_templates', 'ex_plannedSessions', 'ex_prs', 'ex_goals', 'ex_vo2'];
   const before = {}, store = {};
-  keys.forEach(key => {
-    try { before[key] = _realGetItem(key); store[key] = before[key] ? JSON.parse(before[key]) : null; } catch (_) { store[key] = null; }
-  });
+  // Work only on what the server holds right now. A device whose first load failed
+  // or that has an old local copy must never push that copy back over newer data.
+  try {
+    for (const key of keys) {
+      const snapshot = await db.ref(key).get();
+      before[key] = snapshot.exists() ? snapshot.val() : null;
+      store[key] = before[key] ? JSON.parse(before[key]) : null;
+    }
+  } catch (error) {
+    console.warn('[Firebase] Training data fixes skipped, server read failed:', error.message);
+    return;
+  }
   const fixed = migrateBodyweight78(store);
   const added = addWatchRuns(store);
   const vo2Fixed = fixWatchVo2(store);
@@ -302,9 +314,13 @@ async function runBodyweight78Migration() {
     if (store[key] == null) continue;
     const value = JSON.stringify(store[key]);
     if (value === before[key]) continue;
+    try {
+      // Commit only if the server still holds the value the fix was computed from.
+      const result = await db.ref(key).transaction(current => (current == null || current === before[key]) && (before[key] != null || current == null) ? value : undefined);
+      if (!result || !result.committed) { console.warn('[Firebase] Training data fix skipped, data changed meanwhile:', key); continue; }
+    } catch (error) { console.warn('[Firebase] Training data fix failed', key, error.message); continue; }
     safeSetLocal(key, value);
     lastKnownValues[key] = value;
-    try { if (db && syncEnabled) await db.ref(key).set(value); } catch (error) { console.warn('[Firebase] Bodyweight fix sync failed', key, error.message); }
     if (exerciseUser === 'markus') window.dispatchEvent(new CustomEvent('firebase-sync', { detail: { key, value } }));
   }
   console.log('[Firebase] One-time training data fixes applied', { fixed, added, vo2Added, vo2Fixed });
@@ -319,6 +335,7 @@ async function loadAllFromFirebase() {
   try {
     for (const key of SYNC_KEYS) {
       const snapshot = await db.ref(key).get();
+      remoteCheckedKeys.add(key);
       if (snapshot.exists()) {
         const value = snapshot.val();
         if (isShoppingPage && key.startsWith('sh_')) {
@@ -391,6 +408,11 @@ function startRemotePolling() {
  */
 function startLocalPolling() {
   if (localPollInterval) return;
+  for (const key of SYNC_KEYS) {
+    if (lastKnownValues[key] === undefined && !remoteCheckedKeys.has(key)) {
+      try { lastKnownValues[key] = _realGetItem(key); } catch (_) {}
+    }
+  }
   localPollInterval = setInterval(async () => {
     if (!db || !syncEnabled) return;
     for (const key of SYNC_KEYS) {
