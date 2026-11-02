@@ -1013,3 +1013,7 @@ body.field-dock-hidden .field-dock,body.field-compact-active .field-dock{display
 .record-progress-controls .record-pr-edit{display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:var(--field-coral);filter:drop-shadow(0 0 8px #ff9a9138)}
 .record-pr-edit::after{display:none}
 .record-pr-edit .pk-icon{width:18px;height:18px}
+
+/* Heart rate range: a fine line from min to max with clear caps at both ends */
+.range-bar,.insight-chart .range-bar{stroke-width:1.4;opacity:.6}
+.range-cap,.insight-chart .range-cap{stroke-width:3.2;opacity:.95}
