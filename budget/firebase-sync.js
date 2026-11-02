@@ -211,6 +211,30 @@ function migrateBodyweight78(store) {
   if (changed && store.ex_goals && typeof store.ex_goals === 'object' && !(Number(store.ex_goals.bodyweightKg) > 0)) store.ex_goals.bodyweightKg = MARKUS_BODY_MASS;
   return changed;
 }
+/**
+ * One-time import for Markus: outdoor runs from his watch that he asked to have
+ * in the training log. Each run has a fixed id (its start time), so it is only
+ * added once, and it is skipped if a run of about the same distance is already
+ * logged that day.
+ */
+const WATCH_RUNS_2026 = [{"id":1777661160000,"date":"2026-05-01","type":"Löpning","exercises":[{"kind":"cardio","name":"Löpning","distance":2.34,"time":16.0667}],"duration":16,"hrAvg":150,"hrMax":159,"hrMin":85,"vo2":null,"runDistance":2.34,"runTime":16.0667,"avgPaceKm":6.8667,"runMetricsDerived":false,"notes":"Utomhuslöpning","source":"apple-watch","startTime":"20:46","kcalActive":146,"kcalTotal":171,"elevationM":7,"powerW":186,"cadenceSpm":159,"splits":[{"km":1,"timeSec":408,"paceSec":408,"hr":143},{"km":2,"timeSec":408,"paceSec":408,"hr":155},{"km":3,"timeSec":143,"paceSec":421,"hr":154}]},{"id":1777829460000,"date":"2026-05-03","type":"Löpning","exercises":[{"kind":"cardio","name":"Löpning","distance":1.73,"time":12.9167}],"duration":13,"hrAvg":157,"hrMax":169,"hrMin":84,"vo2":null,"runDistance":1.73,"runTime":12.9167,"avgPaceKm":7.45,"runMetricsDerived":false,"notes":"Utomhuslöpning","source":"apple-watch","startTime":"19:31","kcalActive":126,"kcalTotal":147,"powerW":107,"cadenceSpm":149,"splits":[{"km":1,"timeSec":426,"paceSec":426,"hr":152},{"km":2,"timeSec":337,"paceSec":458,"hr":164}]},{"id":1778004840000,"date":"2026-05-05","type":"Löpning","exercises":[{"kind":"cardio","name":"Löpning","distance":4.39,"time":26.8}],"duration":27,"hrAvg":165,"hrMax":null,"hrMin":null,"vo2":null,"runDistance":4.39,"runTime":26.8,"avgPaceKm":6.1,"runMetricsDerived":false,"notes":"Utomhuslöpning","source":"apple-watch","startTime":"20:14","kcalActive":295,"kcalTotal":337,"elevationM":14,"powerW":207,"cadenceSpm":160},{"id":1778261940000,"date":"2026-05-08","type":"Löpning","exercises":[{"kind":"cardio","name":"Löpning","distance":3.81,"time":22.55}],"duration":23,"hrAvg":168,"hrMax":182,"hrMin":106,"vo2":null,"runDistance":3.81,"runTime":22.55,"avgPaceKm":5.9333,"runMetricsDerived":false,"notes":"Utomhuslöpning","source":"apple-watch","startTime":"19:39","elevationM":27,"powerW":212,"splits":[{"km":1,"timeSec":349,"paceSec":349,"hr":152},{"km":2,"timeSec":346,"paceSec":346,"hr":172},{"km":3,"timeSec":362,"paceSec":362,"hr":174},{"km":4,"timeSec":296,"paceSec":366,"hr":175}]},{"id":1779094680000,"date":"2026-05-18","type":"Löpning","exercises":[{"kind":"cardio","name":"Löpning","distance":4.65,"time":29.4833}],"duration":29,"hrAvg":167,"hrMax":183,"hrMin":117,"vo2":null,"runDistance":4.65,"runTime":29.4833,"avgPaceKm":6.3333,"runMetricsDerived":false,"notes":"Utomhuslöpning","source":"apple-watch","startTime":"10:58","kcalActive":348,"kcalTotal":394,"elevationM":26,"powerW":204,"cadenceSpm":162,"effort":8,"splits":[{"km":1,"timeSec":357,"paceSec":357,"hr":144},{"km":2,"timeSec":388,"paceSec":388,"hr":167},{"km":3,"timeSec":377,"paceSec":377,"hr":175},{"km":4,"timeSec":383,"paceSec":383,"hr":177},{"km":5,"timeSec":261,"paceSec":399,"hr":176}]},{"id":1782926760000,"date":"2026-07-01","type":"Löpning","exercises":[{"kind":"cardio","name":"Löpning","distance":3.09,"time":20.9833}],"duration":21,"hrAvg":158,"hrMax":172,"hrMin":102,"vo2":null,"runDistance":3.09,"runTime":20.9833,"avgPaceKm":6.7667,"runMetricsDerived":false,"notes":"Utomhuslöpning","source":"apple-watch","startTime":"19:26","kcalActive":212,"kcalTotal":245,"elevationM":15,"powerW":189,"cadenceSpm":158,"effort":6,"splits":[{"km":1,"timeSec":395,"paceSec":395,"hr":146},{"km":2,"timeSec":405,"paceSec":405,"hr":163},{"km":3,"timeSec":413,"paceSec":413,"hr":164},{"km":4,"timeSec":43,"paceSec":429,"hr":164}]}];
+const WATCH_RUNS_MARK = 'watchRunsImported20261102';
+function addWatchRuns(store) {
+  // Imported once per account: a synced mark in the goals keeps a run he later
+  // deletes from coming back on the next load or on another device.
+  if (store.ex_goals && store.ex_goals[WATCH_RUNS_MARK]) return false;
+  if (!Array.isArray(store.ex_wk)) store.ex_wk = [];
+  store.ex_goals = Object.assign({ weeklyWk: 4, runDistanceGoal: 10, vo2Goal: 45 }, store.ex_goals || {}, { [WATCH_RUNS_MARK]: true });
+  let changed = true;
+  WATCH_RUNS_2026.forEach(run => {
+    if (store.ex_wk.some(w => w && String(w.id) === String(run.id))) return;
+    const sameDay = store.ex_wk.some(w => w && w.date === run.date && (w.exercises || []).some(ex => ex && Math.abs((Number(ex.distance) || 0) - run.runDistance) < 0.2));
+    if (sameDay) return;
+    store.ex_wk.push(JSON.parse(JSON.stringify(run)));
+    changed = true;
+  });
+  return changed;
+}
 async function runBodyweight78Migration() {
   if (!isExercisePage) return;
   const keys = ['ex_wk', 'ex_templates', 'ex_plannedSessions', 'ex_prs', 'ex_goals'];
@@ -218,7 +242,9 @@ async function runBodyweight78Migration() {
   keys.forEach(key => {
     try { before[key] = _realGetItem(key); store[key] = before[key] ? JSON.parse(before[key]) : null; } catch (_) { store[key] = null; }
   });
-  if (!migrateBodyweight78(store)) return;
+  const fixed = migrateBodyweight78(store);
+  const added = addWatchRuns(store);
+  if (!fixed && !added) return;
   for (const key of keys) {
     if (store[key] == null) continue;
     const value = JSON.stringify(store[key]);
@@ -228,7 +254,7 @@ async function runBodyweight78Migration() {
     try { if (db && syncEnabled) await db.ref(key).set(value); } catch (error) { console.warn('[Firebase] Bodyweight fix sync failed', key, error.message); }
     if (exerciseUser === 'markus') window.dispatchEvent(new CustomEvent('firebase-sync', { detail: { key, value } }));
   }
-  console.log('[Firebase] Converted 78 kg entries to bodyweight');
+  console.log('[Firebase] One-time training data fixes applied', { fixed, added });
 }
 
 /**
