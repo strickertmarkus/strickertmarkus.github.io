@@ -1042,3 +1042,10 @@ body{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
 @media(min-width:901px){body{padding-bottom:0}}
 /* Dock: same height, icons centred vertically (padding split evenly above and below) */
 .field-dock{padding-top:max(5px,calc((env(safe-area-inset-bottom,0px) - 5px) / 2));padding-bottom:max(6px,calc((env(safe-area-inset-bottom,0px) - 5px) / 2))}
+
+/* Android lite: Opera/Chrome on Android redraw large blurred, animated layers on every scroll
+   frame, which made the start page stutter and smear. Keep the look, drop the costly parts. */
+html.is-android .space-scene__nebula,html.is-android .space-scene__nebula::before,html.is-android .space-scene__mottle,
+html.is-android .space-scene__drift,html.is-android .space-scene__flecks,html.is-android .space-star{animation:none!important;will-change:auto!important}
+html.is-android .field-aura,html.is-android .rhythm-section::before,html.is-android .rhythm-section::after,html.is-android .week-section::before,html.is-android .week-section::after{animation:none!important}
+html.is-android .signal-main{animation:none!important}
