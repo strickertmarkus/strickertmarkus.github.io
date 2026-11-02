@@ -1049,3 +1049,9 @@ html.is-android .space-scene__nebula,html.is-android .space-scene__nebula::befor
 html.is-android .space-scene__drift,html.is-android .space-scene__flecks,html.is-android .space-star{animation:none!important;will-change:auto!important}
 html.is-android .field-aura,html.is-android .rhythm-section::before,html.is-android .rhythm-section::after,html.is-android .week-section::before,html.is-android .week-section::after{animation:none!important}
 html.is-android .signal-main{animation:none!important}
+/* Android lite, part 2: the whole entrance (hero, stars, start orbit, explore star) stands still */
+html.is-android .space-scene *,html.is-android .space-scene *::before,html.is-android .space-scene *::after,
+html.is-android .field-hero *,html.is-android .field-hero *::before,html.is-android .field-hero *::after,
+html.is-android .field-hero::before,html.is-android .field-hero::after{animation:none!important}
+html.is-android .space-scene *{will-change:auto!important}
+html.is-android .hero-stage g[filter]{filter:none}
