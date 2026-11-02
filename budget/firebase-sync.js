@@ -235,16 +235,49 @@ function addWatchRuns(store) {
   });
   return changed;
 }
+/**
+ * One-time: Markus' weekly VO2 max from the watch's fitness view. Each week's value
+ * goes on the cardio passes logged that week (where none is set) and into the VO2
+ * history, unless that week already has a VO2 entry. A synced mark keeps it to once.
+ */
+const WATCH_VO2_WEEKS = [
+  ['2026-04-27', 41.9], ['2026-05-04', 43.7], ['2026-05-11', 43.6], ['2026-05-18', 43.8],
+  ['2026-06-01', 42.9], ['2026-06-15', 42.9], ['2026-06-22', 42.9], ['2026-06-29', 42.5],
+  ['2026-08-24', 42.1], ['2026-08-31', 42.8], ['2026-09-21', 43.7]
+];
+const WATCH_VO2_MARK = 'watchVo2Imported20261102';
+function isoPlusDays(iso, days) { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10); }
+function isCardioWorkout(w) {
+  return !!w && (Number(w.runDistance) > 0 || (w.exercises || []).some(ex => ex && (ex.kind === 'cardio' || Number(ex.distance) > 0)));
+}
+function addWatchVo2(store) {
+  if (store.ex_goals && store.ex_goals[WATCH_VO2_MARK]) return false;
+  if (!Array.isArray(store.ex_wk)) store.ex_wk = [];
+  if (!Array.isArray(store.ex_vo2)) store.ex_vo2 = [];
+  WATCH_VO2_WEEKS.forEach(([monday, score]) => {
+    const sunday = isoPlusDays(monday, 6);
+    const inWeek = date => date >= monday && date <= sunday;
+    const runs = store.ex_wk.filter(w => w && inWeek(String(w.date)) && isCardioWorkout(w));
+    runs.forEach(w => { if (!(Number(w.vo2) > 0)) w.vo2 = score; });
+    if (store.ex_vo2.some(e => e && inWeek(String(e.date)))) return;
+    const date = runs.length ? runs.map(w => String(w.date)).sort().pop() : sunday;
+    store.ex_vo2.push({ date, score });
+  });
+  store.ex_vo2.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  store.ex_goals = Object.assign({ weeklyWk: 4, runDistanceGoal: 10, vo2Goal: 45 }, store.ex_goals || {}, { [WATCH_VO2_MARK]: true });
+  return true;
+}
 async function runBodyweight78Migration() {
   if (!isExercisePage) return;
-  const keys = ['ex_wk', 'ex_templates', 'ex_plannedSessions', 'ex_prs', 'ex_goals'];
+  const keys = ['ex_wk', 'ex_templates', 'ex_plannedSessions', 'ex_prs', 'ex_goals', 'ex_vo2'];
   const before = {}, store = {};
   keys.forEach(key => {
     try { before[key] = _realGetItem(key); store[key] = before[key] ? JSON.parse(before[key]) : null; } catch (_) { store[key] = null; }
   });
   const fixed = migrateBodyweight78(store);
   const added = addWatchRuns(store);
-  if (!fixed && !added) return;
+  const vo2Added = addWatchVo2(store);
+  if (!fixed && !added && !vo2Added) return;
   for (const key of keys) {
     if (store[key] == null) continue;
     const value = JSON.stringify(store[key]);
@@ -254,7 +287,7 @@ async function runBodyweight78Migration() {
     try { if (db && syncEnabled) await db.ref(key).set(value); } catch (error) { console.warn('[Firebase] Bodyweight fix sync failed', key, error.message); }
     if (exerciseUser === 'markus') window.dispatchEvent(new CustomEvent('firebase-sync', { detail: { key, value } }));
   }
-  console.log('[Firebase] One-time training data fixes applied', { fixed, added });
+  console.log('[Firebase] One-time training data fixes applied', { fixed, added, vo2Added });
 }
 
 /**
