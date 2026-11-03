@@ -554,9 +554,9 @@ if(!window.__FIELD_EMBEDDED__){
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
 <link rel="stylesheet" href="training-pulse-embedded.css?v=20261030-zen-integrated-3">
-<link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261027-passbyggare-1">
+<link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261103-log-day-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261031-rest-1">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261103-log-day-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
 <link rel="stylesheet" href="pulse-log-ui.css?v=20261029-tpl-7">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
@@ -1028,6 +1028,7 @@ if(!window.__FIELD_EMBEDDED__){
       <button class="btn-ghost" onclick="pulsePlanCancelBuilderV3()">Tillbaka</button>
       <button class="btn-sm classic-save-as-template" type="button" onclick="pulseClassicSaveAsTemplate()">Spara som mall</button>
       <button class="btn-sm classic-start-pass" type="button" onclick="startDayWorkoutFromBuilder()">Starta pass</button>
+      <button class="btn-sm classic-log-pass" type="button" onclick="logDayWorkoutFromBuilder()" title="Logga passet direkt, utan träningsläget">Logga pass</button>
       <button class="btn-sm classic-rest-day" type="button" onclick="setDayWorkoutRest()" aria-label="Gör dagen till vilodag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>Vilodag</button>
       <button class="btn-primary classic-save-pass" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
     </div>
@@ -2668,7 +2669,7 @@ function persistDayWorkoutPlan(opts){
   renderWeekGrid();
   closeModal('day-workout-modal');
   if(pulsePlanBuilderReturnV3&&!opts.startAfterSave)pulsePlanReturnFromBuilderV3();
-  showToast(opts.startAfterSave?'Passupplägg sparat. Startar pass...':'Passupplägg sparat.');
+  if(!opts.quiet)showToast(opts.startAfterSave?'Passupplägg sparat. Startar pass...':'Passupplägg sparat.');
   return true;
 }
 
@@ -2700,6 +2701,44 @@ function startDayWorkoutFromBuilder(){
   var ok=persistDayWorkoutPlan({startAfterSave:true});
   if(!ok){pulsePlanBuilderReturnV3=returnContext;return;}
   startWorkoutSessionForDate(date);
+}
+
+/* "Logga pass" in the day builder: keep the edited plan, then open the log form with
+   the day's exercises filled in, so the pass is logged without the training mode.
+   Sets, reps and weights can be adjusted there, and pulse, pace and VO2 added. */
+function logDayWorkoutFromBuilder(){
+  var modal=document.getElementById('day-workout-modal');
+  var dateInput=byId('day-workout-date');
+  var date=(dateInput&&dateInput.value)||modal.dataset.date;
+  if(!date)return;
+  var returnContext=pulsePlanBuilderReturnV3;
+  pulsePlanBuilderReturnV3=null;
+  var ok=persistDayWorkoutPlan({startAfterSave:true,quiet:true});
+  if(!ok){pulsePlanBuilderReturnV3=returnContext;return;}
+  date=modal.dataset.date||date;
+  if(window.__FIELD_EMBEDDED__&&window.parent&&window.parent!==window){
+    window.parent.dispatchEvent(new window.parent.CustomEvent('pulse-field:open-tool',{detail:{tool:'log-day',date:date}}));
+    return;
+  }
+  openWorkoutModal({skipBlank:true});
+  fillWorkoutFromPlan(date);
+}
+function fillWorkoutFromPlan(iso){
+  var plan=getPlannedSessions()[iso]||{};
+  document.getElementById('wk-date').value=iso;
+  document.getElementById('wk-type').value=plan.name||plan.type||'';
+  var list=document.getElementById('ex-list');
+  list.innerHTML='';
+  var wk={date:iso,exercises:plan.exercises||[]};
+  (plan.exercises||[]).forEach(function(exercise,index){
+    addExRow(exercise);
+    var between=betweenForWorkoutExercise(wk,exercise,index),row=list.lastElementChild;
+    if(between&&row)row.dataset.betweenSetsV7=JSON.stringify(between);
+  });
+  showWorkoutBetweenExercises(betweenExercisesForWorkout(wk));
+  if(!list.children.length)addExRow();
+  updateWorkoutMeters();
+  if(typeof showToast==='function')showToast('Passet är ifyllt. Justera och spara.');
 }
 
 function startWorkoutSessionForDate(iso){

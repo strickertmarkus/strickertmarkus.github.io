@@ -320,11 +320,11 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-bu
   background:linear-gradient(135deg,#ff8a74,#e5484d)!important;box-shadow:0 14px 34px -12px #ff5a4acc,inset 0 1px 0 #ffffff55!important;
 }
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer .btn-ghost{display:none!important}
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer :is(.classic-start-pass,.classic-save-as-template){
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer :is(.classic-start-pass,.classic-log-pass,.classic-save-as-template){
   flex:0 0 auto;width:auto!important;min-height:40px!important;padding:0 4px!important;margin:0!important;
   border:0!important;background:none!important;box-shadow:none!important;color:var(--pbu-muted)!important;font:600 13.5px Inter,system-ui,sans-serif!important;
 }
-html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer .classic-start-pass{color:var(--pbu-pale)!important}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-builder-footer :is(.classic-start-pass,.classic-log-pass){color:var(--pbu-pale)!important}
 html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder .classic-inline-template-name input{font-size:16px!important}
 
 /* ---------- Guide page over the builder (full screen, not a menu) ---------- */

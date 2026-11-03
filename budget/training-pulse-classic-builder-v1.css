@@ -59,6 +59,7 @@ html[data-field-embedded] body #day-workout-modal .classic-back-to-day{
 html[data-field-embedded] body #day-workout-modal .classic-back-to-day[hidden]{display:none!important}
 html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-day-calendar,
 html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-start-pass,
+html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-log-pass,
 html[data-field-embedded] body #day-workout-modal.classic-template-edit-mode .classic-save-as-template{
   display:none!important;
 }

@@ -6,7 +6,7 @@
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
 var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0,requestId=0,openingTool=false;
-var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Planera träning',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord'};
+var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Planera träning',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord',logDay:'Logga pass'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
 function monday(iso){var d=asDate(iso);d.setDate(d.getDate()-(d.getDay()+6)%7);return dateISO(d);}
@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261103-log-template-1');
+  url.searchParams.set('v','20261103-log-day-2');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -255,6 +255,7 @@ function selectTool(win,tool,button,date){
    }
    break;
   case 'log':win.openWorkoutModal();if(iso){win.document.getElementById('wk-date').value=iso;}break;
+  case 'logDay':win.openWorkoutModal({skipBlank:true});win.fillWorkoutFromPlan(iso);break;
   case 'editLog':
    win.editWorkout(Number(button.dataset.workoutId));
    // Opened from one exercise in the log: that exercise's row starts open.
@@ -300,6 +301,7 @@ function runTool(tool,button,dateOverride){
  if(tool==='edit-template')tool='editTemplate';
  if(tool==='start-template')tool='startTemplate';
  if(tool==='edit-log')tool='editLog';
+ if(tool==='log-day')tool='logDay';
  if(tool==='edit-exercise')tool='editExercise';
  if(tool==='edit-record')tool='editRecord';
  if(tool==='edit-day'||tool==='start-day')tool=tool==='edit-day'?'editDay':'start';
