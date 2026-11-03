@@ -300,6 +300,8 @@ function syncBetween(row){
  var btn=row.querySelector('.pbu-between-btn');if(!btn)return;
  enhanceBetween(row);
  var cfg=betweenConfig(row),on=cfg.enabled&&rowKind(row)!=='cardio';
+ row.classList.toggle('pbu-between-on',cfg.enabled);
+ var proxy=row.querySelector('.pbu-between-proxy');if(proxy)proxy.setAttribute('aria-pressed',String(cfg.enabled));
  // Red for an exercise between sets, cyan for rest.
  btn.classList.toggle('is-on',on&&cfg.type==='custom');
  btn.classList.toggle('is-rest',on&&cfg.type==='rest');
@@ -356,7 +358,10 @@ function renderSteps(row){
    +'<button type="button" data-pbu-step="1" data-pbu-n="'+s.n+'" aria-label="Öka '+s.label.toLowerCase()+'"><i class="pbu-plus"></i></button></div></div>';
  }).join('');
  var extra=row.querySelector('.pbu-extra'),old=extra&&extra.querySelector('.pbu-weight-choice');if(old)old.remove();
- if(extra&&kind==='strength')extra.insertAdjacentHTML('beforeend','<div class="pbu-seg pbu-weight-choice" role="group" aria-label="Viktalternativ"><button type="button" data-pbu-weight-mode="kg" aria-pressed="'+!bw+'">kg</button><button type="button" data-pbu-weight-mode="bodyweight" aria-pressed="'+bw+'">Kroppsvikt</button></div>');
+ var oldInline=extra&&extra.querySelector('.pbu-between-inline');if(oldInline)oldInline.remove();
+ // "Mellan set" sits on this line, left of kg/Kroppsvikt, so the open row stays compact.
+ if(extra&&kind==='strength'&&row.querySelector('[data-per-set-toggle-v7]'))extra.insertAdjacentHTML('afterbegin','<div class="pbu-between-inline"><span class="pbu-step-label">Mellan set</span><button type="button" class="between-switch-v7 pbu-between-proxy" aria-label="Mellan set" aria-pressed="'+betweenConfig(row).enabled+'"></button></div>');
+if(extra&&kind==='strength')extra.insertAdjacentHTML('beforeend','<div class="pbu-seg pbu-weight-choice" role="group" aria-label="Viktalternativ"><button type="button" data-pbu-weight-mode="kg" aria-pressed="'+!bw+'">kg</button><button type="button" data-pbu-weight-mode="bodyweight" aria-pressed="'+bw+'">Kroppsvikt</button></div>');
  syncSteps(row);
 }
 
@@ -586,6 +591,7 @@ function bindList(modal,list,addSelector,single){
    return;
   }
   if(t.closest('.pbu-between-btn')){row.classList.toggle('pbu-between-open');syncBetween(row);return;}
+  if(t.closest('.pbu-between-proxy')){var sw=row.querySelector('.per-set-v7 [data-per-set-toggle-v7]');if(sw)sw.click();setTimeout(function(){syncBetween(row);},0);return;}
   if(t.closest('.pbu-quick-del')){confirmRemove(row);return;}
   if(t.closest('[data-per-set-toggle-v7]')){setTimeout(function(){syncBetween(row);},0);}
   var betweenType=t.closest('[data-pbu-between-type]');

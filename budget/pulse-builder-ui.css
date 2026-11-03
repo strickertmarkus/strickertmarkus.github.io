@@ -449,3 +449,21 @@ html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-lis
 html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .per-set-fields-v7 .pbu-between-name .pbu-step-label{display:none!important}
 html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .per-set-fields-v7 .pbu-between-name[hidden]{display:none!important}
 html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .per-set-fields-v7 .per-set-name-v7{width:100%!important;height:36px!important;min-height:36px!important;padding:0 12px!important;font-size:16px!important}
+
+/* Mellan set switch on the kg / Kroppsvikt line of an open row */
+.pbu-v1 .pbu-between-inline{display:flex;align-items:center;gap:10px;margin-right:auto}
+.pbu-v1 .pbu-between-inline .pbu-step-label{margin:0}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .pbu-between-inline .between-switch-v7{transform:scale(.82);transform-origin:left center}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row.pbu-open .per-set-toggle-wrap-v7 .per-set-label-v7,
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row.pbu-open .per-set-toggle-wrap-v7 > .between-switch-v7{display:none!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row.pbu-open:not(.pbu-between-on) .per-set-v7{display:none!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row.pbu-open.pbu-between-on .per-set-v7{display:block!important;margin-top:2px!important;padding-top:4px!important;border-top:0!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row.pbu-open .per-set-toggle-wrap-v7{min-height:0;justify-content:flex-start}
+
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .pbu-between-inline .between-switch-v7{
+  width:46px!important;height:26px!important;padding:3px!important;border-radius:999px!important;border:1px solid #ff806f40!important;background:#ff806f12!important;box-shadow:none!important;
+}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .pbu-between-inline .between-switch-v7::after{width:18px!important;height:18px!important;background:#64748b!important;box-shadow:none!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .pbu-between-inline .between-switch-v7[aria-pressed="true"]{background:#ff806f2b!important;border-color:#ff806fad!important;box-shadow:0 0 12px #ff6a5a57,0 0 24px #ff6a5a29!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .pbu-between-inline .between-switch-v7[aria-pressed="true"]::after{transform:translateX(20px)!important;background:var(--pbu-accent)!important;box-shadow:0 0 5px #ffd4ccbf,0 0 13px #ff6a5a8c!important}
+html.pbu-v1[data-field-embedded] body :is(#day-workout-modal #day-workout-ex-list,#wk-modal #ex-list,#exercise-edit-modal-v9 #single-exercise-editor-v9) .pbu-row .pbu-between-inline .between-switch-v7{transform:scale(.82);transform-origin:right center}
