@@ -2749,20 +2749,32 @@ function persistDayWorkoutPlan(opts){
   var name=String(nameInput&&nameInput.value||'').trim().slice(0,70)||type;
   var chosen=document.getElementById('day-workout-template-select');
   var templateId=chosen&&chosen.value||'';
-  var previous=byDate[date]||{};
-  var record=zenRecord||Object.assign({},previous,{type:type,name:name,exercises:ex});
+  var previous=byDate[date]||{},extraId=pulseExtraCurrentV1();
+  var priorExtra=extraId&&pulseExtraListV1(previous).find(function(e){return String(e.id)===extraId;});
+  var record=zenRecord||Object.assign({},extraId?(priorExtra||{}):previous,{type:type,name:name,exercises:ex});
   if(!zenMode){delete record.zenRoutine;delete record.zenRoutines;}
   if(window.PulsePassAutofill)PulsePassAutofill.stamp(record);
   type=record.type;
   if(templateId)record.templateId=templateId;
   else delete record.templateId;
-  byDate[date]=record;
+  if(extraId){
+    record.id=extraId;
+    var additional=pulseExtraListV1(previous).slice();
+    var extraIndex=additional.findIndex(function(e){return String(e.id)===extraId;});
+    if(extraIndex>=0)additional[extraIndex]=record;else additional.push(record);
+    byDate[date]=Object.assign({},previous,{additionalSessions:additional});
+    delete pulseExtraDraftsV1[date+'_'+extraId];
+  }else{
+    byDate[date]=record;
+  }
   savePlannedSessions(byDate);
   var mondayISO=mondayISOOf(date);
   var key=dayKeyFromISO(date);
   var plan=Object.assign({}, getPlanForWeek(mondayISO));
-  plan[key]=type;
-  setPlanForWeek(mondayISO,plan);
+  if(!extraId){
+    plan[key]=type;
+    setPlanForWeek(mondayISO,plan);
+  }
   viewedMondayISO=mondayISO;
   refreshTypeSuggestions();
   renderWeekGrid();
@@ -2797,9 +2809,10 @@ function startDayWorkoutFromBuilder(){
   if(!date)return;
   var returnContext=pulsePlanBuilderReturnV3;
   pulsePlanBuilderReturnV3=null;
+  var extraId=pulseExtraCurrentV1();
   var ok=persistDayWorkoutPlan({startAfterSave:true});
   if(!ok){pulsePlanBuilderReturnV3=returnContext;return;}
-  startWorkoutSessionForDate(date);
+  startWorkoutSessionForDate(date,extraId);
 }
 
 /* "Logga pass" in the day builder: keep the edited plan, then open the log form with
@@ -2814,18 +2827,21 @@ function logDayWorkoutFromBuilder(){
   pulsePlanBuilderReturnV3=null;
   // The between-exercise layer saves the day with its between exercises; fall back
   // to the plain save where that layer is not loaded.
-  var ok=typeof window.__persistDayDraftV7==='function'&&!(window.PulseZen&&PulseZen.builderKind())?window.__persistDayDraftV7():persistDayWorkoutPlan({startAfterSave:true,quiet:true});
+  var extraId=pulseExtraCurrentV1();
+  var ok=extraId?persistDayWorkoutPlan({startAfterSave:true,quiet:true}):
+    typeof window.__persistDayDraftV7==='function'&&!(window.PulseZen&&PulseZen.builderKind())?window.__persistDayDraftV7():persistDayWorkoutPlan({startAfterSave:true,quiet:true});
   if(!ok){pulsePlanBuilderReturnV3=returnContext;return;}
   date=modal.dataset.date||date;
   if(window.__FIELD_EMBEDDED__&&window.parent&&window.parent!==window){
-    window.parent.dispatchEvent(new window.parent.CustomEvent('pulse-field:open-tool',{detail:{tool:'log-day',date:date}}));
+    window.parent.dispatchEvent(new window.parent.CustomEvent('pulse-field:open-tool',{detail:{tool:'log-day',date:date,extraId:extraId}}));
     return;
   }
   openWorkoutModal({skipBlank:true});
-  fillWorkoutFromPlan(date);
+  fillWorkoutFromPlan(date,extraId);
 }
-function fillWorkoutFromPlan(iso){
-  var plan=getPlannedSessions()[iso]||{};
+function fillWorkoutFromPlan(iso,extraId){
+  var primary=getPlannedSessions()[iso]||{};
+  var plan=extraId?pulseExtraListV1(primary).find(function(e){return String(e.id)===String(extraId);})||primary:primary;
   document.getElementById('wk-date').value=iso;
   document.getElementById('wk-type').value=plan.name||plan.type||'';
   var list=document.getElementById('ex-list');
@@ -2845,8 +2861,9 @@ function fillWorkoutFromPlan(iso){
   if(typeof showToast==='function')showToast('Passet är ifyllt. Justera och spara.');
 }
 
-function startWorkoutSessionForDate(iso){
-  var zenPlan=getPlannedSessions()[iso];
+function startWorkoutSessionForDate(iso,extraId){
+  var primaryPlan=getPlannedSessions()[iso]||{};
+  var zenPlan=extraId?pulseExtraListV1(primaryPlan).find(function(e){return String(e.id)===String(extraId);})||primaryPlan:primaryPlan;
   if(zenPlan&&zenPlan.zenRoutine&&window.PulseZen){window.top.location.href=PulseZen.url(zenPlan,{start:true});return;}
   if(window.__FIELD_EMBEDDED__&&!window.__embeddedSessionAssetsReadyV1){
     if(window.__embeddedSessionStarting)return;
@@ -2857,7 +2874,7 @@ function startWorkoutSessionForDate(iso){
       if(token!==window.__embeddedSessionStartToken)return;
       window.__embeddedSessionStarting=false;
       window.dispatchEvent(new CustomEvent('pulse-session:loading',{detail:{loading:false}}));
-      return window.startWorkoutSessionForDate(iso);
+      return window.startWorkoutSessionForDate(iso,extraId);
     }).catch(function(error){
       if(token!==window.__embeddedSessionStartToken)return;
       window.__embeddedSessionStarting=false;
@@ -2866,7 +2883,8 @@ function startWorkoutSessionForDate(iso){
     });
   }
   var byDate=getPlannedSessions();
-  var planned=byDate[iso];
+  var primary=byDate[iso]||{};
+  var planned=extraId?pulseExtraListV1(primary).find(function(e){return String(e.id)===String(extraId);})||null:primary;
   if(!planned||!(planned.exercises||[]).length){
     showToast('Skapa passupplägg först.');
     return;
@@ -2875,6 +2893,8 @@ function startWorkoutSessionForDate(iso){
   sessionState={
     date:iso,
     type:planned.type||'Övrigt',
+    name:planned.name||planned.type||'Träning',
+    sourceExtraId:extraId||null,
     exercises:(planned.exercises||[]).map(function(ex){
       var norm=normalizeExercise(ex);
       return norm.kind==='cardio'
