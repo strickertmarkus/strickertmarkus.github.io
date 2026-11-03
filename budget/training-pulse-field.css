@@ -1049,3 +1049,11 @@ body{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
    second drops from ~210 ms to ~30 ms at phone pixel density. */
 .signal-landscape--flow{will-change:transform;pointer-events:none}
 .signal-landscape--flow .signal-main{stroke:url(#field-line-flow);animation-timing-function:steps(20)}
+/* Dock: a touch taller and bigger again, still centred (more room above the iPhone home bar) */
+.field-dock{padding-top:max(8px,calc((env(safe-area-inset-bottom,0px) + 8px) / 2));padding-bottom:max(8px,calc((env(safe-area-inset-bottom,0px) + 8px) / 2))}
+.field-dock a{gap:3px;font-size:9.5px}
+.field-dock svg{width:20px;height:20px}
+.dock-start{width:48px;height:48px}
+.dock-start svg{width:19px;height:19px}
+body{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+@media(min-width:901px){body{padding-bottom:0}}
