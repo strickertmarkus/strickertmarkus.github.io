@@ -960,7 +960,7 @@ function renderProgramTimeline(program){
 }
 // The standalone Program tab uses the same overview/detail hierarchy as the
 // full-screen exercise road. Ingemar keeps the original full timeline.
-function mmProgramme(){return explorer.profile==='markus'||explorer.profile==='maja';}
+function mmProgramme(){return true;} // Same presentation, different profile-specific programme catalogue.
 function mmAfter(program,index){
  const kind=program.between&&program.between[index];
  if(index>=program.ids.length-1||!kind)return null;
@@ -1000,7 +1000,7 @@ function showProgram(id){
  if(mmProgramme()){
   const rope=(p.between||[]).filter(x=>x==='rope').length,rest=(p.between||[]).length-rope;
   $('program-detail').classList.add('mm-program-simplified');
-  $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="mm-program-heading"><span class="eyebrow">DITT TRÄNINGSPASS</span><h2 id="program-title">${safe(p.name)}</h2><p>${safe(p.description)}</p></div><div id="mm-program-controls" class="mm-program-controls"><div class="mm-program-summary"><strong>${p.ids.length} övningar</strong><span>${safe(explorer.durationLabel(p))}</span><small>${rope} hopprep · ${rest} vilor</small></div><div class="mm-program-switch"><button type="button" id="mm-program-view-overview" data-mm-overview aria-pressed="true">Översikt</button><button type="button" id="mm-program-view-detail" data-mm-step="0" aria-pressed="false">Detalj</button></div></div><div id="mm-program-overview">${mmOverviewHtml(p)}</div><section id="mm-program-detail-body" hidden aria-label="Övningens detaljer"></section><p class="mm-program-footer-note">${safe(p.schedule)}</p><button type="button" class="explore-primary mm-program-start" id="open-program">Kopiera programförslag ↗</button>`;
+  $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="mm-program-heading"><span class="eyebrow">DITT TRÄNINGSPASS</span><h2 id="program-title">${safe(p.name)}</h2><p>${safe(p.description)}</p></div><div id="mm-program-controls" class="mm-program-controls"><div class="mm-program-summary"><strong>${p.ids.length} övningar</strong><span>${safe(explorer.durationLabel(p))}</span><small>${rope} hopprep · ${rest} vilor</small></div><div class="mm-program-switch"><button type="button" id="mm-program-view-overview" data-mm-overview aria-pressed="true">Översikt</button><button type="button" id="mm-program-view-detail" data-mm-step="0" aria-pressed="false">Detalj</button></div></div><div id="mm-program-overview">${mmOverviewHtml(p)}</div><section id="mm-program-detail-body" hidden aria-label="Övningens detaljer"></section><p class="mm-program-footer-note">${safe(p.schedule)}</p><button type="button" class="explore-primary mm-program-start" id="open-program">${explorer.profile==='ingemar'?'Öppna i passbyggaren ↗':'Kopiera programförslag ↗'}</button>`;
   $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
   $('program-detail').focus({preventScroll:true});
   $('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
