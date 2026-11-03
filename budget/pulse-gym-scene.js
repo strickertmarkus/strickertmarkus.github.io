@@ -220,7 +220,7 @@
     touch.addEventListener('pointercancel', function () { start = null; });
     document.addEventListener('keydown', function (event) {
       if (root.hidden) return;
-      if (zoomed) { if (event.key === 'Escape') closeZoom(); return; }
+      if (zoomed) { if (event.key === 'Escape') backFromDetail(); return; }
       if (sheetOpen) { if (event.key === 'Escape') closeSheet(); return; }
       if (event.key === 'ArrowRight') next(); else if (event.key === 'ArrowLeft') prev();
       else if (event.key === 'Escape') leave();
@@ -245,6 +245,32 @@
     var sheet = el('div', 'st-sheet'); sheet.hidden = true; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true');
     root.appendChild(scrim); root.appendChild(sheet);
     var sheetOpen = false, sheetKind = '', viewing = null;
+    // A programme and its detail are two in-page navigation levels.
+    // In Safari, the native edge-back gesture otherwise reaches the explorer
+    // route history and unexpectedly lands on its start screen.
+    var dropOverlayPop=false;
+    function sceneLayer(){return history.state&&history.state.pulseGymSceneV1||null;}
+    function addSceneLayer(level){
+      if(!mmProgram()||sceneLayer()===level)return;
+      try{history.pushState(Object.assign({},history.state||{},{pulseGymSceneV1:level}),'',location.href);}catch(_){}
+    }
+    function backFromDetail(){
+      if(mmProgram()&&sceneLayer()==='detail'){history.back();return;}
+      closeZoom();
+    }
+    function returnFromProgram(){
+      if(mmProgram()&&sceneLayer()==='overview'){history.back();return;}
+      openSheet('programs');
+    }
+    window.addEventListener('popstate',function(event){
+      if(dropOverlayPop){dropOverlayPop=false;event.stopImmediatePropagation();return;}
+      if(!mmProgram()||root.hidden||!sheetOpen)return;
+      if(zoomed){closeZoom();event.stopImmediatePropagation();return;}
+      if(sheet.classList.contains('is-mm-program')){
+        openSheet('programs');
+        event.stopImmediatePropagation();
+      }
+    },true);
     function renderPassSheet() {
       if (sheetKind !== 'pass') return;
       var ids = ui.selection();
@@ -336,6 +362,7 @@
       sheet.classList.toggle('is-mm-program',mmProgram());
       if(mmProgram()){
         sheet.innerHTML=compactProgram(p);
+        addSceneLayer('overview');
         sheet.scrollTop=0;
         sheet.focus({preventScroll:true});
         return;
@@ -406,6 +433,7 @@
           '<button type="button" class="st-cta st-mm-detail-play" data-start-at="'+i+'">'+ICON.play+'<span>Spela från denna övning</span></button></div>';
         zoom.querySelector('.st-zoom-stage').appendChild($('studio-stage'));
         ui.select(id); ui.setPaused(false);
+        addSceneLayer('detail');
         zoom.hidden=false;
         var backToOverview=zoom.querySelector('[data-zoom-close]');
         if(backToOverview)backToOverview.focus({preventScroll:true});
@@ -438,7 +466,7 @@
     }
     zoom.addEventListener('click', function (event) {
       var t = event.target;
-      if (t.closest('[data-zoom-close]')) { closeZoom(); return; }
+      if (t.closest('[data-zoom-close]')) { backFromDetail(); return; }
       if(t.closest('[data-detail-prev],[data-detail-next]')&&zoomed){
         var dir=t.closest('[data-detail-next]')?1:-1,at=zoomed.i+dir;
         if(at>=0&&at<zoomed.p.ids.length){
@@ -464,6 +492,12 @@
       host.location.href = url.href;
     }
     function closeSheet() {
+      if(mmProgram()&&sceneLayer()){
+        // Discard the overlay's history marker without letting the explorer
+        // process the matching popstate as a route change.
+        dropOverlayPop=true;
+        history.back();
+      }
       closeZoom();
       if (viewing && !root.hidden && end.hidden) ui.setPaused(false);
       viewing = null; sheet.classList.remove('is-program','is-mm-program');
@@ -476,7 +510,7 @@
       if (t.closest('.st-grip')) { closeSheet(); return; }
       var remove = t.closest('[data-remove]'); if (remove) { ui.toggle(Number(remove.dataset.remove)); return; }
       if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
-      if (t.closest('[data-programs]')) { openSheet('programs'); return; }
+      if (t.closest('[data-programs]')) { returnFromProgram(); return; }
       var detail=t.closest('[data-detail-step]');
       if(detail&&viewing){openZoom(viewing,Number(detail.dataset.detailStep),detail);return;}
       if(t.closest('[data-program-overview]')){return;}
