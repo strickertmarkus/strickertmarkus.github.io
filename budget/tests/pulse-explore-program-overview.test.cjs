@@ -91,8 +91,8 @@ test('shared style, Dynamic Island inset and versioned assets protect all profil
  assert.match(sceneCSS,/translateY\(clamp\(40px,6svh,66px\)\) scale\(\.85\)/);
  assert.match(flowCSS,/\.mm-program-simplified/);
  assert.match(flowCSS,/\.mm-program-controls/);
- assert.match(guide,/pulse-gym-scene\.js\?v=20261103-history-back-3/);
- assert.match(guide,/pulse-gym-scene\.css\?v=20261103-small-play-3/);
+ assert.match(guide,/pulse-gym-scene\.js\?v=20261103-ingemar-island-4/);
+ assert.match(guide,/pulse-gym-scene\.css\?v=20261103-ingemar-island-4/);
  assert.match(guide,/pulse-flow-layout\.css\?v=20261103-overview-detail-2/);
  assert.match(scene,/sheet\.classList\.toggle\('is-mm-program',mmProgram\(\)\)/);
  assert.match(scene,/sheet\.classList\.remove\('is-program','is-mm-program'\)/);
