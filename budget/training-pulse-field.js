@@ -576,7 +576,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       ['week-selected-open-v3','week-selected-play-v3'].forEach(function(id){var b=byId(id);if(b)b.dataset.fieldDate=selected;});
       var open=byId('week-selected-open-v3'),done=dayLogged(selected);
       if(open){open.dataset.fieldAction=done?'edit-log':'edit-day';if(done)open.dataset.workoutId=String(done.id);else delete open.dataset.workoutId;}
-      var play=byId('week-selected-play-v3');if(play)play.hidden=chosenRest||!!chosenLogged.length;
+      var play=byId('week-selected-play-v3');if(play)play.hidden=chosenRest||!chosenPlan||!((chosenPlan.exercises||[]).length||chosenPlan.zenRoutine);
     }
     var extrasBox=byId('week-selected-extras-v1');
     if(extrasBox){
