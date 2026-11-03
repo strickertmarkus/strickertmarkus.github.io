@@ -1057,3 +1057,10 @@ body{padding-bottom:calc(58px + env(safe-area-inset-bottom,0px))}
 .dock-start svg{width:19px;height:19px}
 body{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 @media(min-width:901px){body{padding-bottom:0}}
+/* Dock: between the last two sizes */
+.field-dock{padding-top:max(7px,calc((env(safe-area-inset-bottom,0px) + 1px) / 2));padding-bottom:max(7px,calc((env(safe-area-inset-bottom,0px) + 1px) / 2))}
+.field-dock svg{width:19px;height:19px}
+.dock-start{width:45px;height:45px}
+.dock-start svg{width:18px;height:18px}
+body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
+@media(min-width:901px){body{padding-bottom:0}}
