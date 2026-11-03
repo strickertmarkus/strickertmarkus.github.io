@@ -262,7 +262,7 @@ html[data-explore-profile="maja"] .st-sheet.is-mm-program{
 .st-mm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:3px;border-radius:13px;background:#ffffff08;border:1px solid #ffffff12}
 .st-mm-tabs button{
   border:0;border-radius:10px;min-height:37px;background:none;
-  font:600 13px/1.2 inherit;color:#b5aeb6;cursor:pointer;
+  font-family:inherit;font-weight:600;font-size:13px;line-height:1.2;color:#b5aeb6;cursor:pointer;
 }
 .st-mm-tabs button.is-active{background:#ef584a22;color:#ffb9ad;box-shadow:inset 0 0 0 1px #f76c5b30}
 .st-mm-tabs button:focus-visible{outline:2px solid #ffa998;outline-offset:2px}
@@ -285,7 +285,7 @@ html[data-explore-profile="maja"] .st-sheet.is-mm-program{
 .st-mm-entry .st-mm-row:focus-visible{outline:2px solid #ff9c8c;outline-offset:2px;border-radius:6px}
 .st-mm-index{
   display:grid;place-items:center;width:27px;height:27px;border-radius:50%;
-  border:1px solid #f875686b;background:#21151a;color:#ffd3c9;font:650 12px/1 inherit;
+  border:1px solid #f875686b;background:#21151a;color:#ffd3c9;font-family:inherit;font-weight:650;font-size:12px;line-height:1;
   box-shadow:0 0 10px #ff493522;z-index:2;position:relative;
 }
 .st-mm-pose{
@@ -301,7 +301,7 @@ html[data-explore-profile="maja"] .st-sheet.is-mm-program{
 .st-mm-interval{
   position:relative;display:flex;align-items:center;flex-wrap:wrap;
   gap:3px 8px;min-height:24px;padding:3px 0 4px 40px;
-  color:#b4a1a2;font:500 11px/1.3 inherit;
+  color:#b4a1a2;font-family:inherit;font-weight:500;font-size:11px;line-height:1.3;
 }
 .st-mm-interval-dot{
   position:absolute;left:9px;top:calc(50% - 4px);width:9px;height:9px;
@@ -365,7 +365,7 @@ html[data-explore-profile="maja"] .st-zoom.is-mm-detail{
 .st-mm-detail-actions button{
   display:flex;align-items:center;justify-content:center;gap:7px;
   min-height:42px;padding:9px;border:1px solid #ffa18b35;border-radius:11px;
-  color:#f4b4a8;background:#ff5a4810;font:600 12px/1.2 inherit;cursor:pointer;
+  color:#f4b4a8;background:#ff5a4810;font-family:inherit;font-weight:600;font-size:12px;line-height:1.2;cursor:pointer;
 }
 .st-mm-detail-actions svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
 .st-mm-detail-actions button:disabled{opacity:.28;cursor:default}
