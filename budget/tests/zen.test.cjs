@@ -31,6 +31,13 @@ test('invalid imports and corrupt active timers are rejected',()=>{
   assert.equal(M.entryValid({...record('bad'),seconds:-1}),false);assert.equal(M.entryValid({...record('bad'),kind:'strength'}),false);
   assert.deepEqual(M.merge({bad:{...record('bad'),id:'different'}},{}),{});
 });
+test('completed stretch records keep independent movement snapshots and old sessions remain readable',()=>{
+  const snapshot=routine.steps.map(step=>({id:step.id||'',name:step.name,seconds:step.seconds}));
+  assert.ok(M.entryValid({...record('new'),steps:snapshot}));
+  assert.ok(M.entryValid(record('legacy')));
+  assert.equal(M.entryValid({...record('wrong'),steps:[{id:'stretch',name:'Bad',seconds:-10}]}),false);
+  assert.equal(M.entryValid({...record('med','meditation'),steps:snapshot}),false);
+});
 test('weeks, streaks and collections use the selected kind and local dates',()=>{
   const today=new Date(2026,8,10,12).getTime(),yesterday=new Date(2026,8,9,12).getTime();
   const records=[record('s1','stretch',today,600),record('s2','stretch',yesterday,300),record('m1','meditation',today,1200)];
@@ -43,12 +50,12 @@ test('records are idempotent and deleted records stay deleted after offline merg
 });
 
 function storeHarness({deny=false,seed={},localFail=false}={}){
-  const local=new Map(Object.entries(seed)),writes=[],listeners=new Map(),remote={},auth={callback:null};let pathRoot='';
-  const ref={off(){},on(event,cb,error){listeners.set('entries',cb);if(deny)error(Error('PERMISSION_DENIED'));else cb({val:()=>remote});},once(){return Promise.resolve({val:()=>remote});},child(id){return {set(e){writes.push({path:pathRoot+'/'+id,entry:e});remote[id]=e;listeners.get('entries')?.({val:()=>remote});return Promise.resolve();}};}};
+  const local=new Map(Object.entries(seed)),writes=[],listeners=new Map(),remote={},auth={callback:null};let pathRoot='',denied=deny;
+  const ref={off(){},on(event,cb,error){listeners.set('entries',cb);if(denied)error(Error('PERMISSION_DENIED'));else cb({val:()=>remote});},once(){return Promise.resolve({val:()=>remote});},child(id){return {set(e){writes.push({path:pathRoot+'/'+id,entry:e});remote[id]=e;listeners.get('entries')?.({val:()=>remote});return Promise.resolve();}};}};
   const firebase={auth:()=>({onAuthStateChanged(fn){auth.callback=fn;fn({uid:'test-user'});}}),database:()=>({ref(p){if(p==='.info/connected')return {on(event,fn){listeners.set('connection',fn);fn({val:()=>true});}};pathRoot=p;return ref;}})};
   const context={window:{ZenModel:M,firebase},firebase,location:{search:'?user=maja'},URLSearchParams,Date,queueMicrotask,localStorage:{getItem:k=>local.get(k)||null,setItem(k,v){if(localFail)throw Error('Quota');local.set(k,v);}}};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../zen-store.js'),'utf8'),context);
-  return {S:context.window.ZenStore,writes,local,auth};
+  return {S:context.window.ZenStore,writes,local,auth,setDenied(value){denied=value;}};
 }
 const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve();};
 test('cloud storage is profile scoped and never writes any training key',async()=>{
@@ -61,6 +68,29 @@ test('permission denied preserves records locally and reports local-only saving'
 test('offline backlog syncs each entry once despite realtime local echo',async()=>{
   const entries=Object.fromEntries(Array.from({length:100},(_,i)=>['r'+i,record('r'+i)]));
   const {S,writes}=storeHarness({seed:{'zen_v1_test-user_maja_entries':JSON.stringify(entries)}});await flush();assert.equal(S.entries.length,100);assert.equal(writes.length,100);assert.equal(S.status,'Sparat på ditt konto');
+});
+test('denied Firebase access can be retried without losing locally saved sessions',async()=>{
+  const {S,writes,setDenied}=storeHarness({deny:true});
+  assert.equal(S.put(record('restore')),true);
+  assert.match(S.status,/Firebase nekar åtkomst/);
+  assert.equal(S.needsRetry,true);
+  setDenied(false);
+  assert.equal(S.retry(),true);
+  await flush();
+  assert.equal(writes.length,1);
+  assert.equal(writes[0].entry.id,'restore');
+  assert.equal(S.status,'Sparat på ditt konto');
+});
+test('editing a saved session advances the revision and syncs the changed duration',async()=>{
+  const {S,writes}=storeHarness();
+  assert.equal(S.put(record('edit')),true);
+  await flush();
+  const previous=S.entries.find(e=>e.id==='edit');
+  assert.equal(S.put({...previous,seconds:900,updatedAt:previous.updatedAt}),true);
+  await flush();
+  assert.equal(S.entries.find(e=>e.id==='edit').seconds,900);
+  assert.equal(writes.at(-1).entry.seconds,900);
+  assert.ok(writes.at(-1).entry.updatedAt>previous.updatedAt);
 });
 test('backup import validates profile, refuses training data, preserves existing entries',async()=>{
   const {S}=storeHarness();S.put(record('existing'));assert.throws(()=>S.import({app:'exercise',version:1,profile:'maja',entries:{}}));assert.throws(()=>S.import({app:'zen',version:1,profile:'markus',entries:{}}));
