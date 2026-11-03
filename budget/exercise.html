@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261103-zen-done-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261103-zen-rhythm-multi-2">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -35,8 +35,8 @@
   <script defer src="firebase-sync.js?v=20261102-safe-sync-1"></script>
 <script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261103-zen-done-1"></script>
-  <script defer src="training-pulse-editor.js?v=20261103-zen-done-1"></script>
+  <script defer src="training-pulse-field.js?v=20261103-zen-rhythm-multi-2"></script>
+  <script defer src="training-pulse-editor.js?v=20261103-zen-rhythm-multi-2"></script>
   <script defer src="pulse-explore-handoff.js?v=20261103-safe-import-3"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -177,6 +177,7 @@
               <div><dt>Pass denna vecka</dt><dd id="rhythm-message"></dd></div>
               <div><dt>Nästa</dt><dd id="rhythm-next"></dd></div>
               <div><dt>Rörelse · belastning</dt><dd class="rhythm-load"><span id="week-minutes">0</span> min · <span id="week-volume">0 kg</span></dd></div>
+            <div><dt>Återhämtning denna vecka</dt><dd id="rhythm-zen-facts" class="rhythm-zen-facts" aria-label="Stretch och meditation separat från veckans träningsmål"></dd></div>
             </dl>
           </div>
         </div>
@@ -210,6 +211,7 @@
         </button>
         <button type="button" class="today-play" id="week-selected-play-v3" data-field-action="start-day" aria-label="Starta passet">Starta<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
+      <div id="week-selected-extras-v1" class="week-selected-extras-v1" aria-label="Flera pass på vald dag"></div>
     </section>
 
     <section class="field-section progress-section" id="progress-field" aria-labelledby="progress-title">
