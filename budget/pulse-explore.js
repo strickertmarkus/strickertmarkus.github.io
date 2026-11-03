@@ -129,7 +129,7 @@ function workout(request){
  const ids=program?program.ids:request.ids;
  if(!Array.isArray(ids)||!ids.length||ids.length>20||new Set(ids).size!==ids.length||ids.some(id=>!Number.isInteger(id)||!exercises[id]))return null;
  const allCardio=ids.every(id=>exercises[id].group==='Kondition'),allPull=ids.every(id=>exercises[id].group==='Pull');
- return {name:program?program.name:'Mitt träningspass',type:program?program.type:allCardio?'Kondition':allPull?'Pull':'Push',sequence:program?programSequence(program):null,exercises:ids.map(id=>{
+ return {name:program?program.name:'Mitt träningspass',type:program?program.type:profile==='ingemar'?(allCardio?'Kondition':allPull?'Pull':'Push'):(allCardio?'Kondition':'Styrka'),sequence:program?programSequence(program):null,exercises:ids.map(id=>{
   const e=exercises[id],p=prescription(id,program);
   return {name:e.name,mode:p.mode,suggestedReps:p.range,guideId:id,betweenSets:{enabled:true,type:'rest',seconds:p.mode==='min'?60:90,name:''},sets:Array.from({length:p.sets},()=>({weight:null,reps:p.reps,minutes:p.minutes,done:false}))};})};
 }
