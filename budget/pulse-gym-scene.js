@@ -256,7 +256,7 @@
           : '<p class="st-muted">Dubbeltryck på en övning för att lägga till den.</p>');
     }
     function openSheet(kind) {
-      sheetKind = kind; sheetOpen = true; viewing = null; sheet.classList.remove('is-program');
+      sheetKind = kind; sheetOpen = true; viewing = null; sheet.classList.remove('is-program','is-mm-program');
       if (kind === 'technique') {
         sheet.setAttribute('aria-label', 'Teknik');
         sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Teknik</span><h3>' + all[state.list[state.index]].name + '</h3><ol class="st-steps">' + $('steps').innerHTML + '</ol><div class="st-tip">' + $('tip').innerHTML + '</div>';
@@ -290,6 +290,39 @@
       });
       sheet.tabIndex = -1; sheet.focus({ preventScroll: true });
     }
+    // The compact programme is an overview first. The existing animated
+    // stage becomes the separate, detailed exercise view on demand.
+    function mmProgram(){ return explore.profile==='markus'||explore.profile==='maja'; }
+    function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
+    function mmTransition(p,i){
+      if(i>=p.ids.length-1||!p.between)return null;
+      return p.between[i]==='rope'
+        ?{kind:'rope',title:'Hopprep 45 s',sub:'Återhämtning 30 s'}
+        :{kind:'rest',title:'Vila 90 s',sub:''};
+    }
+    function mmCounts(p){
+      var rope=(p.between||[]).filter(function(x){return x==='rope';}).length;
+      return {rope:rope,rest:(p.between||[]).length-rope};
+    }
+    function compactProgram(p){
+      var totals=mmCounts(p),countLabel=p.ids.length+' övningar',duration=explore.durationLabel(p);
+      return '<button type="button" class="st-sheet-back" data-programs>'+ICON.back+'<span>Program</span></button>'+
+        '<div class="st-mm-title"><span class="st-eyebrow">DITT TRÄNINGSPASS</span><h3>'+esc(p.name)+'</h3><p>'+esc(p.description)+'</p></div>'+
+        '<div class="st-mm-sticky"><div class="st-mm-summary"><strong>'+esc(countLabel)+'</strong><span>'+esc(duration)+'</span><small>'+totals.rope+' hopprep · '+totals.rest+' vilor</small></div>'+
+        '<div class="st-mm-tabs" role="group" aria-label="Visa program"><button type="button" class="is-active" aria-pressed="true" data-program-overview>Översikt</button><button type="button" aria-pressed="false" data-detail-step="0">Detalj</button></div></div>'+
+        '<ol class="st-mm-list" aria-label="Övningarnas ordning">'+p.ids.map(function(id,i){
+          var ex=all[id],d=splitDose(explore.prescription(id,p).label),after=mmTransition(p,i);
+          return '<li class="st-mm-entry"><button type="button" class="st-mm-row" data-detail-step="'+i+'" aria-label="Visa detaljer för '+esc(ex.name)+'">'+
+            '<span class="st-mm-index">'+(i+1)+'</span>'+
+            '<span class="st-mm-pose">'+(pose(id,false)?'<img src="'+pose(id,false)+'" alt="" loading="lazy" decoding="async">':'')+'</span>'+
+            '<span class="st-mm-copy"><b>'+esc(ex.name)+'</b><small>'+esc(ex.muscles[0])+' · '+esc(d.big+' '+d.unit)+'</small></span>'+
+            '<span class="st-mm-chevron" aria-hidden="true">'+ICON.fwd+'</span></button>'+
+            (after?'<div class="st-mm-interval '+(after.kind==='rope'?'is-rope':'')+'"><span class="st-mm-interval-dot" aria-hidden="true"></span><span>'+esc(after.title)+'</span>'+
+            (after.sub?'<small>'+esc(after.sub)+'</small>':'')+'</div>':'')+
+            '</li>';
+        }).join('')+'</ol>'+
+        '<div class="st-mm-footer"><p>'+esc(p.schedule)+'</p><button type="button" class="st-cta st-start st-mm-start" data-train>'+ICON.play+'<span>Träna programmet</span></button></div>';
+    }
     /* A programme before it plays: its exercises as stops on a glowing road.
        Tap a figure to see it live, a name to play from there, or train the
        whole programme. */
@@ -299,6 +332,13 @@
       ui.setPaused(true);
       sheet.setAttribute('aria-label', p.name);
       sheet.classList.add('is-program');
+      sheet.classList.toggle('is-mm-program',mmProgram());
+      if(mmProgram()){
+        sheet.innerHTML=compactProgram(p);
+        sheet.scrollTop=0;
+        sheet.focus({preventScroll:true});
+        return;
+      }
       sheet.innerHTML = '<button type="button" class="st-sheet-back" data-programs>' + ICON.back + '<span>Program</span></button>' +
         '<span class="st-eyebrow">' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</span><h3>' + p.name + '</h3>' +
         '<ol class="st-path">' + p.ids.map(function (id, i) {
@@ -345,8 +385,31 @@
     var zoomed = null;
     function openZoom(p, i, from) {
       var id = p.ids[i], e = all[id], d = splitDose(explore.prescription(id, p).label);
-      zoomed = { p: p, i: i };
+      zoomed = { p: p, i: i, from:from };
       zoom.setAttribute('aria-label', e.name);
+      zoom.classList.toggle('is-mm-detail',mmProgram());
+      if(mmProgram()){
+        var after=mmTransition(p,i);
+        var technique=Array.isArray(e.steps)?e.steps:[];
+        zoom.innerHTML='<div class="st-zoom-stage"></div>'+
+          '<button type="button" class="st-zoom-close" data-zoom-close aria-label="Tillbaka till översikten">'+ICON.back+'</button>'+
+          '<div class="st-mm-detail-header"><span class="st-eyebrow">DETALJ · '+(i+1)+' / '+p.ids.length+'</span><span class="st-mm-detail-muscles">'+esc(e.muscles.join(' · '))+'</span></div>'+
+          '<div class="st-mm-detail-content"><h2>'+esc(e.name)+'</h2>'+
+          '<div class="st-mm-detail-dose">'+esc(d.big+' '+d.unit)+'</div>'+
+          (after?'<p class="st-mm-detail-next">Efteråt: <strong>'+esc(after.title)+'</strong>'+(after.sub?' · '+esc(after.sub):'')+'</p>':'<p class="st-mm-detail-next">Sista övningen i passet</p>')+
+          '<div class="st-mm-detail-tech"><span class="st-eyebrow">TEKNIK</span><ol>'+technique.map(function(step){return '<li>'+esc(step)+'</li>';}).join('')+'</ol>'+
+          (e.tip?'<p>'+esc(e.tip)+'</p>':'')+'</div>'+
+          '<div class="st-mm-detail-actions">'+
+          '<button type="button" data-detail-prev '+(i===0?'disabled':'')+' aria-label="Föregående övning">'+ICON.back+' Föregående</button>'+
+          '<button type="button" data-detail-next '+(i===p.ids.length-1?'disabled':'')+'>Nästa '+ICON.fwd+'</button></div>'+
+          '<button type="button" class="st-cta st-mm-detail-play" data-start-at="'+i+'">'+ICON.play+'<span>Spela från denna övning</span></button></div>';
+        zoom.querySelector('.st-zoom-stage').appendChild($('studio-stage'));
+        ui.select(id); ui.setPaused(false);
+        zoom.hidden=false;
+        var heading=zoom.querySelector('.st-mm-detail-content');
+        if(heading)heading.scrollTop=0;
+        return;
+      }
       zoom.innerHTML = '<div class="st-zoom-stage"></div>' +
         '<button type="button" class="st-zoom-close" data-zoom-close aria-label="Stäng">' + ICON.close + '</button>' +
         '<div class="st-zoom-copy"><span class="st-eyebrow">Steg ' + (i + 1) + ' av ' + p.ids.length + ' · ' + e.muscles[0] + '</span><h2>' + e.name + '</h2><div class="st-dose"><strong>' + d.big + '</strong><span>' + d.unit + '</span></div>' +
@@ -362,8 +425,10 @@
     }
     function closeZoom(keep) {
       if (!zoomed) return;
+      var source=zoomed.from;
       stageHost.appendChild($('studio-stage'));
-      zoom.hidden = true; zoom.innerHTML = '';
+      zoom.hidden = true; zoom.innerHTML = '';zoom.classList.remove('is-mm-detail');
+      if(source&&source.isConnected&&typeof source.focus==='function')try{source.focus({preventScroll:true});}catch(_){}
       // Back on the road the scene shows its own exercise again, resting under the road.
       if (!keep) { ui.select(state.list[state.index]); if (viewing) ui.setPaused(true); }
       zoomed = null;
@@ -371,6 +436,14 @@
     zoom.addEventListener('click', function (event) {
       var t = event.target;
       if (t.closest('[data-zoom-close]')) { closeZoom(); return; }
+      if(t.closest('[data-detail-prev],[data-detail-next]')&&zoomed){
+        var dir=t.closest('[data-detail-next]')?1:-1,at=zoomed.i+dir;
+        if(at>=0&&at<zoomed.p.ids.length){
+          var chosen=zoomed.p,source=zoomed.from;
+          closeZoom(true);openZoom(chosen,at,source);
+        }
+        return;
+      }
       var startAt = t.closest('[data-start-at]');
       if (startAt) { var chosen = zoomed.p, at = Number(startAt.dataset.startAt); closeZoom(true); closeSheet(); playProgram(chosen, at); }
     });
@@ -390,7 +463,7 @@
     function closeSheet() {
       closeZoom();
       if (viewing && !root.hidden && end.hidden) ui.setPaused(false);
-      viewing = null; sheet.classList.remove('is-program');
+      viewing = null; sheet.classList.remove('is-program','is-mm-program');
       sheetOpen = false; sheetKind = ''; root.classList.remove('sheet-open');
       setTimeout(function () { if (!sheetOpen) { scrim.hidden = true; sheet.hidden = true; } }, 280);
     }
@@ -401,6 +474,9 @@
       var remove = t.closest('[data-remove]'); if (remove) { ui.toggle(Number(remove.dataset.remove)); return; }
       if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
       if (t.closest('[data-programs]')) { openSheet('programs'); return; }
+      var detail=t.closest('[data-detail-step]');
+      if(detail&&viewing){openZoom(viewing,Number(detail.dataset.detailStep),detail);return;}
+      if(t.closest('[data-program-overview]')){return;}
       var goTo = t.closest('[data-goto]');
       if (goTo) { closeSheet(); go(Number(goTo.dataset.goto)); return; }
       if (t.closest('[data-train]') && viewing) { train(viewing); return; }
