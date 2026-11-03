@@ -279,7 +279,7 @@ body[data-kind=meditation] .session-preparation{display:none!important}
 }
 @media(min-width:1050px) and (min-height:600px){
   body[data-kind=stretch] .session-layout{
-    --pose-size:min(580px,43vw,calc(100dvh - 290px));
+    --pose-size:max(290px,min(580px,43vw,calc(100dvh - 385px)));
     display:grid;grid-template-columns:minmax(210px,1fr) minmax(0,1.9fr) minmax(210px,.9fr);
     grid-template-rows:minmax(0,1fr);column-gap:clamp(18px,2.6vw,52px);
     max-width:1510px;min-height:0;height:100%;padding:10px 0 0;
