@@ -102,7 +102,7 @@
     if(e.deleted===true)return true;
     if(e.type==='milestone')return milestoneValid(e.milestone)&&e.id==='milestone_'+e.milestone.kind+'_'+e.milestone.slot;
     if(e.type==='routine')return routineValid(e.routine)&&e.routine.id===e.id;
-    if(e.type!=='session'||!['stretch','meditation'].includes(e.kind)||typeof e.name!=='string'||e.name.length>80||!Number.isFinite(e.completedAt)||e.completedAt<=0||e.completedAt>8640000000000000||!Number.isInteger(e.seconds)||e.seconds<1||e.seconds>12000||typeof e.note!=='string'||e.note.length>500||!['','lighter','calm','present'].includes(e.feeling))return false;
+    if(e.type!=='session'||!['stretch','meditation'].includes(e.kind)||typeof e.name!=='string'||e.name.length>80||!Number.isFinite(e.completedAt)||e.completedAt<=0||e.completedAt>8640000000000000||!Number.isFinite(e.seconds)||e.seconds<1||e.seconds>12000||typeof e.note!=='string'||e.note.length>500||!['','lighter','calm','present'].includes(e.feeling))return false;
     // Historical sessions have no steps. New stretch sessions retain a snapshot
     // so later changes to a routine do not rewrite the exercise history.
     return e.steps===undefined||(e.kind==='stretch'&&Array.isArray(e.steps)&&e.steps.length<=20&&e.steps.every(s=>s&&typeof s.name==='string'&&s.name.length>0&&s.name.length<=100&&typeof s.id==='string'&&s.id.length<=100&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600));
