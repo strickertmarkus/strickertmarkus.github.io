@@ -321,7 +321,8 @@
             (after.sub?'<small>'+esc(after.sub)+'</small>':'')+'</div>':'')+
             '</li>';
         }).join('')+'</ol>'+
-        '<div class="st-mm-footer"><p>'+esc(p.schedule)+'</p><button type="button" class="st-cta st-start st-mm-start" data-train>'+ICON.play+'<span>Träna programmet</span></button></div>';
+        '<div class="st-mm-footer"><p>'+esc(p.schedule)+'</p></div>'+
+        '<button type="button" class="st-cta st-start st-mm-start" data-train>'+ICON.play+'<span>Träna programmet</span></button>';
     }
     /* A programme before it plays: its exercises as stops on a glowing road.
        Tap a figure to see it live, a name to play from there, or train the
