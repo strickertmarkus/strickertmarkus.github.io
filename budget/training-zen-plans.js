@@ -26,7 +26,7 @@ PulseZen.setPlannerMode=function(index,k){
  if(!current)entry.trainingType=entry.type;
  pulsePlanSetTypeV2(index,current===k?(entry.trainingType||'Helkropp'):label(k));
 };
-var builder={mode:'',routines:[],saved:{},picking:false},box,panel,controls;
+var builder={mode:'',routines:[],saved:{},picking:false,openIndex:-1},box,panel,controls;
 function namesOf(list){return list.map(function(r){return r.name;}).join(' + ');}
 function byId(id){return document.getElementById(id);}
 PulseZen.builderKind=function(){return builder.mode;};
@@ -35,7 +35,7 @@ PulseZen.builderRecord=function(){
  return {type:label(builder.mode),name:(byId('day-workout-name').value||namesOf(builder.routines)).trim(),zenRoutine:clone(builder.routines[0]),zenRoutines:clone(builder.routines),exercises:[]};
 };
 PulseZen.loadBuilder=function(record){
- builder={mode:PulseZen.modeFor(record),routines:clone(PulseZen.list(record))||[],saved:{},picking:false};
+ builder={mode:PulseZen.modeFor(record),routines:clone(PulseZen.list(record))||[],saved:{},picking:false,openIndex:-1};
  if(panel)panel.querySelector('input').value='';
  syncBuilder();
 };
@@ -51,9 +51,11 @@ function syncBuilder(){
  panel.dataset.zenKind=builder.mode;
  var list=builder.routines;
  panel.querySelector('.pulse-zen-rows').innerHTML=list.map(function(r,i){
-  return '<div class="pulse-zen-row"><span class="pulse-zen-row-icon">'+PulseZen.icon(r.kind)+'</span><span class="pulse-zen-row-text"><strong>'+escape(r.name)+'</strong><small>'+Math.round(ZenModel.duration(r)/60)+' min'+(r.steps?' · '+r.steps.length+' övningar':'')+'</small></span>'
-   +'<span class="pulse-zen-row-tools">'+(i>0?'<button type="button" data-zen-up="'+i+'" aria-label="Flytta upp '+escape(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg></button>':'')
-   +'<button type="button" data-zen-remove="'+i+'" aria-label="Ta bort '+escape(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></div>';
+  var open=builder.openIndex===i,steps=(r.steps||[]).map(function(st){return st.name;}).filter(Boolean);
+  return '<div class="pulse-zen-row'+(open?' is-open':'')+'" data-zen-index="'+i+'"><button type="button" class="pulse-zen-row-main" data-zen-open="'+i+'" aria-expanded="'+open+'"><span class="pulse-zen-row-icon">'+PulseZen.icon(r.kind)+'</span><span class="pulse-zen-row-text"><strong>'+escape(r.name)+'</strong><small>'+Math.round(ZenModel.duration(r)/60)+' min'+(steps.length?' · '+steps.length+' övningar':'')+'</small>'
+   +(open&&steps.length?'<span class="pulse-zen-row-steps">'+steps.map(escape).join(', ')+'</span>':'')+'</span></button>'
+   +'<span class="pulse-zen-row-tools"><button type="button" data-zen-remove="'+i+'" aria-label="Ta bort '+escape(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+   +'<button type="button" class="pulse-zen-handle" data-zen-drag="'+i+'" aria-label="Dra för att flytta '+escape(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14M5 12h14M5 16h14"/></svg></button></span></div>';
  }).join('');
  var add=panel.querySelector('.pulse-zen-add');
  add.querySelector('span:last-child').textContent=list.length?'Lägg till '+kindWord():'Välj '+kindWord();
@@ -96,14 +98,44 @@ function install(){
   var t=event.target;
   if(t.closest('.pulse-zen-add')){builder.picking=!builder.picking;syncBuilder();if(builder.picking)panel.querySelector('input').focus({preventScroll:true});return;}
   var remove=t.closest('[data-zen-remove]');
-  if(remove){var before=namesOf(builder.routines);builder.routines.splice(Number(remove.dataset.zenRemove),1);renameAfter(before);syncBuilder();return;}
-  var up=t.closest('[data-zen-up]');
-  if(up){var i=Number(up.dataset.zenUp),before2=namesOf(builder.routines);var moved=builder.routines.splice(i,1)[0];builder.routines.splice(i-1,0,moved);renameAfter(before2);syncBuilder();return;}
+  if(remove){var before=namesOf(builder.routines);builder.openIndex=-1;builder.routines.splice(Number(remove.dataset.zenRemove),1);renameAfter(before);syncBuilder();return;}
+  var opener=t.closest('[data-zen-open]');
+  if(opener){var oi=Number(opener.dataset.zenOpen);builder.openIndex=builder.openIndex===oi?-1:oi;syncBuilder();return;}
   var button=t.closest('[data-zen-routine]');if(!button||button.disabled)return;
   var record=session(button.dataset.zenRoutine);if(!record||record.zenRoutine.kind!==builder.mode)return;
   var before3=namesOf(builder.routines);builder.routines.push(record.zenRoutine);renameAfter(before3);
   builder.picking=false;panel.querySelector('input').value='';syncBuilder();
  });
+  // Drag the handle to reorder, as with exercises in the builder.
+ var drag=null;
+ panel.addEventListener('pointerdown',function(event){
+  var handle=event.target.closest('[data-zen-drag]');if(!handle)return;
+  var row=handle.closest('.pulse-zen-row');if(!row)return;
+  event.preventDefault();
+  try{handle.setPointerCapture(event.pointerId);}catch(_){}
+  drag={row:row,handle:handle,grab:event.clientY-row.getBoundingClientRect().top};
+  row.classList.add('is-dragging');
+ });
+ panel.addEventListener('pointermove',function(event){
+  if(!drag)return;
+  event.preventDefault();
+  var list=panel.querySelector('.pulse-zen-rows'),y=event.clientY;
+  var others=Array.prototype.filter.call(list.children,function(r){return r!==drag.row;});
+  var before=null;for(var i=0;i<others.length;i++){var b=others[i].getBoundingClientRect();if(y<b.top+b.height/2){before=others[i];break;}}
+  if(before!==drag.row.nextElementSibling)list.insertBefore(drag.row,before);
+  drag.row.style.transform='';
+  var natural=drag.row.getBoundingClientRect().top;
+  drag.row.style.transform='translateY('+(y-drag.grab-natural)+'px)';
+ });
+ function endDrag(){
+  if(!drag)return;
+  var list=panel.querySelector('.pulse-zen-rows'),order=Array.prototype.map.call(list.children,function(r){return Number(r.dataset.zenIndex);});
+  drag.row.classList.remove('is-dragging');drag.row.style.transform='';drag=null;
+  var before=namesOf(builder.routines),next=order.map(function(i){return builder.routines[i];}).filter(Boolean);
+  if(next.length===builder.routines.length&&order.some(function(v,i){return v!==i;})){builder.routines=next;builder.openIndex=-1;renameAfter(before);}
+  syncBuilder();
+ }
+ panel.addEventListener('pointerup',endDrag);panel.addEventListener('pointercancel',endDrag);
  var planner=byId('plan-days');if(planner)planner.addEventListener('click',function(event){var button=event.target.closest('[data-zen-day]');if(button)PulseZen.setPlannerMode(Number(button.dataset.zenDay),button.dataset.zenMode);});
  syncBuilder();
 }

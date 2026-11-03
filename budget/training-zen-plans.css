@@ -56,3 +56,10 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder[data-zen-mo
 /* Stretch and meditation as a dot in their colour in the planners */
 .pulse-zen-dot{display:inline-block;flex:none;width:7px;height:7px;margin-right:6px;border-radius:50%;background:#d4eea7;box-shadow:0 0 7px #a4dc77aa;vertical-align:middle}
 .pulse-zen-dot[data-zen-kind=meditation]{background:#fff0b7;box-shadow:0 0 7px #ffe8a4aa}
+/* Zen rows: tap to see the exercises, drag the handle to reorder */
+.pulse-zen-row{position:relative;background:#080b12;transition:box-shadow .15s}
+.pulse-zen-row.is-dragging{z-index:3;transition:none;box-shadow:0 14px 30px -12px #000,0 0 0 1px color-mix(in srgb,var(--zen-color) 40%,transparent);border-radius:16px}
+.pulse-zen-row-main{display:flex;align-items:center;gap:14px;flex:1;min-width:0;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer}
+.pulse-zen-row-steps{display:block;margin-top:5px;color:#ffffff8c;font:400 12px/1.45 Inter,sans-serif}
+.pulse-zen-handle{touch-action:none;cursor:grab}
+.pulse-zen-row.is-dragging .pulse-zen-handle{cursor:grabbing;color:var(--zen-color)!important}
