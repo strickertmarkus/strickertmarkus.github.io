@@ -209,3 +209,124 @@ body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:11px;line-h
 .session-pose-3d{position:absolute;z-index:1;pointer-events:none;filter:drop-shadow(0 0 18px #a4dc7740)}
 .session-pose-3d[hidden]{display:none!important}
 .session-pose-3d canvas{display:block;width:100%;height:100%}
+
+
+/* Stretch desktop scale + visible five-second start (meditation stays unchanged). */
+body[data-kind=stretch] .session-layout{position:relative}
+body[data-kind=stretch] .session-preparation{
+  position:absolute;inset:0;z-index:8;display:grid;place-items:center;
+  padding:clamp(12px,3vw,32px);text-align:center;
+  background:radial-gradient(ellipse at 50% 48%,rgba(14,49,32,.94),rgba(4,24,18,.97) 73%);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-radius:22px;
+}
+.session-preparation[hidden]{display:none!important}
+.session-prep-card{display:flex;flex-direction:column;align-items:center;justify-content:center;width:min(100%,560px);gap:14px}
+.session-prep-eyebrow{font:600 12px/1.4 var(--sans);letter-spacing:.24em;color:#b7df91;margin:0}
+.session-prep-card h2{font:400 clamp(36px,4vw,60px)/1.07 var(--serif);letter-spacing:-.02em;color:#f1f9dc;margin:0}
+.session-prep-card>p:last-child{font:400 clamp(13px,1.2vw,16px)/1.6 var(--sans);color:#bfd2ae;margin:0}
+.session-prep-ring{
+  --prep-progress:0%;position:relative;display:grid;place-items:center;
+  width:clamp(148px,17vw,225px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 46% 40%,#224b34 0%,#102d23 60%,#09251d 100%);
+  box-shadow:inset 0 0 60px #9fdb7832,0 0 70px #a5e77c20,0 0 10px #a5e77c10;
+}
+.session-prep-ring::before{
+  content:'';position:absolute;inset:-3px;border-radius:50%;
+  background:conic-gradient(from -90deg,#d8ffae 0 var(--prep-progress),rgba(198,237,167,.21) var(--prep-progress) 100%);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+}
+.session-prep-ring strong{font:400 clamp(78px,9vw,124px)/1 var(--serif);font-variant-numeric:tabular-nums;color:#efffd8;text-shadow:0 0 30px #b4ee8480}
+body[data-kind=meditation] .session-preparation{display:none!important}
+
+@media(min-width:761px){
+  body[data-kind=stretch] .session-view{
+    padding:clamp(18px,2.2vh,32px) clamp(28px,4.2vw,90px) clamp(14px,2.5vh,28px);
+    row-gap:8px;
+  }
+  body[data-kind=stretch] .session-top>span{font-size:13px;letter-spacing:2.3px}
+  body[data-kind=stretch] .session-view .text-button{font-size:14px;min-height:46px}
+  body[data-kind=stretch] .session-layout{
+    --pose-size:max(290px,min(470px,46vw,calc(100dvh - 350px)));
+    max-width:1120px;grid-template-rows:minmax(0,auto) var(--pose-size) auto;
+    gap:10px;padding:12px 0;
+  }
+  body[data-kind=stretch] .session-copy{max-width:760px;overflow:visible}
+  body[data-kind=stretch] .session-copy .eyebrow{font-size:12px;letter-spacing:3px;margin-bottom:11px}
+  body[data-kind=stretch] .session-copy h1{font-size:clamp(39px,4vw,61px);line-height:1.07}
+  body[data-kind=stretch] .session-copy.is-long h1{font-size:clamp(34px,3.5vw,51px)}
+  body[data-kind=stretch] .session-cue,
+  body[data-kind=stretch] .session-copy.is-long .session-cue{max-width:600px;font-size:clamp(14px,1.1vw,17px);line-height:1.65;margin:14px auto 0}
+  body[data-kind=stretch] #session-side{font-size:12px;margin-top:12px}
+  body[data-kind=stretch] .session-guidance{transform:none}
+  body[data-kind=stretch] .session-clock{gap:12px}
+  body[data-kind=stretch] .session-clock strong{font-size:clamp(56px,5.2vw,80px)}
+  body[data-kind=stretch] .session-clock small{font-size:13px;letter-spacing:.05em}
+  body[data-kind=stretch] #session-stage-caption{font-size:18px;margin-top:9px}
+  body[data-kind=stretch] .session-bottom{max-width:1400px;gap:10px 18px;padding-top:10px}
+  body[data-kind=stretch] .session-progress{max-width:1050px;margin-bottom:8px}
+  body[data-kind=stretch] .session-controls{gap:clamp(15px,2.3vw,36px)}
+  body[data-kind=stretch] .session-controls .text-button{padding:10px 15px;font-size:14px}
+  body[data-kind=stretch] .pause-button{min-width:170px;min-height:60px;font-size:15px}
+  body[data-kind=stretch] .session-meta{min-height:38px;font-size:12px}
+  body[data-kind=stretch] .session-footnote{font-size:12px}
+  body[data-kind=stretch] .next-step{font-size:16px}
+  body[data-kind=stretch] .session-next.has-preview{height:104px}
+  body[data-kind=stretch] .stretch-next-preview{max-width:470px}
+  body[data-kind=stretch] #next-pose{width:100px;height:100px;flex-basis:100px}
+  body[data-kind=stretch] #next-preview-name{font-size:22px}
+}
+@media(min-width:1050px) and (min-height:600px){
+  body[data-kind=stretch] .session-layout{
+    --pose-size:min(580px,43vw,calc(100dvh - 290px));
+    display:grid;grid-template-columns:minmax(210px,1fr) minmax(0,1.9fr) minmax(210px,.9fr);
+    grid-template-rows:minmax(0,1fr);column-gap:clamp(18px,2.6vw,52px);
+    max-width:1510px;min-height:0;height:100%;padding:10px 0 0;
+  }
+  body[data-kind=stretch] .session-copy{
+    grid-column:1;grid-row:1;align-self:center;justify-self:start;
+    max-width:430px;text-align:left;
+  }
+  body[data-kind=stretch] .session-copy .eyebrow{font-size:13px}
+  body[data-kind=stretch] .session-copy h1{font-size:clamp(40px,3.45vw,66px)}
+  body[data-kind=stretch] .session-copy.is-long h1{font-size:clamp(34px,3vw,56px)}
+  body[data-kind=stretch] .session-cue,
+  body[data-kind=stretch] .session-copy.is-long .session-cue{margin:18px 0 0;font-size:clamp(15px,1.08vw,19px);max-width:370px}
+  body[data-kind=stretch] .session-stage{
+    grid-column:2;grid-row:1;align-self:center;justify-self:center;
+    width:var(--pose-size);height:var(--pose-size);min-height:var(--pose-size);
+  }
+  body[data-kind=stretch] .session-guidance{
+    grid-column:3;grid-row:1;align-self:center;justify-self:center;
+    text-align:center;transform:none;
+  }
+  body[data-kind=stretch] .session-clock{flex-direction:column;align-items:center;gap:12px}
+  body[data-kind=stretch] .session-clock strong{font-size:clamp(68px,7vw,116px)}
+  body[data-kind=stretch] .session-clock small{font-size:14px}
+  body[data-kind=stretch] #session-stage-caption{font-size:20px;max-width:250px}
+  body[data-kind=stretch] .session-preparation{border-radius:32px}
+}
+@media(min-width:761px) and (max-height:720px){
+  body[data-kind=stretch] .session-view{row-gap:2px}
+  body[data-kind=stretch] .session-copy h1{font-size:clamp(32px,3.25vw,51px)}
+  body[data-kind=stretch] .session-copy.is-long h1{font-size:clamp(30px,2.7vw,43px)}
+  body[data-kind=stretch] .session-cue,
+  body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:14px;line-height:1.5;margin-top:9px}
+  body[data-kind=stretch] .session-bottom{gap:3px 12px;padding-top:4px}
+  body[data-kind=stretch] .session-controls .text-button{padding:6px 12px}
+  body[data-kind=stretch] .pause-button{min-height:48px}
+  body[data-kind=stretch] .session-next.has-preview{height:86px}
+}
+@media(max-width:760px){
+  body[data-kind=stretch] .session-preparation{padding:12px;border-radius:16px}
+  .session-prep-card{gap:10px}
+  .session-prep-eyebrow{font-size:10px}
+  .session-prep-card h2{font-size:clamp(32px,9vw,44px)}
+  .session-prep-ring{width:clamp(132px,36vw,182px)}
+  .session-prep-ring strong{font-size:clamp(65px,17vw,90px)}
+  .session-prep-card>p:last-child{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  .session-prep-ring::before{transition:none}
+}
