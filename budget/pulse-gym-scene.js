@@ -324,7 +324,7 @@
     }
     // The compact programme is an overview first. The existing animated
     // stage becomes the separate, detailed exercise view on demand.
-    function mmProgram(){ return explore.profile==='markus'||explore.profile==='maja'; }
+    function mmProgram(){ return true; } // Shared overview/detail; programmes still differ by profile.
     function esc(value){return String(value==null?'':value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
     function mmTransition(p,i){
       if(i>=p.ids.length-1||!p.between)return null;
