@@ -15,7 +15,7 @@
     if(!storageOK)return loaded&&connected&&!blocked&&!pending?'Sparat på kontot · enhetslagring saknas':'Kunde inte spara på enheten · hämta säkerhetskopia';
     if(blocked)return lastFailure||'Sparat på den här enheten · molnsynk misslyckades';
     if(!connected)return 'Sparat på enheten · väntar på anslutning';
-    if(pending||!loaded)return 'Sparat på enheten · synkar…';
+    if(pending||!loaded||Object.values(entries).some(e=>!lastRemote[e.id]||e.updatedAt>lastRemote[e.id].updatedAt))return 'Sparat på enheten · synkar…';
     return 'Sparat på ditt konto';
   }
   function push(entry){
