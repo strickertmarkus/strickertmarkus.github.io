@@ -303,10 +303,14 @@
         '<span class="st-eyebrow">' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</span><h3>' + p.name + '</h3>' +
         '<ol class="st-path">' + p.ids.map(function (id, i) {
           var d = splitDose(explore.prescription(id, p).label), a = pose(id, false), b = pose(id, true);
+          var between = p.between && p.between[i];
+          var interlude = between && i < p.ids.length-1
+            ? '<li class="st-recovery"><span class="st-recovery-dot"></span><span><b>'+(between==='rope'?'Hopprep · 45 sek':'Vila · 90 sek')+'</b><small>'+(between==='rope'?'30 sek lugn återhämtning efteråt':'Inför nästa övning')+'</small></span></li>'
+            : '';
           return '<li class="st-stop' + (i % 2 ? ' is-right' : '') + '" style="--i:' + i + '">' +
             '<button type="button" class="st-stop-pad" data-zoom="' + i + '" aria-label="Visa ' + all[id].name + ' animerad"><span class="st-stop-tile"></span>' + (a ? '<img class="is-a" src="' + a + '" alt="" loading="lazy"><img class="is-b" src="' + b + '" alt="" loading="lazy">' : '') +
             '<span class="st-stop-num">' + (i + 1) + '</span></button>' +
-            '<button type="button" class="st-stop-copy" data-start-at="' + i + '" aria-label="Spela upp från ' + all[id].name + '"><small class="st-eyebrow">' + all[id].muscles[0] + '</small><b>' + all[id].name + '</b><span>' + d.big + ' ' + d.unit + '</span></button></li>';
+            '<button type="button" class="st-stop-copy" data-start-at="' + i + '" aria-label="Spela upp från ' + all[id].name + '"><small class="st-eyebrow">' + all[id].muscles[0] + '</small><b>' + all[id].name + '</b><span>' + d.big + ' ' + d.unit + '</span></button></li>' + interlude;
         }).join('') + '</ol>' +
         '<button type="button" class="st-cta st-start" data-train>' + ICON.play + '<span>Träna programmet</span></button>';
       sheet.scrollTop = 0;
