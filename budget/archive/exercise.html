@@ -2732,25 +2732,15 @@ function fillWorkoutFromPlan(iso){
   var list=document.getElementById('ex-list');
   list.innerHTML='';
   var wk={date:iso,exercises:plan.exercises||[]};
-  var exercises=plan.exercises||[],global=betweenExercisesForWorkout(wk);
-  // Between exercises (e.g. jump rope) are listed as their own rows, right after the
-  // exercise they belong to, so they are visible and editable before saving.
-  function betweenRow(cfg,rounds){
-    if(!cfg||!cfg.enabled||cfg.type!=='custom'||!rounds)return;
-    var seconds=Math.max(1,Number(cfg.seconds)||30);
-    addExRow(normalizeExercise({kind:'cardio',name:String(cfg.name||'Mellanövning'),distance:0,time:Math.round(seconds*rounds/60*100)/100}));
-  }
-  exercises.forEach(function(exercise,index){
+  // Between exercises stay with their exercise (shown in its row, as in the builder)
+  // and the between-exercises setting is shown once for the pass.
+  (plan.exercises||[]).forEach(function(exercise,index){
     addExRow(exercise);
-    var last=index===exercises.length-1;
-    var between=betweenForWorkoutExercise(wk,exercise,index);
-    if(between&&exercise.kind!=='cardio'){
-      var sets=Math.max(1,Number(exercise.sets)||1);
-      betweenRow(between,last?sets-1:sets);
-    }
-    if(!last)betweenRow(global,1);
+    var between=betweenForWorkoutExercise(wk,exercise,index),row=list.lastElementChild;
+    if(between&&row)row.dataset.betweenSetsV7=JSON.stringify(between);
   });
-  showWorkoutBetweenExercises(null);
+  showWorkoutBetweenExercises(betweenExercisesForWorkout(wk));
+  if(window.PulseBuilderUI&&typeof PulseBuilderUI.refresh==='function')PulseBuilderUI.refresh();
   if(!list.children.length)addExRow();
   updateWorkoutMeters();
   if(typeof showToast==='function')showToast('Passet är ifyllt. Justera och spara.');
