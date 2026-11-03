@@ -144,3 +144,85 @@ test('view exposes add and edit actions and does not create new Firebase keys',(
  assert.match(archive,/training-multipass-v1\.css/);
  assert.ok(!archive.includes('ex_plannedAdditional'));
 });
+
+
+test('four recovery arcs align precisely with the four main training segments',()=>{
+ const a=field.indexOf('  function rhythmOrbit(week,goal,zenDays){'),b=field.indexOf('  function renderRhythm() {',a);
+ assert.ok(a>0&&b>a);
+ const monday=new Date(2026,10,2,12);
+ const day=(d)=>new Date(monday.getFullYear(),monday.getMonth(),monday.getDate()+d,12);
+ const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ const ctx={startOfWeek:()=>monday,shiftDate:(d,i)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+i,12),
+   isoDate:iso,number:Number,workoutKind:()=> 'strength'};
+ vm.runInNewContext(field.slice(a,b)+'\nthis.orbit=rhythmOrbit;',ctx);
+ const svg=ctx.orbit([{id:1,date:iso(day(1)),type:'Styrka'}],4,
+   {[iso(day(1))]:{stretch:2,meditation:1},[iso(day(3))]:{stretch:1,meditation:0}});
+ const inner=name=>svg.match(new RegExp('<g class="ro-zen-track ro-zen-'+name+'">([\\s\\S]*?)<\\/g>'))[1];
+ const stretch=inner('stretch'),meditation=inner('meditation');
+ assert.equal((stretch.match(/class="ro-zen-segment/g)||[]).length,4);
+ assert.equal((meditation.match(/class="ro-zen-segment/g)||[]).length,4);
+ assert.equal((stretch.match(/class="ro-zen-lit"/g)||[]).length,3);
+ assert.equal((meditation.match(/class="ro-zen-lit"/g)||[]).length,1);
+ assert.equal((svg.match(/class="ro-arc"/g)||[]).length,1);
+ const main=svg.match(/class="ro-arc" d="([^"]+)"/)[1];
+ const outer=stretch.match(/data-slot="0" d="([^"]+)"/)[1];
+ const angle=str=>{
+   const m=str.match(/^M ([\d.-]+) ([\d.-]+)/);
+   return Math.atan2(Number(m[2])-60,Number(m[1])-60);
+ };
+ assert.ok(Math.abs(angle(main)-angle(outer))<.001,'First segment start angle must align');
+ const capped=ctx.orbit([],4,{[iso(day(1))]:{stretch:7,meditation:5}});
+ assert.equal((capped.match(/class="ro-zen-lit"/g)||[]).length,8,'Full tracks never create a fifth segment');
+});
+
+test('rhythm map shows a full dot for Zen-only days and a pip alongside strength/cardio',()=>{
+ const a=field.indexOf('  function renderActivity() {'),b=field.indexOf('  function chartRangeStart() {',a);
+ assert.ok(a>0&&b>a);
+ const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+ const shift=(d,i)=>{const result=new Date(d);result.setDate(result.getDate()+i);return result;};
+ const monday=shift(new Date(),-((new Date().getDay()+6)%7)-7);
+ const days=[0,1,2,3].map(i=>iso(shift(monday,i)));
+ const today=iso(new Date());
+ const zen={
+   [days[0]]:{stretch:1,meditation:0},
+   [days[1]]:{stretch:0,meditation:1},
+   [days[2]]:{stretch:1,meditation:1},
+   [days[3]]:{stretch:2,meditation:0},
+   [today]:{stretch:1,meditation:0}
+ };
+ const workouts={[days[3]]:[{id:1,date:days[3],type:'Styrka',duration:30}]};
+ const chart={innerHTML:'',setAttribute(){}};
+ const elements={'activity-total':{},'activity-unit':{},'activity-caption':{},'activity-chart':chart};
+ const ctx={
+   data:{goals:{weeklyWk:4}},byId:id=>elements[id],
+   isoDate:iso,shiftDate:shift,startOfWeek:d=>shift(d,-((d.getDay()+6)%7)),
+   zenKindsSnapshot:()=>zen,workoutsOn:d=>workouts[iso(d)]||[],
+   workoutKind:()=> 'strength',workoutType:()=> 'Styrka',
+   number:Number,formatNumber:String,weekNumber:()=>44,
+   dayNames:['Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag','Söndag'],
+   shortDate:iso,planForDate:d=>iso(d)===today?{type:'Styrka',name:'Planerat'}:null,
+   chartTipAttrs:title=>' data-test="'+title.slice(title.lastIndexOf(' ')+1)+'" '
+ };
+ vm.runInNewContext(field.slice(a,b)+'\nthis.render=renderActivity;',ctx);
+ ctx.render();
+ function cell(key){
+   const m=chart.innerHTML.match(new RegExp('<span class="([^"]+)"[^>]*data-test="'+key+'"[^>]*>([\\s\\S]*?)<\\/span>'));
+   assert.ok(m,'missing cell '+key);
+   return {classes:m[1],markup:m[2]};
+ }
+ const stretch=cell(days[0]),meditation=cell(days[1]),both=cell(days[2]),mixed=cell(days[3]),planned=cell(today);
+ assert.match(stretch.classes,/is-pass is-zen-only/);
+ assert.doesNotMatch(stretch.markup,/rm-zen-dot/);
+ assert.match(meditation.classes,/is-pass is-zen-only/);
+ assert.doesNotMatch(meditation.markup,/rm-zen-dot/);
+ assert.match(both.classes,/is-zen-mixed/);
+ assert.doesNotMatch(both.markup,/rm-zen-dot/);
+ assert.doesNotMatch(mixed.classes,/is-zen-only/);
+ assert.match(mixed.markup,/rm-zen-dot is-stretch/);
+ assert.match(planned.classes,/is-zen-only/);
+ assert.doesNotMatch(planned.classes,/is-planned/);
+ assert.equal(elements['activity-total'].textContent,'1','Zen sessions do not count toward workout goal');
+ const css=read('training-pulse-field.css');
+ assert.match(css,/\.rm-cell\.is-zen-only>i/);
+ assert.match(css,/\.rm-cell\.is-zen-only\.is-zen-mixed>i/);
+});
