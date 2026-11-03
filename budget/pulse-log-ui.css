@@ -59,10 +59,10 @@ html.pbu-v1[data-field-embedded] body#pulse-page :is(#wk-modal.pbu-log,#exercise
   color:#fff!important;-webkit-text-fill-color:#fff!important;font:600 16px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;
 }
 html.pbu-v1[data-field-embedded] body#pulse-page :is(#wk-modal.pbu-log,#exercise-edit-modal-v9.pbu-single) .pbu-row.pbu-picking .pbu-timing{display:none!important}
-/* A logged pass has no between-sets timer: no clock, the cross takes its place. */
-html.pbu-v1[data-field-embedded] body#pulse-page :is(#wk-modal.pbu-log,#exercise-edit-modal-v9.pbu-single) .pbu-row>.pbu-between-btn{display:none!important}
-html.pbu-v1[data-field-embedded] body#pulse-page :is(#wk-modal.pbu-log,#exercise-edit-modal-v9.pbu-single) .pbu-row>.pbu-quick-del{right:34px}
-html.pbu-v1[data-field-embedded] body#pulse-page :is(#wk-modal.pbu-log,#exercise-edit-modal-v9.pbu-single) .pbu-row:not(.pbu-empty) .pbu-head{padding-right:78px}
+/* A logged pass keeps its between-sets clock, so a pass already done can be rebuilt. */
+html.pbu-v1[data-field-embedded] body#pulse-page #exercise-edit-modal-v9.pbu-single .pbu-row>.pbu-between-btn{display:none!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #exercise-edit-modal-v9.pbu-single .pbu-row>.pbu-quick-del{right:34px}
+html.pbu-v1[data-field-embedded] body#pulse-page #exercise-edit-modal-v9.pbu-single .pbu-row:not(.pbu-empty) .pbu-head{padding-right:78px}
 
 /* Mätvärden: heart rate and cardio cards, clearly after the exercise list. */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-card{
@@ -155,3 +155,20 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-save
 /* Between exercises of a logged pass, in the between-sets colour. */
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-between-global{margin:-2px 0 8px;color:var(--pbu-accent);font:500 12.5px/1.4 Inter,system-ui,sans-serif}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-between-global[hidden]{display:none}
+
+/* Between exercises for the whole pass, editable in the log */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-log-between-global{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 10px;color:var(--pbu-muted);font:500 12.5px/1.4 Inter,system-ui,sans-serif}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-label{color:var(--pbu-muted);font-weight:600}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-type{margin:0!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-type button{min-height:32px!important;padding:0 12px!important;font-size:12.5px!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-fields{display:flex;align-items:center;gap:8px;flex:1 1 100%}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-fields[hidden]{display:none}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-name{flex:1 1 auto;min-width:0;font-size:16px!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-name[hidden]{display:none}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-sec-wrap{display:flex;align-items:center;gap:6px;flex:none;margin:0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .lbg-sec{width:76px!important;font-size:16px!important;text-align:center}
+/* Delete a logged pass */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .pbu-log-delete{display:inline-flex!important;flex:0 0 auto;margin:6px auto 0!important;min-height:40px;padding:0 14px!important;border:0!important;background:none!important;color:#ff8a78!important;font:600 13.5px Inter,system-ui,sans-serif!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .pbu-log-delete[hidden]{display:none!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .pbu-log-delete.is-armed{color:#1d0806!important;background:#ff8a78!important;border-radius:999px!important}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer{flex-wrap:wrap!important}

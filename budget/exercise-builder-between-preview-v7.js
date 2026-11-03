@@ -77,7 +77,7 @@
   }
 
   function isStrengthRow(row) {
-    var hidden = row && row.querySelector('.dw-kind');
+    var hidden = row && row.querySelector('.dw-kind,.ex-kind');
     return !hidden || hidden.value !== 'cardio';
   }
 
@@ -382,6 +382,17 @@
     });
   }
 
+  // The log form ("Logga pass" / edit a logged pass) gets the same between-sets panel per row.
+  function enhanceLogRows() {
+    var list = document.querySelector('#wk-modal #ex-list');
+    if (!list) return;
+    Array.prototype.slice.call(list.querySelectorAll(':scope > .ex-row-item')).forEach(function (row) {
+      if (!row.querySelector('.per-set-v7')) row.insertAdjacentHTML('beforeend',perRowMarkup());
+      if (!row.dataset.betweenSetsV7) row.dataset.betweenSetsV7 = JSON.stringify(inactiveConfig());
+      syncPerRowUi(row,rowConfig(row));
+    });
+  }
+
   function updateGlobalFromEditor() {
     var date = currentDate();
     var editor = document.getElementById('between-exercise-global-editor-v7');
@@ -399,7 +410,7 @@
   }
 
   function handleBuilderClick(event) {
-    var modal = event.target && event.target.closest ? event.target.closest('#day-workout-modal') : null;
+    var modal = event.target && event.target.closest ? event.target.closest('#day-workout-modal,#wk-modal') : null;
     if (!modal) return;
 
     var globalToggle = event.target.closest('[data-global-toggle-v7]');
@@ -427,16 +438,16 @@
 
   function handleBuilderInput(event) {
     var target = event.target;
-    if (!target || !target.closest || !target.closest('#day-workout-modal')) return;
+    if (!target || !target.closest || !target.closest('#day-workout-modal,#wk-modal')) return;
 
     if (target.matches('[data-global-type-v7],[data-global-seconds-v7],[data-global-name-v7]')) {
       updateGlobalFromEditor();
       return;
     }
 
-    var row = target.closest('#day-workout-ex-list .ex-row-item');
+    var row = target.closest('#day-workout-ex-list .ex-row-item, #wk-modal #ex-list .ex-row-item');
     if (!row) return;
-    if (target.matches('.dw-kind,.dw-metric1,.ex-kind-btn')) {
+    if (target.matches('.dw-kind,.dw-metric1,.ex-kind,.ex-metric1,.ex-kind-btn')) {
       setTimeout(function () { syncPerRowUi(row,rowConfig(row)); },0);
       return;
     }
@@ -642,6 +653,8 @@
       ensureGlobalUi();
       enhanceRows();
     }
+    var log=document.getElementById('wk-modal');
+    if (log && log.classList.contains('show')) enhanceLogRows();
     installSaveFlow();
     installLoadHook();
   }
@@ -665,6 +678,8 @@
       syncObserver = new MutationObserver(scheduleSync);
       var modal=document.getElementById('day-workout-modal');
       if (modal) syncObserver.observe(modal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+      var logModal=document.getElementById('wk-modal');
+      if (logModal) syncObserver.observe(logModal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
     } else {
       syncTimer=setInterval(sync,180);
     }

@@ -10,13 +10,13 @@
   <title>Träning · bevarade passverktyg</title>
   <script>
   if(window.__FIELD_EMBEDDED__){
-    document.write('<script src="auth-config.js?v=20261103-drag-log-1"><\/script>');
+    document.write('<script src="auth-config.js?v=20261103-rebuild-1"><\/script>');
   }else{
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"><\/script>');
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"><\/script>');
     document.write('<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"><\/script>');
     document.write('<script src="indexeddb-fallback.js"><\/script>');
-    document.write('<script src="auth-config.js?v=20261103-drag-log-1"><\/script>');
+    document.write('<script src="auth-config.js?v=20261103-rebuild-1"><\/script>');
     document.write('<script src="auth-gate.js?v=20261026-energy-loop-4"><\/script>');
     document.write('<script src="firebase-sync.js?v=20261020-exercise-history-v1"><\/script>');
   }
@@ -558,7 +558,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261103-log-day-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261029-tpl-7">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261103-rebuild-1">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
@@ -804,7 +804,11 @@ if(!window.__FIELD_EMBEDDED__){
     </div>
     <div class="form-group pbu-log-exercises">
       <label>Övningar</label>
-      <p class="pbu-log-between-global" id="wk-between-global" hidden></p>
+      <div class="pbu-log-between-global" id="wk-between-global" data-config="">
+        <span class="lbg-label">Mellan övningar</span>
+        <div class="pbu-seg lbg-type" role="group" aria-label="Mellan övningar"><button type="button" data-lbg-type="none" aria-pressed="true">Av</button><button type="button" data-lbg-type="rest" aria-pressed="false">Vila</button><button type="button" data-lbg-type="custom" aria-pressed="false">Övning</button></div>
+        <div class="lbg-fields" hidden><input class="lbg-name" type="text" maxlength="40" placeholder="Ex: Hopprep" aria-label="Mellanövning" autocomplete="off"><label class="lbg-sec-wrap"><input class="lbg-sec" type="number" inputmode="numeric" min="5" max="900" step="5" aria-label="Sekunder"><span>s</span></label></div>
+      </div>
       <div class="ex-list" id="ex-list"></div>
       <button class="btn-sm pt-add" type="button" style="margin-top:8px" onclick="addExRow()">Lägg till övning</button>
     </div>
@@ -845,6 +849,7 @@ if(!window.__FIELD_EMBEDDED__){
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('wk-modal')">Avbryt</button>
       <button class="btn-primary" onclick="saveWorkout()">Spara träning</button>
+      <button class="btn-ghost pbu-log-delete" type="button" id="wk-delete" onclick="deleteEditedWorkout(this)" hidden>Ta bort pass</button>
     </div>
   </div>
 </div>
@@ -3452,6 +3457,7 @@ function openWorkoutModal(options){
   var saveButton=workoutModal.querySelector('[onclick="saveWorkout()"]');
   if(saveButton)saveButton.hidden=false;
   if(!options.editing)editingWorkoutId=null;
+  var deleteButton=document.getElementById('wk-delete');if(deleteButton){deleteButton.hidden=!options.editing;deleteButton.classList.remove('is-armed');deleteButton.textContent='Ta bort pass';}
   editingWorkoutTargetIndex=null;
   var modalTitle=document.querySelector('#wk-modal .modal > h2');
   if(modalTitle)modalTitle.textContent=options.editing?'Redigera pass':'Logga träning';
@@ -3667,11 +3673,48 @@ function betweenExercisesForWorkout(wk){
 function rowBetween(row){
   try{var cfg=JSON.parse(row.dataset.betweenSetsV7||'null');return cfg&&cfg.enabled?cfg:null;}catch(_){return null;}
 }
+/* Between exercises for the whole pass in the log form: Av / Vila / Övning with
+   name and seconds. Saved with the pass, so a pass already done can be rebuilt. */
 function showWorkoutBetweenExercises(cfg){
   var el=document.getElementById('wk-between-global');if(!el)return;
-  el.hidden=!cfg;
-  el.textContent=cfg?'Mellan övningar · '+(cfg.type==='rest'?'Vila':(cfg.name||'Övning'))+' '+(cfg.seconds||30)+' s':'';
-  el.dataset.config=cfg?JSON.stringify(cfg):'';
+  cfg=cfg&&cfg.enabled?cfg:null;
+  var type=cfg?(cfg.type==='custom'?'custom':'rest'):'none';
+  el.querySelectorAll('[data-lbg-type]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.lbgType===type));});
+  var fields=el.querySelector('.lbg-fields'),name=el.querySelector('.lbg-name'),sec=el.querySelector('.lbg-sec');
+  fields.hidden=type==='none';name.hidden=type!=='custom';
+  if(cfg){sec.value=cfg.seconds||(type==='rest'?60:30);name.value=cfg.name||'';}
+  el.dataset.config=JSON.stringify(cfg?{enabled:true,type:type,seconds:Math.max(5,Number(cfg.seconds)||(type==='rest'?60:30)),name:type==='custom'?String(cfg.name||'').trim():''}:{enabled:false,type:'none',seconds:30,name:''});
+}
+function readWorkoutBetweenEditor(){
+  var el=document.getElementById('wk-between-global');if(!el)return;
+  var on=el.querySelector('[data-lbg-type][aria-pressed="true"]'),type=on?on.dataset.lbgType:'none';
+  if(type==='none'){showWorkoutBetweenExercises(null);return;}
+  var sec=Number(el.querySelector('.lbg-sec').value)||(type==='rest'?60:30);
+  showWorkoutBetweenExercises({enabled:true,type:type,seconds:sec,name:el.querySelector('.lbg-name').value});
+}
+(function(){
+  var el=document.getElementById('wk-between-global');if(!el)return;
+  el.addEventListener('click',function(e){
+    var b=e.target.closest('[data-lbg-type]');if(!b)return;
+    var type=b.dataset.lbgType,cur=JSON.parse(el.dataset.config||'{}');
+    showWorkoutBetweenExercises(type==='none'?null:{enabled:true,type:type,seconds:cur.enabled&&cur.type===type?cur.seconds:(type==='rest'?60:30),name:type==='custom'?(el.querySelector('.lbg-name').value||cur.name||''):''});
+    if(type==='custom')el.querySelector('.lbg-name').focus();
+  });
+  el.addEventListener('input',readWorkoutBetweenEditor);
+})();
+/* "Ta bort pass" while editing a logged pass: tap once to arm, again to delete. */
+function deleteEditedWorkout(button){
+  if(!editingWorkoutId)return;
+  if(!button.classList.contains('is-armed')){
+    button.classList.add('is-armed');button.textContent='Tryck igen för att ta bort';
+    clearTimeout(button._disarm);button._disarm=setTimeout(function(){button.classList.remove('is-armed');button.textContent='Ta bort pass';},3500);
+    return;
+  }
+  clearTimeout(button._disarm);button.classList.remove('is-armed');button.textContent='Ta bort pass';
+  var id=String(editingWorkoutId);
+  saveWorkouts(getWorkouts().filter(function(w){return String(w.id)!==id;}));
+  editingWorkoutId=null;
+  closeModal('wk-modal');refreshAll();showToast('Pass borttaget.');
 }
 /* "Spara som mall" in the log form: the pass's exercises become a template
    named after the pass (an existing template with that name is updated). */
