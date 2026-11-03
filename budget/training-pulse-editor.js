@@ -238,7 +238,7 @@ function ensureSessionAssets(win){
  return win.__loadEmbeddedSessionAssetsV1().then(function(){return ensurePulseFlow(win);});
 }
 
-function selectTool(win,tool,button,date){
+function selectTool(win,tool,button,date,extraId){
  var iso=date||selectedDate;win.document.documentElement.dataset.fieldWorkspace=tool;
  win.viewedMondayISO=monday(iso);
  if(tool!=='editTemplate')win.fieldEmbeddedTemplateId=null;
@@ -276,7 +276,7 @@ function selectTool(win,tool,button,date){
    }
    break;
   case 'log':win.openWorkoutModal();if(iso){win.document.getElementById('wk-date').value=iso;}break;
-  case 'logDay':win.openWorkoutModal({skipBlank:true});win.fillWorkoutFromPlan(iso,button&&button.dataset.extraId||'');break;
+  case 'logDay':win.openWorkoutModal({skipBlank:true});win.fillWorkoutFromPlan(iso,extraId||button&&button.dataset.extraId||'');break;
   case 'editLog':
    win.editWorkout(Number(button.dataset.workoutId));
    // Opened from one exercise in the log: that exercise's row starts open.
@@ -315,7 +315,7 @@ function selectTool(win,tool,button,date){
  }
  return true;
 }
-function runTool(tool,button,dateOverride){
+function runTool(tool,button,dateOverride,extraId){
  if(new URLSearchParams(location.search).get('demo')==='1'){notice('Exempelvyn kan inte ändras. Öppna sidan utan demo=1 för att redigera och spara pass.');return;}
  var date=dateOverride||button&&button.dataset.fieldDate||selectedDate;
  if(tool==='create-template')tool='createTemplate';
@@ -343,7 +343,7 @@ function runTool(tool,button,dateOverride){
   function openSelectedTool(){
    if(!dialog.open||request!==requestId)return;
    updateStatus('');
-   var success=selectTool(win,tool,button,date);openingTool=false;
+   var success=selectTool(win,tool,button,date,extraId);openingTool=false;
    if(success===false){closeWorkspace();activeTool='';}
   }
 
@@ -377,8 +377,7 @@ function install(){
   var detail=event.detail||{};
   if(!detail.tool)return;
   if(detail.date)selectedDate=detail.date;
-  var origin=detail.origin||detail.extraId?detail.origin||{dataset:{extraId:detail.extraId}}:null;
-  runTool(detail.tool,origin,detail.date||selectedDate);
+  runTool(detail.tool,detail.origin||null,detail.date||selectedDate,detail.extraId||null);
  });
  var deep=new URLSearchParams(location.search).get('tool');
  if(deep&&['build','start','log','week','records','goals'].includes(deep))runTool(deep,null);
