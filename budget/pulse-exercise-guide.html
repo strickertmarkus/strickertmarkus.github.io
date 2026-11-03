@@ -316,12 +316,13 @@ body:has(.studio-technique[open]){overflow:hidden}
  const asked=new URLSearchParams(location.search).get('user'),profile=asked==='maja'||asked==='ingemar'?asked:'markus';
  const label=document.getElementById('explore-profile-name');
  const back=document.getElementById('explore-back');
+ document.documentElement.dataset.exploreProfile=profile;
  if(label)label.textContent=profile==='maja'?'MAJAS TRÄNING':profile==='ingemar'?'INGEMARS TRÄNING':'MARKUS TRÄNING';
  if(back)back.href=profile==='ingemar'?'ingemar.html':'exercise.html'+(profile==='maja'?'?user=maja':'');
  if(profile==='ingemar')document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('open-selection');if(b)b.textContent='Öppna i passbyggaren ↗';});
 })();
 </script>
-<script src="pulse-explore.js?v=20261029-shared-1"></script>
+<script src="pulse-explore.js?v=20261103-mm-programs-1"></script>
 <script>
 'use strict';
 const exercises=window.PulseExplore.exercises;
@@ -940,15 +941,27 @@ function showPage(value,remember=true){
 }
 function showTechnique(id){route(()=>{setList(false);showPage('guide',false);openStudio('Alla',id,true);});}
 function renderPrograms(){
- $('program-filters').innerHTML=groups.map(value=>`<button type="button" data-program-filter="${value}" aria-pressed="${programFilter===value}">${value}</button>`).join('');
- const matches=explorer.matchingPrograms('Alla',$('program-time').value).filter(p=>programFilter==='Alla'||p.ids.some(id=>exercises[id].muscles.includes(programFilter)));
+ const available=explorer.profile==='ingemar'?groups:['Alla',...new Set(explorer.programs.map(p=>p.group))];
+ $('program-filters').innerHTML=available.map(value=>`<button type="button" data-program-filter="${value}" aria-pressed="${programFilter===value}">${value}</button>`).join('');
+ const matches=explorer.matchingPrograms('Alla',$('program-time').value).filter(p=>programFilter==='Alla'||(explorer.profile==='ingemar'?p.ids.some(id=>exercises[id].muscles.includes(programFilter)):p.group===programFilter));
  $('program-count').textContent=matches.length+' program';
  $('program-cards').innerHTML=matches.map(p=>`<article class="program-card" data-group="${p.group}"><span class="eyebrow">${safe(p.tag)}</span><h3>${safe(p.name)}</h3><p>${safe(p.description)}</p><div class="program-meta">${p.ids.length} övningar · ${safe(explorer.durationLabel(p))}<br>${safe(p.equipment)}</div><button type="button" class="explore-quiet" data-program="${p.id}">Visa program →</button></article>`).join('')||'<div class="empty-result">Inga program ryms inom dina val. Välj mer tid eller en annan inriktning. <button type="button" class="explore-quiet" id="reset-program-filters">Visa alla program</button></div>';
+}
+function renderProgramTimeline(program){
+ const steps=explorer.programSequence(program);
+ return '<ol class="program-timeline">'+steps.map((segment)=>{
+  if(segment.kind!=='exercise'){
+   const rope=segment.kind==='rope',label=rope?'Hopprep':'Vila';
+   return '<li class="timeline-recovery"><span class="timeline-recovery-mark" aria-hidden="true"></span><div><strong>'+label+'</strong><small>'+(rope?segment.seconds+' sek hopprep · '+segment.restSeconds+' sek lugn återhämtning':segment.seconds+' sek mellan övningarna')+'</small></div></li>';
+  }
+  const id=segment.id,i=segment.index,ex=exercises[id];
+  return `<li><button class="timeline-preview" type="button" data-technique="${id}" aria-label="Se teknik för ${safe(ex.name)}"><span class="timeline-poses">${[0,1].map(pose=>`<span class="timeline-pose"><span class="pose-image"><img src="assets/exercise-poses-v2/${String(id).padStart(2,'0')}-${pose?'end':'start'}.webp" loading="lazy" decoding="async" alt="${safe(ex.name)} · ${pose?'slutläge':'startläge'}"></span></span>`).join('')}</span></button><div class="timeline-copy"><span class="timeline-number">${String(i+1).padStart(2,'0')}</span><strong>${safe(ex.name)}</strong><small>Förslag: ${safe(explorer.prescription(id,program).label)}</small><small>${safe(exerciseEstimate(id,program))}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(ex.name)}">Se teknik ↗</button></li>`;
+ }).join('')+'</ol>';
 }
 function showProgram(id){
  const p=explorer.programs.find(program=>program.id===id);if(!p)return;chosenProgram=p.id;
  $('program-detail').hidden=false;
- $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">Tidsestimat: ca ${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><div class="timeline-start"><span>◌</span> Uppvärmning <small>Innan första arbetssetet</small></div><ol class="program-timeline">${p.ids.map((id,i)=>`<li><button class="timeline-preview" type="button" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}"><span class="timeline-poses">${[0,1].map(pose=>`<span class="timeline-pose"><span class="pose-image"><img src="assets/exercise-poses-v2/${String(id).padStart(2,'0')}-${pose?'end':'start'}.webp" loading="lazy" decoding="async" alt="${safe(exercises[id].name)} · ${pose?'slutläge':'startläge'}"></span></span>`).join('')}</span></button><div class="timeline-copy"><span class="timeline-number">${String(i+1).padStart(2,'0')}</span><strong>${safe(exercises[id].name)}</strong><small>Förslag: ${safe(explorer.prescription(id,p).label)}</small><small>${safe(exerciseEstimate(id,p))}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(exercises[id].name)}">Se teknik ↗</button></li>`).join('')}</ol><footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">${explorer.profile==='ingemar'?'Öppna i passbyggaren ↗':'Kopiera programförslag ↗'}</button></footer>`;
+ $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">Tidsestimat: ca ${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><div class="timeline-start"><span>◌</span> Uppvärmning <small>Innan första arbetssetet</small></div>${renderProgramTimeline(p)}<footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">${explorer.profile==='ingemar'?'Öppna i passbyggaren ↗':'Kopiera programförslag ↗'}</button></footer>`;
  $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
  $('program-detail').focus({preventScroll:true});$('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
 }
@@ -972,11 +985,20 @@ function transfer(request){
   return;
  }
  // Export instead of writing an Ingemar-specific builder format.
- const text=[plan.name,'',...plan.exercises.map((exercise,index)=>{
+ const displayed=plan.sequence&&explorer.profile!=='ingemar'
+ ?plan.sequence.map(segment=>{
+   if(segment.kind==='rope')return '  Hopprep '+segment.seconds+' sek + vila '+segment.restSeconds+' sek';
+   if(segment.kind==='rest')return '  Vila '+segment.seconds+' sek';
+   const exercise=plan.exercises[segment.index],first=exercise.sets[0]||{};
+   const dose=exercise.mode==='min'?(first.minutes?first.minutes+' min':'Tidsövning'):(exercise.sets.length+' set × '+(first.reps==null?'valfria':first.reps)+' reps');
+   return (segment.index+1)+'. '+exercise.name+' — '+dose;
+ })
+ :plan.exercises.map((exercise,index)=>{
   const first=exercise.sets[0]||{};
   const dose=exercise.mode==='min'?(first.minutes?first.minutes+' min':'Tidsövning'):(exercise.sets.length+' set × '+(first.reps==null?'valfria':first.reps)+' reps');
   return (index+1)+'. '+exercise.name+' — '+dose;
- })].join('\n');
+ });
+ const text=[plan.name,'',...displayed].join('\n');
  function fallback(){
   const field=document.createElement('textarea');field.value=text;field.readOnly=true;
   field.style.cssText='position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
@@ -1047,7 +1069,7 @@ window.PulseGuideUI={
  countFor:name=>exercises.filter(e=>name==='Alla'||e.muscles.includes(name)).length,
  programFilter:()=>programFilter,
  program:id=>explorer.programs.find(p=>p.id===id),
- programCount:(name,time)=>explorer.matchingPrograms('Alla',time==null?$('program-time').value:time).filter(p=>name==='Alla'||p.ids.some(id=>exercises[id].muscles.includes(name))).length
+ programCount:(name,time)=>explorer.matchingPrograms('Alla',time==null?$('program-time').value:time).filter(p=>name==='Alla'||(explorer.profile==='ingemar'?p.ids.some(id=>exercises[id].muscles.includes(name)):p.group===name)).length
 };
 renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',false);
  history.replaceState(routeState(),'', '#'+page);
