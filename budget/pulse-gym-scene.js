@@ -489,6 +489,13 @@
       if (new URLSearchParams(location.search).get('user') === 'maja') url.searchParams.set('user', 'maja');
       // Opened inside the training page: the training page itself takes over.
       var host = window; try { if (window.parent !== window && window.parent.PulseExploreStage) host = window.parent; } catch (e) {}
+      // In the embedded explorer Safari may partition frame session storage.
+      // Write the payload to the actual receiving window as well, before
+      // navigation; the import consumes it only after every row is inserted.
+      if(host!==window){
+        try{host.sessionStorage.setItem(explore.transferKey,JSON.stringify({version:1,programId:p.id}));}
+        catch(e){ui.copyProgram(p.id);return;}
+      }
       host.location.href = url.href;
     }
     function closeSheet() {
