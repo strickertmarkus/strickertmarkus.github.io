@@ -330,7 +330,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return '';
   }
   // One arc per pass toward the goal, in the pass's colour; extra passes as small sparks on an outer orbit.
-  function rhythmOrbit(week,goal){
+  function rhythmOrbit(week,goal,zenDays){
     var R=46,c=60,gap=goal>6?6:10,seg=360/goal,s='<svg class="rhythm-orbit-svg" viewBox="0 0 120 120" aria-hidden="true"><defs><filter id="ro-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4.5"/></filter><filter id="ro-glow-tight" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.8"/></filter></defs>';
     var sorted=week.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date))||number(a.id)-number(b.id);});
     function arc(i){var a0=(-90+i*seg+gap/2)*Math.PI/180,a1=(-90+(i+1)*seg-gap/2)*Math.PI/180;return 'M '+(c+R*Math.cos(a0)).toFixed(2)+' '+(c+R*Math.sin(a0)).toFixed(2)+' A '+R+' '+R+' 0 0 1 '+(c+R*Math.cos(a1)).toFixed(2)+' '+(c+R*Math.sin(a1)).toFixed(2);}
@@ -339,6 +339,26 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(w){var col=workoutKind(w)==='cardio'?'#7fe3ef':'#ff657a';s+='<path d="'+arc(i)+'" stroke="'+col+'" stroke-width="12" opacity=".5" filter="url(#ro-glow)"/><path d="'+arc(i)+'" stroke="'+col+'" stroke-width="6" opacity=".7" filter="url(#ro-glow-tight)"/><path class="ro-arc" d="'+arc(i)+'" stroke="'+col+'" stroke-width="4"/><path d="'+arc(i)+'" stroke="#fff" stroke-width="1.2" opacity=".45"/>';}
       else s+='<path class="ro-empty" d="'+arc(i)+'"/>';
     }
+    // Two slender weekly recovery tracks around the /4 training ring.
+    // One segment per weekday, regardless of how many sessions were done;
+    // this does not change the workout goal or the number in its centre.
+    var monday=startOfWeek(new Date());
+    function zenArc(day,r){
+      var a0=(-90+day*360/7+3)*Math.PI/180,a1=(-90+(day+1)*360/7-3)*Math.PI/180;
+      return 'M '+(c+r*Math.cos(a0)).toFixed(2)+' '+(c+r*Math.sin(a0)).toFixed(2)+
+        ' A '+r+' '+r+' 0 0 1 '+(c+r*Math.cos(a1)).toFixed(2)+' '+(c+r*Math.sin(a1)).toFixed(2);
+    }
+    ['stretch','meditation'].forEach(function(kind,index){
+      var radius=index?58:53,color=index?'#f5d58c':'#b8e99b';
+      s+='<g class="ro-zen-track ro-zen-'+kind+'">';
+      for(var d=0;d<7;d++){
+        var counts=zenDays[isoDate(shiftDate(monday,d))]||{},active=counts[kind]>0;
+        s+='<path d="'+zenArc(d,radius)+'" stroke="'+(active?color:'#ffffff18')+'" stroke-width="'+(active?2.9:1.6)+'"'+
+          (active?' filter="url(#ro-glow-tight)"':'')+'/>';
+        if(active)s+='<path d="'+zenArc(d,radius)+'" stroke="'+color+'" stroke-width="2.2"/>';
+      }
+      s+='</g>';
+    });
     var bonus=Math.max(0,sorted.length-goal);
     if(bonus){s+='<g class="ro-bonus">';for(var j=0;j<Math.min(bonus,6);j++){var ang=(-90+j*(360/Math.min(bonus,6)))*Math.PI/180;s+='<circle cx="'+(c+56*Math.cos(ang)).toFixed(2)+'" cy="'+(c+56*Math.sin(ang)).toFixed(2)+'" r="2.2"/>';}s+='</g>';}
     return s+'</svg>';
@@ -360,7 +380,15 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('rhythm-next').textContent=nextPlanned()||'Inget planerat';
     var orbit=byId('rhythm-orbit');
     orbit.classList.toggle('is-complete',week.length>=goal);orbit.classList.toggle('is-bonus',bonus>0);
-    byId('rhythm-orbit-art').innerHTML=rhythmOrbit(week,goal);
+    var zenDays=zenKindsByDate(),zenTotals={stretch:0,meditation:0};
+    for(var zi=0;zi<7;zi++){
+      var z=zenDays[isoDate(shiftDate(startOfWeek(new Date()),zi))]||{};
+      zenTotals.stretch+=z.stretch||0;zenTotals.meditation+=z.meditation||0;
+    }
+    byId('rhythm-orbit-art').innerHTML=rhythmOrbit(week,goal,zenDays);
+    var zenFacts=byId('rhythm-zen-facts');
+    if(zenFacts)zenFacts.innerHTML='<span class="rhythm-zen-mark is-stretch">Stretch <b>'+zenTotals.stretch+'</b></span>'+
+      '<span class="rhythm-zen-mark is-meditation">Meditation <b>'+zenTotals.meditation+'</b></span>';
   }
 
   var PROGRESS_CHART={rhythm:'activity-chart',volume:'volume-chart',body:'insight-chart'};
@@ -415,10 +443,19 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var last=pts[pts.length-1];d+=' C'+(last[0]+25)+' '+last[1]+' '+(700-20)+' '+(last[1]+8)+' 700 '+(last[1]+10);
     return '<svg class="wd-curve" viewBox="0 0 700 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wd-curve-grad" x1="0" x2="1"><stop stop-color="#ff657a" stop-opacity=".12"/><stop offset=".45" stop-color="#ff9a91" stop-opacity=".6"/><stop offset="1" stop-color="#7fe3ef" stop-opacity=".14"/></linearGradient></defs><path d="'+d+'"/></svg>';
   }
-  // Zen keeps its own history (zen_v1_<account>_<profile>_entries); read who did what when.
-  function zenDoneByDate(){
-    var out={};
-    function add(e){if(!e||e.deleted||e.type!=='session'||!e.completedAt)return;var d=isoDate(new Date(e.completedAt));if(!out[d]||e.kind==='stretch')out[d]=e.kind;}
+  // Zen keeps its own cloud-backed local history. Both kinds may have been
+  // completed on the same day, so retain separate counts instead of picking
+  // only stretch and hiding meditation.
+  function zenKindsByDate(){
+    var out={},seen={};
+    function add(e){
+      if(!e||e.deleted||e.type!=='session'||!e.completedAt||!['stretch','meditation'].includes(e.kind))return;
+      var stamp=new Date(e.completedAt);if(isNaN(stamp.getTime()))return;
+      var key=String(e.id||e.kind+'_'+e.completedAt);
+      if(seen[key])return;seen[key]=true;
+      var day=isoDate(stamp),counts=out[day]||(out[day]={stretch:0,meditation:0});
+      counts[e.kind]++;
+    }
     if(window.ZenStore&&ZenStore.ready){ZenStore.entries.forEach(add);return out;}
     try{
       for(var i=0;i<localStorage.length;i++){
@@ -430,17 +467,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     }catch(_){}
     return out;
   }
-  var zenDoneCache=null;
+  var zenKindsCache=null,zenDoneCache=null;
+  function zenKindsOn(key){if(!zenKindsCache)zenKindsCache=zenKindsByDate();return zenKindsCache[key]||{stretch:0,meditation:0};}
+  function zenDoneByDate(){
+    var data=zenKindsByDate(),out={};
+    Object.keys(data).forEach(function(key){out[key]=data[key].stretch?'stretch':data[key].meditation?'meditation':'';});
+    return out;
+  }
   function zenDoneOn(key){if(!zenDoneCache)zenDoneCache=zenDoneByDate();return zenDoneCache[key]||'';}
   function renderWeek() {
-    zenDoneCache=null;
+    zenDoneCache=null;zenKindsCache=null;
     updateWeekNavigators();
     var today=isoDate(new Date()),markup='';
     for(var i=0;i<7;i++){
       var date=shiftDate(state.weekStart,i),key=isoDate(date),plan=planForDate(date),logged=workoutsOn(date);
       // A logged pass decides the colour and name; otherwise the plan does.
       // A stretch or meditation pass done in Zen that day counts as done here too.
-      var zenDone=zenDoneOn(key);
+      var zenDone=zenDoneOn(key),zenMix=zenKindsOn(key);
       var type=logged.length?workoutType(logged[0]):zenDone?(zenDone==='meditation'?'Meditation':'Stretch'):plan&&plan.type||'Vila';
       var displayName=String(logged.length?type:plan&&plan.name||type).trim()||String(type);
       var lowerType=String(type).trim().toLocaleLowerCase('sv-SE');
@@ -456,6 +499,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       // The day as a node on the week's curve: glowing dot when logged, a ring when only
       // planned (faint once passed), the moon for rest. Its name lives in the card below.
       var zen=window.PulseZen&&PulseZen.kind(type),mark=zen?'<i class="wd-dot" style="--week-kind:'+(zen==='meditation'?'#fff0b7':'#d4eea7')+'"></i>':signalKind==='rest'&&!logged.length?'<span class="wd-moon">'+PK_MOON+'</span>':'<i class="wd-dot"></i>';
+      if(zenMix.stretch||zenMix.meditation){
+        mark+='<span class="wd-zen-pips">'+(zenMix.stretch?'<i class="is-stretch" title="Stretch genomförd"></i>':'')+
+          (zenMix.meditation?'<i class="is-meditation" title="Meditation genomförd"></i>':'')+'</span>';
+      }
+      if(zenMix.stretch&&zenMix.meditation)displayName+=' · Stretch & Meditation';
       markup+='<div class="'+classes.join(' ')+'" style="--lift:'+WEEK_WAVE[i]+'px" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+(logged.length?', loggat':'')+'." aria-pressed="'+(key===state.selectedDate)+'">'+
         '<span class="wd-name">'+dayNames[i]+'</span><span class="wd-node">'+mark+'</span><span class="wd-date">'+date.getDate()+'</span><span class="wd-type">'+escapeHtml(zen?(zen==='meditation'?'Meditation':'Stretch'):weekDayShortName(displayName,signalKind==='rest'&&!logged.length))+'</span></div>';
     }
@@ -590,6 +638,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
      filled in the pass colour, a ring for a planned day still ahead, a speck for rest. */
   function renderActivity() {
     var start=startOfWeek(new Date()),today=isoDate(new Date()),goal=Math.max(1,number(data.goals.weeklyWk)||4),total=0,rows='';
+    var zenDays=zenKindsByDate();
     var todayIndex=(new Date().getDay()+6)%7;
     var head='<span></span>'+dayNames.map(function(d,i){return '<span class="rm-head'+(i===todayIndex?' is-today':'')+'">'+d.charAt(0)+'</span>';}).join('')+'<span></span>';
     for(var k=7;k>=0;k--){
@@ -605,8 +654,17 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           var plan=planForDate(date);
           if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())){cls+=' is-planned';color=/kondition|löp|run|cardio|cykel|hopprep|rodd|crosstrainer|intervall/i.test(plan.type)?'#7fe3ef':'#ff657a';tip='Planerat: '+String(plan.name||plan.type);}
         }
+        var z=zenDays[key]||{},zStretch=z.stretch>0,zMeditation=z.meditation>0;
+        if(zStretch||zMeditation){
+          cls+=' is-zen'+(zStretch?' is-zen-stretch':'')+(zMeditation?' is-zen-meditation':'');
+          if(!list.length&&cls.indexOf('is-planned')<0){cls+=' is-zen-only';color=zStretch?'#b8e99b':'#f5d58c';}
+          tip+=(tip?', ':'')+(zStretch?'Stretch'+(z.stretch>1?' ×'+z.stretch:''):'')+
+            (zStretch&&zMeditation?', ':'')+(zMeditation?'Meditation'+(z.meditation>1?' ×'+z.meditation:''):'');
+        }
         if(key===today)cls+=' is-today';
-        cells+='<span class="'+cls+'"'+(color?' style="--c:'+color+'"':'')+(tip?chartTipAttrs(dayNames[d]+' '+shortDate(date),tip,'','#ff9a91'):'')+'><i></i></span>';
+        cells+='<span class="'+cls+'"'+(color?' style="--c:'+color+'"':'')+(tip?chartTipAttrs(dayNames[d]+' '+shortDate(date),tip,'','#ff9a91'):'')+'><i></i>'+
+          (zStretch?'<em class="rm-zen-dot is-stretch" aria-hidden="true"></em>':'')+
+          (zMeditation?'<em class="rm-zen-dot is-meditation" aria-hidden="true"></em>':'')+'</span>';
       }
       total+=count;
       rows+='<span class="rm-week'+(k===0?' is-current':'')+'">v'+weekNumber(ws)+'</span>'+cells+'<span class="rm-total'+(count>=goal?' is-goal':'')+'">'+count+'</span>';
