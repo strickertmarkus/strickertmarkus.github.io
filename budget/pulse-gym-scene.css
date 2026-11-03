@@ -236,7 +236,8 @@ html[data-explore-profile="maja"] .st-recovery{
 /* MARKUS/MAJA – programme overview + separate detail view.
    The theatrical curving road and its behaviour are retained for Ingemar. */
 html[data-explore-profile="markus"] .st-sheet.is-mm-program,
-html[data-explore-profile="maja"] .st-sheet.is-mm-program{
+html[data-explore-profile="maja"] .st-sheet.is-mm-program,
+html[data-explore-profile="ingemar"] .st-sheet.is-mm-program{
   background:radial-gradient(ellipse 78% 34% at 50% 0,#25191c 0,#0e1017 78%);
   padding:calc(16px + env(safe-area-inset-top)) clamp(18px,5vw,32px) calc(18px + env(safe-area-inset-bottom));
   overflow-y:auto;
@@ -326,7 +327,8 @@ html[data-explore-profile="maja"] .st-sheet.is-mm-program{
 /* Details: the large real animated 3D stage, followed by readable coaching.
    This is a separate screen, not expanded nested cards inside the overview. */
 html[data-explore-profile="markus"] .st-zoom.is-mm-detail,
-html[data-explore-profile="maja"] .st-zoom.is-mm-detail{
+html[data-explore-profile="maja"] .st-zoom.is-mm-detail,
+html[data-explore-profile="ingemar"] .st-zoom.is-mm-detail{
   display:grid;grid-template-rows:minmax(190px,40svh) minmax(0,1fr);
   overflow:hidden;
   background:#0e1017;
@@ -383,7 +385,8 @@ html[data-explore-profile="maja"] .st-zoom.is-mm-detail{
 .st-zoom.is-mm-detail .st-mm-detail-play span{display:inline!important;font-size:12px;line-height:1.25}
 @media(min-width:700px){
  html[data-explore-profile="markus"] .st-sheet.is-mm-program,
- html[data-explore-profile="maja"] .st-sheet.is-mm-program{padding-left:26px;padding-right:26px}
+ html[data-explore-profile="maja"] .st-sheet.is-mm-program,
+ html[data-explore-profile="ingemar"] .st-sheet.is-mm-program{padding-left:26px;padding-right:26px}
  .st-mm-entry .st-mm-row{min-height:76px}
 }
 @media(max-width:390px){
@@ -396,4 +399,17 @@ html[data-explore-profile="maja"] .st-zoom.is-mm-detail{
 }
 @media(prefers-reduced-motion:reduce){
  .st-mm-entry .st-mm-row{transition:none}
+}
+
+/* Keep the 3D mannequin's head below iPhone's camera/Dynamic Island.
+   A fixed inset is necessary in a same-origin iframe, where env(safe-area-
+   inset-top) may report zero even on an iPhone. */
+.st-zoom.is-mm-detail .st-zoom-stage #studio-stage{
+  transform:translateY(clamp(40px,6svh,66px)) scale(.85);
+  transform-origin:50% 55%;
+}
+@media(min-width:820px){
+  .st-zoom.is-mm-detail .st-zoom-stage #studio-stage{
+    transform:translateY(16px) scale(.94);
+  }
 }
