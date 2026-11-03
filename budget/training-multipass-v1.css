@@ -24,3 +24,6 @@
 .day-multipass-remove{border:0;padding:4px 3px;align-self:flex-end;background:transparent;color:#de9086;font-size:11px;cursor:pointer}
 .day-multipass-chip:focus-visible,.day-multipass-add:focus-visible,.day-multipass-remove:focus-visible{outline:2px solid #ff9384;outline-offset:2px}
 @media(max-width:520px){#day-workout-multipass.day-workout-multipass{margin:5px 0 12px;padding:10px;border-radius:13px}.day-multipass-chip{max-width:145px}.day-multipass-chip span{max-width:75px}}
+
+/* Template editing is separate from the day's multiple scheduled sessions. */
+#day-workout-modal.classic-template-edit-mode #day-workout-multipass{display:none!important}
