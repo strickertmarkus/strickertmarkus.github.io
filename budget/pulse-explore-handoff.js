@@ -58,7 +58,13 @@
     var doc = win.document, modal = doc.getElementById('day-workout-modal');
     var type = doc.getElementById('day-workout-type'), name = doc.getElementById('day-workout-name'), list = doc.getElementById('day-workout-ex-list');
     var planned = typeof win.getPlannedSessions === 'function' ? win.getPlannedSessions()[modal.dataset.date] : null;
-    var hadPlan = !!(planned && planned.exercises && planned.exercises.length);
+    var hadPlan = !!(planned && ((planned.exercises||[]).length||planned.zenRoutine));
+    // Imported programmes become an additional pass, rather than replacing
+    // the day's previously planned session. The existing logs remain untouched.
+    if(hadPlan&&win.PulseMultiPassV1&&typeof win.PulseMultiPassV1.add==='function'){
+      win.PulseMultiPassV1.add();
+    }
+    var extraSlot=!!modal.dataset.extraId;
     var alreadyLogged=false;
     try{
       var workouts=typeof win.getWorkouts==='function'?win.getWorkouts():[];
@@ -101,7 +107,7 @@
          }).join('')+'</ol><small style="display:block;margin-top:8px;opacity:.68">Följ tiderna mellan övningarna. De startar inte automatiskt i passbyggaren.</small></details>'
       : '';
     note.innerHTML = '<strong style="display:block;font-size:15px;margin-bottom:3px">' + plan.name.replace(/</g, '&lt;') + '</strong>' +
-      '<span style="opacity:.8">' + plan.exercises.length + ' övningar från övningsutforskaren. Justera set, reps och vikter och tryck sedan Starta pass.' + (hadPlan ? ' Dagens tidigare planering ändras först när du sparar eller startar.' : '') +
+      '<span style="opacity:.8">' + plan.exercises.length + ' övningar från övningsutforskaren. Justera set, reps och vikter och tryck sedan Starta pass.' + (extraSlot ? ' Importeras som ett extra pass; ditt befintliga dagsupplägg behålls.' : '') +
       (alreadyLogged?' Tidigare loggade pass för dagen påverkas inte.':'') + '</span>' +
       transitionsHtml +
       '<label style="display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:600;cursor:pointer"><input type="checkbox" id="explore-handoff-template" style="width:20px;height:20px;accent-color:#ff5a48"> Spara också som mallpass</label>';
