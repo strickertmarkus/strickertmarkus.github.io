@@ -94,3 +94,44 @@ test('style scopes and asset versions protect Ingemar from layout regression',()
  assert.match(scene,/sheet\.classList\.toggle\('is-mm-program',mmProgram\(\)\)/);
  assert.match(scene,/sheet\.classList\.remove\('is-program','is-mm-program'\)/);
 });
+
+
+test('Markus/Maja choose overview; Ingemar continues to draw the original path',()=>{
+ const a=scene.indexOf('function showProgram(p) {');
+ const b=scene.indexOf('/* The glowing road through the stops',a);
+ assert.ok(a>=0&&b>a);
+ for(const profile of ['markus','maja','ingemar']){
+   const explore=explorerFor(profile),steps=[],classes=new Set();
+   const sheet={
+     innerHTML:'',scrollTop:0,
+     setAttribute(){},focus(){},
+     classList:{
+       add:s=>classes.add(s),
+       toggle:(s,v)=>v?classes.add(s):classes.delete(s)
+     },
+     querySelector:selector=>({selector})
+   };
+   const context={
+     sheet,ui:{setPaused:v=>steps.push(['paused',v])},
+     explore,viewing:null,
+     mmProgram:()=>profile!=='ingemar',
+     compactProgram:()=>'<section class="st-mm-summary">Compact</section>',
+     all:explore.exercises,pose:()=>'',ICON:{back:'‹',play:'▶',fwd:'›'},
+     splitDose:label=>({big:label,unit:'reps'}),
+     requestAnimationFrame:fn=>fn(),
+     drawRoad:el=>steps.push(['road',el.selector])
+   };
+   vm.runInNewContext(scene.slice(a,b)+'\nthis.preview=showProgram;',context);
+   context.preview(explore.programs[0]);
+   if(profile==='ingemar'){
+     assert.match(sheet.innerHTML,/st-path/);
+     assert.ok(steps.some(x=>x[0]==='road'));
+     assert.ok(!classes.has('is-mm-program'));
+   }else{
+     assert.match(sheet.innerHTML,/st-mm-summary/);
+     assert.ok(!steps.some(x=>x[0]==='road'));
+     assert.ok(classes.has('is-mm-program'));
+   }
+   assert.ok(steps.some(x=>x[0]==='paused'&&x[1]));
+ }
+});
