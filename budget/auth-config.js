@@ -105,7 +105,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-between-sets.js',attr:'data-exercise-between-sets-v2',group:'session-transition'},
     {src:'exercise-hype-polish.js',attr:'data-exercise-hype-polish-passive',group:'session-presentation'},
     {src:'exercise-flow-polish-v2.js',attr:'data-exercise-flow-polish-v2',group:'session-transition'},
-    {src:'exercise-builder-row-tools-v3.js',attr:'data-exercise-builder-row-tools-v3',group:'builder'},
+    {src:'exercise-builder-row-tools-v3.js',version:'20261103-drag-log-1',attr:'data-exercise-builder-row-tools-v3',group:'builder'},
     {src:'exercise-builder-style-v5.js',attr:'data-exercise-builder-style-v5',group:'builder'},
     {src:'exercise-log-mobile-fix-v5.js',attr:'data-exercise-log-mobile-fix-v5',group:'training-log'},
     {src:'exercise-session-set-cards-v6.js',attr:'data-exercise-session-set-cards-v6',group:'session-presentation'},

@@ -81,14 +81,14 @@
       }
       .builder-row-floating-v4 input,
       .builder-row-floating-v4 button { pointer-events:none !important; }
-      #day-workout-ex-list .builder-row-source-hidden-v4 { display:none !important; }
-      #day-workout-ex-list .builder-row-placeholder-v4 {
+      #day-workout-ex-list .builder-row-source-hidden-v4, #ex-list .builder-row-source-hidden-v4 { display:none !important; }
+      #day-workout-ex-list .builder-row-placeholder-v4, #ex-list .builder-row-placeholder-v4 {
         box-sizing:border-box; width:100%; border:1px dashed rgba(var(--builder-accent-rgb),.52);
         border-radius:11px; background:rgba(var(--builder-accent-rgb),.055);
         box-shadow:inset 0 0 0 1px rgba(var(--builder-accent-rgb),.035);
         transition:height .14s ease,margin .14s ease,background .14s ease,border-color .14s ease;
       }
-      #day-workout-ex-list .builder-row-drop-flash-v4 { animation:builderRowDropV4 .34s ease-out; }
+      #day-workout-ex-list .builder-row-drop-flash-v4, #ex-list .builder-row-drop-flash-v4 { animation:builderRowDropV4 .34s ease-out; }
       @keyframes builderRowDropV4 {
         0% { transform:scale(.985); border-color:rgba(var(--builder-accent-rgb),.75); background:rgba(var(--builder-accent-rgb),.13); }
         100% { transform:scale(1); }
@@ -161,7 +161,16 @@
     if (label && /datum och vecka/i.test(label.textContent || '')) label.textContent = 'Vecka';
   }
 
-  function builderList() { return document.getElementById('day-workout-ex-list'); }
+  // Reorderable lists: the day builder and the log form ("Logga pass").
+  var LIST_IDS = ['day-workout-ex-list','ex-list'];
+  function builderList() {
+    if (drag && drag.row && drag.row.parentElement && LIST_IDS.indexOf(drag.row.parentElement.id) >= 0) return drag.row.parentElement;
+    return document.getElementById('day-workout-ex-list');
+  }
+  function scrollerFor(list) {
+    var modal = list && list.closest('.modal-overlay');
+    return modal ? modal.querySelector('.modal') : null;
+  }
 
   function enhanceRow(row) {
     if (!row || row.dataset.builderToolsV3 === '1') return;
@@ -179,9 +188,11 @@
   }
 
   function syncRows() {
-    var list = builderList();
-    if (!list) return;
-    Array.prototype.slice.call(list.querySelectorAll('.ex-row-item')).forEach(enhanceRow);
+    LIST_IDS.forEach(function (id) {
+      var list = document.getElementById(id);
+      if (!list) return;
+      Array.prototype.slice.call(list.querySelectorAll(':scope > .ex-row-item')).forEach(enhanceRow);
+    });
   }
 
   function copyFormState(source, clone) {
@@ -207,8 +218,8 @@
   }
 
   function duplicateRow(source) {
-    var list = builderList();
-    if (!list || !source || source.parentNode !== list) return;
+    var list = source && source.parentNode;
+    if (!list || LIST_IDS.indexOf(list.id) < 0) return;
     var clone = source.cloneNode(true);
     copyFormState(source, clone);
     clone.querySelectorAll('.builder-row-tools-v3').forEach(function (el) { el.remove(); });
@@ -222,7 +233,7 @@
   }
 
   function rowFromTarget(target) {
-    return target && target.closest ? target.closest('#day-workout-ex-list .ex-row-item') : null;
+    return target && target.closest ? target.closest('#day-workout-ex-list > .ex-row-item, #wk-modal #ex-list > .ex-row-item') : null;
   }
 
   function isInteractiveTarget(target) {
@@ -327,7 +338,7 @@
   }
 
   function autoScroll(clientY) {
-    var modal = document.querySelector('#day-workout-modal .modal');
+    var modal = scrollerFor(drag && drag.row && drag.row.parentElement);
     if (!modal || !drag || !drag.active) return;
     var rect = modal.getBoundingClientRect();
     var edge = Math.min(72, rect.height * .18);
@@ -468,8 +479,8 @@
   function sync() {
     fixWeekToolbar();
     hideBuilderDatePicker();
-    var modal = document.getElementById('day-workout-modal');
-    if (modal && modal.classList.contains('show')) syncRows();
+    var modal = document.getElementById('day-workout-modal'), log = document.getElementById('wk-modal');
+    if ((modal && modal.classList.contains('show')) || (log && log.classList.contains('show'))) syncRows();
   }
 
   function scheduleSync() {
@@ -485,6 +496,8 @@
       syncObserver = new MutationObserver(scheduleSync);
       var modal = document.getElementById('day-workout-modal');
       if (modal) syncObserver.observe(modal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+      var logModal = document.getElementById('wk-modal');
+      if (logModal) syncObserver.observe(logModal,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
     } else {
       syncTimer = setInterval(sync, 300);
     }
