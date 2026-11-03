@@ -546,6 +546,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(open){open.dataset.fieldAction=done?'edit-log':'edit-day';if(done)open.dataset.workoutId=String(done.id);else delete open.dataset.workoutId;}
       var play=byId('week-selected-play-v3');if(play)play.hidden=chosenRest||!!chosenLogged.length;
     }
+    var extrasBox=byId('week-selected-extras-v1');
+    if(extrasBox){
+      var extraPlans=chosenPlan&&Array.isArray(chosenPlan.additionalSessions)?chosenPlan.additionalSessions:[];
+      var plannedMain=!!(chosenPlan&&((chosenPlan.exercises||[]).length||chosenPlan.zenRoutine));
+      var totalPlanned=(plannedMain?1:0)+extraPlans.length;
+      var loggedCount=chosenLogged.length;
+      extrasBox.innerHTML='<div class="week-extra-top"><span>'+(totalPlanned?totalPlanned+' planerade pass':'Lägg till ditt första pass')+
+        (loggedCount?' · '+loggedCount+' loggade':'')+'</span>'+
+        '<button type="button" data-field-action="addPass" data-field-date="'+selected+'">＋ Lägg till pass</button></div>'+
+        (extraPlans.length?'<div class="week-extra-list">'+extraPlans.map(function(p,i){
+          var label=escapeHtml(String(p.name||p.type||'Extra pass'));
+          return '<div class="week-extra-item"><button type="button" data-field-action="editExtra" data-field-date="'+selected+
+            '" data-extra-id="'+escapeHtml(String(p.id))+'"><span class="week-extra-num">'+(i+2)+'</span><span>'+label+'</span></button>'+
+            '<button type="button" data-field-action="startExtra" data-field-date="'+selected+
+            '" data-extra-id="'+escapeHtml(String(p.id))+'" aria-label="Starta '+label+'">Starta</button></div>';
+        }).join('')+'</div>':'');
+    }
     var startLink=byId('next-session-link');
     if(startLink)startLink.dataset.fieldDate=state.selectedDate;
   }
