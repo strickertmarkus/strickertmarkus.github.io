@@ -103,7 +103,7 @@
     $('resume-banner').hidden=!S.active;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));
   }
   function feelingLabel(value){return {lighter:'Lite lättare',calm:'Lugnare',present:'Mer närvarande'}[value]||'';}
-  function showView(next){view=next;syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
+  function showView(next){view=next;if(next!=='session')$('session-preparation').hidden=true;syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
   function confirm(title,message,yes,action){$('confirm-title').textContent=title;$('confirm-copy').textContent=message;$('confirm-yes').textContent=yes;$('confirm-no').textContent='Tillbaka';confirmAction=action;SurfaceMotion.showDialog($('confirm-dialog'));}
   $('confirm-yes').onclick=()=>{const action=confirmAction;confirmAction=null;SurfaceMotion.closeDialog($('confirm-dialog'));if(action)action();};$('confirm-no').onclick=()=>SurfaceMotion.closeDialog($('confirm-dialog'));$('confirm-dialog').addEventListener('close',()=>confirmAction=null);
   function openSession(s){ending=false;document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=false);$('session-ending').hidden=true;$('session-view').classList.remove('clock-hidden','session-finished');$('clock-toggle').textContent='Dölj tiden';$('clock-toggle').setAttribute('aria-pressed','true');session=s;breathOffset=M.position(s,Date.now()).spent;setKind(s.routine.kind);lastStep=-1;lastPhase='';showView('session');$('session-routine-name').textContent=session.routine.name;updateSound();tick();$('session-title').focus();}
@@ -111,13 +111,25 @@
     force=force===true;
     if(!S.ready)return;
     if(S.active){confirm('Du har ett pågående pass','Fortsätt passet från startsidan eller avbryt det och starta ett nytt.','Starta nytt pass',()=>{S.setActive(null);startSession(force);});return;}
-    session=M.start(chosen(),Date.now()+(prepare||force?5000:0),id());S.setActive(session);openSession(session);playDing();
+    const routine=chosen();session=M.start(routine,Date.now()+(routine.kind==='stretch'||prepare||force?5000:0),id());S.setActive(session);openSession(session);playDing();
   }
   function tick(){
     if(view!=='session'||!session||ending)return;
     const now=Date.now(),p=M.position(session,now);
     if(p.done){if(!ending){ending=true;session=M.pause(session,now);S.setActive(session);$('session-ending').hidden=false;$('session-view').classList.add('session-finished');document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=true);$('session-ending-title').focus();updateBreathAudio(false);document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind,paused:true,done:true,progress:1}}));playDing();}return;}
     const isStretch=session.routine.kind==='stretch',preparing=!session.paused&&now<session.anchor;
+    // Keep the authoritative start anchor in the session model. This is only
+    // the visual five-second countdown; no second clock or work time is added.
+    const prepVisible=isStretch&&preparing,prepOverlay=$('session-preparation');
+    prepOverlay.hidden=!prepVisible;
+    if(prepVisible){
+      const remaining=Math.max(0,session.anchor-now),count=Math.max(1,Math.ceil(remaining/1000));
+      if($('session-prep-count').textContent!==String(count)){
+        $('session-prep-count').textContent=String(count);
+        $('session-prep-remaining').textContent=String(count);
+      }
+      $('session-prep-ring').style.setProperty('--prep-progress',Math.min(100,Math.max(0,(1-remaining/5000)*100)).toFixed(2)+'%');
+    }
     if(isStretch&&lastStep!==p.index){lastStep=p.index;const step=session.routine.steps[p.index];$('session-overline').textContent='RÖRELSE '+(p.index+1)+' AV '+session.routine.steps.length;$('session-title').textContent=step.name;document.querySelector('.session-copy').classList.toggle('is-long',step.name.length>30||step.cue.length>150);$('session-cue').textContent=step.cue;$('next-step').textContent=p.index+1<session.routine.steps.length?'Härnäst · '+session.routine.steps[p.index+1].name:'Sista övningen i passet.';if(p.index>0)playDing();}
     if(!isStretch){$('session-overline').textContent='MEDITATION';$('session-title').textContent=session.routine.guidance==='breath'?'Guidad andning':'Meditation utan guide';$('session-cue').textContent=session.routine.guidance==='breath'?M.breathingSummary(session.routine)+'. Byt till egen andning när du vill.':'Rikta uppmärksamheten mot andningen. När du märker att du tänker på annat, återgå till andetagen.';
       const action=session.routine.guidance==='breath'?'Byt till egen andning':'Visa andningsguide';if(!$('guidance-toggle')||$('guidance-toggle').textContent!==action)$('next-step').innerHTML='<button class="text-button" id="guidance-toggle">'+action+'</button>';
@@ -258,7 +270,7 @@
     builder=JSON.parse(JSON.stringify(r));builderExisting=!isNew&&!M.routines.some(p=>p.id===r.id);if(!builderExisting)builder.id=id();
     $('routine-name').value=isNew?'Min '+(builder.kind==='stretch'?'stretch':'meditation'):r.name;$('builder-error').textContent='';
     $('builder-title').textContent=builder.kind==='meditation'?'Din meditation':'Anpassa pass';
-    const meditation=builder.kind==='meditation';$('stretch-builder').querySelectorAll('input,select,button').forEach(el=>el.disabled=meditation);$('stretch-builder').hidden=meditation;$('meditation-builder').hidden=!meditation;
+    const meditation=builder.kind==='meditation';$('prepare-session').closest('.session-prep-setting').hidden=!meditation;$('stretch-builder').querySelectorAll('input,select,button').forEach(el=>el.disabled=meditation);$('stretch-builder').hidden=meditation;$('meditation-builder').hidden=!meditation;
     $('meditation-minutes').disabled=!meditation;$('meditation-guidance').disabled=!meditation;$('meditation-rhythm').disabled=!meditation;
     if(meditation){$('meditation-minutes').value=builder.seconds/60;$('meditation-guidance').value=builder.guidance;const settings=M.breathingSettings(builder);breathKeys.forEach(k=>$('breath-'+k).value=settings[k]);updateBreathingBuilder();}
     else{$('pose-search').value='';$('pose-group').innerHTML='<option value="">Alla muskelgrupper</option>'+[...new Set(M.poses.map(p=>p.group))].map(g=>'<option>'+escape(g)+'</option>').join('');renderPoseOptions();}
