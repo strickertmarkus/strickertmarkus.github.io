@@ -369,7 +369,18 @@ html[data-explore-profile="maja"] .st-zoom.is-mm-detail{
 }
 .st-mm-detail-actions svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
 .st-mm-detail-actions button:disabled{opacity:.28;cursor:default}
-.st-mm-detail-play{width:100%;min-height:45px;margin-top:12px;font-size:12px;background:#cf514653;border-radius:13px;box-shadow:none}
+.st-mm-detail-play{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  width:auto;max-width:100%;min-height:42px;margin-top:12px;
+  padding:10px 15px;font-size:12px;line-height:1.25;font-weight:600;
+  color:#f9b8ac;background:#ef655017;border:1px solid #ed73544f;
+  border-radius:12px;box-shadow:none
+}
+.st-zoom.is-mm-detail .st-mm-detail-play svg{
+  display:block!important;flex:0 0 14px;width:14px!important;height:14px!important;
+  max-width:14px!important;max-height:14px!important;fill:currentColor
+}
+.st-zoom.is-mm-detail .st-mm-detail-play span{display:inline!important;font-size:12px;line-height:1.25}
 @media(min-width:700px){
  html[data-explore-profile="markus"] .st-sheet.is-mm-program,
  html[data-explore-profile="maja"] .st-sheet.is-mm-program{padding-left:26px;padding-right:26px}
