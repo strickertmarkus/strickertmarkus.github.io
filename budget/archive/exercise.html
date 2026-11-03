@@ -798,8 +798,7 @@ if(!window.__FIELD_EMBEDDED__){
     <div class="form-group pbu-log-template">
       <label for="wk-template-select">Använd mall</label>
       <div class="pbu-log-template-row">
-        <select id="wk-template-select" aria-label="Välj mallpass"></select>
-        <button class="btn-sm" type="button" onclick="applyTemplateToWorkout()">Använd</button>
+        <select id="wk-template-select" aria-label="Välj mallpass" onchange="applyTemplateToWorkout()"></select>
         <button class="btn-sm pbu-log-save-template" type="button" onclick="saveWorkoutAsTemplate()" aria-label="Spara passet som mallpass" title="Spara som mallpass"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="13.5" height="13.5" rx="2.5"/><path d="M3.5 7.5v10.5A2.5 2.5 0 0 0 6 20.5h10.5"/><path d="M13.75 7v6.5M10.5 10.25H17"/></svg><span>Spara som mall</span></button>
       </div>
     </div>
@@ -3649,9 +3648,10 @@ function saveWorkoutAsTemplate(){
   showToast(at>=0?'Mallpasset ”'+name+'” uppdaterat.':'Sparat som mallpass ”'+name+'”.');
 }
 function applyTemplateToWorkout(){
-  var id=+(document.getElementById('wk-template-select').value||0);
+  var id=String(document.getElementById('wk-template-select').value||'');
   if(!id)return;
-  var tpl=getTemplates().find(function(t){return t.id===id;});
+  // Template ids can be numbers or strings (e.g. classic templates); compare as text.
+  var tpl=getTemplates().find(function(t){return String(t.id)===id;});
   if(!tpl)return;
   document.getElementById('wk-type').value=tpl.type||'Övrigt';
   if(tpl.duration)document.getElementById('wk-dur').value=tpl.duration;
