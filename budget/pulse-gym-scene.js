@@ -340,7 +340,7 @@
       var totals=mmCounts(p),countLabel=p.ids.length+' övningar',duration=explore.durationLabel(p);
       return '<button type="button" class="st-sheet-back" data-programs>'+ICON.back+'<span>Program</span></button>'+
         '<div class="st-mm-title"><span class="st-eyebrow">DITT TRÄNINGSPASS</span><h3>'+esc(p.name)+'</h3><p>'+esc(p.description)+'</p></div>'+
-        '<div class="st-mm-sticky"><div class="st-mm-summary"><strong>'+esc(countLabel)+'</strong><span>'+esc(duration)+'</span><small>'+totals.rope+' hopprep · '+totals.rest+' vilor</small></div>'+
+        '<div class="st-mm-sticky"><div class="st-mm-summary"><strong>'+esc(countLabel)+'</strong><span>'+esc(duration)+'</span><small>'+(p.between&&p.between.length?totals.rope+' hopprep · '+totals.rest+' vilor':esc(p.group||p.type||'Styrka'))+'</small></div>'+
         '<div class="st-mm-tabs" role="group" aria-label="Visa program"><button type="button" class="is-active" aria-pressed="true" data-program-overview>Översikt</button><button type="button" aria-pressed="false" data-detail-step="0">Detalj</button></div></div>'+
         '<ol class="st-mm-list" aria-label="Övningarnas ordning">'+p.ids.map(function(id,i){
           var ex=all[id],d=splitDose(explore.prescription(id,p).label),after=mmTransition(p,i);
@@ -490,7 +490,8 @@
     function train(p) {
       try { sessionStorage.setItem(explore.transferKey, JSON.stringify({ version: 1, programId: p.id })); }
       catch (e) { ui.copyProgram(p.id); return; }
-      var url = new URL($('explore-back').getAttribute('href'), location.href);
+      var target=explore.profile==='ingemar'?'ingemar.html':$('explore-back').getAttribute('href');
+      var url = new URL(target, location.href);
       url.searchParams.set('explore', '1');
       if (new URLSearchParams(location.search).get('user') === 'maja') url.searchParams.set('user', 'maja');
       // Opened inside the training page: the training page itself takes over.
