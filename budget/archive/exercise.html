@@ -1013,6 +1013,7 @@ if(!window.__FIELD_EMBEDDED__){
         <button type="button" class="btn-sm" onclick="pulseClassicConfirmSaveAsTemplate()">Spara mall</button>
       </div>
     </div>
+    <div id="day-workout-multipass" class="day-workout-multipass" aria-label="Flera pass på samma dag"></div>
     <button type="button" id="day-workout-back-day" class="classic-back-to-day" onclick="pulseClassicBackToDay()" hidden>← Tillbaka till dagspass</button>
     <div class="form-row classic-pass-fields">
       <div class="form-group">
@@ -2586,7 +2587,98 @@ function addDayWorkoutExRow(ex){
   list.appendChild(row);
 }
 
+/* Extra planned passes share the existing ex_plannedSessions/<date> Firebase
+   entry: legacy primary plan stays untouched, additionalSessions holds others. */
+var pulseExtraDraftsV1={};
+function pulseExtraListV1(day){return Array.isArray(day&&day.additionalSessions)?day.additionalSessions:[];}
+function pulseExtraIdV1(){return 'extra-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);}
+function pulseExtraCurrentV1(){
+  var modal=document.getElementById('day-workout-modal');
+  return modal&&modal.dataset.extraId||'';
+}
+function pulseExtraRenderV1(){
+  var box=document.getElementById('day-workout-multipass'),modal=document.getElementById('day-workout-modal');
+  if(!box||!modal)return;
+  var date=modal.dataset.date||todayISO(),day=getPlannedSessions()[date]||{},extra=pulseExtraListV1(day);
+  var current=pulseExtraCurrentV1(),pending=current&&pulseExtraDraftsV1[date+'_'+current];
+  var others=extra.slice();
+  if(pending&&!others.some(function(p){return p.id===current;}))others.push(Object.assign({id:current},pending));
+  var tabs=[{id:'',name:day.name||day.type||'Pass 1'}].concat(others.map(function(p){return{id:String(p.id),name:p.name||p.type||'Nytt pass'};}));
+  box.innerHTML='<div class="day-multipass-head"><strong>Pass samma dag</strong><span>'+tabs.length+' planerade</span></div>'+
+    '<div class="day-multipass-tabs">'+tabs.map(function(t,i){
+      return '<button type="button" class="day-multipass-chip'+(current===t.id?' is-active':'')+'" onclick="pulseExtraSelectV1('+JSON.stringify(t.id).replace(/"/g,'&quot;')+')" aria-pressed="'+String(current===t.id)+'"><small>'+(i+1)+'</small><span>'+escHtml(t.name)+'</span></button>';
+    }).join('')+
+    '<button type="button" class="day-multipass-add" onclick="pulseExtraAddV1()">＋ Lägg till pass</button></div>'+
+    (current?'<button type="button" class="day-multipass-remove" onclick="pulseExtraRemoveV1()">Ta bort detta pass</button>':'');
+}
+function pulseExtraDraftCurrentV1(){
+ var date=document.getElementById('day-workout-modal').dataset.date,id=pulseExtraCurrentV1();
+ if(!id)return;
+ var list=[];
+ document.querySelectorAll('#day-workout-ex-list .ex-row-item').forEach(function(row){
+   var ex=parseExerciseRow(row,'dw');if(ex)list.push(ex);
+ });
+ pulseExtraDraftsV1[date+'_'+id]={
+  type:document.getElementById('day-workout-type').value,
+  name:document.getElementById('day-workout-name').value,
+  exercises:list
+ };
+}
+function pulseExtraLoadV1(id){
+ var modal=document.getElementById('day-workout-modal'),date=modal.dataset.date;
+ if(!date)return;
+ modal.dataset.extraId=id||'';
+ if(!id){loadDayWorkoutBuilder(date);return;}
+ var key=date+'_'+id,day=getPlannedSessions()[date]||{},saved=pulseExtraListV1(day).find(function(p){return String(p.id)===id;});
+ var p=pulseExtraDraftsV1[key]||saved||{type:'Styrka',name:'',exercises:[]};
+ document.getElementById('day-workout-name').value=p.name||'';
+ document.getElementById('day-workout-type').value=p.type||'Styrka';
+ var rows=document.getElementById('day-workout-ex-list');rows.innerHTML='';
+ (p.exercises||[]).forEach(function(ex){addDayWorkoutExRow(ex);});
+ if(!rows.children.length)addDayWorkoutExRow();
+ var picker=document.getElementById('day-workout-template-select');if(picker)picker.value='';
+ if(window.PulseZen)PulseZen.loadBuilder(p);
+ pulseExtraRenderV1();
+}
+function pulseExtraSelectV1(id){
+ var current=pulseExtraCurrentV1();
+ if(String(id)===String(current))return;
+ pulseExtraDraftCurrentV1();
+ pulseExtraLoadV1(String(id||''));
+}
+function pulseExtraAddV1(){
+ var modal=document.getElementById('day-workout-modal'),date=modal.dataset.date,day=getPlannedSessions()[date]||{};
+ if(!((day.exercises||[]).length||day.zenRoutine)){
+   if(typeof showToast==='function')showToast('Spara första passet innan du lägger till fler.');return;
+ }
+ pulseExtraDraftCurrentV1();
+ var id=pulseExtraIdV1();
+ pulseExtraDraftsV1[date+'_'+id]={type:'Styrka',name:'',exercises:[]};
+ pulseExtraLoadV1(id);
+}
+function pulseExtraRemoveV1(){
+ var modal=document.getElementById('day-workout-modal'),date=modal.dataset.date,id=pulseExtraCurrentV1();
+ if(!id)return;
+ var existing=getPlannedSessions(),day=existing[date]||{},extra=pulseExtraListV1(day);
+ if(extra.some(function(p){return String(p.id)===id;})){
+  if(!confirm('Ta bort det extra passet? Tidigare loggade pass påverkas inte.'))return;
+  day.additionalSessions=extra.filter(function(p){return String(p.id)!==id;});
+  existing[date]=day;savePlannedSessions(existing);
+ }
+ delete pulseExtraDraftsV1[date+'_'+id];
+ pulseExtraLoadV1('');
+ if(typeof renderWeekGrid==='function')renderWeekGrid();
+ if(typeof showToast==='function')showToast('Extra pass borttaget.');
+}
+window.PulseMultiPassV1={
+ select:pulseExtraSelectV1,
+ add:pulseExtraAddV1,
+ list:pulseExtraListV1,
+ refresh:pulseExtraRenderV1
+};
+
 function loadDayWorkoutBuilder(iso){
+  var modalForSelection=document.getElementById('day-workout-modal');if(modalForSelection)modalForSelection.dataset.extraId='';
   editingDayISO=iso;
   editingDayKey=dayKeyFromISO(iso);
   var label=dayLabelFromISO(iso);
@@ -2612,6 +2704,7 @@ function loadDayWorkoutBuilder(iso){
   fillWeekLabel(mondayISOOf(iso),'day-workout-week-label','day-workout-week-sub');
   if(window.PulseZen)PulseZen.loadBuilder(p);
   if(window.PulseClassicTemplates)window.PulseClassicTemplates.syncDay(iso,p);
+  pulseExtraRenderV1();
 }
 function openDayWorkoutBuilder(label,iso){
   closeModal('day-modal');
