@@ -249,9 +249,15 @@
     // In Safari, the native edge-back gesture otherwise reaches the explorer
     // route history and unexpectedly lands on its start screen.
     var dropOverlayPop=false;
-    function sceneLayer(){return history.state&&history.state.pulseGymSceneV1||null;}
+    function inHostedExplorer(){
+      try{return window.parent!==window&&!!window.parent.PulseExploreStage;}
+      catch(_){return false;}
+    }
+    // The host owns Safari's outer Back gesture; standalone pages use their
+    // own history sentinels. Never maintain *both* stacks for embedded mode.
+    function sceneLayer(){return inHostedExplorer()?null:history.state&&history.state.pulseGymSceneV1||null;}
     function addSceneLayer(level){
-      if(!mmProgram()||sceneLayer()===level)return;
+      if(!mmProgram()||inHostedExplorer()||sceneLayer()===level)return;
       try{history.pushState(Object.assign({},history.state||{},{pulseGymSceneV1:level}),'',location.href);}catch(_){}
     }
     function backFromDetail(){
