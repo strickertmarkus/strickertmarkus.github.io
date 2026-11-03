@@ -625,7 +625,17 @@
       if (window.PulseGuideStage === stage) delete window.PulseGuideStage;
       if (!silent && onLeave) onLeave();
     }
-    window.PulseGymScene = { enter: enter, leave: leave, isOpen: function () { return !root.hidden; }, onLeave: function (fn) { onLeave = fn; } };
+    window.PulseGymScene = {
+      enter:enter,leave:leave,isOpen:function(){return !root.hidden;},onLeave:function(fn){onLeave=fn;},
+      backWithinProgram:function(){
+        // The hosting exercise page receives Safari's outer history gesture.
+        // Consume it inside the visible programme before closing the explorer.
+        if(root.hidden||!mmProgram()||!sheetOpen)return false;
+        if(zoomed){closeZoom();return true;}
+        if(sheet.classList.contains('is-mm-program')){openSheet('programs');return true;}
+        return false;
+      }
+    };
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
