@@ -119,7 +119,7 @@
       });
     }
     var observer=new MutationObserver(function(){decorate();});
-    observer.observe(root,{childList:true,subtree:true});decorate();
+    observer.observe(root,{childList:true});decorate();
 
     function readLists(){
       try{var v=JSON.parse(win.localStorage.getItem('sh_lists')||'[]');return Array.isArray(v)?v:[];}
@@ -213,6 +213,17 @@
       drag.moved=true;
       win.document.body.classList.add('shopping-reordering');
       e.preventDefault();
+      // When Listor is embedded in Home, the parent owns vertical scrolling.
+      // Scroll that viewport near its edges so long lists can be rearranged
+      // with touch/pointer input rather than being limited to visible rows.
+      try{
+        var embedded=win.document.documentElement.classList.contains('shopping-embedded')&&win.parent!==win;
+        var scrollWin=embedded?win.parent:win;
+        var y=embedded&&win.frameElement?win.frameElement.getBoundingClientRect().top+e.clientY:e.clientY;
+        var viewportHeight=scrollWin.innerHeight;
+        if(y<60)scrollWin.scrollBy(0,-18);
+        else if(y>viewportHeight-60)scrollWin.scrollBy(0,18);
+      }catch(_){} 
       removeHighlights();
       var source=root.querySelector(drag.kind==='category'?'.category-title[data-category-id="'+drag.id+'"]':'.list-item[data-item-id="'+drag.id+'"]');
       if(source)source.classList.add('shopping-drag-source');
