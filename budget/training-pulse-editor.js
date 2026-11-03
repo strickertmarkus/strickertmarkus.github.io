@@ -6,7 +6,7 @@
 if(!document.getElementById('next-session-link'))return;
 var $=function(id){return document.getElementById(id);};
 var selectedDate=dateISO(new Date()),dialog=null,frame=null,legacyReady=null,activeTool='',pendingWrites=0,changeTimer=0,sessionPrefetchTimer=0,requestId=0,openingTool=false;
-var actionTitles={build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Planera träning',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord',logDay:'Logga pass'};
+var actionTitles={addPass:'Lägg till pass',editExtra:'Redigera extra pass',startExtra:'Starta extra pass',build:'Bygg pass',start:'Träningsläge',log:'Träningslogg',week:'Planera träning',weekTemplates:'Veckomallar',records:'Personliga rekord',goals:'Mål och VO₂',editDay:'Redigera pass',editLog:'Redigera loggat pass',editExercise:'Redigera övning',createTemplate:'Skapa mallpass',editTemplate:'Redigera mallpass',startTemplate:'Starta mallpass',editRecord:'Redigera rekord',logDay:'Logga pass'};
 function dateISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function asDate(iso){var a=String(iso||selectedDate).split('-').map(Number);return new Date(a[0],a[1]-1,a[2],12);}
 function monday(iso){var d=asDate(iso);d.setDate(d.getDate()-(d.getDay()+6)%7);return dateISO(d);}
@@ -244,6 +244,27 @@ function selectTool(win,tool,button,date){
  if(tool!=='editTemplate')win.fieldEmbeddedTemplateId=null;
  switch(tool){
   case 'build':case 'editDay':win.openDayWorkoutBuilder(dayName(iso),iso);break;
+  case 'addPass':
+   win.openDayWorkoutBuilder(dayName(iso),iso);
+   if(win.PulseMultiPassV1)win.PulseMultiPassV1.add();
+   break;
+  case 'editExtra':
+   win.openDayWorkoutBuilder(dayName(iso),iso);
+   if(win.PulseMultiPassV1&&button&&button.dataset.extraId)win.PulseMultiPassV1.select(String(button.dataset.extraId));
+   break;
+  case 'startExtra':
+   var extraId=button&&button.dataset.extraId;
+   var primary=win.getPlannedSessions()[iso]||{};
+   var extra=(primary.additionalSessions||[]).find(function(p){return String(p.id)===String(extraId);});
+   if(!extra){notice('Det extra passet finns inte längre.');return false;}
+   if(extra.zenRoutine&&win.PulseZen){location.href=win.PulseZen.url(extra,{start:true});break;}
+   if(!(extra.exercises||[]).length){
+     win.openDayWorkoutBuilder(dayName(iso),iso);
+     if(win.PulseMultiPassV1)win.PulseMultiPassV1.select(String(extraId));
+   }else {
+     win.startWorkoutSessionForDate(iso,String(extraId));ensurePulseFlow(win);
+   }
+   break;
   case 'start':
    var planned=win.getPlannedSessions()[iso];
    if(planned&&planned.zenRoutine){location.href=PulseZen.url(planned,{start:true});break;}
@@ -255,7 +276,7 @@ function selectTool(win,tool,button,date){
    }
    break;
   case 'log':win.openWorkoutModal();if(iso){win.document.getElementById('wk-date').value=iso;}break;
-  case 'logDay':win.openWorkoutModal({skipBlank:true});win.fillWorkoutFromPlan(iso);break;
+  case 'logDay':win.openWorkoutModal({skipBlank:true});win.fillWorkoutFromPlan(iso,button&&button.dataset.extraId||'');break;
   case 'editLog':
    win.editWorkout(Number(button.dataset.workoutId));
    // Opened from one exercise in the log: that exercise's row starts open.
@@ -313,7 +334,7 @@ function runTool(tool,button,dateOverride){
   if(!dialog.open||request!==requestId)return;
   if(tool==='goals'){$('field-workspace-container').dataset.goalMode='1';}else delete $('field-workspace-container').dataset.goalMode;
 
-  var needsSession=tool==='start'||tool==='startTemplate';
+  var needsSession=tool==='start'||tool==='startTemplate'||tool==='startExtra';
   if(tool==='start'){
    var planned=win.getPlannedSessions()[date];
    needsSession=!!(planned&&Array.isArray(planned.exercises)&&planned.exercises.length);
@@ -356,7 +377,8 @@ function install(){
   var detail=event.detail||{};
   if(!detail.tool)return;
   if(detail.date)selectedDate=detail.date;
-  runTool(detail.tool,detail.origin||null,detail.date||selectedDate);
+  var origin=detail.origin||detail.extraId?detail.origin||{dataset:{extraId:detail.extraId}}:null;
+  runTool(detail.tool,origin,detail.date||selectedDate);
  });
  var deep=new URLSearchParams(location.search).get('tool');
  if(deep&&['build','start','log','week','records','goals'].includes(deep))runTool(deep,null);
