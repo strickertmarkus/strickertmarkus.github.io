@@ -28,7 +28,7 @@ test('stretch desktop scaling and visible countdown remain wired to the session'
   assert.match(js,/routine\.kind==='stretch'\|\|prepare\|\|force\?5000:0/);
   assert.match(js,/prepOverlay\.hidden=!prepVisible/);
   assert.match(css,/@media\(min-width:1050px\) and \(min-height:600px\)/);
-  assert.match(css,/--pose-size:min\(580px,43vw/);
+  assert.match(css,/--pose-size:max\(290px,min\(580px,43vw/);
 });
 test('wall-clock timer crosses poses and finishes after a suspended tab',()=>{
   const s=M.start(routine,time,'first');assert.equal(M.position(s,time+61000).index,1);assert.equal(M.position(s,time+61000).remaining,59);
