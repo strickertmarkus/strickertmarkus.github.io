@@ -25,7 +25,7 @@
     if (window.PulseExplore) return Promise.resolve(window.PulseExplore);
     return new Promise(function (resolve, reject) {
       var s = document.createElement('script');
-      s.src = 'pulse-explore.js?v=20261023-full-library-v2';
+      s.src = 'pulse-explore.js?v=20261103-mm-programs-1';
       s.onload = function () { window.PulseExplore ? resolve(window.PulseExplore) : reject(); };
       s.onerror = reject; document.head.appendChild(s);
     });
