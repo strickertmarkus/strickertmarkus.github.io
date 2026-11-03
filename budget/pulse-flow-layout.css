@@ -112,3 +112,88 @@ html[data-explore-profile="maja"] .timeline-recovery small{font-size:11px;color:
  html[data-explore-profile="markus"] .program-timeline li.timeline-recovery,
  html[data-explore-profile="maja"] .program-timeline li.timeline-recovery{min-height:46px;gap:14px}
 }
+
+
+/* Markus/Maja: Program tab, overview-first and a distinct exercise detail.
+   Keep the original timeline fully intact for Ingemar. */
+.program-detail.mm-program-simplified{position:relative;padding:16px 0 48px;background:none;border:0}
+.mm-program-heading{margin:14px 0 12px}
+.mm-program-heading>.eyebrow{font-size:11px;letter-spacing:.17em;color:#f1a193}
+.mm-program-heading h2{margin:7px 0 7px;font-size:clamp(23px,5vw,32px);line-height:1.15;letter-spacing:-.035em}
+.mm-program-heading p{margin:0;color:#aaa9b2;line-height:1.55;font-size:13px;max-width:640px}
+.mm-program-controls{
+ position:sticky;top:0;z-index:9;padding:7px 0 9px;
+ border-bottom:1px solid #f872634a;
+ background:linear-gradient(180deg,#090d13 0%,#101017f5 100%);
+ -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+.mm-program-summary{display:flex;flex-wrap:wrap;gap:5px 16px;align-items:baseline;padding:4px 1px 11px}
+.mm-program-summary strong{font-size:13px;color:#f2e8e7}
+.mm-program-summary span{font-size:12px;color:#f5b5a9;font-variant-numeric:tabular-nums}
+.mm-program-summary small{font-size:11px;color:#a8a4ad}
+.mm-program-switch{display:grid;grid-template-columns:1fr 1fr;gap:5px;border:1px solid #ffffff12;border-radius:12px;padding:3px;background:#ffffff07}
+.mm-program-switch button{min-height:40px;border:0;border-radius:9px;background:none;color:#b4aeb4;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer}
+.mm-program-switch button[aria-pressed="true"]{color:#ffb7aa;background:#f65c4b1d;box-shadow:inset 0 0 0 1px #ef65512f}
+.mm-program-switch button:focus-visible{outline:2px solid #ffb2a4;outline-offset:2px}
+.mm-program-list{position:relative;list-style:none;margin:9px 0 15px;padding:0}
+.mm-program-list::before{content:"";position:absolute;left:13px;top:22px;bottom:38px;width:2px;background:linear-gradient(#fa716050,#f4685292,#fa716020);box-shadow:0 0 8px #f45c4732;z-index:0;pointer-events:none}
+.mm-program-list li{position:relative;z-index:1;list-style:none;margin:0;padding:0}
+.program-detail.mm-program-simplified .mm-program-row{
+ display:grid;grid-template-columns:27px 53px minmax(0,1fr) 16px;gap:11px;
+ align-items:center;width:100%;min-height:74px;margin:0;padding:6px 1px;
+ text-align:left;border:0;border-bottom:1px solid #ffffff10;border-radius:0;
+ background:transparent;cursor:pointer;font-family:inherit;
+}
+.program-detail.mm-program-simplified .mm-program-row:hover{background:#f45c4a0b}
+.program-detail.mm-program-simplified .mm-program-row:focus-visible{outline:2px solid #ffb2a4;outline-offset:2px;border-radius:8px}
+.mm-program-index{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;border:1px solid #f97a677a;background:#24151c;color:#ffd4cb;font-size:12px;font-weight:650;box-shadow:0 0 10px #f8644c23}
+.mm-program-row img{width:53px;height:53px;object-fit:contain;border-radius:11px;background:radial-gradient(ellipse at center,#65352c27,#12131c 78%)}
+.mm-program-row-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
+.mm-program-row-copy strong{color:#faf0ee;font-size:14px;line-height:1.3;font-weight:650;overflow-wrap:anywhere}
+.mm-program-row-copy small{color:#c49b98;font-size:11px;line-height:1.4}
+.mm-program-next{color:#ce8880;font-size:24px;font-weight:300;text-align:right}
+.mm-program-between{
+ position:relative;display:flex;align-items:center;flex-wrap:wrap;gap:3px 10px;
+ padding:4px 0 5px 42px;min-height:24px;
+ color:#aca4ab;font-size:11px;line-height:1.3;
+}
+.mm-program-between::before{content:"";position:absolute;left:9px;top:calc(50% - 5px);width:9px;height:9px;border:1px solid #d18b80;border-radius:50%;background:#121118}
+.mm-program-between.is-rope{color:#e5a79d}
+.mm-program-between.is-rope::before{box-shadow:0 0 9px #ff76633a}
+.mm-program-between small{font-size:10px;color:#979199}
+.mm-program-footer-note{font-size:11px;line-height:1.55;color:#9296a0;margin:10px 0 14px}
+.program-detail.mm-program-simplified .mm-program-start{
+ position:sticky;bottom:calc(76px + env(safe-area-inset-bottom));z-index:10;
+ width:min(100%,360px);display:block;min-height:46px;margin:10px auto 0;padding:10px 16px;
+ border-radius:15px;background:#e5564cbd;border:1px solid #f68a7863;
+ color:#fff2ee;font-size:13px;font-weight:650;
+ box-shadow:0 6px 24px #0009,0 0 12px #ec4f4530;
+}
+#mm-program-overview[hidden],#mm-program-detail-body[hidden]{display:none!important}
+#mm-program-detail-body{scroll-margin-top:115px}
+.mm-program-detail-head{padding:19px 1px 9px}
+.mm-program-detail-head .eyebrow{font-size:11px;letter-spacing:.13em}
+.mm-program-detail-head h3{margin:8px 0 6px;font-size:clamp(25px,5vw,33px);line-height:1.15;color:#f7e9e5}
+.mm-program-detail-head p{font-size:14px;color:#f0b9b0;margin:0}
+.mm-program-large-poses{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center;margin:10px 0;padding:12px;border-radius:17px;border:1px solid #ffffff0c;background:radial-gradient(ellipse at 50% 50%,#35202539,#10131b 78%)}
+.mm-program-large-poses img{display:block;width:100%;height:clamp(130px,28vw,200px);object-fit:contain}
+.mm-program-after{padding:9px 12px;background:#e35c4b14;border-left:2px solid #f17767;border-radius:0 9px 9px 0;color:#bdb4ba;font-size:12px;line-height:1.55}
+.mm-program-after strong{color:#ffd2c9}
+.mm-program-technique{margin:19px 0 0;border-top:1px solid #ffffff14;padding:14px 0 0}
+.mm-program-technique .eyebrow{font-size:11px;letter-spacing:.15em}
+.mm-program-technique ol{margin:12px 0;padding-left:21px;display:grid;gap:9px;color:#e7d8d5;font-size:13px;line-height:1.55}
+.mm-program-technique li{padding-left:3px}
+.mm-program-technique p{color:#aa9aa0;font-size:12px;line-height:1.55}
+.mm-program-detail-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:19px 0 8px}
+.program-detail.mm-program-simplified .mm-program-detail-nav button{min-height:42px;border:1px solid #f36d5545;border-radius:12px;background:#fa685317;color:#ffbbae;font-family:inherit;font-size:12px;font-weight:650;cursor:pointer}
+.program-detail.mm-program-simplified .mm-program-detail-nav button:disabled{opacity:.27;cursor:default}
+.program-detail.mm-program-simplified .mm-program-live{display:block;margin:10px 0 14px;padding:10px 0;color:#f7b3a4;font-weight:650}
+@media(max-width:500px){
+ .mm-program-row{gap:8px}
+ .mm-program-heading p{font-size:12px}
+ .mm-program-summary{gap:4px 9px}
+ .mm-program-detail-head h3{font-size:25px}
+}
+@media(prefers-reduced-motion:reduce){
+ .program-detail.mm-program-simplified .mm-program-row{transition:none}
+}
