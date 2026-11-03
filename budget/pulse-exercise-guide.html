@@ -958,9 +958,55 @@ function renderProgramTimeline(program){
   return `<li><button class="timeline-preview" type="button" data-technique="${id}" aria-label="Se teknik för ${safe(ex.name)}"><span class="timeline-poses">${[0,1].map(pose=>`<span class="timeline-pose"><span class="pose-image"><img src="assets/exercise-poses-v2/${String(id).padStart(2,'0')}-${pose?'end':'start'}.webp" loading="lazy" decoding="async" alt="${safe(ex.name)} · ${pose?'slutläge':'startläge'}"></span></span>`).join('')}</span></button><div class="timeline-copy"><span class="timeline-number">${String(i+1).padStart(2,'0')}</span><strong>${safe(ex.name)}</strong><small>Förslag: ${safe(explorer.prescription(id,program).label)}</small><small>${safe(exerciseEstimate(id,program))}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(ex.name)}">Se teknik ↗</button></li>`;
  }).join('')+'</ol>';
 }
+// The standalone Program tab uses the same overview/detail hierarchy as the
+// full-screen exercise road. Ingemar keeps the original full timeline.
+function mmProgramme(){return explorer.profile==='markus'||explorer.profile==='maja';}
+function mmAfter(program,index){
+ const kind=program.between&&program.between[index];
+ if(index>=program.ids.length-1||!kind)return null;
+ return kind==='rope'?{label:'Hopprep 45 s',extra:'Återhämtning 30 s',rope:true}:{label:'Vila 90 s',extra:'',rope:false};
+}
+function mmOverviewHtml(program){
+ return '<ol class="mm-program-list">'+program.ids.map((id,index)=>{
+  const e=exercises[id],dose=explorer.prescription(id,program),after=mmAfter(program,index);
+  return `<li><button type="button" class="mm-program-row" data-mm-step="${index}" aria-label="Detaljer för ${safe(e.name)}"><span class="mm-program-index">${index+1}</span><img src="assets/exercise-poses-v2/${String(id).padStart(2,'0')}-start.webp" alt="" loading="lazy" decoding="async"><span class="mm-program-row-copy"><strong>${safe(e.name)}</strong><small>${safe(e.muscles[0])} · ${safe(dose.label)}</small></span><span aria-hidden="true" class="mm-program-next">›</span></button>${after?'<div class="mm-program-between'+(after.rope?' is-rope':'')+'"><span>'+safe(after.label)+'</span>'+(after.extra?'<small>'+safe(after.extra)+'</small>':'')+'</div>':''}</li>`;
+ }).join('')+'</ol>';
+}
+function mmDetailHtml(program,index){
+ const id=program.ids[index],e=exercises[id],dose=explorer.prescription(id,program),after=mmAfter(program,index),file=String(id).padStart(2,'0');
+ return `<div class="mm-program-detail-head"><span class="eyebrow">STEG ${index+1} AV ${program.ids.length} · ${safe(e.muscles.join(' · '))}</span><h3>${safe(e.name)}</h3><p>${safe(dose.label)} · ${safe(e.equipment)}</p></div><div class="mm-program-large-poses"><img src="assets/exercise-poses-v2/${file}-start.webp" alt="Startläge för ${safe(e.name)}" loading="lazy"><img src="assets/exercise-poses-v2/${file}-end.webp" alt="Slutläge för ${safe(e.name)}" loading="lazy"></div><div class="mm-program-after">${after?'Efter övningen: <strong>'+safe(after.label)+'</strong> '+safe(after.extra):'Sista övningen – återhämtning efter passet'}</div><div class="mm-program-technique"><span class="eyebrow">TEKNIK</span><ol>${e.steps.map(step=>'<li>'+safe(step)+'</li>').join('')}</ol><p>${safe(e.tip)}</p></div><div class="mm-program-detail-nav"><button type="button" data-mm-step="${index-1}" ${index===0?'disabled':''}>← Föregående</button><button type="button" data-mm-step="${index+1}" ${index===program.ids.length-1?'disabled':''}>Nästa →</button></div><button type="button" class="explore-quiet mm-program-live" data-technique="${id}">Se animerad teknik ↗</button>`;
+}
+function mmShowDetail(index){
+ const p=explorer.programs.find(program=>program.id===chosenProgram);
+ if(!p||!mmProgramme()||index<0||index>=p.ids.length)return;
+ const overview=$('mm-program-overview'),detail=$('mm-program-detail-body');
+ if(!overview||!detail)return;
+ overview.hidden=true;detail.innerHTML=mmDetailHtml(p,index);detail.hidden=false;
+ $('mm-program-view-overview').setAttribute('aria-pressed','false');
+ $('mm-program-view-detail').setAttribute('aria-pressed','true');
+ detail.scrollIntoView({block:'start',behavior:'smooth'});
+}
+function mmShowOverview(){
+ const overview=$('mm-program-overview'),detail=$('mm-program-detail-body');
+ if(!overview||!detail)return;
+ detail.hidden=true;overview.hidden=false;
+ $('mm-program-view-overview').setAttribute('aria-pressed','true');
+ $('mm-program-view-detail').setAttribute('aria-pressed','false');
+ $('mm-program-controls').scrollIntoView({block:'start',behavior:'smooth'});
+}
 function showProgram(id){
  const p=explorer.programs.find(program=>program.id===id);if(!p)return;chosenProgram=p.id;
  $('program-detail').hidden=false;
+ if(mmProgramme()){
+  const rope=(p.between||[]).filter(x=>x==='rope').length,rest=(p.between||[]).length-rope;
+  $('program-detail').classList.add('mm-program-simplified');
+  $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="mm-program-heading"><span class="eyebrow">DITT TRÄNINGSPASS</span><h2 id="program-title">${safe(p.name)}</h2><p>${safe(p.description)}</p></div><div id="mm-program-controls" class="mm-program-controls"><div class="mm-program-summary"><strong>${p.ids.length} övningar</strong><span>${safe(explorer.durationLabel(p))}</span><small>${rope} hopprep · ${rest} vilor</small></div><div class="mm-program-switch"><button type="button" id="mm-program-view-overview" data-mm-overview aria-pressed="true">Översikt</button><button type="button" id="mm-program-view-detail" data-mm-step="0" aria-pressed="false">Detalj</button></div></div><div id="mm-program-overview">${mmOverviewHtml(p)}</div><section id="mm-program-detail-body" hidden aria-label="Övningens detaljer"></section><p class="mm-program-footer-note">${safe(p.schedule)}</p><button type="button" class="explore-primary mm-program-start" id="open-program">Kopiera programförslag ↗</button>`;
+  $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
+  $('program-detail').focus({preventScroll:true});
+  $('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
+  return;
+ }
+ $('program-detail').classList.remove('mm-program-simplified');
  $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">Tidsestimat: ca ${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><div class="timeline-start"><span>◌</span> Uppvärmning <small>Innan första arbetssetet</small></div>${renderProgramTimeline(p)}<footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">${explorer.profile==='ingemar'?'Öppna i passbyggaren ↗':'Kopiera programförslag ↗'}</button></footer>`;
  $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
  $('program-detail').focus({preventScroll:true});$('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
@@ -974,7 +1020,7 @@ function exerciseEstimate(id,program){
  const min=estimate(range[0]),max=estimate(range[1]||range[0]);
  return 'Tidsestimat: ca '+min+(max>min?'–'+max:'')+' min inkl. vila';
 }
-function closeProgram(){$('programs-title').closest('.section-intro').hidden=false;chosenProgram=null;$('program-detail').hidden=true;$('program-cards').hidden=false;$('program-controls').hidden=false;}
+function closeProgram(){$('programs-title').closest('.section-intro').hidden=false;chosenProgram=null;$('program-detail').hidden=true;$('program-detail').classList.remove('mm-program-simplified');$('program-cards').hidden=false;$('program-controls').hidden=false;}
 function transfer(request){
  const plan=explorer.workout(request);
  if(!plan)return;
@@ -1040,6 +1086,8 @@ $('open-selection').addEventListener('click',()=>transfer({version:1,ids:selecti
 document.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.page)route(()=>{showPage(b.dataset.page,false);if(b.dataset.page==='guide'){setList(true);renderList();}window.scrollTo(0,0);});
+ if(b.dataset.mmStep!=null&&chosenProgram&&!b.disabled){mmShowDetail(Number(b.dataset.mmStep));return;}
+ if(b.dataset.mmOverview!=null&&chosenProgram){mmShowOverview();return;}
  if(b.dataset.technique!=null)showTechnique(Number(b.dataset.technique));
  if(b.dataset.addChoice!=null)toggleChoice(Number(b.dataset.addChoice));
  if(b.dataset.removeChoice!=null)toggleChoice(Number(b.dataset.removeChoice));
