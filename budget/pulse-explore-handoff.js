@@ -70,8 +70,22 @@
     note.id = 'explore-handoff';
     note.setAttribute('role', 'status');
     note.style.cssText = 'margin:0 0 14px;padding:14px 16px;border-radius:16px;background:linear-gradient(120deg,#ff5a4824,#ff5a4808);box-shadow:inset 0 0 0 1px #ff6a5a44;color:inherit;font-size:13px;line-height:1.45';
+    // Programme transitions are displayed in the builder but deliberately NOT
+    // added as cardio rows: otherwise strength volume and cardio stats change.
+    // The training builder currently has no first-class inter-exercise timer.
+    var sequence=Array.isArray(plan.sequence)?plan.sequence:[];
+    var transitionRows=sequence.filter(function(segment){return segment.kind==='rope'||segment.kind==='rest';});
+    var transitionsHtml=transitionRows.length
+      ? '<details style="margin-top:10px"><summary style="cursor:pointer;color:#ffc5b8;font-weight:600">Hopprep och vila mellan övningarna ('+transitionRows.length+')</summary><ol style="margin:8px 0 0 18px;padding:0;display:grid;gap:5px">'
+         +transitionRows.map(function(segment){
+           return '<li>'+(segment.kind==='rope'
+             ?'Hopprep '+segment.seconds+' sek + '+segment.restSeconds+' sek lugn återhämtning'
+             :'Vila '+segment.seconds+' sek')+'</li>';
+         }).join('')+'</ol><small style="display:block;margin-top:8px;opacity:.68">Följ tiderna mellan övningarna. De startar inte automatiskt i passbyggaren.</small></details>'
+      : '';
     note.innerHTML = '<strong style="display:block;font-size:15px;margin-bottom:3px">' + plan.name.replace(/</g, '&lt;') + '</strong>' +
       '<span style="opacity:.8">' + plan.exercises.length + ' övningar från övningsutforskaren. Justera set, reps och vikter och tryck sedan Starta pass.' + (hadPlan ? ' Dagens tidigare upplägg ersätts först när du sparar eller startar.' : '') + '</span>' +
+      transitionsHtml +
       '<label style="display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:600;cursor:pointer"><input type="checkbox" id="explore-handoff-template" style="width:20px;height:20px;accent-color:#ff5a48"> Spara också som mallpass</label>';
     list.parentNode.insertBefore(note, list);
 
