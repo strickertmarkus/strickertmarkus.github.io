@@ -339,23 +339,28 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(w){var col=workoutKind(w)==='cardio'?'#7fe3ef':'#ff657a';s+='<path d="'+arc(i)+'" stroke="'+col+'" stroke-width="12" opacity=".5" filter="url(#ro-glow)"/><path d="'+arc(i)+'" stroke="'+col+'" stroke-width="6" opacity=".7" filter="url(#ro-glow-tight)"/><path class="ro-arc" d="'+arc(i)+'" stroke="'+col+'" stroke-width="4"/><path d="'+arc(i)+'" stroke="#fff" stroke-width="1.2" opacity=".45"/>';}
       else s+='<path class="ro-empty" d="'+arc(i)+'"/>';
     }
-    // Two slender weekly recovery tracks around the /4 training ring.
-    // One segment per weekday, regardless of how many sessions were done;
-    // this does not change the workout goal or the number in its centre.
-    var monday=startOfWeek(new Date());
-    function zenArc(day,r){
-      var a0=(-90+day*360/7+3)*Math.PI/180,a1=(-90+(day+1)*360/7-3)*Math.PI/180;
+    // The recovery tracks share the training ring's *four-stop* rhythm.
+    // Fill one segment per completed session this week, independent of day.
+    // Keep these rings separate from the workout goal and centre count.
+    var monday=startOfWeek(new Date()),zenSlots=4,zenAngle=360/zenSlots,zenGap=10;
+    function zenArc(slot,r){
+      var a0=(-90+slot*zenAngle+zenGap/2)*Math.PI/180;
+      var a1=(-90+(slot+1)*zenAngle-zenGap/2)*Math.PI/180;
       return 'M '+(c+r*Math.cos(a0)).toFixed(2)+' '+(c+r*Math.sin(a0)).toFixed(2)+
         ' A '+r+' '+r+' 0 0 1 '+(c+r*Math.cos(a1)).toFixed(2)+' '+(c+r*Math.sin(a1)).toFixed(2);
     }
     ['stretch','meditation'].forEach(function(kind,index){
-      var radius=index?58:53,color=index?'#f5d58c':'#b8e99b';
+      var radius=index?58:53,color=index?'#f5d58c':'#b8e99b',completed=0;
+      for(var day=0;day<7;day++){
+        var counts=zenDays[isoDate(shiftDate(monday,day))]||{};
+        completed+=Math.max(0,number(counts[kind])||0);
+      }
       s+='<g class="ro-zen-track ro-zen-'+kind+'">';
-      for(var d=0;d<7;d++){
-        var counts=zenDays[isoDate(shiftDate(monday,d))]||{},active=counts[kind]>0;
-        s+='<path d="'+zenArc(d,radius)+'" stroke="'+(active?color:'#ffffff18')+'" stroke-width="'+(active?2.9:1.6)+'"'+
+      for(var slot=0;slot<zenSlots;slot++){
+        var active=slot<completed,shape=zenArc(slot,radius);
+        s+='<path class="ro-zen-segment'+(active?' is-filled':'')+'" data-slot="'+slot+'" d="'+shape+'" stroke="'+(active?color:'#ffffff1d')+'" stroke-width="'+(active?2.7:1.65)+'"'+
           (active?' filter="url(#ro-glow-tight)"':'')+'/>';
-        if(active)s+='<path d="'+zenArc(d,radius)+'" stroke="'+color+'" stroke-width="2.2"/>';
+        if(active)s+='<path class="ro-zen-lit" d="'+shape+'" stroke="'+color+'" stroke-width="2.15"/>';
       }
       s+='</g>';
     });
@@ -704,16 +709,23 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())){cls+=' is-planned';color=/kondition|löp|run|cardio|cykel|hopprep|rodd|crosstrainer|intervall/i.test(plan.type)?'#7fe3ef':'#ff657a';tip='Planerat: '+String(plan.name||plan.type);}
         }
         var z=zenDays[key]||{},zStretch=z.stretch>0,zMeditation=z.meditation>0;
+        // Without a logged strength/cardio session, Zen owns the full dot.
+        // A future strength plan must never hide a *completed* recovery pass.
+        // When regular training was logged, keep its colour and use small pips.
+        var zenOnly=!list.length&&(zStretch||zMeditation);
         if(zStretch||zMeditation){
           cls+=' is-zen'+(zStretch?' is-zen-stretch':'')+(zMeditation?' is-zen-meditation':'');
-          if(!list.length&&cls.indexOf('is-planned')<0){cls+=' is-zen-only';color=zStretch?'#b8e99b':'#f5d58c';}
+          if(zenOnly){
+            cls=cls.replace(' is-planned','')+' is-pass is-zen-only'+(zStretch&&zMeditation?' is-zen-mixed':'');
+            color=zStretch&&zMeditation?'#d7dc95':zStretch?'#b8e99b':'#f5d58c';
+          }
           tip+=(tip?', ':'')+(zStretch?'Stretch'+(z.stretch>1?' ×'+z.stretch:''):'')+
             (zStretch&&zMeditation?', ':'')+(zMeditation?'Meditation'+(z.meditation>1?' ×'+z.meditation:''):'');
         }
         if(key===today)cls+=' is-today';
         cells+='<span class="'+cls+'"'+(color?' style="--c:'+color+'"':'')+(tip?chartTipAttrs(dayNames[d]+' '+shortDate(date),tip,'','#ff9a91'):'')+'><i></i>'+
-          (zStretch?'<em class="rm-zen-dot is-stretch" aria-hidden="true"></em>':'')+
-          (zMeditation?'<em class="rm-zen-dot is-meditation" aria-hidden="true"></em>':'')+'</span>';
+          (!zenOnly&&zStretch?'<em class="rm-zen-dot is-stretch" aria-hidden="true"></em>':'')+
+          (!zenOnly&&zMeditation?'<em class="rm-zen-dot is-meditation" aria-hidden="true"></em>':'')+'</span>';
       }
       total+=count;
       rows+='<span class="rm-week'+(k===0?' is-current':'')+'">v'+weekNumber(ws)+'</span>'+cells+'<span class="rm-total'+(count>=goal?' is-goal':'')+'">'+count+'</span>';
