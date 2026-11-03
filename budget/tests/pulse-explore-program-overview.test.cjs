@@ -46,7 +46,7 @@ test('fullscreen programme overview shows one compact, static pose per exercise 
  assert.equal(sceneAPI.mmProgram(),true);
  assert.equal((html.match(/class="st-mm-row"/g)||[]).length,program.ids.length);
  assert.equal((html.match(/<img /g)||[]).length,program.ids.length);
- assert.equal((html.match(/class="st-mm-interval/g)||[]).length,program.ids.length-1);
+ assert.equal((html.match(/<div class="st-mm-interval/g)||[]).length,program.ids.length-1);
  assert.match(html,/Översikt/);
  assert.match(html,/data-detail-step="0">Detalj/);
  assert.match(html,/Hopprep 45 s/);assert.match(html,/Vila 90 s/);
