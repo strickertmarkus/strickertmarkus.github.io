@@ -209,7 +209,18 @@ if(!embedded){
   if(link.id==='menu-explore-training')window.dispatchEvent(new Event('pulse-field:close-menu'));
   openStage(link,true);
  });
- addEventListener('popstate',()=>{if(stageOpen)closeStage(true);});
+ addEventListener('popstate',()=>{
+   if(!stageOpen)return;
+   // Mobile Safari may send edge-back to the *host* even though a programme
+   // detail is open in the explorer iframe. Let that detail consume Back first.
+   var inside=null;
+   try{inside=stageFrame&&stageFrame.contentWindow&&stageFrame.contentWindow.PulseGymScene;}catch(_){}
+   if(inside&&typeof inside.backWithinProgram==='function'&&inside.backWithinProgram()){
+     history.pushState({pmExplore:1},'',stageFrame.src||homeUrl);
+     return;
+   }
+   closeStage(true);
+ });
  // Start loading the explorer as the finger lands on its link, not before: the
  // training page itself never pays for it.
  document.addEventListener('pointerdown',event=>{const link=event.target.closest&&event.target.closest('a.field-explore-entry,a#menu-explore-training');if(link&&!stage)ensureStage(explorerUrl(link));},{capture:true,passive:true});
