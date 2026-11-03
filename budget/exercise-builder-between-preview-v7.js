@@ -616,7 +616,13 @@
     if (!originalStartBuilder && typeof window.startDayWorkoutFromBuilder==='function') originalStartBuilder=window.startDayWorkoutFromBuilder;
     if (!originalPersist) return false;
 
-    window.saveDayWorkoutPlan=function () { return showPreview(); };
+    window.saveDayWorkoutPlan=function () {
+      // Extra same-day sessions are independent records inside the existing
+      // date. The legacy preview persists only the *primary* day plan.
+      if(document.getElementById('day-workout-modal')?.dataset.extraId)
+        return originalPersist({startAfterSave:false});
+      return showPreview();
+    };
     // Used by "Logga pass": save the day as the builder shows it, between exercises included.
     window.__persistDayDraftV7=function () {
       var draft=captureDraft();
@@ -624,6 +630,8 @@
       return persistDraft(draft,true,true) ? draft.date : false;
     };
     window.startDayWorkoutFromBuilder=function () {
+      if(document.getElementById('day-workout-modal')?.dataset.extraId)
+        return originalStartBuilder();
       if(window.PulseZen&&PulseZen.builderKind())return originalStartBuilder();
       var draft=captureDraft();
       if (!draft || !draft.exercises.length) {
