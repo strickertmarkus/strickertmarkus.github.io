@@ -2660,8 +2660,9 @@ function pulseExtraSelectV1(id){
 }
 function pulseExtraAddV1(){
  var modal=document.getElementById('day-workout-modal'),date=modal.dataset.date,day=getPlannedSessions()[date]||{};
- if(!((day.exercises||[]).length||day.zenRoutine)){
-   if(typeof showToast==='function')showToast('Spara första passet innan du lägger till fler.');return;
+ if(!((day.exercises||[]).length||day.zenRoutine||pulseExtraListV1(day).length)){
+   if(typeof showToast==='function')showToast('Skapa och spara dagens första pass här. Redan loggade pass påverkas inte.');
+   return;
  }
  pulseExtraDraftCurrentV1();
  var id=pulseExtraIdV1();
@@ -2805,7 +2806,12 @@ function setDayWorkoutRest(){
   var date=(dateInput&&dateInput.value)||modal.dataset.date;
   if(!date)return false;
   var byDate=getPlannedSessions();
-  if(byDate[date]){delete byDate[date];savePlannedSessions(byDate);}
+  if(byDate[date]){
+    var restExtras=pulseExtraListV1(byDate[date]);
+    if(restExtras.length)byDate[date]={type:'Vila',name:'Vila',exercises:[],additionalSessions:restExtras};
+    else delete byDate[date];
+    savePlannedSessions(byDate);
+  }
   var mondayISO=mondayISOOf(date),plan=Object.assign({},getPlanForWeek(mondayISO));
   plan[dayKeyFromISO(date)]='Vila';
   setPlanForWeek(mondayISO,plan);
@@ -2813,7 +2819,7 @@ function setDayWorkoutRest(){
   renderWeekGrid();
   closeModal('day-workout-modal');
   if(pulsePlanBuilderReturnV3)pulsePlanReturnFromBuilderV3();
-  showToast('Dagen är nu en vilodag.');
+  showToast(byDate[date]&&pulseExtraListV1(byDate[date]).length?'Huvudpasset borttaget. Extra pass ligger kvar.':'Dagen är nu en vilodag.');
   return true;
 }
 function startDayWorkoutFromBuilder(){
@@ -4005,10 +4011,16 @@ function savePlan(){
       var date=shiftISODate(monday,i),entry=pulsePlanDraftsV2[monday][i];
       var type=String(entry&&entry.type||'Vila').trim()||'Vila';
       plan[day]=type;
-      if(pulsePlanKindV2(type)==='rest'){delete sessions[date];return;}
+      var current=sessions[date]||{},existingExtras=pulseExtraListV1(current);
+      if(pulsePlanKindV2(type)==='rest'){
+        if(existingExtras.length)sessions[date]={type:'Vila',name:'Vila',exercises:[],additionalSessions:pulsePlanCloneV2(existingExtras)};
+        else delete sessions[date];
+        return;
+      }
       var record=pulsePlanCloneV2(entry.session||{type:type,exercises:[]});
       record.type=type;
       if(!Array.isArray(record.exercises))record.exercises=[];
+      if(existingExtras.length&&!Array.isArray(record.additionalSessions))record.additionalSessions=pulsePlanCloneV2(existingExtras);
       sessions[date]=record;
     });
     plans[monday]=plan;
