@@ -35,8 +35,24 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder[data-zen-mo
 .week-selected-session-v3[data-kind=stretch]{--zen-color:#d4eea7}.week-selected-session-v3[data-kind=meditation]{--zen-color:#fff0b7}.planner-month-day[data-kind=stretch]{--day-color:#d4eea7!important}.planner-month-day[data-kind=meditation]{--day-color:#fff0b7!important}
 [data-kind=stretch] .today-play,[data-kind=meditation] .today-play{color:var(--zen-color)!important}.week-selected-session-v3[data-kind=stretch]::before,.week-selected-session-v3[data-kind=meditation]::before{background:var(--zen-color);box-shadow:0 0 6px var(--zen-color)}
 .week-selected-session-v3[data-kind=stretch],.week-selected-session-v3[data-kind=meditation]{background:radial-gradient(ellipse 70% 120% at 50% 130%,color-mix(in srgb,var(--zen-color) 18%,transparent),transparent 70%)}
-/* Several stretch or meditation passes on one day */
-.pulse-zen-builder>summary>span{display:flex;flex-direction:column;gap:2px;min-width:0}
-.pulse-zen-builder>summary small{color:#ffffff80;font:500 12px Inter,sans-serif}
-.pulse-zen-multi-hint{margin:10px 0 8px;color:#ffffff7a;font:500 12px/1.4 Inter,sans-serif}
-.pulse-zen-group-options button[aria-pressed=true]{border-radius:14px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--zen-color,#d4eea7) 70%,transparent);background:color-mix(in srgb,var(--zen-color,#d4eea7) 7%,transparent)}
+/* Several stretch or meditation passes on one day: rows like exercises, + to add */
+.pulse-zen-builder{border-top:1px solid #ffffff13}
+.pulse-zen-row{display:flex;align-items:center;gap:14px;min-height:72px;padding:8px 0;border-bottom:1px solid #ffffff0d}
+.pulse-zen-row-icon{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--zen-color) 16%,transparent),#ffffff05 70%);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--zen-color) 22%,transparent)}
+.pulse-zen-row-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pulse-zen-row-text strong{color:#f1efe9;font:600 16px/1.25 Inter,sans-serif;overflow-wrap:anywhere}
+.pulse-zen-row-text small{color:var(--zen-color);font:500 13px Inter,sans-serif;opacity:.85}
+.pulse-zen-row-tools{display:flex;align-items:center;gap:2px;flex:none}
+.pulse-zen-row-tools button{display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:#8f96a0;cursor:pointer}
+.pulse-zen-row-tools button:active{background:#ffffff0d}
+.pulse-zen-row-tools svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pulse-zen-add{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:8px 0;border:0;border-bottom:1px solid #ffffff0d;background:none;color:var(--zen-color);font:600 16px Inter,sans-serif;text-align:left;cursor:pointer}
+.pulse-zen-add-plus{position:relative;flex:none;width:48px;height:48px;border-radius:50%;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--zen-color) 45%,transparent),0 0 18px -6px var(--zen-color)}
+.pulse-zen-add-plus::before,.pulse-zen-add-plus::after{content:"";position:absolute;left:50%;top:50%;width:16px;height:1.8px;margin:-.9px 0 0 -8px;border-radius:2px;background:currentColor}
+.pulse-zen-add-plus::after{transform:rotate(90deg)}
+.pulse-zen-add[aria-expanded=true] .pulse-zen-add-plus::after{transform:rotate(0)}
+.pulse-zen-routines[hidden]{display:none!important}
+.pulse-zen-group-options button[disabled]{opacity:.45;cursor:default}
+/* Stretch and meditation as a dot in their colour in the planners */
+.pulse-zen-dot{display:inline-block;flex:none;width:7px;height:7px;margin-right:6px;border-radius:50%;background:#d4eea7;box-shadow:0 0 7px #a4dc77aa;vertical-align:middle}
+.pulse-zen-dot[data-zen-kind=meditation]{background:#fff0b7;box-shadow:0 0 7px #ffe8a4aa}

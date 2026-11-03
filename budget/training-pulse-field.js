@@ -435,9 +435,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(key<today)classes.push('is-past');
       // The day as a node on the week's curve: glowing dot when logged, a ring when only
       // planned (faint once passed), the moon for rest. Its name lives in the card below.
-      var zen=window.PulseZen&&PulseZen.kind(type),mark=zen?PulseZen.icon(zen):signalKind==='rest'&&!logged.length?'<span class="wd-moon">'+PK_MOON+'</span>':'<i class="wd-dot"></i>';
+      var zen=window.PulseZen&&PulseZen.kind(type),mark=zen?'<i class="wd-dot" style="--week-kind:'+(zen==='meditation'?'#fff0b7':'#d4eea7')+'"></i>':signalKind==='rest'&&!logged.length?'<span class="wd-moon">'+PK_MOON+'</span>':'<i class="wd-dot"></i>';
       markup+='<div class="'+classes.join(' ')+'" style="--lift:'+WEEK_WAVE[i]+'px" data-plan-kind="'+signalKind+'" data-plan-color="'+signalColor+'" data-day="'+key+'" role="button" tabindex="0" aria-label="'+dayNames[i]+' '+date.getDate()+', '+escapeHtml(displayName)+(logged.length?', loggat':'')+'." aria-pressed="'+(key===state.selectedDate)+'">'+
-        '<span class="wd-name">'+dayNames[i]+'</span><span class="wd-node">'+mark+'</span><span class="wd-date">'+date.getDate()+'</span><span class="wd-type">'+escapeHtml(weekDayShortName(displayName,signalKind==='rest'&&!logged.length))+'</span></div>';
+        '<span class="wd-name">'+dayNames[i]+'</span><span class="wd-node">'+mark+'</span><span class="wd-date">'+date.getDate()+'</span><span class="wd-type">'+escapeHtml(zen?(zen==='meditation'?'Meditation':'Stretch'):weekDayShortName(displayName,signalKind==='rest'&&!logged.length))+'</span></div>';
     }
     byId('week-days').innerHTML=weekCurve()+markup;
     // The legend sits under the day card so the thread from the day to its card stays clear.

@@ -565,8 +565,8 @@ if(!window.__FIELD_EMBEDDED__){
 <script defer src="pulse-builder-ui.js?v=20261103-between-inline-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
-<link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-multi-1">
-<script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261103-zen-multi-1"></script>
+<link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-rows-1">
+<script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261103-zen-rows-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -1294,7 +1294,7 @@ function pulsePlanExpandedHtmlV2(entry,i){
   var copying=pulsePlanCopied&&pulsePlanCopied.date===shiftISODate(planTargetMondayISO,i);
   return '<div class="pulse-plan-editor-v2 pp-quick">'+
     (window.PulseZen?'<details class="pulse-zen-plan-settings"><summary>Inställningar</summary>'+PulseZen.controls(zenMode,i)+'</details>':'')+
-    '<div class="pp-row"><label class="pp-select is-pass"'+(zenMode?' data-zen-kind="'+zenMode+'"':'')+'><span>'+(zenMode?PulseZen.icon(zenMode):'')+'Pass</span><select data-pulse-type-select="'+i+'" aria-label="Pass för '+DAYS[i]+'">'+options+'</select></label>'+
+    '<div class="pp-row"><label class="pp-select is-pass"'+(zenMode?' data-zen-kind="'+zenMode+'"':'')+'><span>'+(zenMode?'<i class="pulse-zen-dot" data-zen-kind="'+zenMode+'" aria-hidden="true"></i>':'')+'Pass</span><select data-pulse-type-select="'+i+'" aria-label="Pass för '+DAYS[i]+'">'+options+'</select></label>'+
       '<button type="button" class="pp-builder" data-pulse-open-builder-v2="'+i+'">Passbyggaren'+PULSE_PLAN_ARROW+'</button></div>'+
     '<label class="pp-custom"'+(known?' hidden':'')+'><span>Eget namn</span><input type="text" data-day="'+DAY_KEYS[i]+'" list="type-suggestions" autocomplete="off" value="'+escHtml(type)+'" aria-label="Eget namn på passet för '+DAYS[i]+'"></label>'+
     (kind==='rest'?'':'<p class="pp-summary">'+(zenMode?(zen?escHtml(entry.session.name)+' · '+Math.round(ZenModel.duration(zen)/60)+' min':'Välj ett pass'):exercises.length?'<b>'+exercises.length+(exercises.length===1?' övning':' övningar')+'</b> · '+escHtml(pulsePlanPreviewV2(entry)):'Inga övningar ännu · lägg till dem i passbyggaren')+'</p>')+
@@ -1316,7 +1316,7 @@ function pulsePlanRenderV2(){
     article.innerHTML='<div class="pulse-plan-top-v2">'+
       '<button type="button" class="pulse-plan-open-v2" data-pulse-open-builder-v2="'+i+'" aria-label="Öppna passbyggaren för '+day+'">'+
        '<span class="pulse-plan-date-v2"><small>'+day+'</small><strong>'+parseISODate(date).getDate()+'</strong></span>'+
-       '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?PULSE_PLAN_MOON+'Vila':window.PulseZen&&PulseZen.kind(type)?PulseZen.icon(PulseZen.kind(type))+escHtml(type):pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
+       '<span class="pulse-plan-main-v2"><span class="pulse-plan-badge-v2">'+(rest?PULSE_PLAN_MOON+'Vila':window.PulseZen&&PulseZen.kind(type)?'<i class="pulse-zen-dot" data-zen-kind="'+PulseZen.kind(type)+'" aria-hidden="true"></i>'+escHtml(type):pulsePlanKindV2(type)==='cardio'?'Kondition':'Styrka')+'</span>'+
        '<strong>'+escHtml(sessionName)+'</strong><small>'+escHtml(rest?'Återhämtning':entry.session&&entry.session.zenRoutine?Math.round(ZenModel.duration(entry.session.zenRoutine)/60)+' min '+type.toLowerCase():exercises.length?exercises.length+(exercises.length===1?' övning · ':' övningar · ')+pulsePlanPreviewV2(entry):'Välj övningar eller mallpass')+'</small></span>'+
        '<span class="pulse-plan-arrow-v2" aria-hidden="true">'+PULSE_PLAN_ARROW+'</span></button>'+
       '<button type="button" class="pulse-plan-grip-v2" data-pulse-drag-v2="'+i+'" aria-label="Håll och dra '+day+' för att byta plats. Piltangenter fungerar också."><span aria-hidden="true"><i></i><i></i><i></i></span></button></div>'+
@@ -3966,7 +3966,7 @@ window.addEventListener('firebase-sync',function(event){
   },{once:true});
 })();
 </script>
-<script src="training-month-planner.js?v=20261103-zen-multi-1"></script>
+<script src="training-month-planner.js?v=20261103-zen-rows-1"></script>
 <script src="training-pass-autofill.js?v=20261031-cardio-name-1"></script>
 <script src="training-pulse-classic-templates-v1.js?v=20261103-zen-multi-1"></script>
 </body>
