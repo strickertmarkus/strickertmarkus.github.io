@@ -9,7 +9,7 @@
   let prefs={};try{prefs=JSON.parse(localStorage.getItem(prefKey)||'{}');}catch(_){}
   if(!prefs||typeof prefs!=='object')prefs={};
   const routeKind=new URLSearchParams(location.search).get('wellness');
-  let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:typeof prefs.selected?.stretch==='string'?prefs.selected.stretch:'forest',meditation:typeof prefs.selected?.meditation==='string'?prefs.selected.meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false;
+  let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:typeof prefs.selected?.stretch==='string'?prefs.selected.stretch:'forest',meditation:typeof prefs.selected?.meditation==='string'?prefs.selected.meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false,editingHistoryId=null,editingHistoryVersion=0,expandedHistory=new Set();
   var requestedRoutine=new URLSearchParams(location.search).get('routine');
   var requested=M.routines.find(r=>r.id===requestedRoutine&&r.kind===kind);if(requested)selected[kind]=requested.id;
   // A planned day with several passes: the next ones come after this one is saved.
@@ -93,7 +93,13 @@
     const symbolsMilestone=kind==='stretch'?['✧','⌁','✦','∞']:['◌','≈','☼','∞'];
     $('collection').innerHTML=M.milestones(kind,S.entries).map(m=>{const value=st[m.metric],done=value>=m.goal;return '<article class="keepsake '+(done?'unlocked':'')+'"><span class="keepsake-symbol" aria-hidden="true">'+symbolsMilestone[m.slot]+'</span><h3>'+escape(m.name)+'</h3><p>'+m.goal+' '+M.milestoneMetrics[m.metric]+'</p><small>'+(done?'Uppnått':Math.min(value,m.goal)+' / '+m.goal)+'</small><button class="text-button milestone-edit" data-milestone="'+m.slot+'" aria-label="Redigera '+escape(m.name)+'">Redigera</button></article>';}).join('');
     const history=records().filter(r=>r.kind===kind).sort((a,b)=>b.completedAt-a.completedAt);$('history-more').hidden=history.length<=5;$('history-more').textContent=allHistory?'Visa färre':'Visa alla ('+history.length+')';
-    $('history').innerHTML=history.length?(allHistory?history:history.slice(0,5)).map(r=>'<article class="history-row"><span class="small-symbol" aria-hidden="true">'+copy[kind].symbol+'</span><div><h3>'+escape(r.name)+'</h3><time datetime="'+new Date(r.completedAt).toISOString()+'">'+new Date(r.completedAt).toLocaleString('sv-SE',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</time>'+(r.feeling?'<p>'+escape(feelingLabel(r.feeling))+'</p>':'')+(r.note?'<p class="history-note">'+escape(r.note)+'</p>':'')+'</div><span class="history-length">'+mins(r.seconds)+' min</span><button class="text-button" data-delete="'+escape(r.id)+'" aria-label="Ta bort '+escape(r.name)+'">×</button></article>').join(''):'<p class="history-empty">Inga sparade pass ännu.</p>';
+    $('history').innerHTML=history.length?(allHistory?history:history.slice(0,5)).map(r=>{
+      const open=expandedHistory.has(r.id);
+      const exercises=r.kind==='stretch'?(Array.isArray(r.steps)&&r.steps.length
+        ?'<p class="history-detail-label">'+r.steps.length+' övningar i passet</p><ol class="history-steps">'+r.steps.map(step=>'<li><span>'+escape(step.name)+'</span><small>'+fmt(step.seconds)+'</small></li>').join('')+'</ol>'
+        :'<p class="history-legacy">Övningarna registrerades inte för detta äldre pass.</p>'):'';
+      return '<article class="history-row"><button type="button" class="history-trigger" data-history="'+escape(r.id)+'" aria-expanded="'+open+'" aria-controls="zen-history-'+escape(r.id)+'"><span class="small-symbol" aria-hidden="true">'+copy[kind].symbol+'</span><span class="history-info"><strong>'+escape(r.name)+'</strong><time datetime="'+new Date(r.completedAt).toISOString()+'">'+new Date(r.completedAt).toLocaleString('sv-SE',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</time>'+(r.feeling?'<span class="history-feeling">'+escape(feelingLabel(r.feeling))+'</span>':'')+(r.note?'<span class="history-note">'+escape(r.note)+'</span>':'')+'</span><span class="history-length">'+mins(r.seconds)+' min</span><span class="history-chevron" aria-hidden="true">⌄</span></button><button type="button" class="text-button history-delete" data-delete="'+escape(r.id)+'" aria-label="Ta bort '+escape(r.name)+'">×</button><div id="zen-history-'+escape(r.id)+'" class="history-expanded" '+(open?'':'hidden')+'>'+exercises+'<button type="button" class="text-button history-edit-link" data-edit-session="'+escape(r.id)+'">Redigera pass</button></div></article>';
+    }).join(''):'<p class="history-empty">Inga sparade pass ännu.</p>';
     $('resume-banner').hidden=!S.active;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));
   }
   function feelingLabel(value){return {lighter:'Lite lättare',calm:'Lugnare',present:'Mer närvarande'}[value]||'';}
@@ -136,7 +142,7 @@
     if(!session)return;ending=false;$('session-ending').hidden=true;
     session=M.pause(session,Date.now());const seconds=Math.floor(M.practiced(session,Date.now())/1000);
     if(seconds<1){toast('Passet behöver vara minst en sekund för att sparas.');session=M.resume(session,Date.now());S.setActive(session);return;}
-    S.setActive(session);pendingRecord={id:session.id,type:'session',name:session.routine.name,kind:session.routine.kind,seconds,completedAt:early?Date.now():session.anchor,updatedAt:Date.now(),note:'',feeling:''};
+    S.setActive(session);pendingRecord={id:session.id,type:'session',name:session.routine.name,kind:session.routine.kind,seconds,completedAt:early?Date.now():session.anchor,updatedAt:Date.now(),note:'',feeling:'',...(session.routine.kind==='stretch'?{steps:session.routine.steps.map(step=>({id:step.id||'',name:step.name,seconds:step.seconds}))}:{})};
     $('complete-summary').textContent=mins(seconds)+' minuter · '+session.routine.name;$('session-note').value='';document.querySelectorAll('[data-feeling]').forEach(b=>b.setAttribute('aria-pressed','false'));showView('complete');$('complete-title').focus();playDing();document.title='Passet avslutat · Zen';
   }
   function saveComplete(){
@@ -289,13 +295,47 @@
   $('sound-toggle').onclick=()=>{sound=!sound;savePrefs();updateSound();if(sound)playDing();else updateBreathAudio(false);};
   document.querySelectorAll('[data-feeling]').forEach(b=>b.onclick=()=>{if(!pendingRecord)return;pendingRecord.feeling=pendingRecord.feeling===b.dataset.feeling?'':b.dataset.feeling;document.querySelectorAll('[data-feeling]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.feeling===pendingRecord.feeling)));});
   $('save-session').onclick=saveComplete;$('cancel-complete').onclick=()=>confirm('Lämna utan att spara?','Passet läggs inte till i historiken.','Lämna',()=>{session=null;pendingRecord=null;S.setActive(null);showView('home');renderHome();});
-  $('history').onclick=e=>{const b=e.target.closest('[data-delete]');if(b)confirm('Ta bort passet?','Statistik och milstolpar räknas om när passet tas bort.','Ta bort',()=>S.remove(b.dataset.delete));};$('history-more').onclick=()=>{allHistory=!allHistory;renderHome();};
+  $('history').onclick=e=>{
+    const del=e.target.closest('[data-delete]');
+    if(del){confirm('Ta bort passet?','Statistik och milstolpar räknas om när passet tas bort.','Ta bort',()=>S.remove(del.dataset.delete));return;}
+    const edit=e.target.closest('[data-edit-session]');
+    if(edit){
+      const r=records().find(r=>r.id===edit.dataset.editSession);if(!r)return;
+      editingHistoryId=r.id;editingHistoryVersion=r.updatedAt;
+      const date=new Date(r.completedAt);
+      $('history-edit-title').textContent=r.name;
+      $('history-edit-date').value=new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);
+      $('history-edit-minutes').value=Math.floor(r.seconds/60);
+      $('history-edit-seconds').value=r.seconds%60;
+      $('history-edit-note').value=r.note;
+      $('history-edit-error').textContent='';
+      SurfaceMotion.showDialog($('history-edit-dialog'));$('history-edit-title').focus({preventScroll:true});
+      return;
+    }
+    const trigger=e.target.closest('[data-history]');
+    if(trigger){const rid=trigger.dataset.history;if(expandedHistory.has(rid))expandedHistory.delete(rid);else expandedHistory.add(rid);trigger.setAttribute('aria-expanded',String(expandedHistory.has(rid)));$( 'zen-history-'+rid ).hidden=!expandedHistory.has(rid);}
+  };
+  $('history-edit-form').onsubmit=e=>{
+    e.preventDefault();const r=records().find(r=>r.id===editingHistoryId);
+    if(!r){$('history-edit-error').textContent='Passet finns inte längre. Uppdatera historiken.';return;}
+    if(r.updatedAt!==editingHistoryVersion){$('history-edit-error').textContent='Passet har ändrats på en annan enhet. Stäng och öppna passet igen.';return;}
+    const minutes=Number($('history-edit-minutes').value),secondsPart=Number($('history-edit-seconds').value);
+    const seconds=minutes*60+secondsPart,completedAt=new Date($('history-edit-date').value).getTime();
+    const note=$('history-edit-note').value.trim();
+    if(!Number.isInteger(minutes)||minutes<0||!Number.isInteger(secondsPart)||secondsPart<0||secondsPart>59||!Number.isInteger(seconds)||seconds<1||seconds>12000||!Number.isFinite(completedAt)||completedAt<=0||note.length>500){$('history-edit-error').textContent='Ange en giltig tid (högst 200 minuter), datum och anteckning.';return;}
+    const changed={...r,seconds,completedAt,note,updatedAt:Math.max(Date.now(),r.updatedAt+1)};
+    if(!S.put(changed)){$('history-edit-error').textContent='Kunde inte spara ändringarna.';return;}
+    SurfaceMotion.closeDialog($('history-edit-dialog'));editingHistoryId=null;renderHome();toast('Passet har uppdaterats.');
+  };
+  $('history-edit-dialog').addEventListener('close',()=>{editingHistoryId=null;});
+  $('history-more').onclick=()=>{allHistory=!allHistory;renderHome();};
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>SurfaceMotion.closeDialog($(b.dataset.close)));
   $('settings-open').onclick=$('storage-status').onclick=()=>SurfaceMotion.showDialog($('settings-dialog'));
   $('export-data').onclick=()=>{if(!S.ready){toast('Vänta tills ditt konto har laddats.');return;}const blob=new Blob([JSON.stringify(S.export(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='zen-'+S.profile+'-'+M.localDate(Date.now())+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);};
   $('import-data').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10000000)throw Error('Filen är för stor. Välj en Zen-säkerhetskopia under 10 MB.');const data=JSON.parse(await file.text());const count=S.import(data);$('import-result').textContent=count+' sparade uppgifter inlästa. Befintliga pass har behållits.';}catch(error){$('import-result').textContent=error instanceof SyntaxError?'Filen kunde inte läsas som en Zen-säkerhetskopia.':error.message;}e.target.value='';};
   document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('page-hidden',document.hidden);if(!document.hidden)tick();else updateBreathAudio(false);});
   window.addEventListener('pagehide',()=>{updateBreathAudio(false);if(session)S.setActive(session);});
-  S.subscribe(()=>{$('storage-status').textContent=S.status;$('sync-description').textContent=S.description;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));if(S.ready&&!readyOnce){readyOnce=true;setKind(kind);if(autostart){try{const route=new URL(location.href);route.searchParams.delete('autostart');history.replaceState(history.state,'',route.href);}catch(_){}setTimeout(()=>startSession(true),60);}}if(view==='home')renderHome();});
+  S.subscribe(()=>{$('storage-status').textContent=S.status;$('sync-description').textContent=S.description;$('sync-account').textContent=S.account?'Inloggat konto: '+S.account:'Logga in med samma Firebase-konto på båda enheterna.';$('retry-sync').hidden=!S.needsRetry;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));if(S.ready&&!readyOnce){readyOnce=true;setKind(kind);if(autostart){try{const route=new URL(location.href);route.searchParams.delete('autostart');history.replaceState(history.state,'',route.href);}catch(_){}setTimeout(()=>startSession(true),60);}}if(view==='home')renderHome();});
+  $('retry-sync').onclick=()=>{if(S.retry())toast('Försöker synka dina lokala pass mot Firebase…');};
   setKind(kind);setInterval(()=>{if(!document.hidden)tick();else updateBreathAudio(false);},200);
 })();
