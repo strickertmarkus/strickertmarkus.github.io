@@ -44,3 +44,23 @@ node --check budget/zen-store.js
 ```
 
 Kontroller omfattar tid, paus/återupptagning, kategoriseparering, datum/streak, validering, importsäkerhet, lagringsfel och molnsynk. HTML-referenser och asset-sökvägar kontrolleras också. Ingen webbläsar- eller skärmbildsgranskning utfördes i den här ändringen.
+
+
+## Synk mellan dator och telefon
+
+Zen använder Firebase Realtime Database under `zen_v1/<auth.uid>/<markus|maja>/entries`. Historiken för Markus och Maja är separerad, men varje inloggningskonto har också en egen `auth.uid`. För att se samma pass på flera enheter måste båda vara inloggade på **samma Firebase-konto** och öppna samma profil.
+
+I Inställningar → Sparade data visar sidan numera både Firebase-inloggat konto och tydlig status för lokal lagring/molnsynk. Vid nekad läsning eller skrivning finns `Försök synka igen`; lokal historik behålls och försöker laddas upp efter en lyckad återanslutning. `Sparat på ditt konto` visas först när de lokala posterna finns bekräftade i serverkopian.
+
+Om status anger att Firebase nekar åtkomst behöver databasadministratören kontrollera Firebase Console → Realtime Database → Rules. Ett exempel på **en avgränsad regelgren** är:
+
+```json
+"zen_v1": {
+  "$uid": {
+    ".read": "auth != null && auth.uid === $uid",
+    ".write": "auth != null && auth.uid === $uid"
+  }
+}
+```
+
+Lägg bara till grenen i det befintliga `rules`-objektet efter granskning av övriga regler; ersätt aldrig hela regeluppsättningen med exemplet. Testa även läsning, skrivning, offline → online och återöppning på ett riktigt inloggat produktionskonto. Klientkod och simulerade tester kan inte bekräfta hur de nu publicerade reglerna faktiskt ser ut. Om de två enheterna använder **olika** konton krävs en separat, explicit delningsmodell och motsvarande behörighetsregler; ändra inte till en oskyddad gemensam databasnod.
