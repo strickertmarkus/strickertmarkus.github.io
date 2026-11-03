@@ -12,6 +12,24 @@ test('all built-in rituals validate and contain only one kind',()=>{
   for(const r of M.routines){assert.ok(M.routineValid(r));assert.ok(M.duration(r)>0);if(r.kind==='meditation')assert.equal(r.steps,undefined);else assert.equal(r.guidance,undefined);}
   assert.equal(M.duration(routine),480);
 });
+test('five-second stretch lead-in does not count towards completed exercise time',()=>{
+  const delayed=M.start(routine,time+5000,'lead-in');
+  assert.equal(M.position(delayed,time).spent,0);
+  assert.equal(M.position(delayed,time+4999).spent,0);
+  assert.equal(M.position(delayed,time+5000).spent,0);
+  assert.equal(M.position(delayed,time+6000).spent,1);
+});
+test('stretch desktop scaling and visible countdown remain wired to the session',()=>{
+  const html=fs.readFileSync(path.join(__dirname,'../zen.html'),'utf8');
+  const js=fs.readFileSync(path.join(__dirname,'../zen.js'),'utf8');
+  const css=fs.readFileSync(path.join(__dirname,'../zen-session.css'),'utf8');
+  assert.match(html,/id="session-preparation"/);
+  assert.match(html,/id="session-prep-count"/);
+  assert.match(js,/routine\.kind==='stretch'\|\|prepare\|\|force\?5000:0/);
+  assert.match(js,/prepOverlay\.hidden=!prepVisible/);
+  assert.match(css,/@media\(min-width:1050px\) and \(min-height:600px\)/);
+  assert.match(css,/--pose-size:min\(580px,43vw/);
+});
 test('wall-clock timer crosses poses and finishes after a suspended tab',()=>{
   const s=M.start(routine,time,'first');assert.equal(M.position(s,time+61000).index,1);assert.equal(M.position(s,time+61000).remaining,59);
   assert.equal(M.position(s,time+3600000).done,true);assert.equal(M.elapsed(s,time+3600000),480000);
