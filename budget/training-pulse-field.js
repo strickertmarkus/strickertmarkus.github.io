@@ -446,21 +446,26 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   // Zen keeps its own cloud-backed local history. Both kinds may have been
   // completed on the same day, so retain separate counts instead of picking
   // only stretch and hiding meditation.
+  var cloudZenEntries=null,cloudZenRef=null;
   function zenKindsByDate(){
     var out={},seen={};
     function add(e){
-      if(!e||e.deleted||e.type!=='session'||!e.completedAt||!['stretch','meditation'].includes(e.kind))return;
-      var stamp=new Date(e.completedAt);if(isNaN(stamp.getTime()))return;
+      if(!e)return;
       var key=String(e.id||e.kind+'_'+e.completedAt);
       if(seen[key])return;seen[key]=true;
+      if(e.deleted||e.type!=='session'||!e.completedAt||!['stretch','meditation'].includes(e.kind))return;
+      var stamp=new Date(e.completedAt);if(isNaN(stamp.getTime()))return;
       var day=isoDate(stamp),counts=out[day]||(out[day]={stretch:0,meditation:0});
       counts[e.kind]++;
     }
-    if(window.ZenStore&&ZenStore.ready){ZenStore.entries.forEach(add);return out;}
+    if(cloudZenEntries)Object.keys(cloudZenEntries).forEach(function(id){add(cloudZenEntries[id]);});
+    if(window.ZenStore&&ZenStore.ready)ZenStore.entries.forEach(add);
     try{
+      var uid=window.firebase&&firebase.auth().currentUser&&firebase.auth().currentUser.uid;
       for(var i=0;i<localStorage.length;i++){
         var k=localStorage.key(i);
         if(!/^zen_v1_.+_entries$/.test(k)||k.slice(-('_'+profile+'_entries').length)!=='_'+profile+'_entries')continue;
+        if(uid&&k!=='zen_v1_'+uid+'_'+profile+'_entries')continue;
         var entries=JSON.parse(localStorage.getItem(k)||'{}');
         Object.keys(entries).forEach(function(id){add(entries[id]);});
       }
@@ -475,6 +480,33 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return out;
   }
   function zenDoneOn(key){if(!zenDoneCache)zenDoneCache=zenDoneByDate();return zenDoneCache[key]||'';}
+  function repaintZen(){
+    zenKindsCache=null;zenDoneCache=null;
+    if(window.TrainingOverlay&&TrainingOverlay.isLocked()){renderPending=true;return;}
+    renderRhythm();renderWeek();renderActivity();
+  }
+  function listenCloudZen(){
+    // The dashboard otherwise only sees Zen sessions that this device has
+    // previously opened. This read-only Firebase subscription brings the
+    // latest completed sessions onto another device as well.
+    if(!window.firebase||!firebase.auth||!firebase.database)return;
+    firebase.auth().onAuthStateChanged(function(user){
+      if(cloudZenRef){cloudZenRef.off();cloudZenRef=null;}
+      cloudZenEntries=null;
+      if(!user){repaintZen();return;}
+      try{
+        cloudZenRef=firebase.database().ref('zen_v1/'+user.uid+'/'+profile+'/entries');
+        cloudZenRef.on('value',function(snapshot){
+          cloudZenEntries=snapshot.val()||{};
+          repaintZen();
+        },function(error){
+          cloudZenEntries=null;
+          if(window.console)console.warn('Zen overview sync:',error&&error.code||error);
+          repaintZen();
+        });
+      }catch(error){if(window.console)console.warn('Zen overview connection:',error);}
+    });
+  }
   function renderWeek() {
     zenDoneCache=null;zenKindsCache=null;
     updateWeekNavigators();
@@ -1598,7 +1630,11 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
     });
     window.addEventListener('pulse-field:data-change',renderAll);
     window.addEventListener('training-overlay:change',function(event){if(event.detail.locked)hideChartTooltip();else if(renderPending)requestAnimationFrame(renderAll);});
-    window.addEventListener('storage',function(event){if(event.key&&fieldKeys.has(profile==='maja'&&event.key.endsWith('_maja')?event.key.slice(0,-5):event.key))renderAll();});
+    window.addEventListener('storage',function(event){
+      if(!event.key)return;
+      if(/^zen_v1_.+_entries$/.test(event.key)&&event.key.endsWith('_'+profile+'_entries')){repaintZen();return;}
+      if(fieldKeys.has(profile==='maja'&&event.key.endsWith('_maja')?event.key.slice(0,-5):event.key))renderAll();
+    });
     var layoutWidth=document.documentElement.clientWidth,resizeTimer;
     window.addEventListener('resize',function(){
       // Ignore mobile Safari toolbar collapse: viewport height changes, chart width does not.
@@ -1619,7 +1655,8 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
     installFieldSceneVisibility();
     wireProfileLinks();loadData();installEvents();renderAll();renderProgressTabs();installJumpNav();
     // Zen's own history (synced to the account) marks stretch and meditation days in the week field.
-    var zenTimer=0;if(window.ZenStore&&ZenStore.subscribe)ZenStore.subscribe(function(){clearTimeout(zenTimer);zenTimer=setTimeout(function(){if(!window.TrainingOverlay||!TrainingOverlay.isLocked())renderWeek();},120);});
+    var zenTimer=0;if(window.ZenStore&&ZenStore.subscribe)ZenStore.subscribe(function(){clearTimeout(zenTimer);zenTimer=setTimeout(repaintZen,120);});
+    listenCloudZen();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
