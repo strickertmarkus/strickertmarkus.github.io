@@ -13,7 +13,7 @@
   var KEY = 'pulse-explore-transfer-v1-' + profile;
   var raw = null;
   try { raw = sessionStorage.getItem(KEY); } catch (e) {}
-  if (!raw || raw.length > 4000) return;
+  if (!raw || raw.length > 10000) return;
 
   function todayISO() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function clearTransfer() {
@@ -59,11 +59,28 @@
     var type = doc.getElementById('day-workout-type'), name = doc.getElementById('day-workout-name'), list = doc.getElementById('day-workout-ex-list');
     var planned = typeof win.getPlannedSessions === 'function' ? win.getPlannedSessions()[modal.dataset.date] : null;
     var hadPlan = !!(planned && planned.exercises && planned.exercises.length);
-    if (type) type.value = plan.type || type.value;
+    var alreadyLogged=false;
+    try{
+      var workouts=typeof win.getWorkouts==='function'?win.getWorkouts():[];
+      alreadyLogged=Array.isArray(workouts)&&workouts.some(function(w){return w.date===modal.dataset.date;});
+    }catch(_){};
+    // A focus name is more useful than the generic type "Styrka" in the
+    // builder, and remains consistent with its established muscle-group field.
+    if (type) type.value = String(plan.name||plan.type||'Styrka').split(' · ')[0];
     if (name) name.value = plan.name;
     var select = doc.getElementById('day-workout-template-select'); if (select) select.value = '';
     list.innerHTML = '';
-    rowsFor(plan).forEach(function (row) { win.addDayWorkoutExRow(row); });
+    var importedRows=rowsFor(plan);
+    importedRows.forEach(function (row) { win.addDayWorkoutExRow(row); });
+    // A previously planned stretch/meditation on this date can leave the
+    // embedded builder in Zen mode even after the visible fields are changed.
+    // Reset that mode for a strength programme, without touching saved data.
+    if(win.PulseZen&&typeof win.PulseZen.loadBuilder==='function'){
+      win.PulseZen.loadBuilder({type:'Styrka',name:plan.name,exercises:importedRows});
+    }
+    if(list.querySelectorAll('.ex-row-item').length!==importedRows.length){
+      throw new Error('Passbyggaren tog inte emot alla övningar.');
+    }
 
     var old = doc.getElementById('explore-handoff'); if (old) old.remove();
     var note = doc.createElement('div');
@@ -84,7 +101,8 @@
          }).join('')+'</ol><small style="display:block;margin-top:8px;opacity:.68">Följ tiderna mellan övningarna. De startar inte automatiskt i passbyggaren.</small></details>'
       : '';
     note.innerHTML = '<strong style="display:block;font-size:15px;margin-bottom:3px">' + plan.name.replace(/</g, '&lt;') + '</strong>' +
-      '<span style="opacity:.8">' + plan.exercises.length + ' övningar från övningsutforskaren. Justera set, reps och vikter och tryck sedan Starta pass.' + (hadPlan ? ' Dagens tidigare upplägg ersätts först när du sparar eller startar.' : '') + '</span>' +
+      '<span style="opacity:.8">' + plan.exercises.length + ' övningar från övningsutforskaren. Justera set, reps och vikter och tryck sedan Starta pass.' + (hadPlan ? ' Dagens tidigare planering ändras först när du sparar eller startar.' : '') +
+      (alreadyLogged?' Tidigare loggade pass för dagen påverkas inte.':'') + '</span>' +
       transitionsHtml +
       '<label style="display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:600;cursor:pointer"><input type="checkbox" id="explore-handoff-template" style="width:20px;height:20px;accent-color:#ff5a48"> Spara också som mallpass</label>';
     list.parentNode.insertBefore(note, list);
@@ -108,14 +126,36 @@
     var first = list.querySelector('input,select'); if (first) first.blur();
   }
 
+  function showImportError(error){
+    // Never silently discard the selection if the frame failed to load.
+    var node=document.getElementById('explore-import-error');
+    if(!node){
+      node=document.createElement('div');node.id='explore-import-error';
+      node.setAttribute('role','alert');
+      node.style.cssText='position:fixed;z-index:10005;left:16px;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));max-width:500px;margin:auto;background:#241b22;color:#f8e8e4;padding:14px 16px;border-radius:14px;border:1px solid #f1766850;box-shadow:0 12px 50px #000a;font-size:13px;line-height:1.5';
+      document.body.appendChild(node);
+    }
+    node.textContent='Programmet är sparat för import, men passbyggaren kunde inte fyllas i. ';
+    var retry=document.createElement('button');retry.type='button';retry.textContent='Försök igen';
+    retry.style.cssText='display:inline-block;margin-left:12px;border:1px solid #e9786870;border-radius:9px;padding:8px 12px;background:#f46c5124;color:#ffd1c6;font:inherit;font-weight:600;cursor:pointer';
+    retry.addEventListener('click',start);node.appendChild(retry);
+    if(error&&window.console)console.warn('[Pulse Explore] Programme handoff:',error);
+  }
+  var attempting=false;
   function start() {
+    if(attempting)return;
+    attempting=true;
+    var banner=document.getElementById('explore-import-error');if(banner)banner.remove();
     loadCatalogue().then(function (explore) {
-      var plan = explore.workout(JSON.parse(raw));
-      if (!plan) { clearTransfer(); return; }
-      var date = todayISO();
-      window.dispatchEvent(new CustomEvent('pulse-field:open-tool', { detail: { tool: 'build', date: date } }));
-      return whenBuilderOpen(date, 20000).then(function (win) { fill(win, plan); clearTransfer(); });
-    }).catch(function () { clearTransfer(); });
+      var plan=explore.workout(JSON.parse(raw));
+      if(!plan)throw new Error('Det valda programmet finns inte i katalogen.');
+      var date=todayISO();
+      window.dispatchEvent(new CustomEvent('pulse-field:open-tool',{detail:{tool:'build',date:date}}));
+      return whenBuilderOpen(date,22000).then(function(win){
+        fill(win,plan);
+        clearTransfer();
+      });
+    }).catch(showImportError).finally(function(){attempting=false;});
   }
   // The pass tools install themselves at DOMContentLoaded; ask for the builder after that.
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(start, 0); }, { once: true });
