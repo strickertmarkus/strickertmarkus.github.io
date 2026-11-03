@@ -98,22 +98,32 @@ function syncSetLog(row,except){
   var extra=panel.querySelector(':scope>.pbu-extra');
   if(extra&&extra.nextSibling)panel.insertBefore(box,extra.nextSibling);else panel.appendChild(box);
  }
- box.classList.toggle('is-custom',custom);box.classList.toggle('is-bw',bw);
+ box.classList.toggle('is-custom',custom);box.classList.toggle('is-bw',bw);box.classList.toggle('is-open',row.dataset.setlogOpen==='1');
  if(box.dataset.count!==String(sets.length)||box.dataset.bw!==String(bw)){
   box.dataset.count=String(sets.length);box.dataset.bw=String(bw);
-  box.innerHTML='<div class="pbu-setlog-head"><span class="pbu-step-label">Set för set</span>'+(custom?'<button type="button" class="pbu-link" data-pbu-setlog-reset>Samma för alla</button>':'')+'</div>'
+  box.innerHTML=setLogHead(row,sets,custom,bw)+'<div class="pbu-setlog-list">'
    +sets.map(function(st,i){return '<div class="pbu-setlog-row"><span class="pbu-setlog-no">'+(i+1)+'</span>'
     +'<label><input type="text" inputmode="numeric" data-pbu-setlog="r" data-i="'+i+'" value="'+esc(fmt(st.r))+'" aria-label="Reps set '+(i+1)+'" autocomplete="off"><small>reps</small></label>'
-    +(bw?'<span class="pbu-setlog-bw">Kroppsvikt</span>':'<label><input type="text" inputmode="decimal" data-pbu-setlog="w" data-i="'+i+'" value="'+esc(fmt(st.w))+'" aria-label="Vikt set '+(i+1)+'" autocomplete="off"><small>kg</small></label>')+'</div>';}).join('');
+    +(bw?'<span class="pbu-setlog-bw">Kroppsvikt</span>':'<label><input type="text" inputmode="decimal" data-pbu-setlog="w" data-i="'+i+'" value="'+esc(fmt(st.w))+'" aria-label="Vikt set '+(i+1)+'" autocomplete="off"><small>kg</small></label>')+'</div>';}).join('')
+   +(custom?'<button type="button" class="pbu-link pbu-setlog-reset" data-pbu-setlog-reset>Samma för alla</button>':'')+'</div>';
   return;
  }
  var head=box.querySelector('.pbu-setlog-head');
- if(head&&!!head.querySelector('[data-pbu-setlog-reset]')!==custom)head.innerHTML='<span class="pbu-step-label">Set för set</span>'+(custom?'<button type="button" class="pbu-link" data-pbu-setlog-reset>Samma för alla</button>':'');
+ if(head)head.outerHTML=setLogHead(row,sets,custom,bw);
+ var list=box.querySelector('.pbu-setlog-list'),reset=list&&list.querySelector('[data-pbu-setlog-reset]');
+ if(list&&!!reset!==custom){if(reset)reset.remove();else list.insertAdjacentHTML('beforeend','<button type="button" class="pbu-link pbu-setlog-reset" data-pbu-setlog-reset>Samma för alla</button>');}
  box.querySelectorAll('[data-pbu-setlog]').forEach(function(input){
   if(input===except||input===document.activeElement)return;
   var st=sets[Number(input.dataset.i)];if(!st)return;
   var v=fmt(input.dataset.pbuSetlog==='r'?st.r:st.w);if(input.value!==v)input.value=v;
  });
+}
+// Collapsed by default: one line with the sets at a glance; tap to edit set for set.
+function setLogHead(row,sets,custom,bw){
+ var open=row.dataset.setlogOpen==='1';
+ var same=sets.every(function(st){return st.r===sets[0].r&&st.w===sets[0].w;});
+ var text=same?sets.length+' × '+fmt(sets[0].r)+(bw?'':' · '+fmt(sets[0].w)+' kg'):sets.map(function(st){return fmt(st.r)+(bw?'':'×'+fmt(st.w));}).join('  ');
+ return '<button type="button" class="pbu-setlog-head" data-pbu-setlog-toggle aria-expanded="'+open+'"><span class="pbu-step-label">Set för set</span><span class="pbu-setlog-sum">'+esc(text)+'</span><i class="pbu-setlog-chev" aria-hidden="true"></i></button>';
 }
 function readSetLog(row){
  var box=row.querySelector('.pbu-setlog');if(!box)return;
@@ -128,6 +138,8 @@ document.addEventListener('input',function(e){
  readSetLog(row);syncSetLog(row,t);
 },true);
 document.addEventListener('click',function(e){
+ var tg=e.target.closest&&e.target.closest('[data-pbu-setlog-toggle]');
+ if(tg){var r=tg.closest('.pbu-row');if(!r)return;r.dataset.setlogOpen=r.dataset.setlogOpen==='1'?'0':'1';var bx=r.querySelector('.pbu-setlog');if(bx)bx.classList.toggle('is-open',r.dataset.setlogOpen==='1');syncSetLog(r);return;}
  var b=e.target.closest&&e.target.closest('[data-pbu-setlog-reset]');if(!b)return;
  var row=b.closest('.pbu-row');if(!row)return;
  delete row.dataset.setLogs;var box=row.querySelector('.pbu-setlog');if(box)box.dataset.count='';

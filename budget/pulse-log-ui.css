@@ -173,15 +173,22 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .pbu-log-delete.is-armed{color:#1d0806!important;background:#ff8a78!important;border-radius:999px!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer{flex-wrap:wrap!important}
 
-/* Set for set in the log */
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog{margin-top:14px;padding-top:12px;border-top:1px solid #ffffff0d}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-head .pbu-link{min-height:32px;padding:0 4px;font-size:12.5px}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row{display:grid;grid-template-columns:26px 1fr 1fr;align-items:center;gap:10px;min-height:44px}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-no{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#ffffff0a;color:var(--pbu-muted);font:600 11px Inter,system-ui,sans-serif}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row label{display:flex;align-items:baseline;gap:6px;margin:0;min-width:0}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row input{width:100%;min-width:0;min-height:38px;padding:0 10px!important;border-radius:10px!important;font:600 16px Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;text-align:center}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row small{flex:none;color:var(--pbu-dim);font-size:11px}
+/* Set for set in the log: one compact line, opens to a tight per-set list */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog{margin-top:10px;border-top:1px solid #ffffff0d}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-head{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-head .pbu-step-label{flex:none;margin:0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-sum{flex:1;min-width:0;overflow:hidden;color:var(--pbu-muted);font:500 12.5px Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;text-overflow:ellipsis;text-align:right}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog.is-custom .pbu-setlog-sum{color:var(--pbu-accent)}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-chev{flex:none;width:7px;height:7px;margin:0 4px 3px 2px;border-right:1.5px solid var(--pbu-dim);border-bottom:1.5px solid var(--pbu-dim);transform:rotate(45deg);transition:transform .2s}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog.is-open .pbu-setlog-chev{transform:rotate(225deg);margin-bottom:-3px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-list{display:none;padding:2px 0 6px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog.is-open .pbu-setlog-list{display:grid;gap:4px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row{display:grid;grid-template-columns:20px 1fr 1fr;align-items:center;gap:8px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-no{color:var(--pbu-dim);font:600 11px Inter,system-ui,sans-serif;text-align:center}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row label{display:flex;align-items:center;gap:6px;margin:0;min-width:0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row input{width:100%;min-width:0;height:32px!important;min-height:0!important;padding:0 8px!important;border-radius:8px!important;font:600 15px Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;text-align:center}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row small{flex:none;width:28px;color:var(--pbu-dim);font-size:10.5px;text-transform:none;letter-spacing:0}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog:not(.is-custom) .pbu-setlog-row input{color:var(--pbu-muted)}
-html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-bw{color:var(--pbu-muted);font-size:12.5px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-bw{color:var(--pbu-muted);font-size:12px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-reset{justify-self:end;min-height:30px;padding:0 2px;font-size:12px}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row.pbu-picking .pbu-setlog{display:none}
