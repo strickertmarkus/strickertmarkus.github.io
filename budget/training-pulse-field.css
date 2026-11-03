@@ -1097,8 +1097,16 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 .rmap .rm-cell .rm-zen-dot{position:absolute;display:block;z-index:2;width:5px;height:5px;top:1px;border-radius:50%;pointer-events:none}
 .rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 11px);background:#b8e99b;box-shadow:0 0 7px #b8e99b}
 .rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 11px);background:#f5d58c;box-shadow:0 0 7px #f5d58c}
-.rmap .rm-cell.is-zen-only>i{width:5px;height:5px;background:#60646a;box-shadow:none}
+.rmap .rm-cell.is-zen-only>i{
+  width:10px;height:10px;background:var(--c);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent),0 0 9px var(--c),0 0 16px color-mix(in srgb,var(--c) 40%,transparent)
+}
+.rmap .rm-cell.is-zen-only.is-zen-mixed>i{
+  background:linear-gradient(90deg,#b8e99b 50%,#f5d58c 50%);
+  box-shadow:0 0 0 4px #d7dc952b,0 0 10px #d7dc9573
+}
 @media(max-width:520px){
+ .rmap .rm-cell.is-zen-only>i{width:8px;height:8px}
  .rmap .rm-cell .rm-zen-dot{width:4px;height:4px}
  .rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 9px)}
  .rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 9px)}
