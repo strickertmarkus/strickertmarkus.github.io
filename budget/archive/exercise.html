@@ -566,7 +566,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-drag-2">
-<script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261103-zen-drag-2"></script>
+<script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -2754,7 +2754,7 @@ function fillWorkoutFromPlan(iso){
 
 function startWorkoutSessionForDate(iso){
   var zenPlan=getPlannedSessions()[iso];
-  if(zenPlan&&zenPlan.zenRoutine&&window.PulseZen){window.top.location.href=PulseZen.url(zenPlan);return;}
+  if(zenPlan&&zenPlan.zenRoutine&&window.PulseZen){window.top.location.href=PulseZen.url(zenPlan,{start:true});return;}
   if(window.__FIELD_EMBEDDED__&&!window.__embeddedSessionAssetsReadyV1){
     if(window.__embeddedSessionStarting)return;
     var token=window.__embeddedSessionStartToken=(window.__embeddedSessionStartToken||0)+1;

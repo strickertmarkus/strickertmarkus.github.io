@@ -14,6 +14,8 @@
   var requested=M.routines.find(r=>r.id===requestedRoutine&&r.kind===kind);if(requested)selected[kind]=requested.id;
   // A planned day with several passes: the next ones come after this one is saved.
   let queue=(new URLSearchParams(location.search).get('then')||'').split(',').filter(Boolean);
+  // Started from the training page: the pass begins right away, with the "get ready" countdown.
+  let autostart=new URLSearchParams(location.search).get('autostart')==='1';
   // Native dialogs manage focus; the shared scroll owner preserves the page
   // position, including when a confirmation opens over another dialog.
   const dialogs=Array.from(document.querySelectorAll('dialog.zen-dialog'));
@@ -28,7 +30,7 @@
     stretch:{eyebrow:'RÖRLIGHET',title:'Stretch',description:'Välj ett pass för hela kroppen eller fokusera på ett område.',symbol:'✧',hint:'Välj en mall efter ditt träningspass eller bygg ditt eget.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'},
     meditation:{eyebrow:'ANDNING & FOKUS',title:'Meditation',description:'Välj längd och meditera med andningsguide eller i egen takt.',symbol:'≈',hint:'Andningsguiden kan stängas av under passet.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'}
   };
-  let volume=Number.isFinite(prefs.volume)?Math.max(0,Math.min(100,prefs.volume)):100,prepare=prefs.prepare===true,ending=false,breathOffset=0;
+  let volume=Number.isFinite(prefs.volume)?Math.max(0,Math.min(100,prefs.volume)):100,prepare=prefs.prepare!==false,ending=false,breathOffset=0;
   function savePrefs(){prefs={kind,sound,volume,prepare,selected};try{localStorage.setItem(prefKey,JSON.stringify(prefs));}catch(_){} }
   function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
   function routines(){return [...M.routines,...S.entries.filter(e=>e.type==='routine').map(e=>e.routine)];}
@@ -99,10 +101,11 @@
   function confirm(title,message,yes,action){$('confirm-title').textContent=title;$('confirm-copy').textContent=message;$('confirm-yes').textContent=yes;$('confirm-no').textContent='Tillbaka';confirmAction=action;SurfaceMotion.showDialog($('confirm-dialog'));}
   $('confirm-yes').onclick=()=>{const action=confirmAction;confirmAction=null;SurfaceMotion.closeDialog($('confirm-dialog'));if(action)action();};$('confirm-no').onclick=()=>SurfaceMotion.closeDialog($('confirm-dialog'));$('confirm-dialog').addEventListener('close',()=>confirmAction=null);
   function openSession(s){ending=false;document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=false);$('session-ending').hidden=true;$('session-view').classList.remove('clock-hidden','session-finished');$('clock-toggle').textContent='Dölj tiden';$('clock-toggle').setAttribute('aria-pressed','true');session=s;breathOffset=M.position(s,Date.now()).spent;setKind(s.routine.kind);lastStep=-1;lastPhase='';showView('session');$('session-routine-name').textContent=session.routine.name;updateSound();tick();$('session-title').focus();}
-  function startSession(){
+  function startSession(force){
+    force=force===true;
     if(!S.ready)return;
-    if(S.active){confirm('Du har ett pågående pass','Fortsätt passet från startsidan eller avbryt det och starta ett nytt.','Starta nytt pass',()=>{S.setActive(null);startSession();});return;}
-    session=M.start(chosen(),Date.now()+(prepare?5000:0),id());S.setActive(session);openSession(session);playDing();
+    if(S.active){confirm('Du har ett pågående pass','Fortsätt passet från startsidan eller avbryt det och starta ett nytt.','Starta nytt pass',()=>{S.setActive(null);startSession(force);});return;}
+    session=M.start(chosen(),Date.now()+(prepare||force?5000:0),id());S.setActive(session);openSession(session);playDing();
   }
   function tick(){
     if(view!=='session'||!session||ending)return;
@@ -114,7 +117,7 @@
       const action=session.routine.guidance==='breath'?'Byt till egen andning':'Visa andningsguide';if(!$('guidance-toggle')||$('guidance-toggle').textContent!==action)$('next-step').innerHTML='<button class="text-button" id="guidance-toggle">'+action+'</button>';
     }
     const guided=!isStretch&&session.routine.guidance==='breath',breathing=M.breathState(session.routine,Math.max(0,p.spent-breathOffset)),cycle=breathing.cycle;
-    const phase=session.paused?'Pausat':preparing?'Gör dig redo':guided?breathing.label:isStretch?(session.routine.steps[p.index].id==='rest'?'Släpp efter':'Håll mjukt'):'Egen andning';
+    const phase=session.paused?'Pausat':preparing?(isStretch?'Påbörja stretch':'Gör dig redo'):guided?breathing.label:isStretch?(session.routine.steps[p.index].id==='rest'?'Släpp efter':'Håll mjukt'):'Egen andning';
     if(phase!==lastPhase){$('breath-label').textContent=phase;lastPhase=phase;}
     const scale=guided&&!preparing?breathing.scale:1;$('breathing-field').style.setProperty('--breath-scale',scale.toFixed(4));
     $('session-clock').textContent=preparing?String(Math.ceil((session.anchor-now)/1000)):fmt(p.remaining);$('clock-caption').textContent=isStretch?'kvar i rörelsen':'kvar av passet';$('session-elapsed').textContent=fmt(Math.floor(M.practiced(session,now)/1000))+' aktiv tid';document.querySelector('.session-progress').setAttribute('aria-valuenow',String(Math.round(p.spent/p.total*100)));
@@ -142,7 +145,7 @@
       if(queue.length){
         const nextId=queue.shift(),next=routines().find(r=>r.id===nextId);
         try{const route=new URL(location.href);if(queue.length)route.searchParams.set('then',queue.join(','));else route.searchParams.delete('then');if(next)route.searchParams.set('routine',next.id);history.replaceState(history.state,'',route.href);}catch(_){}
-        if(next){if(next.kind!==kind)applyKind(next.kind);selected[next.kind]=next.id;savePrefs();renderHome();toast('Passet är sparat. Nästa: '+next.name+' – tryck Starta när du är redo.');return;}
+        if(next){if(next.kind!==kind)applyKind(next.kind);selected[next.kind]=next.id;savePrefs();renderHome();if(autostart){toast('Passet är sparat. Nästa: '+next.name+'.');setTimeout(()=>startSession(true),400);return;}toast('Passet är sparat. Nästa: '+next.name+' – tryck Starta när du är redo.');return;}
       }
       toast('Passet är sparat.');}
   }
@@ -293,6 +296,6 @@
   $('import-data').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10000000)throw Error('Filen är för stor. Välj en Zen-säkerhetskopia under 10 MB.');const data=JSON.parse(await file.text());const count=S.import(data);$('import-result').textContent=count+' sparade uppgifter inlästa. Befintliga pass har behållits.';}catch(error){$('import-result').textContent=error instanceof SyntaxError?'Filen kunde inte läsas som en Zen-säkerhetskopia.':error.message;}e.target.value='';};
   document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('page-hidden',document.hidden);if(!document.hidden)tick();else updateBreathAudio(false);});
   window.addEventListener('pagehide',()=>{updateBreathAudio(false);if(session)S.setActive(session);});
-  S.subscribe(()=>{$('storage-status').textContent=S.status;$('sync-description').textContent=S.description;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));if(S.ready&&!readyOnce){readyOnce=true;setKind(kind);}if(view==='home')renderHome();});
+  S.subscribe(()=>{$('storage-status').textContent=S.status;$('sync-description').textContent=S.description;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));if(S.ready&&!readyOnce){readyOnce=true;setKind(kind);if(autostart){try{const route=new URL(location.href);route.searchParams.delete('autostart');history.replaceState(history.state,'',route.href);}catch(_){}setTimeout(()=>startSession(true),60);}}if(view==='home')renderHome();});
   setKind(kind);setInterval(()=>{if(!document.hidden)tick();else updateBreathAudio(false);},200);
 })();

@@ -415,13 +415,33 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var last=pts[pts.length-1];d+=' C'+(last[0]+25)+' '+last[1]+' '+(700-20)+' '+(last[1]+8)+' 700 '+(last[1]+10);
     return '<svg class="wd-curve" viewBox="0 0 700 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wd-curve-grad" x1="0" x2="1"><stop stop-color="#ff657a" stop-opacity=".12"/><stop offset=".45" stop-color="#ff9a91" stop-opacity=".6"/><stop offset="1" stop-color="#7fe3ef" stop-opacity=".14"/></linearGradient></defs><path d="'+d+'"/></svg>';
   }
+  // Zen keeps its own history (zen_v1_<account>_<profile>_entries); read who did what when.
+  function zenDoneByDate(){
+    var out={};
+    function add(e){if(!e||e.deleted||e.type!=='session'||!e.completedAt)return;var d=isoDate(new Date(e.completedAt));if(!out[d]||e.kind==='stretch')out[d]=e.kind;}
+    if(window.ZenStore&&ZenStore.ready){ZenStore.entries.forEach(add);return out;}
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(!/^zen_v1_.+_entries$/.test(k)||k.slice(-('_'+profile+'_entries').length)!=='_'+profile+'_entries')continue;
+        var entries=JSON.parse(localStorage.getItem(k)||'{}');
+        Object.keys(entries).forEach(function(id){add(entries[id]);});
+      }
+    }catch(_){}
+    return out;
+  }
+  var zenDoneCache=null;
+  function zenDoneOn(key){if(!zenDoneCache)zenDoneCache=zenDoneByDate();return zenDoneCache[key]||'';}
   function renderWeek() {
+    zenDoneCache=null;
     updateWeekNavigators();
     var today=isoDate(new Date()),markup='';
     for(var i=0;i<7;i++){
       var date=shiftDate(state.weekStart,i),key=isoDate(date),plan=planForDate(date),logged=workoutsOn(date);
       // A logged pass decides the colour and name; otherwise the plan does.
-      var type=logged.length?workoutType(logged[0]):plan&&plan.type||'Vila';
+      // A stretch or meditation pass done in Zen that day counts as done here too.
+      var zenDone=zenDoneOn(key);
+      var type=logged.length?workoutType(logged[0]):zenDone?(zenDone==='meditation'?'Meditation':'Stretch'):plan&&plan.type||'Vila';
       var displayName=String(logged.length?type:plan&&plan.name||type).trim()||String(type);
       var lowerType=String(type).trim().toLocaleLowerCase('sv-SE');
       var signalKind=/^(vila|vilodag|ledig|återhämtning)$/.test(lowerType)?'rest':/kondition|löp|run|cardio|cykel|hopprep|roddmaskin|crosstrainer|intervall/.test(lowerType)?'cardio':'strength';
@@ -431,7 +451,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var classes=['week-day','wd4'];
       if(key===today)classes.push('is-today');
       if(key===state.selectedDate)classes.push('is-selected');
-      if(logged.length)classes.push('is-complete');
+      if(logged.length||zenDone)classes.push('is-complete');
       if(key<today)classes.push('is-past');
       // The day as a node on the week's curve: glowing dot when logged, a ring when only
       // planned (faint once passed), the moon for rest. Its name lives in the card below.
@@ -1523,6 +1543,8 @@ var shift=event.target.closest('[data-week-shift]');if(shift){state.weekStart=sh
     installCompactBridge();
     installFieldSceneVisibility();
     wireProfileLinks();loadData();installEvents();renderAll();renderProgressTabs();installJumpNav();
+    // Zen's own history (synced to the account) marks stretch and meditation days in the week field.
+    var zenTimer=0;if(window.ZenStore&&ZenStore.subscribe)ZenStore.subscribe(function(){clearTimeout(zenTimer);zenTimer=setTimeout(function(){if(!window.TrainingOverlay||!TrainingOverlay.isLocked())renderWeek();},120);});
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

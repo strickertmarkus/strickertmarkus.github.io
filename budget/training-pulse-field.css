@@ -1075,3 +1075,5 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 /* Rest between sets: the moon stays moon-white, the text is the rest cyan */
 .exercise-between.is-rest{color:#7fe3ef}
 .exercise-between.is-rest .pk-icon{color:#dbe6f5}
+.wd4[data-plan-kind="stretch"] .wd-type{color:#d4eea7}.wd4[data-plan-kind="meditation"] .wd-type{color:#fff0b7}
+.wd4[data-plan-kind="stretch"]:not(.is-complete) .wd-type,.wd4[data-plan-kind="meditation"]:not(.is-complete) .wd-type{opacity:.7}
