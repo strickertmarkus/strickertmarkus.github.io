@@ -1072,3 +1072,6 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 .exercise-between.is-rest .pk-icon{fill:currentColor;fill-opacity:.2;filter:drop-shadow(0 0 4px #e8f1ffaa)}
 .log-between-global{margin:4px 0 2px}
 .log-between-global .exercise-between{margin:0}
+/* Rest between sets: the moon stays moon-white, the text is the rest cyan */
+.exercise-between.is-rest{color:#7fe3ef}
+.exercise-between.is-rest .pk-icon{color:#dbe6f5}
