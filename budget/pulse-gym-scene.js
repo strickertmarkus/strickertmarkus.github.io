@@ -393,7 +393,7 @@
         var after=mmTransition(p,i);
         var technique=Array.isArray(e.steps)?e.steps:[];
         zoom.innerHTML='<div class="st-zoom-stage"></div>'+
-          '<button type="button" class="st-zoom-close" data-zoom-close aria-label="Tillbaka till översikten">'+ICON.back+'</button>'+
+          '<button type="button" class="st-zoom-close" data-zoom-close aria-label="Tillbaka till översikten">'+ICON.back+'<span>Översikt</span></button>'+
           '<div class="st-mm-detail-header"><span class="st-eyebrow">DETALJ · '+(i+1)+' / '+p.ids.length+'</span><span class="st-mm-detail-muscles">'+esc(e.muscles.join(' · '))+'</span></div>'+
           '<div class="st-mm-detail-content"><h2>'+esc(e.name)+'</h2>'+
           '<div class="st-mm-detail-dose">'+esc(d.big+' '+d.unit)+'</div>'+
@@ -407,6 +407,8 @@
         zoom.querySelector('.st-zoom-stage').appendChild($('studio-stage'));
         ui.select(id); ui.setPaused(false);
         zoom.hidden=false;
+        var backToOverview=zoom.querySelector('[data-zoom-close]');
+        if(backToOverview)backToOverview.focus({preventScroll:true});
         var heading=zoom.querySelector('.st-mm-detail-content');
         if(heading)heading.scrollTop=0;
         return;
