@@ -55,9 +55,10 @@ test('fullscreen programme overview shows one compact, static pose per exercise 
  assert.match(html,/st-mm-start/);
  assert.doesNotMatch(html,/st-stop-pad|st-road|st-path/);
 });
-test('both profiles have matching compact hierarchy; Ingemar retains animated path',()=>{
+test('all profiles use compact overview and Ingemar retains Push/Pull programme definitions',()=>{
  assert.equal(parseScenePreview(maja).mmProgram(),true);
- assert.equal(parseScenePreview(ingemar).mmProgram(),false);
+ assert.equal(parseScenePreview(ingemar).mmProgram(),true);
+ assert.ok(ingemar.programs.some(p=>p.id==='push')&&ingemar.programs.some(p=>p.id==='pull'));
  assert.match(scene,/if\(mmProgram\(\)\)\{/);
  assert.match(scene,/drawRoad\(sheet\.querySelector\('\.st-path'\)\)/);
  assert.match(scene,/function openZoom\(p, i, from\)/);
@@ -79,13 +80,15 @@ test('standalone Programme tab also has compact overview and drilldown with next
  assert.match(detail,/data-mm-step="0"/);assert.match(detail,/data-mm-step="2"/);
  assert.match(detail,/data-technique="/);
  assert.match(detail,/Hopprep 45 s/);
- assert.equal(parseMainPreview(ingemar).mmProgramme(),false);
+ assert.equal(parseMainPreview(ingemar).mmProgramme(),true);
 });
-test('style scopes and asset versions protect Ingemar from layout regression',()=>{
+test('shared style, Dynamic Island inset and versioned assets protect all profiles',()=>{
  assert.match(sceneCSS,/\.st-sheet\.is-mm-program/);
  assert.match(sceneCSS,/\.st-zoom\.is-mm-detail/);
  assert.match(sceneCSS,/\.st-mm-sticky/);
  assert.match(sceneCSS,/\.st-mm-start/);
+ assert.match(sceneCSS,/data-explore-profile="ingemar"/);
+ assert.match(sceneCSS,/translateY\(clamp\(40px,6svh,66px\)\) scale\(\.85\)/);
  assert.match(flowCSS,/\.mm-program-simplified/);
  assert.match(flowCSS,/\.mm-program-controls/);
  assert.match(guide,/pulse-gym-scene\.js\?v=20261103-history-back-3/);
@@ -96,7 +99,7 @@ test('style scopes and asset versions protect Ingemar from layout regression',()
 });
 
 
-test('Markus/Maja choose overview; Ingemar continues to draw the original path',()=>{
+test('every profile opens compact overview without drawing theatrical road',()=>{
  const a=scene.indexOf('function showProgram(p) {');
  const b=scene.indexOf('/* The glowing road through the stops',a);
  assert.ok(a>=0&&b>a);
@@ -114,7 +117,8 @@ test('Markus/Maja choose overview; Ingemar continues to draw the original path',
    const context={
      sheet,ui:{setPaused:v=>steps.push(['paused',v])},
      explore,viewing:null,
-     mmProgram:()=>profile!=='ingemar',
+     mmProgram:()=>true,
+     addSceneLayer:()=>{},
      compactProgram:()=>'<section class="st-mm-summary">Compact</section>',
      all:explore.exercises,pose:()=>'',ICON:{back:'‹',play:'▶',fwd:'›'},
      splitDose:label=>({big:label,unit:'reps'}),
@@ -123,15 +127,9 @@ test('Markus/Maja choose overview; Ingemar continues to draw the original path',
    };
    vm.runInNewContext(scene.slice(a,b)+'\nthis.preview=showProgram;',context);
    context.preview(explore.programs[0]);
-   if(profile==='ingemar'){
-     assert.match(sheet.innerHTML,/st-path/);
-     assert.ok(steps.some(x=>x[0]==='road'));
-     assert.ok(!classes.has('is-mm-program'));
-   }else{
-     assert.match(sheet.innerHTML,/st-mm-summary/);
-     assert.ok(!steps.some(x=>x[0]==='road'));
-     assert.ok(classes.has('is-mm-program'));
-   }
+   assert.match(sheet.innerHTML,/st-mm-summary/);
+   assert.ok(!steps.some(x=>x[0]==='road'));
+   assert.ok(classes.has('is-mm-program'));
    assert.ok(steps.some(x=>x[0]==='paused'&&x[1]));
  }
 });
