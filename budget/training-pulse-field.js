@@ -380,7 +380,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('rhythm-next').textContent=nextPlanned()||'Inget planerat';
     var orbit=byId('rhythm-orbit');
     orbit.classList.toggle('is-complete',week.length>=goal);orbit.classList.toggle('is-bonus',bonus>0);
-    var zenDays=zenKindsByDate(),zenTotals={stretch:0,meditation:0};
+    var zenDays=zenKindsSnapshot(),zenTotals={stretch:0,meditation:0};
     for(var zi=0;zi<7;zi++){
       var z=zenDays[isoDate(shiftDate(startOfWeek(new Date()),zi))]||{};
       zenTotals.stretch+=z.stretch||0;zenTotals.meditation+=z.meditation||0;
@@ -473,9 +473,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return out;
   }
   var zenKindsCache=null,zenDoneCache=null;
-  function zenKindsOn(key){if(!zenKindsCache)zenKindsCache=zenKindsByDate();return zenKindsCache[key]||{stretch:0,meditation:0};}
+  function zenKindsSnapshot(){if(!zenKindsCache)zenKindsCache=zenKindsByDate();return zenKindsCache;}
+  function zenKindsOn(key){return zenKindsSnapshot()[key]||{stretch:0,meditation:0};}
   function zenDoneByDate(){
-    var data=zenKindsByDate(),out={};
+    var data=zenKindsSnapshot(),out={};
     Object.keys(data).forEach(function(key){out[key]=data[key].stretch?'stretch':data[key].meditation?'meditation':'';});
     return out;
   }
@@ -508,7 +509,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     });
   }
   function renderWeek() {
-    zenDoneCache=null;zenKindsCache=null;
     updateWeekNavigators();
     var today=isoDate(new Date()),markup='';
     for(var i=0;i<7;i++){
@@ -687,7 +687,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
      filled in the pass colour, a ring for a planned day still ahead, a speck for rest. */
   function renderActivity() {
     var start=startOfWeek(new Date()),today=isoDate(new Date()),goal=Math.max(1,number(data.goals.weeklyWk)||4),total=0,rows='';
-    var zenDays=zenKindsByDate();
+    var zenDays=zenKindsSnapshot();
     var todayIndex=(new Date().getDay()+6)%7;
     var head='<span></span>'+dayNames.map(function(d,i){return '<span class="rm-head'+(i===todayIndex?' is-today':'')+'">'+d.charAt(0)+'</span>';}).join('')+'<span></span>';
     for(var k=7;k>=0;k--){
@@ -1521,6 +1521,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function renderAll() {
     if(window.TrainingOverlay.isLocked()){renderPending=true;return;}
     renderPending=false;
+    zenKindsCache=null;zenDoneCache=null;
     loadData();renderHero();renderRhythm();renderWeek();renderActivity();renderInsight();renderVolume();renderLog();renderRecords();
   }
   function showToast(message) {
