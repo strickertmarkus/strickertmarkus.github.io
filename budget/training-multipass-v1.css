@@ -1,0 +1,26 @@
+/* Several independent planned passes per date, in the existing classic builder. */
+#day-workout-multipass.day-workout-multipass{
+  display:flex;flex-direction:column;gap:8px;
+  margin:8px 0 16px;padding:11px 12px 12px;
+  border:1px solid rgba(255,123,105,.20);border-radius:15px;
+  background:linear-gradient(130deg,rgba(245,92,79,.09),rgba(255,255,255,.018));
+}
+.day-multipass-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.day-multipass-head strong{font-size:12px;font-weight:650;letter-spacing:.01em}
+.day-multipass-head span{font-size:11px;opacity:.65;white-space:nowrap}
+.day-multipass-tabs{display:flex;align-items:stretch;gap:7px;overflow-x:auto;padding:1px 1px 3px;scrollbar-width:thin}
+.day-multipass-chip,.day-multipass-add{
+  flex:0 0 auto;display:flex;gap:7px;align-items:center;justify-content:center;
+  min-height:38px;max-width:195px;padding:7px 11px;
+  border:1px solid rgba(255,255,255,.13);border-radius:11px;
+  background:rgba(255,255,255,.035);color:inherit;
+  font:600 12px/1.3 inherit;cursor:pointer;
+}
+.day-multipass-chip{font-size:12px;font-weight:600}
+.day-multipass-chip small{display:grid;place-items:center;flex:0 0 20px;height:20px;border:1px solid rgba(255,132,113,.45);border-radius:50%;font-size:11px;color:#ffc1b4}
+.day-multipass-chip span{max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.day-multipass-chip.is-active{border-color:rgba(255,124,105,.65);color:#ffd5c9;background:rgba(247,93,74,.16)}
+.day-multipass-add{max-width:none;background:rgba(246,96,77,.09);color:#ffc0b3;border-color:rgba(246,96,77,.33);font-weight:650}
+.day-multipass-remove{border:0;padding:4px 3px;align-self:flex-end;background:transparent;color:#de9086;font-size:11px;cursor:pointer}
+.day-multipass-chip:focus-visible,.day-multipass-add:focus-visible,.day-multipass-remove:focus-visible{outline:2px solid #ff9384;outline-offset:2px}
+@media(max-width:520px){#day-workout-multipass.day-workout-multipass{margin:5px 0 12px;padding:10px;border-radius:13px}.day-multipass-chip{max-width:145px}.day-multipass-chip span{max-width:75px}}
