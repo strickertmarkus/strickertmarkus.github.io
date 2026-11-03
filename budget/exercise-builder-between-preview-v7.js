@@ -582,10 +582,10 @@
     loadPlanState(draft.date);
   }
 
-  function persistDraft(draft,startAfter) {
+  function persistDraft(draft,startAfter,quiet) {
     if (!draft || !originalPersist) return false;
     var ok=false;
-    try { ok=originalPersist({startAfterSave:!!startAfter}) !== false; } catch (_) { ok=false; }
+    try { ok=originalPersist({startAfterSave:!!startAfter,quiet:!!quiet}) !== false; } catch (_) { ok=false; }
     if (!ok) return false;
     writeExtras(draft);
     return true;
@@ -606,6 +606,12 @@
     if (!originalPersist) return false;
 
     window.saveDayWorkoutPlan=function () { return showPreview(); };
+    // Used by "Logga pass": save the day as the builder shows it, between exercises included.
+    window.__persistDayDraftV7=function () {
+      var draft=captureDraft();
+      if (!draft || !draft.exercises.length) return false;
+      return persistDraft(draft,true,true) ? draft.date : false;
+    };
     window.startDayWorkoutFromBuilder=function () {
       if(window.PulseZen&&PulseZen.builderKind())return originalStartBuilder();
       var draft=captureDraft();
