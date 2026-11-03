@@ -61,7 +61,7 @@ const exercises=raw.split('\n').map((line,id)=>{const p=line.split('|');return {
 const inspiration={46:'Träna bålen genom att stå emot vridning.',47:'Ett annat sätt att träna höftfällning och säte.',48:'Träna bålstabilitet och grepp medan du går.',49:'Arbeta med ett ben i taget på en stabil låda.',50:'Koordination och bålkontroll från ryggliggande.',51:'Balans och kontroll med motsatt arm och ben.',52:'Ett fritt alternativ för bakre axlar och övre rygg.',53:'Knäböj med vikten framför kroppen.'};
 // General repetition guidance: https://www.nhs.uk/live-well/exercise/how-to-improve-strength-flexibility/
 // Technique references for added core movements: https://www.nasm.org/resource-center/exercise-library/
-const programs=[
+const ingemarPrograms=[
  {id:'full-machine',name:'Helkropp i maskiner',group:'Helkropp',type:'Push',equipment:'Maskiner',durationMinutes:[35,45],tag:'En tydlig start',description:'Ben, bröst och rygg i ett sammanhållet pass med stöd från maskinerna.',schedule:'Exempel: två pass i veckan med en vilodag emellan.',ids:[21,0,10,23,2,11],sets:2,reps:[8,12]},
  {id:'push',name:'Push · press & axlar',group:'Push',type:'Push',equipment:'Maskiner & kabel',durationMinutes:[30,40],tag:'Bröst · axlar · triceps',description:'Två pressövningar följs av bröst och triceps i kontrollerade rörelser.',schedule:'Kan kombineras med Pull och Ben på andra dagar.',ids:[0,2,1,3],sets:3,reps:[8,12]},
  {id:'pull',name:'Pull · rygg & armar',group:'Pull',type:'Pull',equipment:'Maskiner & kabel',durationMinutes:[30,40],tag:'Rygg · biceps · axlar',description:'Drag uppifrån och framifrån, följt av bakre axlar och biceps.',schedule:'Kan kombineras med Push och Ben på andra dagar.',ids:[10,11,13,16],sets:3,reps:[8,12]},
@@ -77,6 +77,40 @@ const programs=[
  {id:'pull-variety',name:'Pull · varierat gympass',group:'Pull',type:'Pull',equipment:'Maskiner, hantlar & kabel',durationMinutes:[45,55],tag:'Drag & skulderkontroll',description:'Smalt latsdrag och hantelrodd följs av omvänd pec deck, face pulls och kabelcurl.',schedule:'Gör hantelrodd på båda sidor. Ett längre alternativ till ditt vanliga Pull-pass.',ids:[45,18,13,15,16],sets:3,reps:[8,12]},
  {id:'pull-long',name:'Pull · extra tid på gymmet',group:'Pull',type:'Pull',equipment:'Maskin, kabel & hantlar',durationMinutes:[50,60],tag:'Fler arbetsset',description:'Assisterade chins, kabelrodd, omvända flyes, face pulls och hantelcurl. Fyra set per övning.',schedule:'Anpassa avlastningen i chins. Ta bort set i passbyggaren om mängden blir för stor och låt ryggen återhämta sig mellan passen.',ids:[12,14,52,15,17],sets:4,reps:[8,12]}
 ];
+// Profile-specific programme suggestions. The original Push/Pull catalogue is
+// preserved for Ingemar. Markus/Maja get their own five focus areas.
+const markusMajaPrograms=[
+ {id:'mm-chest-tri-core',name:'Bröst + Triceps · bas',group:'Bröst + Triceps',type:'Styrka',equipment:'Skivstång, kabel & kroppsvikt',durationMinutes:[35,45],tag:'Ditt klassiska pass',description:'Bänkpress, kabel-flyes, triceps och dips. Hopprep mellan blocken.',schedule:'Värm upp med lätta pressar och håll hopprepet på prattempo.',ids:[5,4,3,54],sets:3,reps:[8,12],between:['rope','rest','rope']},
+ {id:'mm-chest-tri-fast',name:'Bröst + Triceps · kort',group:'Bröst + Triceps',type:'Styrka',equipment:'Hantlar & kroppsvikt',durationMinutes:[18,25],tag:'När tiden är knapp',description:'Lutande hantelpress, armhävningar och dips med ett kort hopprepsblock.',schedule:'Två arbetsset per övning, korta men lugna övergångar.',ids:[7,9,54],sets:2,reps:[8,12],between:['rope','rest']},
+ {id:'mm-chest-tri-angles',name:'Bröst + Triceps · nya vinklar',group:'Bröst + Triceps',type:'Styrka',equipment:'Maskin, hantlar & kabel',durationMinutes:[40,55],tag:'Mer variation',description:'Lutande maskinpress, hantelpress och isolationsarbete. Hopprep blandas med vanlig vila.',schedule:'Låt sista repetitionsparet kännas kontrollerat, inte maximalt.',ids:[41,6,1,3,46],sets:3,reps:[8,12],between:['rest','rope','rest','rope']},
+ {id:'mm-chest-tri-body',name:'Bröst + Triceps · kroppsvikt',group:'Bröst + Triceps',type:'Styrka',equipment:'Kroppsvikt, kabel',durationMinutes:[25,35],tag:'Press utan stor utrustning',description:'Armhävningar och dips varvas med Pallof-press och triceps. Ett hopprepsblock håller pulsen uppe.',schedule:'Anpassa dips till axelrörlighet och kapa repetitioner före teknikfel.',ids:[9,54,46,3],sets:2,reps:[8,12],between:['rope','rest','rope']},
+ {id:'mm-back-bi-core',name:'Rygg + Biceps · bas',group:'Rygg + Biceps',type:'Styrka',equipment:'Maskin, hantlar & kabel',durationMinutes:[35,45],tag:'Ditt ryggpass',description:'Latsdrag, rodd, bicepscurl och face pulls med hopprep mellan vissa övningar.',schedule:'Växla mellan vertikala och horisontella drag.',ids:[10,18,17,15],sets:3,reps:[8,12],between:['rope','rest','rope']},
+ {id:'mm-back-bi-single',name:'Rygg + Biceps · ensidigt',group:'Rygg + Biceps',type:'Styrka',equipment:'Kabel & hantlar',durationMinutes:[40,55],tag:'Lite ovanligare rörelser',description:'Enarms latsdrag, enarmsrodd, omvända flyes och farmers walk. Jobba även med grepp och bål.',schedule:'Gör lika många repetitioner på båda sidor och välj återhämtning efter greppstyrka.',ids:[42,18,52,16,48],sets:3,reps:[8,12],between:['rest','rope','rest','rope']},
+ {id:'mm-back-bi-quick',name:'Rygg + Biceps · express',group:'Rygg + Biceps',type:'Styrka',equipment:'Hantlar & kroppsvikt',durationMinutes:[20,30],tag:'Snabbt men komplett',description:'Hantelrodd, curl och bird dog. Hopprep ger en pulshöjning mellan blocken.',schedule:'Två set med teknikfokus och ett lagom lätt hopprepsblock.',ids:[18,17,51],sets:2,reps:[8,12],between:['rope','rest']},
+ {id:'mm-back-bi-heavy',name:'Rygg + Biceps · tungt & stabilt',group:'Rygg + Biceps',type:'Styrka',equipment:'Skivstång, maskin & kabel',durationMinutes:[45,60],tag:'Dragstyrka',description:'Skivstångsrodd, smalt latsdrag, kabelcurl, Pallof-press och farmers walk. Vilan är längre där den behövs.',schedule:'Prioritera vila vid skivstångsrodd framför ett snabbt hopprepsblock.',ids:[19,45,16,46,48],sets:3,reps:[6,10],between:['rest','rope','rest','rope']},
+ {id:'mm-shoulder-core-legs',name:'Axlar + Mage + Ben · bas',group:'Axlar + Mage + Ben',type:'Styrka',equipment:'Hantlar, kabel & kroppsvikt',durationMinutes:[40,55],tag:'Tre områden i ett',description:'Axelpress, goblet squat, Pallof-press, step-up och dead bug. Hopprep med återhämtning mellan blocken.',schedule:'Minska hopprepet om vader eller ben redan är trötta.',ids:[44,53,46,49,50],sets:3,reps:[8,12],between:['rope','rest','rope','rest']},
+ {id:'mm-shoulder-core-balance',name:'Axlar + Mage + Ben · balans',group:'Axlar + Mage + Ben',type:'Styrka',equipment:'Hantlar, kabel & skivstång',durationMinutes:[45,60],tag:'Ovanliga funktionella val',description:'Sidolyft, omvända flyes, sumomarklyft och farmers walk utmanar stabilitet och grepp.',schedule:'Extra vila efter marklyft; hopprep är ett valfritt pulsblock.',ids:[8,52,55,47,48],sets:3,reps:[8,12],between:['rope','rest','rest','rope']},
+ {id:'mm-shoulder-core-short',name:'Axlar + Mage + Ben · 25 minuter',group:'Axlar + Mage + Ben',type:'Styrka',equipment:'Maskin, hantel & kroppsvikt',durationMinutes:[20,30],tag:'Kompakt kombination',description:'Axelpress, goblet squat, dead bug och bird dog med ett kort hopprepsblock.',schedule:'Två set per övning och utrymme för lugn återhämtning.',ids:[2,53,50,51],sets:2,reps:[8,12],between:['rope','rest','rest']},
+ {id:'mm-shoulder-core-unilateral',name:'Axlar + Mage + Ben · en sida i taget',group:'Axlar + Mage + Ben',type:'Styrka',equipment:'Hantlar & kabel',durationMinutes:[40,50],tag:'Stabilitet och koordination',description:'Step-ups, Pallof-press, enarmsdrag, axlar och höftfällning ger nya rörelseutmaningar.',schedule:'Var noga med sida, teknik och jämn belastning.',ids:[49,46,42,44,47],sets:3,reps:[8,12],between:['rest','rope','rest','rope']},
+ {id:'mm-calisthenics-start',name:'Calisthenics · grund',group:'Calisthenics',type:'Styrka',equipment:'Kroppsvikt & stång',durationMinutes:[25,35],tag:'Bygg kroppskontroll',description:'Armhävningar, chins, plankan och bird dog. Hopprep håller flödet mellan övningarna.',schedule:'Använd assisterade chins vid behov och avsluta när tekniken avtar.',ids:[9,20,32,51],sets:2,reps:[6,10],between:['rope','rest','rope']},
+ {id:'mm-calisthenics-strength',name:'Calisthenics · styrka & grepp',group:'Calisthenics',type:'Styrka',equipment:'Kroppsvikt & stång',durationMinutes:[35,50],tag:'Press, drag och stabilitet',description:'Dips och chins möter armhävningar, dead bug och plankan. Blanda hopprep med vila.',schedule:'Först stabila drag och pressar, sedan bål. Använd hjälp i chins och dips.',ids:[20,54,9,50,32],sets:3,reps:[6,10],between:['rest','rope','rest','rope']},
+ {id:'mm-calisthenics-flow',name:'Calisthenics · rörelseflöde',group:'Calisthenics',type:'Styrka',equipment:'Kroppsvikt',durationMinutes:[20,30],tag:'Koordination & kontroll',description:'Armhävningar, glute bridge, bird dog och dead bug växlas med ett lätt hopprepsintervall.',schedule:'Prioritera rörelsekvalitet framför hög puls.',ids:[9,43,51,50,32],sets:2,reps:[8,12],between:['rope','rest','rope','rest']},
+ {id:'mm-bodystrength-home',name:'Kroppsstyrka · hemma',group:'Kroppsstyrka',type:'Styrka',equipment:'Kroppsvikt',durationMinutes:[20,30],tag:'Utan gym',description:'Armhävningar, glute bridge, plankan och dead bug. Hopprep kan göras med eller utan rep.',schedule:'En enkel rutin när du inte vill använda gymutrustning.',ids:[9,43,32,50],sets:2,reps:[8,12],between:['rope','rest','rope']},
+ {id:'mm-bodystrength-functional',name:'Kroppsstyrka · funktionellt',group:'Kroppsstyrka',type:'Styrka',equipment:'Kroppsvikt & stång',durationMinutes:[35,45],tag:'Hela kroppen',description:'Chins, dips, armhävningar, glute bridge och bird dog för en välbalanserad kombination.',schedule:'Vila längre efter de tyngsta kroppsviktsövningarna.',ids:[20,54,9,43,51],sets:3,reps:[6,10],between:['rest','rope','rest','rope']},
+ {id:'mm-bodystrength-pulse',name:'Kroppsstyrka · puls & kontroll',group:'Kroppsstyrka',type:'Styrka',equipment:'Kroppsvikt',durationMinutes:[30,40],tag:'Hopprep och stabilitet',description:'Armhävningar, plankan, glute bridge, dead bug och bird dog. Hopprep mellan styrkeblocken.',schedule:'Håll repintervallen korta och låt bålen återhämta sig.',ids:[9,32,43,50,51],sets:2,reps:[8,12],between:['rope','rest','rope','rest']}
+];
+// Between exercises, not between sets. Preserve each exercise's standard set rest.
+function programSequence(program){
+ const steps=[];
+ program.ids.forEach((id,index)=>{
+  steps.push({kind:'exercise',id,index});
+  if(index<program.ids.length-1&&program.between){
+   const kind=program.between[index]==='rope'?'rope':'rest';
+   steps.push({kind,seconds:kind==='rope'?45:90,restSeconds:kind==='rope'?30:0});
+  }
+ });
+ return steps;
+}
 function durationLabel(program){const [min,max]=program.durationMinutes;return (min===max?String(max):min+'–'+max)+' min';}
 // Match the upper estimate so a time budget never includes a longer suggested pass.
 function matchingPrograms(group,maxMinutes){return programs.filter(p=>(!group||group==='Alla'||p.group===group)&&(!maxMinutes||p.durationMinutes[1]<=Number(maxMinutes)));}
@@ -95,7 +129,7 @@ function workout(request){
  const ids=program?program.ids:request.ids;
  if(!Array.isArray(ids)||!ids.length||ids.length>20||new Set(ids).size!==ids.length||ids.some(id=>!Number.isInteger(id)||!exercises[id]))return null;
  const allCardio=ids.every(id=>exercises[id].group==='Kondition'),allPull=ids.every(id=>exercises[id].group==='Pull');
- return {name:program?program.name:'Mitt träningspass',type:program?program.type:allCardio?'Kondition':allPull?'Pull':'Push',exercises:ids.map(id=>{
+ return {name:program?program.name:'Mitt träningspass',type:program?program.type:allCardio?'Kondition':allPull?'Pull':'Push',sequence:program?programSequence(program):null,exercises:ids.map(id=>{
   const e=exercises[id],p=prescription(id,program);
   return {name:e.name,mode:p.mode,suggestedReps:p.range,guideId:id,betweenSets:{enabled:true,type:'rest',seconds:p.mode==='min'?60:90,name:''},sets:Array.from({length:p.sets},()=>({weight:null,reps:p.reps,minutes:p.minutes,done:false}))};})};
 }
@@ -104,8 +138,9 @@ function workout(request){
 // and keep the keys his training page has always read.
 const asked=root.PULSE_EXPLORE_PROFILE||(root.location&&new URLSearchParams(root.location.search).get('user'));
 const profile=asked==='maja'||asked==='ingemar'?asked:'markus';
+const programs=profile==='ingemar'?ingemarPrograms:markusMajaPrograms;
 const keys=profile==='ingemar'?{transferKey:'ingemar-explore-transfer-v1',selectionKey:'ingemar-explore-selection-v1'}
  :{transferKey:'pulse-explore-transfer-v1-'+profile,selectionKey:'pulse-explore-selection-v1-'+profile};
-root.PulseExplore={exercises,inspiration,programs,durationLabel,matchingPrograms,prescription,workout,profile,...keys};
+root.PulseExplore={exercises,inspiration,programs,programSequence,durationLabel,matchingPrograms,prescription,workout,profile,...keys};
 if(profile==='ingemar')root.IngemarExplore=root.PulseExplore;
 })(typeof window==='undefined'?globalThis:window);
