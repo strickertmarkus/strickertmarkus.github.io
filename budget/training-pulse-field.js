@@ -491,7 +491,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     // previously opened. This read-only Firebase subscription brings the
     // latest completed sessions onto another device as well.
     if(!window.firebase||!firebase.auth||!firebase.database)return;
-    firebase.auth().onAuthStateChanged(function(user){
+    try{firebase.auth().onAuthStateChanged(function(user){
       if(cloudZenRef){cloudZenRef.off();cloudZenRef=null;}
       cloudZenEntries=null;
       if(!user){repaintZen();return;}
@@ -506,7 +506,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           repaintZen();
         });
       }catch(error){if(window.console)console.warn('Zen overview connection:',error);}
-    });
+    });}catch(error){if(window.console)console.warn('Zen listener unavailable:',error);}
   }
   function renderWeek() {
     updateWeekNavigators();
