@@ -61,6 +61,7 @@ function shownValue(row,spec){
 }
 /* Refresh the shown numbers, except the one being typed in. */
 function syncSteps(row,except){
+ syncSetLog(row,except);
  specsFor(row).forEach(function(spec){
   var el=row.querySelector('[data-pbu-value="'+spec.n+'"]');if(!el||el===except)return;
   var v=shownValue(row,spec);if(el.value!==v)el.value=v;
@@ -71,6 +72,67 @@ function syncSteps(row,except){
   }
  });
 }
+
+/* ---------- Set for set (log form only) ----------
+   A pass logged afterwards can still get each set's reps and weight. The list follows
+   the Set count; until one set is changed every set shows the row's reps and weight.
+   Edited values live in row.dataset.setLogs and are saved as the exercise's logs. */
+function setLogData(row){try{var a=JSON.parse(row.dataset.setLogs||'null');return Array.isArray(a)?a:null;}catch(_){return null;}}
+function setLogRows(row){
+ var count=Math.max(1,Math.min(20,Math.round(num(field(row,1).value))||1));
+ var reps=num(field(row,2).value),kg=num(field(row,3).value),data=setLogData(row),out=[];
+ for(var i=0;i<count;i++){
+  var d=data&&data[Math.min(i,data.length-1)];
+  out.push(data&&data[i]?{r:num(data[i].r),w:num(data[i].w)}:d?{r:num(d.r),w:num(d.w)}:{r:reps,w:kg});
+ }
+ return out;
+}
+function syncSetLog(row,except){
+ var panel=row.querySelector('.pbu-panel');if(!panel)return;
+ var box=panel.querySelector(':scope>.pbu-setlog');
+ var show=!!row.closest('#wk-modal')&&rowKind(row)==='strength';
+ if(!show){if(box)box.remove();return;}
+ var bw=field(row,3).dataset.weightMode==='bodyweight',sets=setLogRows(row),custom=!!setLogData(row);
+ if(!box){
+  box=document.createElement('div');box.className='pbu-setlog';
+  var extra=panel.querySelector(':scope>.pbu-extra');
+  if(extra&&extra.nextSibling)panel.insertBefore(box,extra.nextSibling);else panel.appendChild(box);
+ }
+ box.classList.toggle('is-custom',custom);box.classList.toggle('is-bw',bw);
+ if(box.dataset.count!==String(sets.length)||box.dataset.bw!==String(bw)){
+  box.dataset.count=String(sets.length);box.dataset.bw=String(bw);
+  box.innerHTML='<div class="pbu-setlog-head"><span class="pbu-step-label">Set för set</span>'+(custom?'<button type="button" class="pbu-link" data-pbu-setlog-reset>Samma för alla</button>':'')+'</div>'
+   +sets.map(function(st,i){return '<div class="pbu-setlog-row"><span class="pbu-setlog-no">'+(i+1)+'</span>'
+    +'<label><input type="text" inputmode="numeric" data-pbu-setlog="r" data-i="'+i+'" value="'+esc(fmt(st.r))+'" aria-label="Reps set '+(i+1)+'" autocomplete="off"><small>reps</small></label>'
+    +(bw?'<span class="pbu-setlog-bw">Kroppsvikt</span>':'<label><input type="text" inputmode="decimal" data-pbu-setlog="w" data-i="'+i+'" value="'+esc(fmt(st.w))+'" aria-label="Vikt set '+(i+1)+'" autocomplete="off"><small>kg</small></label>')+'</div>';}).join('');
+  return;
+ }
+ var head=box.querySelector('.pbu-setlog-head');
+ if(head&&!!head.querySelector('[data-pbu-setlog-reset]')!==custom)head.innerHTML='<span class="pbu-step-label">Set för set</span>'+(custom?'<button type="button" class="pbu-link" data-pbu-setlog-reset>Samma för alla</button>':'');
+ box.querySelectorAll('[data-pbu-setlog]').forEach(function(input){
+  if(input===except||input===document.activeElement)return;
+  var st=sets[Number(input.dataset.i)];if(!st)return;
+  var v=fmt(input.dataset.pbuSetlog==='r'?st.r:st.w);if(input.value!==v)input.value=v;
+ });
+}
+function readSetLog(row){
+ var box=row.querySelector('.pbu-setlog');if(!box)return;
+ var sets=setLogRows(row);
+ box.querySelectorAll('[data-pbu-setlog]').forEach(function(input){var st=sets[Number(input.dataset.i)];if(st)st[input.dataset.pbuSetlog]=num(input.value);});
+ row.dataset.setLogs=JSON.stringify(sets);
+ box.classList.add('is-custom');
+}
+document.addEventListener('input',function(e){
+ var t=e.target;if(!t.matches||!t.matches('[data-pbu-setlog]'))return;
+ var row=t.closest('.pbu-row');if(!row)return;
+ readSetLog(row);syncSetLog(row,t);
+},true);
+document.addEventListener('click',function(e){
+ var b=e.target.closest&&e.target.closest('[data-pbu-setlog-reset]');if(!b)return;
+ var row=b.closest('.pbu-row');if(!row)return;
+ delete row.dataset.setLogs;var box=row.querySelector('.pbu-setlog');if(box)box.dataset.count='';
+ syncSetLog(row);
+});
 
 var api=function(){return window.PulseExplore||null;};
 var byId=function(id){return document.getElementById(id);};

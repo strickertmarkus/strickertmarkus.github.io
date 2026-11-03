@@ -558,11 +558,11 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261103-log-day-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
-<link rel="stylesheet" href="pulse-log-ui.css?v=20261103-rebuild-1">
+<link rel="stylesheet" href="pulse-log-ui.css?v=20261103-setlog-1">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261029-home-1"></script>
 <script defer src="pulse-explore.js?v=20261029-shared-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261030-zen-modes-4"></script>
+<script defer src="pulse-builder-ui.js?v=20261103-setlog-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261030-zen-modes-4">
@@ -3552,6 +3552,11 @@ function addExRow(ex,timing){
   var row=document.createElement('div');
   row.className='ex-row-item is-'+normalizeExercise(ex).kind;
   row.innerHTML=buildExerciseEditorRowHtml('ex',ex,"this.closest('.ex-row-item').remove()");
+  // Logged sets (from the training mode or typed set for set) stay editable per set.
+  if(ex&&Array.isArray(ex.logs)&&ex.logs.length&&normalizeExercise(ex).kind==='strength'){
+    row.dataset.setLogs=JSON.stringify(ex.logs.map(function(l){return {r:Number(l.actualReps)||0,w:Number(l.actualWeight)||0};}));
+    var setsInput=row.querySelector('.ex-metric1');if(setsInput)setsInput.value=ex.logs.length;
+  }
   addExerciseTimingEditor(row,timing);
   list.appendChild(row);
   if(!ex){
@@ -3581,6 +3586,16 @@ function saveWorkout(){
     var parsed=parseExerciseRow(row,'ex');
     if(!parsed)return;
     var between=rowBetween(row);if(between&&parsed.kind!=='cardio')parsed.betweenSets=between;
+    if(parsed.kind==='strength'&&row.dataset.setLogs){
+      try{
+        var bw=parsed.weightMode==='bodyweight',want=Math.max(1,Number(parsed.sets)||1),setLogs=JSON.parse(row.dataset.setLogs).slice(0,want);
+        while(setLogs.length<want)setLogs.push(setLogs.length?setLogs[setLogs.length-1]:{r:parsed.reps,w:parsed.weight});
+        parsed.logs=setLogs.map(function(l){return {actualReps:Number(l.r)||0,actualWeight:bw?0:Number(l.w)||0,weightMode:parsed.weightMode||'kg'};});
+        parsed.sets=parsed.logs.length;
+        parsed.reps=Math.max.apply(Math,parsed.logs.map(function(l){return l.actualReps;}));
+        if(!bw)parsed.weight=Math.max.apply(Math,parsed.logs.map(function(l){return l.actualWeight;}));
+      }catch(_){}
+    }
     exercises.push(parsed);
     var timingInput=row.querySelector('.ex-duration-seconds-v7');
     var durationSec=exerciseDurationSeconds(timingInput&&timingInput.value);

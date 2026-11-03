@@ -172,3 +172,16 @@ html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .pbu-log-delete[hidden]{display:none!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer .pbu-log-delete.is-armed{color:#1d0806!important;background:#ff8a78!important;border-radius:999px!important}
 html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .modal-footer{flex-wrap:wrap!important}
+
+/* Set for set in the log */
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog{margin-top:14px;padding-top:12px;border-top:1px solid #ffffff0d}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-head .pbu-link{min-height:32px;padding:0 4px;font-size:12.5px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row{display:grid;grid-template-columns:26px 1fr 1fr;align-items:center;gap:10px;min-height:44px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-no{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#ffffff0a;color:var(--pbu-muted);font:600 11px Inter,system-ui,sans-serif}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row label{display:flex;align-items:baseline;gap:6px;margin:0;min-width:0}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row input{width:100%;min-width:0;min-height:38px;padding:0 10px!important;border-radius:10px!important;font:600 16px Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;text-align:center}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-row small{flex:none;color:var(--pbu-dim);font-size:11px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog:not(.is-custom) .pbu-setlog-row input{color:var(--pbu-muted)}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-setlog-bw{color:var(--pbu-muted);font-size:12.5px}
+html.pbu-v1[data-field-embedded] body#pulse-page #wk-modal.pbu-log .pbu-row.pbu-picking .pbu-setlog{display:none}
