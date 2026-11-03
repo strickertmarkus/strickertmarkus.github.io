@@ -1077,3 +1077,56 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 .exercise-between.is-rest .pk-icon{color:#dbe6f5}
 .wd4[data-plan-kind="stretch"] .wd-type{color:#d4eea7}.wd4[data-plan-kind="meditation"] .wd-type{color:#fff0b7}
 .wd4[data-plan-kind="stretch"]:not(.is-complete) .wd-type,.wd4[data-plan-kind="meditation"]:not(.is-complete) .wd-type{opacity:.7}
+
+
+/* Zen recovery in the main orbit and eight-week rhythm map.
+   Strength/cardio /4 remains the primary ring and primary pass count. */
+.rhythm-orbit-svg .ro-zen-track{pointer-events:none}
+.rhythm-orbit-svg .ro-zen-track path{fill:none;stroke-linecap:round}
+.rhythm-zen-facts{display:flex;align-items:center;flex-wrap:wrap;gap:7px 13px!important}
+.rhythm-zen-mark{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:11px;color:#c4c5c9}
+.rhythm-zen-mark::before{content:"";width:7px;height:7px;flex:0 0 7px;border-radius:50%}
+.rhythm-zen-mark.is-stretch::before{background:#b8e99b;box-shadow:0 0 8px #b8e99b78}
+.rhythm-zen-mark.is-meditation::before{background:#f5d58c;box-shadow:0 0 8px #f5d58c75}
+.rhythm-facts dd .rhythm-zen-mark b{color:#f5efeb;font-weight:650;font-size:11px}
+.wd4 .wd-zen-pips{position:absolute;display:flex;gap:3px;left:50%;top:calc(50% + 8px);transform:translateX(-50%);pointer-events:none}
+.wd-zen-pips i{display:block;width:5px;height:5px;border-radius:50%}
+.wd-zen-pips .is-stretch{background:#b8e99b;box-shadow:0 0 6px #b8e99b}
+.wd-zen-pips .is-meditation{background:#f5d58c;box-shadow:0 0 6px #f5d58c}
+.rmap .rm-cell{position:relative;overflow:visible}
+.rmap .rm-cell .rm-zen-dot{position:absolute;display:block;z-index:2;width:5px;height:5px;top:1px;border-radius:50%;pointer-events:none}
+.rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 11px);background:#b8e99b;box-shadow:0 0 7px #b8e99b}
+.rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 11px);background:#f5d58c;box-shadow:0 0 7px #f5d58c}
+.rmap .rm-cell.is-zen-only>i{width:5px;height:5px;background:#60646a;box-shadow:none}
+@media(max-width:520px){
+ .rmap .rm-cell .rm-zen-dot{width:4px;height:4px}
+ .rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 9px)}
+ .rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 9px)}
+ .rhythm-zen-facts{gap:6px 10px!important}
+}
+/* Multiple planned sessions for the selected calendar day. */
+.week-selected-extras-v1{display:grid;gap:8px;margin:9px 0 6px;padding:0 4px}
+.week-extra-top{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:33px}
+.week-extra-top>span{font-size:11px;color:var(--field-muted,#aeb3bc)}
+.week-extra-top>button{
+  min-height:34px;padding:7px 12px;border:1px solid #fc776551;border-radius:10px;
+  background:#f0675316;color:#f9ad9f;font:600 12px/1.25 var(--field-ui,inherit);
+  white-space:nowrap;cursor:pointer
+}
+.week-extra-list{display:grid;gap:6px}
+.week-extra-item{
+  display:flex;gap:8px;align-items:center;justify-content:space-between;
+  padding:6px 8px 6px 4px;min-width:0;
+  border-radius:11px;border:1px solid #ffffff12;background:#ffffff04
+}
+.week-extra-item>button:first-child{
+  display:flex;align-items:center;gap:10px;min-width:0;
+  flex:1;border:0;background:none;color:#e8dde0;font:600 12px/1.25 var(--field-ui,inherit);padding:3px 5px;cursor:pointer;text-align:left
+}
+.week-extra-item>button:first-child>span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.week-extra-num{display:grid;place-items:center;flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:#fa695b1c;border:1px solid #fa6d5c55;color:#ffbfaf;font-size:11px}
+.week-extra-item>button:last-child{
+  min-height:32px;padding:6px 11px;border-radius:9px;border:1px solid #ffa28e44;
+  background:#f7614e1b;color:#ffc7bb;font:600 12px/1.2 var(--field-ui,inherit);cursor:pointer
+}
+.week-extra-top>button:focus-visible,.week-extra-item button:focus-visible{outline:2px solid #ff9786;outline-offset:2px}
