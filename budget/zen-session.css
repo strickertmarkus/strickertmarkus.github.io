@@ -204,3 +204,8 @@ body[data-kind=stretch] .session-copy.is-long .session-cue{font-size:11px;line-h
 
 @keyframes trail-current-breath{0%,100%{filter:brightness(1);box-shadow:0 0 12px #c8ff9366}50%{filter:brightness(1.15);box-shadow:0 0 21px #c8ff93aa}}
 @media(prefers-reduced-motion:reduce){#session-trail li[aria-current=step] span{animation:none}}
+
+/* Mannequin stretch instructor inside the timer ring */
+.session-pose-3d{position:absolute;z-index:1;pointer-events:none;filter:drop-shadow(0 0 18px #a4dc7740)}
+.session-pose-3d[hidden]{display:none!important}
+.session-pose-3d canvas{display:block;width:100%;height:100%}

@@ -129,7 +129,15 @@
   glow(p,tipX,tipY,30,'193,255,139',.72);glow(p,tipX,tipY,13,'227,255,175',.95);ellipse(p,tipX,tipY,4.2,4.2,'#f4ffdc');
   // The movement stays readable, but sits quietly inside the timer garden.
   p.translate(150,148);p.scale(.66,.66);p.translate(-150,-148);p.globalAlpha*=.76;
-  drawFigure(p,snapshot.step?.id,t-poseStarted,t);
+  // The 3D mannequin takes over for the movements it knows; the drawn figure stays as fallback.
+  const silver=window.PulseSilverStretch,stepId=snapshot.step?.id;
+  const box=$('session-pose-3d');let shown=false;
+  if(silver&&box&&silver.supports(stepId)){
+   const size=Math.round(2*126*s);box.style.width=size+'px';box.style.height=size+'px';box.style.left=(cx-size/2)+'px';box.style.top=(cy-size/2)+'px';
+   shown=silver.render({target:box,stepId,elapsed:snapshot.preparing?0:t-poseStarted,width:size,height:size});
+  }
+  if(box)box.hidden=!shown;
+  if(!shown)drawFigure(p,stepId,t-poseStarted,t);
   p.restore();
   if(poseTransition&&blend<1){p.save();p.globalAlpha=1-blend;p.drawImage(poseTransition.image,0,0,w,h);p.restore();}else poseTransition=null;
  }
