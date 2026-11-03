@@ -157,8 +157,8 @@ function saveTemplate(options){
   exercises:options.nameOnly&&previous?(previous.exercises||[]):options.nameOnly?[]:rows()
  });
  if(options.nameOnly&&previous){entry=Object.assign({},previous,{name:name});}
- else if(zenMode){entry.exercises=[];if(zenRecord)entry.zenRoutine=zenRecord.zenRoutine;else delete entry.zenRoutine;}
- else delete entry.zenRoutine;
+ else if(zenMode){entry.exercises=[];if(zenRecord){entry.zenRoutine=zenRecord.zenRoutine;entry.zenRoutines=zenRecord.zenRoutines;}else{delete entry.zenRoutine;delete entry.zenRoutines;}}
+ else{delete entry.zenRoutine;delete entry.zenRoutines;}
  if(window.PulsePassAutofill)PulsePassAutofill.stamp(entry);
  if(at>=0)list[at]=entry;else list.push(entry);
  saveTemplates(list);
@@ -184,7 +184,7 @@ function confirmSaveAsTemplate(){
  if(!zenMode&&!ex.length){toast('Lägg till minst en namngiven övning först.');return;}
  var list=getTemplates(),id=makeId();
  var entry={id:id,name:name,type:String(byId('day-workout-type').value||'').trim()||'Helkropp',exercises:ex};
- if(zenRecord)entry.zenRoutine=zenRecord.zenRoutine;
+ if(zenRecord){entry.zenRoutine=zenRecord.zenRoutine;entry.zenRoutines=zenRecord.zenRoutines;}
  if(window.PulsePassAutofill)PulsePassAutofill.stamp(entry);
  list.push(entry);
  saveTemplates(list);

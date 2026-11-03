@@ -3,7 +3,10 @@
 'use strict';
 var svg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19C6 19 3 15 3 10c4 0 7 2 9 6 2-4 5-6 9-6 0 5-3 9-9 9Z"/><path d="M12 16c-4-4-4-8 0-12 4 4 4 8 0 12Z"/></svg>';
 var kind=function(type){return /meditation/i.test(type||'')?'meditation':/stretch/i.test(type||'')?'stretch':'';};
-window.PulseZen={kind:kind,icon:function(k){return '<span class="pulse-zen-icon" data-zen-kind="'+k+'">'+svg+'</span>';},url:function(plan){var url=new URL('zen.html',document.baseURI);url.searchParams.set('wellness',plan.zenRoutine.kind);url.searchParams.set('routine',plan.zenRoutine.id);if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');return url.href;}};
+window.PulseZen={kind:kind,icon:function(k){return '<span class="pulse-zen-icon" data-zen-kind="'+k+'">'+svg+'</span>';},url:function(plan){var url=new URL('zen.html',document.baseURI),list=PulseZen.list(plan);url.searchParams.set('wellness',list[0].kind);url.searchParams.set('routine',list[0].id);if(list.length>1)url.searchParams.set('then',list.slice(1).map(function(r){return r.id;}).join(','));if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');return url.href;}};
+// A day can hold several stretch or meditation passes: zenRoutines (zenRoutine is the first).
+PulseZen.list=function(plan){var l=plan&&Array.isArray(plan.zenRoutines)&&plan.zenRoutines.length?plan.zenRoutines:plan&&plan.zenRoutine?[plan.zenRoutine]:[];return l.filter(Boolean);};
+PulseZen.duration=function(plan){return PulseZen.list(plan).reduce(function(sum,r){return sum+ZenModel.duration(r);},0);};
 var escape=function(value){return String(value||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
 var clone=function(value){return value==null?null:JSON.parse(JSON.stringify(value));};
 var label=function(k){return k==='stretch'?'Stretch':'Meditation';};
@@ -23,15 +26,16 @@ PulseZen.setPlannerMode=function(index,k){
  if(!current)entry.trainingType=entry.type;
  pulsePlanSetTypeV2(index,current===k?(entry.trainingType||'Helkropp'):label(k));
 };
-var builder={mode:'',routine:null,saved:{}},box,panel,controls;
+var builder={mode:'',routines:[],saved:{}},box,panel,controls;
+function namesOf(list){return list.map(function(r){return r.name;}).join(' + ');}
 function byId(id){return document.getElementById(id);}
 PulseZen.builderKind=function(){return builder.mode;};
 PulseZen.builderRecord=function(){
- if(!builder.mode||!builder.routine)return null;
- return {type:label(builder.mode),name:(byId('day-workout-name').value||builder.routine.name).trim(),zenRoutine:clone(builder.routine),exercises:[]};
+ if(!builder.mode||!builder.routines.length)return null;
+ return {type:label(builder.mode),name:(byId('day-workout-name').value||namesOf(builder.routines)).trim(),zenRoutine:clone(builder.routines[0]),zenRoutines:clone(builder.routines),exercises:[]};
 };
 PulseZen.loadBuilder=function(record){
- builder={mode:PulseZen.modeFor(record),routine:clone(record&&record.zenRoutine),saved:{}};
+ builder={mode:PulseZen.modeFor(record),routines:clone(PulseZen.list(record))||[],saved:{}};
  if(panel){panel.open=false;panel.querySelector('input').value='';}
  syncBuilder();
 };
@@ -42,22 +46,24 @@ function syncBuilder(){
  panel.hidden=!builder.mode;
  if(!builder.mode)return;
  panel.dataset.zenKind=builder.mode;
- panel.querySelector('summary').innerHTML=PulseZen.icon(builder.mode)+'<span>'+(builder.routine?escape(builder.routine.name):'Välj '+(builder.mode==='stretch'?'stretchpass':'meditationspass'))+'</span>';
+ var list=builder.routines,mins=Math.round(list.reduce(function(n,r){return n+ZenModel.duration(r);},0)/60);
+ panel.querySelector('summary').innerHTML=PulseZen.icon(builder.mode)+'<span>'+(list.length?escape(namesOf(list))+'<small>'+list.length+(list.length===1?' pass':' pass')+' · '+mins+' min</small>':'Välj '+(builder.mode==='stretch'?'stretchpass':'meditationspass'))+'</span>';
  var link=panel.querySelector('.pulse-zen-current');
- link.hidden=!builder.routine;
- if(builder.routine){link.href=PulseZen.url({zenRoutine:builder.routine});link.textContent='Öppna i Zen';}else{link.removeAttribute('href');link.textContent='';}
+ link.hidden=!list.length;
+ if(list.length){link.href=PulseZen.url({zenRoutines:list});link.textContent='Öppna i Zen';}else{link.removeAttribute('href');link.textContent='';}
  renderRoutines();
 }
 function renderRoutines(){
+ if(panel){var hint=panel.querySelector('.pulse-zen-multi-hint');if(hint)hint.textContent=builder.routines.length?'Tryck på fler pass för att lägga till dem efter varandra, eller på ett valt för att ta bort det.':'Välj ett eller flera pass.';}
  if(!panel||!builder.mode)return;
  var list=routines(builder.mode,panel.querySelector('input').value);
- panel.querySelector('.pulse-zen-group-options').innerHTML=list.map(function(r){return '<button type="button" data-zen-routine="'+escape(r.id)+'" aria-pressed="'+String(!!builder.routine&&builder.routine.id===r.id)+'">'+PulseZen.icon(r.kind)+'<span>'+escape(r.name)+'<small>'+Math.round(ZenModel.duration(r)/60)+' min</small></span></button>';}).join('')||'<p class="pulse-zen-empty">Inga pass matchar sökningen.</p>';
+ panel.querySelector('.pulse-zen-group-options').innerHTML=list.map(function(r){return '<button type="button" data-zen-routine="'+escape(r.id)+'" aria-pressed="'+String(builder.routines.some(function(x){return x.id===r.id;}))+'">'+PulseZen.icon(r.kind)+'<span>'+escape(r.name)+'<small>'+Math.round(ZenModel.duration(r)/60)+' min</small></span></button>';}).join('')||'<p class="pulse-zen-empty">Inga pass matchar sökningen.</p>';
 }
 PulseZen.setBuilderMode=function(k){
  var previous=builder.mode||'training',next=builder.mode===k?'':k;
- builder.saved[previous]={name:byId('day-workout-name').value,type:byId('day-workout-type').value,template:byId('day-workout-template-select').value,routine:clone(builder.routine)};
+ builder.saved[previous]={name:byId('day-workout-name').value,type:byId('day-workout-type').value,template:byId('day-workout-template-select').value,routines:clone(builder.routines)};
  var restored=builder.saved[next||'training'];
- builder.mode=next;builder.routine=restored?clone(restored.routine):null;
+ builder.mode=next;builder.routines=restored&&restored.routines?clone(restored.routines):[];
  byId('day-workout-name').value=restored?restored.name:next?label(next):'';
  byId('day-workout-type').value=restored?restored.type:next?label(next):'Helkropp';
  if(window.PulseClassicTemplates)PulseClassicTemplates.refreshChoices(restored&&restored.template||'');
@@ -69,10 +75,15 @@ function install(){
  controls=document.createElement('div');controls.className='pulse-zen-builder-modes';box.querySelector('.modal').appendChild(controls);
  controls.addEventListener('click',function(event){var button=event.target.closest('[data-zen-mode]');if(button)PulseZen.setBuilderMode(button.dataset.zenMode);});
  panel=document.createElement('details');panel.className='pulse-zen-builder';panel.hidden=true;
- panel.innerHTML='<summary></summary><div class="pulse-zen-routines"><input type="search" placeholder="Sök pass" aria-label="Sök pass" autocomplete="off"><div class="pulse-zen-group-options"></div></div><a class="pulse-zen-current" target="_top" hidden></a>';
+ panel.innerHTML='<summary></summary><div class="pulse-zen-routines"><p class="pulse-zen-multi-hint"></p><input type="search" placeholder="Sök pass" aria-label="Sök pass" autocomplete="off"><div class="pulse-zen-group-options"></div></div><a class="pulse-zen-current" target="_top" hidden></a>';
  box.querySelector('.classic-exercises').before(panel);
  panel.querySelector('input').addEventListener('input',renderRoutines);
- panel.addEventListener('click',function(event){var button=event.target.closest('[data-zen-routine]');if(!button)return;var record=session(button.dataset.zenRoutine);if(!record||record.zenRoutine.kind!==builder.mode)return;var old=builder.routine,name=byId('day-workout-name');if(!name.value||name.value===label(builder.mode)||old&&name.value===old.name)name.value=record.name;builder.routine=record.zenRoutine;panel.open=false;syncBuilder();});
+ panel.addEventListener('click',function(event){var button=event.target.closest('[data-zen-routine]');if(!button)return;var record=session(button.dataset.zenRoutine);if(!record||record.zenRoutine.kind!==builder.mode)return;
+  // Tapping adds the pass after the ones chosen; tapping a chosen one removes it.
+  var before=namesOf(builder.routines),name=byId('day-workout-name'),at=builder.routines.findIndex(function(r){return r.id===record.zenRoutine.id;});
+  if(at>=0)builder.routines.splice(at,1);else builder.routines.push(record.zenRoutine);
+  if(!name.value||name.value===label(builder.mode)||name.value===before)name.value=namesOf(builder.routines)||label(builder.mode);
+  syncBuilder();});
  var planner=byId('plan-days');if(planner)planner.addEventListener('click',function(event){var button=event.target.closest('[data-zen-day]');if(button)PulseZen.setPlannerMode(Number(button.dataset.zenDay),button.dataset.zenMode);});
  syncBuilder();
 }

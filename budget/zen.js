@@ -12,6 +12,8 @@
   let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:typeof prefs.selected?.stretch==='string'?prefs.selected.stretch:'forest',meditation:typeof prefs.selected?.meditation==='string'?prefs.selected.meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false;
   var requestedRoutine=new URLSearchParams(location.search).get('routine');
   var requested=M.routines.find(r=>r.id===requestedRoutine&&r.kind===kind);if(requested)selected[kind]=requested.id;
+  // A planned day with several passes: the next ones come after this one is saved.
+  let queue=(new URLSearchParams(location.search).get('then')||'').split(',').filter(Boolean);
   // Native dialogs manage focus; the shared scroll owner preserves the page
   // position, including when a confirmation opens over another dialog.
   const dialogs=Array.from(document.querySelectorAll('dialog.zen-dialog'));
@@ -136,7 +138,13 @@
   }
   function saveComplete(){
     if(!pendingRecord)return;const record={...pendingRecord,note:$('session-note').value.trim(),updatedAt:Date.now()};
-    if(S.put(record)){pendingRecord=null;session=null;S.setActive(null);showView('home');renderHome();$('hero-title').setAttribute('tabindex','-1');$('hero-title').focus();toast('Passet är sparat.');}
+    if(S.put(record)){pendingRecord=null;session=null;S.setActive(null);showView('home');renderHome();$('hero-title').setAttribute('tabindex','-1');$('hero-title').focus();
+      if(queue.length){
+        const nextId=queue.shift(),next=routines().find(r=>r.id===nextId);
+        try{const route=new URL(location.href);if(queue.length)route.searchParams.set('then',queue.join(','));else route.searchParams.delete('then');if(next)route.searchParams.set('routine',next.id);history.replaceState(history.state,'',route.href);}catch(_){}
+        if(next){if(next.kind!==kind)applyKind(next.kind);selected[next.kind]=next.id;savePrefs();renderHome();toast('Passet är sparat. Nästa: '+next.name+' – tryck Starta när du är redo.');return;}
+      }
+      toast('Passet är sparat.');}
   }
   function updateSound(){setDingVolume();$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Ljud på':'Ljud av';$('sound-toggle').setAttribute('aria-pressed',String(sound));$('session-audio').dataset.enabled=String(sound);$('session-audio').querySelector('summary').setAttribute('aria-label','Ljudinställningar, ljud '+(sound?'på':'av'));}
   function mixedAudioContext(){

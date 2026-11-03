@@ -470,7 +470,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
         if(gap>0)box.style.setProperty('--link-h',Math.round(gap)+'px');
       });
       if(chosenRest&&!chosenPlan)nameLabel.textContent='Vila';
-      if(chosenPlan&&chosenPlan.zenRoutine)meta=chosenType+' · '+Math.round(ZenModel.duration(chosenPlan.zenRoutine)/60)+' min';
+      if(chosenPlan&&chosenPlan.zenRoutine){var zenCount=PulseZen.list(chosenPlan).length;meta=chosenType+' · '+(zenCount>1?zenCount+' pass · ':'')+Math.round(PulseZen.duration(chosenPlan)/60)+' min';}
       if(metaLabel)metaLabel.textContent=meta;
       if(thumb)thumb.innerHTML=chosenPlan&&chosenPlan.zenRoutine?PulseZen.icon(chosenPlan.zenRoutine.kind):chosenRest?'<span class="pk-thumb is-rest">'+PK_MOON+'</span>':pkThumb(chosenName+' '+chosenType,chosenCardio?'cardio':'strength');
       ['week-selected-open-v3','week-selected-play-v3'].forEach(function(id){var b=byId(id);if(b)b.dataset.fieldDate=selected;});
