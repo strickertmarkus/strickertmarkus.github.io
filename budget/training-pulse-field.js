@@ -1240,6 +1240,13 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     return '<span class="pk-thumb" aria-hidden="true"><img src="assets/atlas-art-v1/'+(slug||'chest')+'.webp" alt="" loading="lazy" decoding="async"></span>';
   }
 
+  // A small line under an exercise: coral clock for an exercise between sets, moon-white moon for rest.
+  function betweenNote(cfg,where){
+    if(!cfg||!cfg.enabled||cfg.type==='none')return '';
+    var rest=cfg.type!=='custom',secs=Math.max(1,Math.round(number(cfg.seconds)||(rest?60:30)));
+    var icon=rest?'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>':PK_ICON.clock;
+    return '<small class="exercise-between'+(rest?' is-rest':'')+'">'+icon+escapeHtml((rest?'Vila':String(cfg.name||'Övning').trim()||'Övning')+' · '+secs+' s '+where)+'</small>';
+  }
   function renderLog() {
     var allWorkouts=data.workouts.slice().sort(function(a,b){
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
@@ -1264,8 +1271,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var rows=exercises.length?exercises.map(function(exercise,exerciseIndex){
         var seconds=exerciseSeconds(workout,exercise,exerciseIndex),normalized=normalizeExercise(exercise);
         var retired=isHistoricExerciseName(normalized.name,normalized.kind,workoutType(workout));
-        return '<button type="button" class="exercise-row" data-field-action="edit-log" data-workout-id="'+escapeHtml(String(workout.id))+'" data-exercise-index="'+exerciseIndex+'" aria-label="Redigera passet, '+escapeHtml(normalized.name)+(retired?' (äldre övningsnamn)':'')+'"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name'+(retired?' is-retired-exercise':'')+'"'+(retired?' title="Äldre övningsnamn – borttaget från listan"':'')+'>'+escapeHtml(normalized.name)+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time">'+PK_ICON.clock+formatDuration(seconds)+'</time>':'')+'</span></button>';
+        return '<button type="button" class="exercise-row" data-field-action="edit-log" data-workout-id="'+escapeHtml(String(workout.id))+'" data-exercise-index="'+exerciseIndex+'" aria-label="Redigera passet, '+escapeHtml(normalized.name)+(retired?' (äldre övningsnamn)':'')+'"><span class="exercise-index">'+(exerciseIndex+1)+'</span><span class="exercise-name'+(retired?' is-retired-exercise':'')+'"'+(retired?' title="Äldre övningsnamn – borttaget från listan"':'')+'>'+escapeHtml(normalized.name)+betweenNote(exercise.betweenSets,'mellan set')+'</span><span class="exercise-performance"><span class="exercise-result">'+escapeHtml(exerciseResult(exercise))+'</span>'+(seconds?'<time class="exercise-time">'+PK_ICON.clock+formatDuration(seconds)+'</time>':'')+'</span></button>';
       }).join(''):'<p class="log-empty">Passet saknar sparade övningsrader.</p>';
+      var globalBetween=betweenNote(workout.betweenExercises,'mellan övningar');
+      if(globalBetween)rows='<p class="log-between-global">'+globalBetween+'</p>'+rows;
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
       return '<article class="log-card'+(open?' is-open':'')+(kind==='cardio'?' is-cardio':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time>'+pkThumb(workoutType(workout),kind)+'<span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">'+PK_ICON.chevron+'</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals" aria-label="Passets sammanfattning"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
