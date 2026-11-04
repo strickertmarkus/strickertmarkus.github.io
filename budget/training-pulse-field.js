@@ -583,6 +583,13 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       ['week-selected-open-v3','week-selected-play-v3'].forEach(function(id){var b=byId(id);if(b)b.dataset.fieldDate=selected;});
       var open=byId('week-selected-open-v3'),done=dayLogged(selected);
       if(open){open.dataset.fieldAction=done?'edit-log':'edit-day';if(done)open.dataset.workoutId=String(done.id);else delete open.dataset.workoutId;}
+      // A quiet cross removes the day's pass (the logged one when the day is done); an undo follows in the toast.
+      var removeBtn=byId('week-selected-remove-v3');
+      if(removeBtn){
+        removeBtn.hidden=!(done||chosenPlan&&!chosenRest);removeBtn.dataset.fieldDate=selected;
+        if(done)removeBtn.dataset.workoutId=String(done.id);else delete removeBtn.dataset.workoutId;
+        removeBtn.setAttribute('aria-label',done?'Ta bort det loggade passet':'Ta bort det planerade passet');removeBtn.title=removeBtn.getAttribute('aria-label');
+      }
       var play=byId('week-selected-play-v3');if(play)play.hidden=chosenRest||!chosenPlan||!((chosenPlan.exercises||[]).length||chosenPlan.zenRoutine);
     }
     var extrasBox=byId('week-selected-extras-v1');

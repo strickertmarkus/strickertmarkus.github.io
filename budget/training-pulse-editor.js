@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261104-save-tpl-1');
+  url.searchParams.set('v','20261104-remove-pass-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -355,8 +355,90 @@ function runTool(tool,button,dateOverride,extraId){
   if(dialog.open&&request===requestId)updateStatus((e&&e.message?e.message:'Pulse Flow kunde inte startas.')+' Stäng och öppna verktyget för att försöka igen.');
  });
 }
+/* Remove the chosen day's pass straight from the week field: no dialog, an undo in the toast. */
+function undoToast(text,undo){
+ var node=$('field-toast');if(!node)return;
+ node.textContent='';
+ var label=document.createElement('span');label.textContent=text;
+ var button=document.createElement('button');button.type='button';button.className='toast-undo';button.textContent='Ångra';
+ var hide=function(){node.classList.remove('is-visible');setTimeout(function(){if(!node.classList.contains('is-visible'))node.classList.remove('has-action');},320);};
+ button.addEventListener('click',function(){clearTimeout(notice.timer);hide();undo();});
+ node.append(label,button);node.classList.add('has-action','is-visible');
+ clearTimeout(notice.timer);notice.timer=setTimeout(hide,6000);
+}
+function clone(value){return value===undefined?undefined:JSON.parse(JSON.stringify(value));}
+function removePass(button){
+ if(new URLSearchParams(location.search).get('demo')==='1'){notice('Exempelvyn kan inte ändras.');return Promise.resolve(false);}
+ var date=button.dataset.fieldDate||selectedDate,workoutId=button.dataset.workoutId||'';
+ if(!date)return Promise.resolve(false);
+ return loadLegacy().then(function(win){
+  if(workoutId){
+   var list=win.getWorkouts(),workout=list.find(function(w){return String(w.id)===workoutId;});
+   if(!workout)return false;
+   win.saveWorkouts(list.filter(function(w){return w!==workout;}));changed();
+   undoToast('Loggat pass borttaget',function(){
+    var now=win.getWorkouts();
+    if(!now.some(function(w){return String(w.id)===workoutId;})){now.push(workout);win.saveWorkouts(now);}
+    changed();
+   });
+   return true;
+  }
+  var byDate=win.getPlannedSessions(),previousDay=clone(byDate[date]);
+  var monday=win.mondayISOOf(date),allWeeks=win.getWeekPlans(),previousWeek=clone(allWeeks[monday]);
+  if(byDate[date]){
+   var extras=win.pulseExtraListV1?win.pulseExtraListV1(byDate[date]):[];
+   if(extras.length)byDate[date]={type:'Vila',name:'Vila',exercises:[],additionalSessions:extras};else delete byDate[date];
+   win.savePlannedSessions(byDate);
+  }
+  var week=Object.assign({},win.getPlanForWeek(monday));week[win.dayKeyFromISO(date)]='Vila';win.setPlanForWeek(monday,week);
+  changed();
+  undoToast('Passet borttaget',function(){
+   var days=win.getPlannedSessions();if(previousDay)days[date]=previousDay;else delete days[date];win.savePlannedSessions(days);
+   var weeks=win.getWeekPlans();if(previousWeek)weeks[monday]=previousWeek;else delete weeks[monday];win.saveWeekPlans(weeks);
+   changed();
+  });
+  return true;
+ }).catch(function(e){notice(e&&e.message?e.message:'Passet kunde inte tas bort.');return false;});
+}
+/* Swipe the day's row to the left to remove it, as an alternative to the cross. */
+function installSwipeRemove(){
+ var row=$('week-selected-session-v3');if(!row)return;
+ var startX=0,startY=0,dx=0,tracking=false,swiping=false,suppressClick=false;
+ var removeButton=function(){var b=$('week-selected-remove-v3');return b&&!b.hidden?b:null;};
+ var reset=function(){row.classList.remove('is-dragging');row.classList.add('is-returning');row.style.transform='';setTimeout(function(){row.classList.remove('is-returning');},240);};
+ row.addEventListener('touchstart',function(e){
+  if(e.touches.length!==1||!removeButton()){tracking=false;return;}
+  tracking=true;swiping=false;dx=0;startX=e.touches[0].clientX;startY=e.touches[0].clientY;
+ },{passive:true});
+ row.addEventListener('touchmove',function(e){
+  if(!tracking)return;
+  var x=e.touches[0].clientX-startX,y=e.touches[0].clientY-startY;
+  if(!swiping){
+   if(Math.abs(y)>10&&Math.abs(y)>Math.abs(x)){tracking=false;return;}
+   if(x<-12&&Math.abs(x)>Math.abs(y)*1.4){swiping=true;row.classList.add('is-dragging');}else return;
+  }
+  dx=Math.min(0,x);row.style.transform='translateX('+Math.round(dx*0.85)+'px)';
+  row.style.opacity=String(Math.max(.35,1+dx/360));
+ },{passive:true});
+ var end=function(){
+  if(!tracking)return;tracking=false;
+  if(!swiping)return;
+  suppressClick=true;setTimeout(function(){suppressClick=false;},400);
+  row.style.opacity='';
+  var button=removeButton();
+  if(dx<-90&&button){
+   row.classList.remove('is-dragging');row.classList.add('is-leaving');
+   removePass(button).then(function(){setTimeout(function(){row.classList.remove('is-leaving');row.style.transform='';},60);});
+  }else reset();
+ };
+ row.addEventListener('touchend',end);row.addEventListener('touchcancel',end);
+ row.addEventListener('click',function(e){if(suppressClick){e.preventDefault();e.stopPropagation();suppressClick=false;}},true);
+}
 function install(){
+ installSwipeRemove();
  document.addEventListener('click',function(event){
+  var remove=event.target.closest('[data-field-remove]');
+  if(remove){event.preventDefault();removePass(remove);return;}
   var date=event.target.closest('[data-day]');if(date)selectedDate=date.dataset.day;
   var action=event.target.closest('[data-field-action]');if(!action)return;
   event.preventDefault();

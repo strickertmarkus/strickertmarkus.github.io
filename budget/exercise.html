@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261104-desktop-orbit-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261104-remove-pass-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -35,8 +35,8 @@
   <script defer src="firebase-sync.js?v=20261102-safe-sync-1"></script>
 <script defer src="zen-stretch-library.js?v=20261010-polish-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261104-zen-days-6"></script>
-  <script defer src="training-pulse-editor.js?v=20261104-save-tpl-1"></script>
+  <script defer src="training-pulse-field.js?v=20261104-remove-pass-1"></script>
+  <script defer src="training-pulse-editor.js?v=20261104-remove-pass-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261103-multipass-import-4"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -209,6 +209,7 @@
           <span class="today-thumb" id="week-selected-thumb-v3" aria-hidden="true"></span>
           <span class="today-copy"><span id="week-selected-day-v3">Dagens pass</span><strong id="week-selected-name-v3">Välj en dag</strong><small id="week-selected-meta-v3"></small></span>
         </button>
+        <button type="button" class="today-remove" id="week-selected-remove-v3" data-field-remove aria-label="Ta bort passet" title="Ta bort passet" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l8 8M16 8l-8 8"/></svg></button>
         <button type="button" class="today-play" id="week-selected-play-v3" data-field-action="start-day" aria-label="Starta passet">Starta<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       </div>
       <div id="week-selected-extras-v1" class="week-selected-extras-v1" aria-label="Flera pass på vald dag"></div>

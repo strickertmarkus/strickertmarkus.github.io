@@ -1165,3 +1165,17 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
   .rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 13px)}
   .rmap .rm-cell.is-today::after{width:18px;margin-left:-9px}
 }
+
+/* ---------- Remove the day's pass: a quiet cross, swipe left, undo in the toast ---------- */
+.today-remove{display:grid;place-items:center;flex:none;width:34px;height:34px;margin-right:-2px;padding:0;border:0;border-radius:50%;background:none;color:#f6efeb;opacity:.38;cursor:pointer;transition:opacity .2s,background .2s}
+.today-remove svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.today-remove:hover,.today-remove:focus-visible{opacity:.85;background:#ffffff0d}
+.today-remove:focus-visible{outline:2px solid #ff9786;outline-offset:1px}
+.today-remove[hidden]{display:none}
+.week-selected-session-v3.is-dragging{transition:none}
+.week-selected-session-v3.is-leaving{transition:transform .26s ease-in,opacity .26s ease-in;transform:translateX(-70%)!important;opacity:0}
+.week-selected-session-v3.is-returning{transition:transform .22s ease-out}
+.toast.has-action{display:flex;align-items:center;gap:14px;padding:6px 6px 6px 16px}
+.toast.has-action.is-visible{pointer-events:auto}
+.toast-undo{min-height:32px;padding:0 14px;border:1px solid #ff9a9166;border-radius:999px;background:#ff657a1f;color:#ffd2c9;font:600 12px var(--pk-ui,inherit);cursor:pointer}
+.toast-undo:active{opacity:.7}

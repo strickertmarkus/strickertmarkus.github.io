@@ -2701,7 +2701,13 @@ function pulseExtraRemoveV1(){
  if(!id)return;
  var existing=getPlannedSessions(),day=existing[date]||{},extra=pulseExtraListV1(day);
  if(extra.some(function(p){return String(p.id)===id;})){
-  if(!confirm('Ta bort det extra passet? Tidigare loggade pass påverkas inte.'))return;
+  // Tap once to arm, again to remove: no browser dialog.
+  var armButton=document.querySelector('#day-workout-multipass .day-multipass-remove');
+  if(armButton&&!armButton.classList.contains('is-armed')){
+   armButton.classList.add('is-armed');armButton.textContent='Tryck igen för att ta bort';
+   clearTimeout(armButton._disarm);armButton._disarm=setTimeout(function(){armButton.classList.remove('is-armed');armButton.textContent='Ta bort passet';},3500);
+   return;
+  }
   day.additionalSessions=extra.filter(function(p){return String(p.id)!==id;});
   existing[date]=day;savePlannedSessions(existing);
  }
