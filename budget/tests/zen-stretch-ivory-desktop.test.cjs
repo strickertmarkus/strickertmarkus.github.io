@@ -43,60 +43,86 @@ test('reaching arm and hand animate with frame-delta quaternion/position interpo
   assert.match(scene,/const size=Math\.round\(2\*155\*s\)/);
 });
 
-test('only the figure owns the active progress ring; a separate green full-circle pretimer remains',()=>{
-  assert.match(html,/<span class="stretch-clock-kicker" aria-hidden="true">ÅTERSTÅR<\/span>/);
-  assert.match(html,/id="session-clock" role="timer"/);
-  assert.doesNotMatch(html,/id="stretch-clock-progress"|id="stretch-clock-tip"/);
-  for(const id of ['stretch-prep-progress','stretch-prep-tip','stretch-prep-bloom'])
-    assert.match(html,new RegExp('id="'+id+'"'));
-  assert.match(html,/class="stretch-orbit-visual stretch-prep-training-ring"/);
-  assert.match(html,/class="stretch-orbit-progress" id="stretch-prep-progress" cx="100" cy="100" r="78" pathLength="100"/);
-  assert.match(sessionCss,/\.session-clock\{[\s\S]*?aspect-ratio:auto/);
-  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-prep-ring\{[\s\S]*?--concept-timer-accent:#baff84/);
-  assert.match(sessionCss,/body\[data-kind=stretch\] \.stretch-prep-training-ring \.stretch-orbit-progress/);
-  assert.doesNotMatch(zenJs,/--prep-progress|--zen-clock-progress/);
-  assert.match(sessionCss,/body\[data-kind=meditation\] \.stretch-clock-kicker,/);
+test('stretch uses precisely the training-mode v67 straight-line markup, not its own circular timer',()=>{
+  const v67=read('exercise-pulse-flow-motion-v67.js');
+  assert.match(v67,/\.pf-pre-line-v80\{/);
+  assert.match(v67,/\.pf-pre-line-fill-v80\{/);
+  assert.match(v67,/\.pf-pre-line-dot-v80\{/);
+  assert.match(v67,/function easeStep\(t\)/);
+  for(const cls of ['pf-pre-line-v80','pf-pre-line-fill-v80','pf-pre-line-dot-v80','pf-pre-exercise-v80','pf-pre-heartbeat-v80']){
+    assert.match(sessionCss,new RegExp(cls));
+  }
+  assert.match(html,/class="pf-pre-line-v80"/);
+  assert.match(html,/class="pf-pre-line-fill-v80"/);
+  assert.match(html,/class="pf-pre-line-dot-v80"/);
+  assert.match(html,/id="session-prep-exercise" class="pf-pre-exercise-v80"/);
+  assert.doesNotMatch(html,/stretch-orbit-visual stretch-prep-training-ring|stretch-prep-progress|stretch-clock-progress/);
+  assert.doesNotMatch(scene,/renderStretchOrbit|paintStretchOrbits|stretchOrbits=/);
+  assert.match(sessionCss,/background:linear-gradient\(90deg,rgba\(var\(--concept-timer-rgb\),\.22\),var\(--concept-timer-accent\)\)/);
+  assert.match(sessionCss,/width:calc\(var\(--pf-pre-progress,0\) \* 100%\)/);
+  assert.match(sessionCss,/background:radial-gradient\(410px 270px at 50% 48%/);
+  assert.match(sessionCss,/--concept-timer-accent:#baff84/);
+  assert.match(sessionCss,/@keyframes pfPreHeartbeatV80/);
+  assert.match(sessionCss,/@keyframes pfPretimerHaloPulseV124/);
+  assert.doesNotMatch(zenJs,/--zen-clock-progress|--prep-progress/);
 });
 
-test('one five-second circle interpolates from the authoritative start anchor',()=>{
-  const begin=scene.indexOf(' const stretchOrbits=');
+test('same five-step ease curve as training mode advances each second, with pauses and no second clock',()=>{
+  const begin=scene.indexOf(' let preWasVisible=false');
   const end=scene.indexOf(' function paint(now){',begin);
   assert.ok(begin>=0&&end>begin);
-  const dom={};
-  for(const id of ['stretch-prep-progress','stretch-prep-bloom','stretch-prep-tip']){
-    dom[id]={attributes:{},style:{},setAttribute(name,val){this.attributes[name]=String(val);}};
-  }
-  const ctx={
-    $:id=>dom[id],snapshot:{kind:'stretch',preparing:true,prepRemainingMs:4000,paused:false},
-    sampledAt:2000,reduced:{matches:false}
+  const applied=[];
+  const root={style:{setProperty(name,value){applied.push([name,Number(value)])}}};
+  const classes=new Set();
+  const numeral={
+    textContent:'5',offsetWidth:52,
+    classList:{add:value=>classes.add(value),remove:value=>classes.delete(value)}
   };
-  vm.runInNewContext(scene.slice(begin,end)+'\nthis.paintOrbit=paintStretchOrbits;',ctx);
-  ctx.paintOrbit(2000);
-  const start=Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']);
-  const tipStart=dom['stretch-prep-tip'].attributes.transform;
-  ctx.paintOrbit(2080);
-  const next=Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']);
-  assert.ok(next<start,'visual progress must advance within a 200ms snapshot');
-  assert.notEqual(dom['stretch-prep-tip'].attributes.transform,tipStart,'marker must move smoothly');
-  assert.match(scene.slice(begin,end),/const angle=\(-90\+360\*value\)\*Math\.PI\/180/);
-  ctx.snapshot.preparing=false;
-  ctx.paintOrbit(2200);
-  assert.equal(Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']),next,'pretimer stops when preparation ends');
-  ctx.snapshot={kind:'stretch',preparing:true,prepRemainingMs:4000,paused:true};
+  const ctx={
+    $:id=>id==='session-prep-ring'?root:numeral,
+    snapshot:{kind:'stretch',preparing:true,prepRemainingMs:5000,paused:false},
+    sampledAt:1000,reduced:{matches:false}
+  };
+  vm.runInNewContext(scene.slice(begin,end)+'\nthis.paintPretimer=paintTrainingPretimer;',ctx);
+  ctx.paintPretimer(1000);
+  assert.equal(applied.at(-1)[0],'--pf-pre-progress');
+  assert.equal(applied.at(-1)[1],0);
+  assert.ok(classes.has('pf-pre-heartbeat-v80'));
+  // First second of the training-mode clock: advance towards the first fifth.
+  ctx.snapshot.prepRemainingMs=4000;
   ctx.sampledAt=2000;
-  ctx.paintOrbit(2000);
-  assert.equal(Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']),start,'paused snapshot remains stationary');
+  numeral.textContent='4';
+  ctx.paintPretimer(2000);
+  ctx.paintPretimer(2180);
+  const halfway=applied.at(-1)[1];
+  assert.ok(halfway>0&&halfway<.2,'step interpolation must be eased, not snapped');
+  ctx.paintPretimer(2400);
+  assert.equal(applied.at(-1)[1],.2);
+  numeral.textContent='3';
+  ctx.snapshot.prepRemainingMs=3000;ctx.sampledAt=3000;
+  ctx.paintPretimer(3000);ctx.paintPretimer(3400);
+  assert.equal(applied.at(-1)[1],.4);
+  ctx.snapshot.paused=true;
+  ctx.paintPretimer(3999);
+  assert.equal(applied.at(-1)[1],.4);
+  ctx.snapshot.preparing=false;
+  ctx.paintPretimer(4100);
+  assert.equal(applied.at(-1)[1],.4,'inactive pre-timer is no longer painted');
+  assert.match(scene.slice(begin,end),/1-Math\.pow\(1-t,3\)/);
+  assert.match(scene.slice(begin,end),/now-preStepStartedAt\)\/360/);
   assert.doesNotMatch(scene.slice(begin,end),/setInterval|requestAnimationFrame/);
-  assert.match(scene,/paintSessionProgress\(now\);paintStretchOrbits\(now\);/);
+  assert.match(scene,/paintSessionProgress\(now\);paintTrainingPretimer\(now\);/);
+  assert.match(zenJs,/prepRemainingMs:preparing\?Math\.max\(0,session\.anchor-now\):0/);
 });
 
-test('stretch preparation is part of the forest, not a large dark modal',()=>{
+test('preparation uses v67 dark full-screen radial gradient, not the old large inset card',()=>{
   assert.match(html,/id="session-preparation"/);
-  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-preparation\{[\s\S]*?background:transparent/);
-  assert.match(sessionCss,/backdrop-filter:none;-webkit-backdrop-filter:none/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] #session-preparation\.session-preparation\{[\s\S]*?position:fixed;inset:0/);
+  assert.match(sessionCss,/background:radial-gradient\(410px 270px at 50% 48%/);
+  assert.match(sessionCss,/rgba\(var\(--concept-timer-rgb\),\.065\),transparent 70%\),#080D14/);
   assert.match(sessionCss,/border:0;border-radius:0;box-shadow:none/);
-  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-prep-ring::before,[\s\S]*?content:none!important/);
-  assert.match(zenJs,/prepRemainingMs:preparing\?Math\.max\(0,session\.anchor-now\):0/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] #session-preparation \.session-prep-card h2\{display:none\}/);
+  assert.match(zenJs,/session-prep-exercise/);
   assert.match(zenJs,/session\.anchor-now/);
 });
 
@@ -110,10 +136,10 @@ test('desktop margins and stretching sizes do not affect mobile or meditation',(
 });
 
 test('page versions load the new scene, shader, styles and single source of time',()=>{
-  assert.match(html,/zen-session\.css\?v=20261104-mobile-layout-4/);
+  assert.match(html,/zen-session\.css\?v=20261104-training-preline-5/);
   assert.match(html,/pulse-silver-stretch\.js\?v=20261104-smooth-green-3/);
-  assert.match(html,/zen-session-scene\.js\?v=20261104-training-pretimer-4/);
-  assert.match(html,/zen\.js\?v=20261104-training-pretimer-4/);
+  assert.match(html,/zen-session-scene\.js\?v=20261104-training-preline-5/);
+  assert.match(html,/zen\.js\?v=20261104-training-preline-5/);
   assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-desktop-gutters-3/);
 });
 
@@ -127,7 +153,7 @@ test('on mobile the SVG timer keeps updating while heavy forest/WebGL frames are
     frame:0,active:true,document:{hidden:false},last:0,motionTime:0,
     snapshot:{kind:'stretch',preparing:false,paused:false},
     reduced:{matches:false},width:390,
-    paint(){heavy++;},paintStretchOrbits(){light++;},
+    paint(){heavy++;},paintTrainingPretimer(){light++;},
     requestAnimationFrame(){frames++;return frames;},cancelAnimationFrame(){},
     performance:{now:()=>1000}
   };
