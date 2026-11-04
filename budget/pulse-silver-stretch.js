@@ -122,7 +122,7 @@ async function initialize(){
      `vec3 modelTex = diffuseColor.rgb;
     float modelShade = clamp(dot(modelTex, vec3(0.299,0.587,0.114)) * 1.9, 0.0, 1.3);
     float muscleTex = smoothstep(0.015, 0.08, modelTex.r - modelTex.b) * (1.0 - clothingMask);
-    float muscleShape = max(muscleTex, 0.88) * (1.0 - clothingMask);
+    float muscleShape = max(muscleTex, 0.92) * (1.0 - clothingMask);
     // Warm milk-white anatomy, retaining the model's sculpted dark-to-light
     // normals and texture rather than washing the skin out to flat white.
     float ivoryShade = smoothstep(0.035, 1.15, modelShade);
@@ -133,24 +133,28 @@ async function initialize(){
     float eyeShade = exp(-pow((p.x - 0.037) / 0.021, 2.0) - pow((p.y - 1.718) / 0.014, 2.0)) * smoothstep(0.105, 0.13, p.z);
     chrome *= 1.0 - 0.34 * eyeShade;
     vec3 pearl = mix(chrome, vec3(0.11,0.15,0.14), clothingMask);`],
-    ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, vec3(0.34,0.86,0.22) * (0.53 + 0.52 * modelShade), muscleMask);'],
+    ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, vec3(0.05,0.36,0.05) * (0.60 + 0.45 * modelShade), muscleMask);'],
     ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.45;'],
     ['muscleMask=region*mix(0.85,0.99,primary);','// Worked glutes show through the shorts as a glow on the fabric.\n     float seen=max(muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8);\n     muscleMask=max(region*muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8)*mix(0.78,1.0,primary);'],
-    ['diffuseColor.rgb=mix(pearl,red,muscleMask);',`vec3 flesh = mix(vec3(0.045,0.16,0.04), vec3(0.34,0.87,0.21), clamp(modelShade * 1.05 + silk * 0.20, 0.0, 1.0));
+    ['diffuseColor.rgb=mix(pearl,red,muscleMask);',`vec3 flesh = mix(vec3(0.012,0.12,0.02), vec3(0.08,0.46,0.06), clamp(modelShade * 1.05 + silk * 0.20, 0.0, 1.0));
      diffuseColor.rgb=mix(pearl,flesh,muscleMask);`],
-    ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.55,0.95,0.40)*volume*reflection'],
+    ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.10,0.48,0.07)*volume*reflection'],
     // The main worked muscle glows from within, strongest along its shading highlights.
-    ['generalGlow*=uActivation;','generalGlow+=vec3(0.41,0.93,0.21)*primary*region*seen*(0.62+0.75*modelShade+0.19*silk);\n     generalGlow*=uActivation;'],
-    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.30,0.95,0.14) * muscleMask * (0.34 + 0.46 * modelShade) * uActivation;'],
+    ['generalGlow*=uActivation;','generalGlow+=vec3(0.05,0.30,0.04)*primary*region*seen*(0.40+0.45*modelShade+0.12*silk);\n     generalGlow*=uActivation;'],
+    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.05,0.40,0.04) * muscleMask * (0.12 + 0.20 * modelShade) * uActivation;'],
     ['generalGlow=region*(','generalGlow=region*seen*mix(0.45,1.0,primary)*('],
     ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.66, max(muscleMask, clothingMask));'],
     ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.02, max(muscleMask, clothingMask));']
    ];
    // Side stretch: the side of the abdomen (obliques) belongs to the core, front and flank.
    textured.push(['float absMask=(1.0-smoothstep(0.07,0.14,p.x))*smoothstep(1.015,1.065,p.y)\n       *(1.0-smoothstep(1.24,1.29,p.y))*frontFace;','float flank=smoothstep(0.075,0.115,p.x)*(1.0-smoothstep(0.175,0.215,p.x))*smoothstep(0.98,1.04,p.y)*(1.0-smoothstep(1.30,1.37,p.y))*(1.0-smoothstep(0.03,0.09,-p.z));\n     float absMask=max((1.0-smoothstep(0.08,0.15,p.x))*smoothstep(1.015,1.065,p.y)*(1.0-smoothstep(1.24,1.29,p.y))*frontFace,flank);']);
-   textured.push(['+vec3(1.0, 0.42, 0.20) * secondaryVolume','+vec3(0.55, 0.95, 0.40) * secondaryVolume']);
+   // The shared tissue glow is tuned red/orange; in stretch it becomes a deep green too,
+   // otherwise red light on green reads as a pale yellow.
+   textured.push(['tissueRed*volume*mix(0.075,0.18,primary)','vec3(0.05,0.32,0.05)*volume*mix(0.075,0.18,primary)']);
+   textured.push(['+tissueFibre*silk*mix(0.05,0.12,primary)','+vec3(0.08,0.42,0.06)*silk*mix(0.05,0.12,primary)']);
+   textured.push(['+vec3(1.0, 0.42, 0.20) * secondaryVolume','+vec3(0.10, 0.48, 0.07) * secondaryVolume']);
    mat.onBeforeCompile=(shader,r)=>{compile(shader,r);for(const [x,y] of textured){if(shader.fragmentShader.includes(x))shader.fragmentShader=shader.fragmentShader.replace(x,y);}};
-   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-visible-muscle-v4';
+   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-visible-muscle-v6';
   }
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});

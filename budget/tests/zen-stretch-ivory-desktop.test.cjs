@@ -17,10 +17,10 @@ test('milky-white mannequin and active-muscle green emission are exclusively str
   assert.match(stretch,/const skin=new THREE\.MeshStandardMaterial\(\{color:0xf1efe7,metalness:\.035,roughness:\.76\}/);
   assert.match(stretch,/vec3 chrome = mix\(vec3\(0\.48,0\.50,0\.47\), vec3\(0\.96,0\.96,0\.92\), ivoryShade\)/);
   assert.match(stretch,/roughness:\.70,metalness:\.04/);
-  assert.match(stretch,/float muscleShape = max\(muscleTex, 0\.88\)/);
+  assert.match(stretch,/float muscleShape = max\(muscleTex, 0\.92\)/);
   assert.match(stretch,/mix\(0\.78,1\.0,primary\)/);
-  assert.match(stretch,/totalEmissiveRadiance \+= vec3\(0\.30,0\.95,0\.14\)/);
-  assert.match(stretch,/pulse-tissue-stretch-ivory-visible-muscle-v4/);
+  assert.match(stretch,/totalEmissiveRadiance \+= vec3\(0\.05,0\.40,0\.04\)/);
+  assert.match(stretch,/pulse-tissue-stretch-ivory-visible-muscle-v6/);
   assert.match(stretch,/createTissueMaterial\(skin,/);
   assert.doesNotMatch(material,/milk-white|ivoryShade|stretch-ivory|vec3\(0\.36,1\.0,0\.19\)/);
   assert.match(stretch,/mat\.onBeforeCompile=\(shader,r\)=>\{compile\(shader,r\);/);
@@ -139,7 +139,7 @@ test('desktop margins and stretching sizes do not affect mobile or meditation',(
 
 test('page versions load the new scene, shader, styles and single source of time',()=>{
   assert.match(html,/zen-session\.css\?v=20261104-training-preline-5/);
-  assert.match(html,/pulse-silver-stretch\.js\?v=20261104-joint-chain-1/);
+  assert.match(html,/pulse-silver-stretch\.js\?v=20261104-deep-green-1/);
   assert.match(html,/zen-session-scene\.js\?v=20261104-training-preline-5/);
   assert.match(html,/zen\.js\?v=20261104-training-preline-5/);
   assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-desktop-orbit-1/);
