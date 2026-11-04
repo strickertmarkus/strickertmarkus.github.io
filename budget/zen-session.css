@@ -424,6 +424,7 @@ body[data-kind=stretch] .session-preparation{
 }
 body[data-kind=stretch] .session-preparation::before{
   content:"";position:absolute;z-index:-1;pointer-events:none;
+  left:50%;top:50%;transform:translate(-50%,-50%);
   width:min(92vw,570px);height:min(92vw,570px);border-radius:50%;
   background:radial-gradient(circle,rgba(110,189,91,.14) 0,rgba(75,150,66,.08) 38%,transparent 70%);
   filter:blur(12px);
