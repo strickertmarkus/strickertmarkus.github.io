@@ -146,7 +146,7 @@ test('view exposes add and edit actions and does not create new Firebase keys',(
 });
 
 
-test('four recovery arcs align precisely with the four main training segments',()=>{
+test('four recovery arcs align precisely and count distinct completed days, not sessions',()=>{
  const a=field.indexOf('  function rhythmOrbit(week,goal,zenDays){'),b=field.indexOf('  function renderRhythm() {',a);
  assert.ok(a>0&&b>a);
  const monday=new Date(2026,10,2,12);
@@ -161,7 +161,7 @@ test('four recovery arcs align precisely with the four main training segments',(
  const stretch=inner('stretch'),meditation=inner('meditation');
  assert.equal((stretch.match(/class="ro-zen-segment/g)||[]).length,4);
  assert.equal((meditation.match(/class="ro-zen-segment/g)||[]).length,4);
- assert.equal((stretch.match(/class="ro-zen-lit"/g)||[]).length,3);
+ assert.equal((stretch.match(/class="ro-zen-lit"/g)||[]).length,2,'Two stretch sessions on Tuesday occupy one segment');
  assert.equal((meditation.match(/class="ro-zen-lit"/g)||[]).length,1);
  assert.equal((svg.match(/class="ro-arc"/g)||[]).length,1);
  const main=svg.match(/class="ro-arc" d="([^"]+)"/)[1];
@@ -171,8 +171,11 @@ test('four recovery arcs align precisely with the four main training segments',(
    return Math.atan2(Number(m[2])-60,Number(m[1])-60);
  };
  assert.ok(Math.abs(angle(main)-angle(outer))<.001,'First segment start angle must align');
- const capped=ctx.orbit([],4,{[iso(day(1))]:{stretch:7,meditation:5}});
- assert.equal((capped.match(/class="ro-zen-lit"/g)||[]).length,8,'Full tracks never create a fifth segment');
+ const repeat=ctx.orbit([],4,{[iso(day(1))]:{stretch:7,meditation:5}});
+ assert.equal((repeat.match(/class="ro-zen-lit"/g)||[]).length,2,'Many sessions on one day fill only one segment for each kind');
+ const seven={};for(let d=0;d<7;d++)seven[iso(day(d))]={stretch:1,meditation:1};
+ const capped=ctx.orbit([],4,seven);
+ assert.equal((capped.match(/class="ro-zen-lit"/g)||[]).length,8,'Tracks cap at four distinct days');
 });
 
 test('rhythm map shows a full dot for Zen-only days and a pip alongside strength/cardio',()=>{
@@ -225,4 +228,19 @@ test('rhythm map shows a full dot for Zen-only days and a pip alongside strength
  const css=read('training-pulse-field.css');
  assert.match(css,/\.rm-cell\.is-zen-only>i/);
  assert.match(css,/\.rm-cell\.is-zen-only\.is-zen-mixed>i/);
+});
+
+
+test('builder places only a quiet New Pass link at bottom until another pass exists',()=>{
+ const modal=archive.indexOf('id="day-workout-modal"');
+ const footer=archive.indexOf('class="modal-footer classic-builder-footer"',modal);
+ const add=archive.indexOf('id="day-workout-multipass"',modal);
+ const next=archive.indexOf('<!-- ── SESSION MODE',modal);
+ assert.ok(modal>=0&&footer>modal&&add>footer&&add<next,'The add control is below the main pass actions, never in a top card');
+ assert.match(archive,/class="day-multipass-add" onclick="pulseExtraAddV1\(\)">\+ Nytt pass/);
+ assert.doesNotMatch(archive,/class="day-multipass-head"/);
+ const style=read('training-multipass-v1.css');
+ assert.match(style,/#day-workout-multipass\.day-workout-multipass\{[\s\S]*?background:transparent;border:0/);
+ assert.match(style,/\.day-multipass-row\{[\s\S]*?border-bottom:1px solid/);
+ assert.match(archive,/id="day-workout-current-pass"/);
 });
