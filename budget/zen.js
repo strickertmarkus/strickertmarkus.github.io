@@ -129,8 +129,12 @@
         $('session-prep-count').textContent=String(count);
         $('session-prep-remaining').textContent=String(count);
       }
-      // The visible ring follows this same start anchor in zen-session-scene.js.
-      // Its SVG is animated every frame instead of repainting a conic gradient.
+      // Identical v67 pre-timer visual: a horizontal glow line and the
+      // next exercise name. The real five-second start anchor is unchanged.
+      const upcoming=session.routine.steps&&session.routine.steps[0];
+      const exerciseLabel=$('session-prep-exercise');
+      if(exerciseLabel&&upcoming&&exerciseLabel.textContent!==upcoming.name)
+        exerciseLabel.textContent=upcoming.name;
     }
     if(isStretch&&lastStep!==p.index){lastStep=p.index;const step=session.routine.steps[p.index];$('session-overline').textContent='RÖRELSE '+(p.index+1)+' AV '+session.routine.steps.length;$('session-title').textContent=step.name;document.querySelector('.session-copy').classList.toggle('is-long',step.name.length>30||step.cue.length>150);$('session-cue').textContent=step.cue;$('next-step').textContent=p.index+1<session.routine.steps.length?'Härnäst · '+session.routine.steps[p.index+1].name:'Sista övningen i passet.';if(p.index>0)playDing();}
     if(!isStretch){$('session-overline').textContent='MEDITATION';$('session-title').textContent=session.routine.guidance==='breath'?'Guidad andning':'Meditation utan guide';$('session-cue').textContent=session.routine.guidance==='breath'?M.breathingSummary(session.routine)+'. Byt till egen andning när du vill.':'Rikta uppmärksamheten mot andningen. När du märker att du tänker på annat, återgå till andetagen.';
