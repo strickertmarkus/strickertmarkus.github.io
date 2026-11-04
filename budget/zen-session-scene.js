@@ -128,12 +128,13 @@
   const [tipX,tipY]=orbit(start+sweep*progress);
   glow(p,tipX,tipY,30,'193,255,139',.72);glow(p,tipX,tipY,13,'227,255,175',.95);ellipse(p,tipX,tipY,4.2,4.2,'#f4ffdc');
   // The movement stays readable, but sits quietly inside the timer garden.
-  p.translate(150,148);p.scale(.66,.66);p.translate(-150,-148);p.globalAlpha*=.76;
+  p.translate(150,148);p.scale(.80,.80);p.translate(-150,-148);p.globalAlpha*=.91;
   // The 3D mannequin takes over for the movements it knows; the drawn figure stays as fallback.
   const silver=window.PulseSilverStretch,stepId=snapshot.step?.id;
   const box=$('session-pose-3d');let shown=false;
   if(silver&&box&&silver.supports(stepId)){
-   const size=Math.round(2*126*s);box.style.width=size+'px';box.style.height=size+'px';box.style.left=(cx-size/2)+'px';box.style.top=(cy-size/2)+'px';
+   // The scene stage is larger on desktop; fill more of the luminous orbit.
+   const size=Math.round(2*155*s);box.style.width=size+'px';box.style.height=size+'px';box.style.left=(cx-size/2)+'px';box.style.top=(cy-size/2)+'px';
    shown=silver.render({target:box,stepId,elapsed:snapshot.preparing?0:t-poseStarted,width:size,height:size});
   }
   if(box)box.hidden=!shown;
@@ -161,19 +162,19 @@
   const limb=(points,color,weight)=>{p.strokeStyle=color;p.lineWidth=weight;p.lineCap='round';p.lineJoin='round';p.beginPath();p.moveTo(...points[0]);for(let i=1;i<points.length-1;i++){const a=points[i],n=points[i+1];p.quadraticCurveTo(...a,(a[0]+n[0])/2,(a[1]+n[1])/2);}p.lineTo(...points.at(-1));p.stroke();};
   p.shadowColor='#d9ffc0';p.shadowBlur=5;
   for(const [i,leg] of pose.legs.entries()){limb(leg,cloth,17);const end=leg[2],angle=pose.feet[i].angle;line(p,[end,[end[0]+Math.cos(angle)*12,end[1]+Math.sin(angle)*12]],'#bbd1a6',8);}
-  const skinLimb=p.createLinearGradient(110,60,190,230);skinLimb.addColorStop(0,'#e3e8c0');skinLimb.addColorStop(.5,'#bbd0a5');skinLimb.addColorStop(1,'#8aaa86');
+  const skinLimb=p.createLinearGradient(110,60,190,230);skinLimb.addColorStop(0,'#fffdf2');skinLimb.addColorStop(.5,'#efeee0');skinLimb.addColorStop(1,'#aebbb0');
   for(const [i,arm] of pose.arms.entries()){limb([pose.torso[0],...arm],skinLimb,12);const a=pose.hands[i].angle;line(p,[arm[2],[arm[2][0]+Math.cos(a)*10,arm[2][1]+Math.sin(a)*10]],skinLimb,7);}
   line(p,[[pose.head[0],pose.head[1]+14],pose.torso[0]],skinLimb,12);
   p.shadowBlur=0;torso(p,pose.torso,cloth,35);
-  const skin=p.createRadialGradient(pose.head[0]-5,pose.head[1]-5,1,...pose.head,24);skin.addColorStop(0,'#f0edcb');skin.addColorStop(1,'#8fa87b');ellipse(p,...pose.head,16,21,skin,pose.headAngle-.05);
+  const skin=p.createRadialGradient(pose.head[0]-5,pose.head[1]-5,1,...pose.head,24);skin.addColorStop(0,'#fffcf2');skin.addColorStop(1,'#b7c4b5');ellipse(p,...pose.head,16,21,skin,pose.headAngle-.05);
   p.strokeStyle='#dceab980';p.lineWidth=1;p.beginPath();p.moveTo(pose.torso[0][0]-10,pose.torso[0][1]);p.lineTo(pose.torso.at(-1)[0]-11,pose.torso.at(-1)[1]);p.stroke();
   // Soft localized muscle light follows the animated joints, not fixed canvas coordinates.
   for(const region of pose.highlights){
    const strength=reduced.matches?.8:.72+.12*Math.sin(t*TAU/8);
-   p.save();p.globalAlpha*=strength;p.shadowColor='#d4ff88';p.shadowBlur=18;
+   p.save();p.globalAlpha*=strength;p.shadowColor='#baff76';p.shadowBlur=26;
    line(p,[region.a,region.b],'#caff8177',region.r*1.5);p.shadowBlur=6;
    line(p,[region.a,region.b],'#edffc7b0',region.r*.5);
-   glow(p,(region.a[0]+region.b[0])/2,(region.a[1]+region.b[1])/2,region.r*2,'199,255,114',.32);p.restore();
+   glow(p,(region.a[0]+region.b[0])/2,(region.a[1]+region.b[1])/2,region.r*2.3,'199,255,114',.43);p.restore();
   }
   p.restore();
  }
