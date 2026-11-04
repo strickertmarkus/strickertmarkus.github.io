@@ -349,86 +349,124 @@ body[data-kind=stretch] .session-stage::before{
 body[data-kind=stretch] #session-pose{z-index:1}
 body[data-kind=stretch] .session-pose-3d{z-index:2}
 
-/* One visual language for the active motion clock and its 5-second lead-in.
-   Timekeeping is still owned by zen.js, not CSS animations. */
+/* One orbit for both the preparation and running timer.
+   The shape, 260-degree opening, tip and bloom match the mannequin's ring.
+   Unlike the old conic-gradient the progress paths are animated per frame. */
+body[data-kind=meditation] .stretch-clock-kicker,
+body[data-kind=meditation] .stretch-orbit-visual{display:none!important}
 body[data-kind=stretch] .session-guidance{min-width:0}
-body[data-kind=meditation] .stretch-clock-kicker{display:none!important}
 body[data-kind=stretch] .session-clock{
-  --zen-clock-progress:0%;
-  --zen-dial-size:clamp(150px,18vw,278px);
-  position:relative;isolation:isolate;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:5px;width:min(100%,var(--zen-dial-size));height:auto;
-  max-width:100%;aspect-ratio:1;margin:0 auto;padding:18px;
-  border:0;border-radius:50%;
-  background:radial-gradient(circle at 42% 31%,rgba(193,252,158,.15),rgba(29,67,42,.25) 42%,rgba(7,32,24,.65) 72%,rgba(4,23,18,.87));
-  box-shadow:0 0 16px #bcff8f20,0 0 48px #a4fa7140,
-    0 0 100px #9aef6821,inset 0 0 51px #b7fa8c15,inset 0 0 0 1px #d6ffb020;
-  transform:none;
+  --zen-dial-size:clamp(155px,18vw,270px);
+  position:relative;isolation:isolate;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  width:min(100%,var(--zen-dial-size));height:auto;max-width:100%;
+  aspect-ratio:1;margin:0 auto;padding:17px;border:0;border-radius:50%;
+  background:radial-gradient(circle at 50% 48%,rgba(26,75,42,.30),rgba(12,47,29,.12) 50%,transparent 74%);
+  box-shadow:none;transform:none;
 }
-body[data-kind=stretch] .session-clock::before{
-  content:"";position:absolute;inset:2px;z-index:1;
-  border-radius:50%;pointer-events:none;
-  background:conic-gradient(from -90deg,
-    #f2ffdc 0%,#bbff86 var(--zen-clock-progress),
-    rgba(184,240,140,.15) var(--zen-clock-progress),rgba(184,240,140,.15) 100%);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 5px));
-  mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 5px));
-  filter:drop-shadow(0 0 9px #b3f884);
-}
+body[data-kind=stretch] .session-clock::before,
 body[data-kind=stretch] .session-clock::after{
-  content:"";position:absolute;inset:13px;z-index:0;
-  border:1px solid rgba(210,255,164,.19);border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle at 50% 43%,rgba(188,255,139,.095),transparent 63%);
-  box-shadow:0 0 24px #aaff7a12,inset 0 0 32px #9de77a16;
+  content:none!important;
+}
+/* SVG only: no gradients, complex masks or CSS custom-property repaint.
+   The existing session animation loop owns progress and touch targets. */
+body[data-kind=stretch] .stretch-orbit-visual{
+  position:absolute;inset:0;width:100%;height:100%;z-index:0;
+  overflow:visible;pointer-events:none;transform:translateZ(0);
+}
+body[data-kind=stretch] .stretch-orbit-visual path{
+  fill:none;stroke-linecap:round;stroke-linejoin:round;
+}
+body[data-kind=stretch] .stretch-orbit-track{
+  stroke:rgba(179,229,134,.32);stroke-width:1.8;
+}
+body[data-kind=stretch] .stretch-orbit-bloom{
+  stroke:rgba(159,244,102,.52);stroke-width:7;
+  filter:drop-shadow(0 0 7px rgba(177,255,117,.58));
+}
+body[data-kind=stretch] .stretch-orbit-progress{
+  stroke:#e1ffbd;stroke-width:2.45;
+  filter:drop-shadow(0 0 5px rgba(193,255,137,.94));
+}
+body[data-kind=stretch] .stretch-orbit-tip-bloom{
+  fill:rgba(188,255,121,.40);
+  filter:drop-shadow(0 0 8px rgba(197,255,133,.95));
+}
+body[data-kind=stretch] .stretch-orbit-tip-core{
+  fill:#f0ffcf;
+  filter:drop-shadow(0 0 4px rgba(229,255,178,.92));
 }
 body[data-kind=stretch] .session-clock .stretch-clock-kicker{
-  position:relative;z-index:2;display:block;
-  color:#c9f5ad;font:600 10px/1.3 var(--sans);
-  letter-spacing:.22em;text-transform:uppercase;
-  text-shadow:0 0 12px #bbfa8080;
+  position:relative;z-index:1;display:block;
+  color:#c8efaa;font:600 10px/1.25 var(--sans);
+  letter-spacing:.20em;text-transform:uppercase;
+  text-shadow:0 0 10px #baff7880;
 }
 body[data-kind=stretch] .session-clock strong{
-  position:relative;z-index:2;
-  font:400 clamp(49px,5.4vw,103px)/.96 var(--serif);
-  font-variant-numeric:tabular-nums;letter-spacing:-.035em;
-  color:#f7ffea;
-  text-shadow:0 0 12px #d5ffa155,0 0 31px #b9ff8470;
+  position:relative;z-index:1;
+  font:400 clamp(48px,5.4vw,93px)/1 var(--serif);
+  font-variant-numeric:tabular-nums;letter-spacing:-.03em;
+  color:#f7ffe9;text-shadow:0 0 13px rgba(196,255,140,.32);
 }
 body[data-kind=stretch] .session-clock small{
-  position:relative;z-index:2;max-width:86%;
-  color:#d5eac7;font:500 clamp(10px,.88vw,13px)/1.35 var(--sans);
-  letter-spacing:.05em;text-align:center;
+  position:relative;z-index:1;max-width:90%;
+  color:#d4e9c9;font:500 clamp(10px,.9vw,13px)/1.35 var(--sans);
+  letter-spacing:.02em;text-align:center;
 }
 body[data-kind=stretch].is-paused .session-clock{
-  box-shadow:0 0 18px #bdff8d1d,0 0 35px #b9ff8b18,inset 0 0 45px #b7fa8c16;
+  opacity:.8;
+}
+
+/* Preparation is a floating ritual in the existing forest, not a modal/card.
+   Temporarily hide only the exercise information behind it, keeping the
+   persistent header, progress trail and pause/exit controls in place. */
+body[data-kind=stretch] .session-preparation{
+  isolation:isolate;
+  background:transparent;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  border:0;border-radius:0;box-shadow:none;
+}
+body[data-kind=stretch] .session-preparation::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  width:min(92vw,570px);height:min(92vw,570px);border-radius:50%;
+  background:radial-gradient(circle,rgba(110,189,91,.14) 0,rgba(75,150,66,.08) 38%,transparent 70%);
+  filter:blur(12px);
+}
+body[data-kind=stretch] .session-prep-card{
+  width:min(100%,560px);padding:5px 0;
+  border:0;border-radius:0;background:transparent;box-shadow:none;
+}
+.session-view.is-stretch-preparing .session-copy,
+.session-view.is-stretch-preparing .session-stage,
+.session-view.is-stretch-preparing .session-guidance{
+  visibility:hidden;opacity:0;
 }
 body[data-kind=stretch] .session-prep-ring{
-  isolation:isolate;
-  background:radial-gradient(circle at 44% 36%,#345d3b,#133a29 57%,#081f1a 100%);
-  box-shadow:0 0 17px #b4ff8438,0 0 60px #a6f67d38,
-    0 0 98px #99f46e1b,inset 0 0 60px #ceffa220;
+  isolation:isolate;width:clamp(160px,18vw,238px);
+  position:relative;aspect-ratio:1;display:grid;place-items:center;
+  background:radial-gradient(circle,rgba(16,61,35,.30),rgba(15,54,33,.12) 50%,transparent 74%);
+  border:0;border-radius:50%;box-shadow:none;
 }
+body[data-kind=stretch] .session-prep-ring::before,
 body[data-kind=stretch] .session-prep-ring::after{
-  content:"";position:absolute;inset:12px;border:1px solid rgba(220,255,187,.2);
-  border-radius:50%;pointer-events:none;
-  box-shadow:0 0 19px #c3ff8a27,inset 0 0 29px #c0ff8b15;
-}
-body[data-kind=stretch] .session-prep-ring::before{
-  filter:drop-shadow(0 0 8px #c3ff93);
+  content:none!important;
 }
 body[data-kind=stretch] .session-prep-ring strong{
-  position:relative;z-index:2;text-shadow:0 0 14px #d8ff9d85,0 0 35px #b7ff7190;
+  position:relative;z-index:1;
+  color:#f5ffe4;font:400 clamp(77px,9vw,120px)/1 var(--serif);
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 0 17px rgba(204,255,155,.38);
 }
 body[data-kind=stretch] .session-prep-card h2{
-  text-shadow:0 0 22px #caff8940;
+  text-shadow:0 0 18px rgba(180,255,126,.25);
 }
+
 @media(min-width:761px){
   body[data-kind=stretch] .session-layout{
     --pose-size:clamp(325px,min(50vw,calc(100dvh - 300px)),645px);
     max-width:1470px;
   }
-  body[data-kind=stretch] .session-prep-ring{width:clamp(210px,21vw,268px)}
+  body[data-kind=stretch] .session-prep-ring{width:clamp(195px,20vw,260px)}
 }
 @media(min-width:1050px) and (min-height:600px){
   body[data-kind=stretch] .session-layout{
@@ -447,7 +485,9 @@ body[data-kind=stretch] .session-prep-card h2{
     --zen-dial-size:clamp(204px,19.5vw,294px);
     gap:8px;
   }
-  body[data-kind=stretch] .session-clock strong{font-size:clamp(71px,6.5vw,119px)}
+  body[data-kind=stretch] .session-clock strong{
+    font-size:clamp(64px,6.2vw,110px)
+  }
   body[data-kind=stretch] .session-clock .stretch-clock-kicker{font-size:11px}
 }
 @media(min-width:761px) and (max-height:720px){
@@ -455,17 +495,20 @@ body[data-kind=stretch] .session-prep-card h2{
     --pose-size:clamp(290px,min(44vw,calc(100dvh - 300px)),490px);
   }
   body[data-kind=stretch] .session-clock{--zen-dial-size:clamp(156px,17vw,230px)}
-  body[data-kind=stretch] .session-clock strong{font-size:clamp(53px,5.3vw,83px)}
+  body[data-kind=stretch] .session-clock strong{font-size:clamp(51px,5vw,78px)}
 }
 @media(max-width:760px){
   body[data-kind=stretch] .session-clock{
-    --zen-dial-size:clamp(110px,27vw,147px);gap:2px;padding:9px;
+    --zen-dial-size:clamp(125px,32vw,163px);gap:1px;padding:8px;
   }
-  body[data-kind=stretch] .session-clock strong{font-size:clamp(35px,8vw,48px)}
-  body[data-kind=stretch] .session-clock .stretch-clock-kicker{font-size:8px;letter-spacing:.13em}
+  body[data-kind=stretch] .session-clock strong{font-size:clamp(34px,8.5vw,48px)}
+  body[data-kind=stretch] .session-clock .stretch-clock-kicker{
+    font-size:8px;letter-spacing:.13em;
+  }
   body[data-kind=stretch] .session-clock small{font-size:9px}
+  body[data-kind=stretch] .session-prep-ring{width:clamp(158px,43vw,202px)}
 }
 @media(prefers-reduced-motion:reduce){
-  body[data-kind=stretch] .session-clock,
-  body[data-kind=stretch] .session-prep-ring{animation:none;transition:none}
+  body[data-kind=stretch] .stretch-orbit-progress,
+  body[data-kind=stretch] .stretch-orbit-tip{transition:none!important}
 }
