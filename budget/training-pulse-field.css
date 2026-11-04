@@ -1138,3 +1138,30 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
   background:#f7614e1b;color:#ffc7bb;font:600 12px/1.2 var(--field-ui,inherit);cursor:pointer
 }
 .week-extra-top>button:focus-visible,.week-extra-item button:focus-visible{outline:2px solid #ff9786;outline-offset:2px}
+
+/* ---------- Desktop: orbit and rhythm map sized for a wide screen ---------- */
+@media(min-width:1000px){
+  .rhythm-orbit-row{gap:clamp(40px,4vw,72px);align-items:center}
+  .rhythm-orbit{width:clamp(200px,16vw,240px);height:clamp(200px,16vw,240px)}
+  .rhythm-orbit-count{padding-top:calc(50% - 40px)}
+  .rhythm-orbit-count strong{font-size:clamp(60px,5vw,76px)}
+  .rhythm-orbit-count span{font-size:24px}
+  .rhythm-facts{grid-template-columns:repeat(2,minmax(200px,300px));gap:26px clamp(32px,4vw,64px)}
+  .rhythm-facts dt{font-size:10.5px}
+  .rhythm-facts dd{margin-top:7px;font-size:17px}
+  .rhythm-facts .rhythm-load{font-size:16px}
+
+  .progress-section .activity-summary{max-width:860px}
+  .progress-section .activity-legend{margin-left:auto}
+  .rmap{max-width:860px;grid-template-columns:52px repeat(7,minmax(0,1fr)) 40px;row-gap:6px}
+  .rmap .rm-head{font-size:11px;padding-bottom:6px}
+  .rmap .rm-week{font-size:12px}
+  .rmap .rm-total{font-size:13px}
+  .rmap .rm-cell{height:30px;border-radius:9px}
+  .rmap .rm-cell i{width:4.5px;height:4.5px}
+  .rmap .rm-cell.is-pass i,.rmap .rm-cell.is-planned i,.rmap .rm-cell.is-zen-only>i{width:12px;height:12px}
+  .rmap .rm-cell .rm-zen-dot{width:6px;height:6px}
+  .rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 13px)}
+  .rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 13px)}
+  .rmap .rm-cell.is-today::after{width:18px;margin-left:-9px}
+}

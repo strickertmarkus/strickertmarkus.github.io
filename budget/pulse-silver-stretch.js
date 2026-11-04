@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {createTissueMaterial,muscleNames} from './pulse-silver-material.js?v=22';
 const v=p=>new THREE.Vector3(...p);
-const POSES={'side-left':{dir:1,muscles:['Rygg','Mage']},'side-right':{dir:-1,muscles:['Rygg','Mage']}};
+const POSES={'side-left':{dir:1,muscles:['Mage','Rygg']},'side-right':{dir:-1,muscles:['Mage','Rygg']}};
 const api={ready:false,failed:false,loading:false,supports:id=>!!POSES[id]};
 window.PulseSilverStretch=api;
 const pressContraction={value:0},muscleUniform={value:new Float32Array(10)},pilotUniform={value:0},activationUniform={value:1},tissueLight={value:new THREE.Vector3()};
@@ -14,7 +14,7 @@ const tissueLightWorld=new THREE.Vector3(-2,4,3).normalize();
 // intentionally untouched: soft ivory hands, satin body and a brighter green rim.
 const skin=new THREE.MeshStandardMaterial({color:0xf1efe7,metalness:.035,roughness:.76}),soleMat=new THREE.MeshStandardMaterial({color:0xb1bdb4,roughness:.83}),shoeMat=new THREE.MeshStandardMaterial({color:0x354c46,roughness:.76});
 let scene,camera,renderer,body,bones,rest,hands=[],shoes=[],host=null,lastSize='',lastMuscles='';
-let poseReady=false,lastPoseTime=0;
+let poseReady=false,lastPoseTime=0,smoothJoints=null;
 const easedOrientation=new THREE.Quaternion();
 function mesh(g,m,parent){const o=new THREE.Mesh(g,m);o.castShadow=true;parent.add(o);return o;}
 function sphere(pos,scale,m,parent){const o=mesh(new THREE.SphereGeometry(1,20,14),m,parent);o.position.copy(v(pos));o.scale.copy(v(scale));return o;}
@@ -60,18 +60,30 @@ function pose(id,elapsed,now){
  }
  for(let i=0;i<2;i++){const s=i===0?-1:1,h=v([s*.12,.94,0]),k=v([s*.13,.51,.015]),f=v([s*.13,.10,.01]);segments.push([h,k],[k,f]);shoes[i].position.copy(f).add(v([0,-.073,0]));shoes[i].quaternion.identity();}
  segments.push([v([0,.86,0]),v([0,1.02,0])]);
+ // Smooth the joints themselves, then build every bone from the smoothed joints.
+ // Easing bones one by one let a bone's start drift from its parent's end, which
+ // tore the arm skin into slivers while it moved.
+ const flat=[];segments.forEach(([p,q])=>{flat.push(p,q);});
+ if(!poseReady||!smoothJoints||smoothJoints.length!==flat.length)smoothJoints=flat.map(x=>x.clone());
+ else smoothJoints.forEach((x,i)=>x.lerp(flat[i],follow));
+ const seg=i=>[smoothJoints[2*i],smoothJoints[2*i+1]];
+ // Shared joints use one point: elbows and shoulders are the end of one segment and the start of the next.
+ for(const [child,parent] of [[3,2],[5,4],[7,6],[9,8]])smoothJoints[2*child].copy(smoothJoints[2*parent+1]);
+ // Twist stays consistent: arms and spine turn from the torso's frame, forearms from
+ // their upper arm (as in the explorer's rig), never by an independent shortest arc.
+ const torsoQ=new THREE.Quaternion().setFromUnitVectors(v([0,1,0]),seg(0)[1].clone().sub(seg(0)[0]).normalize());
+ const solved=[];
  for(let i=0;i<bones.length;i++){
-  const [p,q]=segments[i],from=v(rest[i][1]).sub(v(rest[i][0])).normalize(),to=q.clone().sub(p).normalize();
-  easedOrientation.setFromUnitVectors(from,to);
-  if(!poseReady){bones[i].position.copy(p);bones[i].quaternion.copy(easedOrientation);}
-  else{bones[i].position.lerp(p,follow);bones[i].quaternion.slerp(easedOrientation,follow);}
-  bones[i].scale.setScalar(1);
+  const [p,q]=seg(i),from=v(rest[i][1]).sub(v(rest[i][0])).normalize(),to=q.clone().sub(p).normalize();
+  const base=i===3||i===5?solved[i-1]:i<=5?torsoQ:new THREE.Quaternion();
+  const rotated=from.clone().applyQuaternion(base).normalize();
+  const orientation=new THREE.Quaternion().setFromUnitVectors(rotated,to).multiply(base);
+  solved.push(orientation);
+  bones[i].position.copy(p);bones[i].quaternion.copy(orientation);bones[i].scale.setScalar(1);
  }
  for(let i=0;i<2;i++){
-  const [el,wr]=wrists[i],d=wr.clone().sub(el).normalize();
-  easedOrientation.setFromUnitVectors(v([0,-1,0]),d);
-  if(!poseReady){hands[i].position.copy(wr);hands[i].quaternion.copy(easedOrientation);}
-  else{hands[i].position.lerp(wr,follow);hands[i].quaternion.slerp(easedOrientation,follow);}
+  const el=seg(2+i*2)[1],wr=seg(3+i*2)[1],d=wr.clone().sub(el).normalize();
+  hands[i].position.copy(wr);hands[i].quaternion.setFromUnitVectors(v([0,-1,0]),d);
  }
  poseReady=true;
  body.morphTargetInfluences&&(body.morphTargetInfluences.fill?body.morphTargetInfluences.fill(0):0);
@@ -110,7 +122,7 @@ async function initialize(){
      `vec3 modelTex = diffuseColor.rgb;
     float modelShade = clamp(dot(modelTex, vec3(0.299,0.587,0.114)) * 1.9, 0.0, 1.3);
     float muscleTex = smoothstep(0.015, 0.08, modelTex.r - modelTex.b) * (1.0 - clothingMask);
-    float muscleShape = max(muscleTex, 0.70) * (1.0 - clothingMask);
+    float muscleShape = max(muscleTex, 0.88) * (1.0 - clothingMask);
     // Warm milk-white anatomy, retaining the model's sculpted dark-to-light
     // normals and texture rather than washing the skin out to flat white.
     float ivoryShade = smoothstep(0.035, 1.15, modelShade);
@@ -129,14 +141,16 @@ async function initialize(){
     ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.55,0.95,0.40)*volume*reflection'],
     // The main worked muscle glows from within, strongest along its shading highlights.
     ['generalGlow*=uActivation;','generalGlow+=vec3(0.41,0.93,0.21)*primary*region*seen*(0.62+0.75*modelShade+0.19*silk);\n     generalGlow*=uActivation;'],
-    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.36,1.0,0.19) * muscleMask * (0.27 + 0.44 * modelShade) * uActivation;'],
+    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.30,0.95,0.14) * muscleMask * (0.34 + 0.46 * modelShade) * uActivation;'],
     ['generalGlow=region*(','generalGlow=region*seen*mix(0.45,1.0,primary)*('],
     ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.66, max(muscleMask, clothingMask));'],
     ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.02, max(muscleMask, clothingMask));']
    ];
+   // Side stretch: the side of the abdomen (obliques) belongs to the core, front and flank.
+   textured.push(['float absMask=(1.0-smoothstep(0.07,0.14,p.x))*smoothstep(1.015,1.065,p.y)\n       *(1.0-smoothstep(1.24,1.29,p.y))*frontFace;','float flank=smoothstep(0.075,0.115,p.x)*(1.0-smoothstep(0.175,0.215,p.x))*smoothstep(0.98,1.04,p.y)*(1.0-smoothstep(1.30,1.37,p.y))*(1.0-smoothstep(0.03,0.09,-p.z));\n     float absMask=max((1.0-smoothstep(0.08,0.15,p.x))*smoothstep(1.015,1.065,p.y)*(1.0-smoothstep(1.24,1.29,p.y))*frontFace,flank);']);
    textured.push(['+vec3(1.0, 0.42, 0.20) * secondaryVolume','+vec3(0.55, 0.95, 0.40) * secondaryVolume']);
    mat.onBeforeCompile=(shader,r)=>{compile(shader,r);for(const [x,y] of textured){if(shader.fragmentShader.includes(x))shader.fragmentShader=shader.fragmentShader.replace(x,y);}};
-   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-visible-muscle-v3';
+   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-visible-muscle-v4';
   }
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});

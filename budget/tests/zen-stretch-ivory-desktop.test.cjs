@@ -17,10 +17,10 @@ test('milky-white mannequin and active-muscle green emission are exclusively str
   assert.match(stretch,/const skin=new THREE\.MeshStandardMaterial\(\{color:0xf1efe7,metalness:\.035,roughness:\.76\}/);
   assert.match(stretch,/vec3 chrome = mix\(vec3\(0\.48,0\.50,0\.47\), vec3\(0\.96,0\.96,0\.92\), ivoryShade\)/);
   assert.match(stretch,/roughness:\.70,metalness:\.04/);
-  assert.match(stretch,/float muscleShape = max\(muscleTex, 0\.70\)/);
+  assert.match(stretch,/float muscleShape = max\(muscleTex, 0\.88\)/);
   assert.match(stretch,/mix\(0\.78,1\.0,primary\)/);
-  assert.match(stretch,/totalEmissiveRadiance \+= vec3\(0\.36,1\.0,0\.19\)/);
-  assert.match(stretch,/pulse-tissue-stretch-ivory-visible-muscle-v3/);
+  assert.match(stretch,/totalEmissiveRadiance \+= vec3\(0\.30,0\.95,0\.14\)/);
+  assert.match(stretch,/pulse-tissue-stretch-ivory-visible-muscle-v4/);
   assert.match(stretch,/createTissueMaterial\(skin,/);
   assert.doesNotMatch(material,/milk-white|ivoryShade|stretch-ivory|vec3\(0\.36,1\.0,0\.19\)/);
   assert.match(stretch,/mat\.onBeforeCompile=\(shader,r\)=>\{compile\(shader,r\);/);
@@ -30,14 +30,16 @@ test('milky-white mannequin and active-muscle green emission are exclusively str
   assert.match(material,/generalGlow\*=uActivation;/);
 });
 
-test('reaching arm and hand animate with frame-delta quaternion/position interpolation',()=>{
-  assert.match(stretch,/let poseReady=false,lastPoseTime=0;/);
+test('reaching arm moves as one joint chain: joints are smoothed, bones solved from them without twist',()=>{
+  assert.match(stretch,/let poseReady=false,lastPoseTime=0,smoothJoints=null;/);
   assert.match(stretch,/const dt=lastPoseTime\?Math\.min\(\.08,Math\.max\(0,\(now-lastPoseTime\)\/1000\)\):0;/);
   assert.match(stretch,/1-Math\.exp\(-dt\/\.16\)/);
-  assert.match(stretch,/bones\[i\]\.position\.lerp\(p,follow\)/);
-  assert.match(stretch,/bones\[i\]\.quaternion\.slerp\(easedOrientation,follow\)/);
-  assert.match(stretch,/hands\[i\]\.position\.lerp\(wr,follow\)/);
-  assert.match(stretch,/hands\[i\]\.quaternion\.slerp\(easedOrientation,follow\)/);
+  assert.match(stretch,/smoothJoints\.forEach\(\(x,i\)=>x\.lerp\(flat\[i\],follow\)\)/);
+  assert.match(stretch,/smoothJoints\[2\*child\]\.copy\(smoothJoints\[2\*parent\+1\]\)/);
+  assert.match(stretch,/const base=i===3\|\|i===5\?solved\[i-1\]:i<=5\?torsoQ:new THREE\.Quaternion\(\)/);
+  assert.doesNotMatch(stretch,/bones\[i\]\.position\.lerp\(p,follow\)/);
+  assert.match(stretch,/muscles:\['Mage','Rygg'\]/);
+  assert.match(stretch,/float flank=/);
   assert.match(stretch,/pose\(stepId,elapsed,performance\.now\(\)\)/);
   assert.match(stretch,/setPixelRatio\(Math\.min\(devicePixelRatio\|\|1,1\.35\)\)/);
   assert.match(scene,/const size=Math\.round\(2\*155\*s\)/);
@@ -137,10 +139,10 @@ test('desktop margins and stretching sizes do not affect mobile or meditation',(
 
 test('page versions load the new scene, shader, styles and single source of time',()=>{
   assert.match(html,/zen-session\.css\?v=20261104-training-preline-5/);
-  assert.match(html,/pulse-silver-stretch\.js\?v=20261104-smooth-green-3/);
+  assert.match(html,/pulse-silver-stretch\.js\?v=20261104-joint-chain-1/);
   assert.match(html,/zen-session-scene\.js\?v=20261104-training-preline-5/);
   assert.match(html,/zen\.js\?v=20261104-training-preline-5/);
-  assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-desktop-gutters-3/);
+  assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-desktop-orbit-1/);
 });
 
 
