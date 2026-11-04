@@ -743,7 +743,7 @@ main{position:relative;z-index:2;display:block}
   .chart-flow-tracer{animation:none;opacity:0}
 }
 @media(min-width:1000px){
-  :root{--field-max:1600px;--field-gutter:clamp(26px,3.2vw,64px)}
+  :root{--field-max:1600px;--field-gutter:clamp(52px,5vw,96px)}
   .field-header,.kind-switch,main,.field-footer{min-width:0}
   .field-section,.rhythm-section{padding-top:clamp(42px,4vw,62px);padding-bottom:clamp(42px,4vw,62px)}
   .section-head,.section-controls,.insight-copy{min-width:0}
