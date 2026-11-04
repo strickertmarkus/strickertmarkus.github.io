@@ -206,8 +206,43 @@
   const progress=snapshot.done?1:Math.min(1,(snapshot.progress||0)+(total?drift/total:0));
   $('session-progress-fill').style.width=(progress*100)+'%';
  }
+ // The figure and the two clocks now share a 260-degree light path.
+ // Reuse the session scene's requestAnimationFrame: no additional timers,
+ // expensive animated conic gradients or whole-element repaints.
+ const stretchOrbits=['stretch-clock','stretch-prep'].reduce((out,prefix)=>{
+  out[prefix]={
+   progress:$(prefix+'-progress'),bloom:$(prefix+'-bloom'),
+   tip:$(prefix+'-tip'),last:''
+  };
+  return out;
+ },{});
+ function renderStretchOrbit(prefix,fraction){
+  const ring=stretchOrbits[prefix];if(!ring?.progress||!ring.bloom||!ring.tip)return;
+  const value=Math.max(0,Math.min(1,Number(fraction)||0));
+  const offset=(100*(1-value)).toFixed(2);
+  if(offset===ring.last)return;
+  ring.last=offset;
+  ring.progress.setAttribute('stroke-dashoffset',offset);
+  ring.bloom.setAttribute('stroke-dashoffset',offset);
+  const angle=(140+260*value)*Math.PI/180;
+  ring.tip.setAttribute('transform','translate('+(100+78*Math.cos(angle)).toFixed(2)+' '+(100+78*Math.sin(angle)).toFixed(2)+')');
+  ring.tip.style.opacity=value>0?.98:.28;
+ }
+ function paintStretchOrbits(now){
+  if(snapshot.kind!=='stretch')return;
+  const seconds=Math.max(1,Number(snapshot.step?.seconds)||1);
+  const drift=snapshot.paused||snapshot.preparing||snapshot.done||reduced.matches?0:
+   Math.min(1,Math.max(0,now-sampledAt)/1000/seconds);
+  const motion=snapshot.done?1:(snapshot.stepProgress||0)+drift;
+  renderStretchOrbit('stretch-clock',motion);
+  if(snapshot.preparing){
+   const remaining=Math.max(0,Number(snapshot.prepRemainingMs)||0);
+   const ms=snapshot.paused||reduced.matches?0:Math.max(0,now-sampledAt);
+   renderStretchOrbit('stretch-prep',1-Math.max(0,remaining-ms)/5000);
+  }
+ }
  function paint(now){
-  if(!active)return;paintSessionProgress(now);const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
+  if(!active)return;paintSessionProgress(now);paintStretchOrbits(now);const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
   if(snapshot.kind==='meditation'){
    const sun=$('breathing-field').getBoundingClientRect(),rect=host.getBoundingClientRect(),sx=sun.left+sun.width/2-rect.left,horizon=height*.59;
    const scale=snapshot.scale||1;
@@ -249,7 +284,7 @@
   }else{
    for(let i=0;i<38;i++){const x=((i*197.7)%width)+Math.sin(t*.25+i)*16+pointer.x*5,y=height*(.13+(i*0.071% .65))+Math.cos(t*.3+i)*12;const edge=Math.min(1,Math.abs(x-width*.5)/(width*.36));const alpha=(.14+.22*(1+Math.sin(t*.8+i))/2)*(.12+.88*edge*edge);glow(c,x,y,22,'190,255,112',alpha*.48);glow(c,x,y,8,'224,255,164',alpha*.85);ellipse(c,x,y,1.5,1.5,`rgba(239,255,194,${Math.min(1,alpha*1.7)})`);}
    for(let i=0;i<9;i++){const x=(i*137.3+t*7)%width,y=(i*101+t*8)%(height*.8);leaf(c,x,y,4+ i%3,Math.sin(t*.3+i),'#b6d17d30');}
-   drawPose(t,now);drawNextPreview(t);
+   if(!snapshot.preparing){drawPose(t,now);drawNextPreview(t);}
   }
  }
  function loop(now){frame=0;if(!active||document.hidden)return;const delta=last?Math.min(100,now-last):0;if(!snapshot.paused&&!snapshot.preparing&&!reduced.matches)motionTime+=delta/1000;last=now;paint(now);if(!reduced.matches&&!snapshot.paused)frame=requestAnimationFrame(loop);}
