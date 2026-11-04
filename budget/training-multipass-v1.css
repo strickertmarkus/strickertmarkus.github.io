@@ -1,29 +1,72 @@
-/* Several independent planned passes per date, in the existing classic builder. */
+/* The day editor keeps one editable workout visible at a time, without cards.
+   A quiet "+ Nytt pass" remains at the bottom; multiple passes become a
+   hairline-separated list and a small text label above the active editor. */
+#day-workout-current-pass.day-workout-current-pass{
+  display:block;margin:6px 0 11px;padding:0;
+  color:rgba(244,155,140,.83);font-size:10px;font-weight:650;
+  letter-spacing:.17em;line-height:1.4;
+}
+#day-workout-current-pass[hidden]{display:none!important}
 #day-workout-multipass.day-workout-multipass{
-  display:flex;flex-direction:column;gap:8px;
-  margin:8px 0 16px;padding:11px 12px 12px;
-  border:1px solid rgba(255,123,105,.20);border-radius:15px;
-  background:linear-gradient(130deg,rgba(245,92,79,.09),rgba(255,255,255,.018));
+  display:flex;flex-direction:column;align-items:stretch;gap:0;
+  margin:16px 0 8px;padding:0;background:transparent;border:0;
+  box-shadow:none;border-radius:0;min-width:0;
 }
-.day-multipass-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.day-multipass-head strong{font-size:12px;font-weight:650;letter-spacing:.01em}
-.day-multipass-head span{font-size:11px;opacity:.65;white-space:nowrap}
-.day-multipass-tabs{display:flex;align-items:stretch;gap:7px;overflow-x:auto;padding:1px 1px 3px;scrollbar-width:thin}
-.day-multipass-chip,.day-multipass-add{
-  flex:0 0 auto;display:flex;gap:7px;align-items:center;justify-content:center;
-  min-height:38px;max-width:195px;padding:7px 11px;
-  border:1px solid rgba(255,255,255,.13);border-radius:11px;
-  background:rgba(255,255,255,.035);color:inherit;
-  font-family:inherit;font-size:12px;line-height:1.3;font-weight:600;cursor:pointer;
+#day-workout-multipass .day-multipass-list{
+  display:flex;flex-direction:column;gap:0;margin:0 0 5px;
+  padding:0;border:0;border-top:1px solid rgba(255,255,255,.085);
 }
-.day-multipass-chip{font-size:12px;font-weight:600}
-.day-multipass-chip small{display:grid;place-items:center;flex:0 0 20px;height:20px;border:1px solid rgba(255,132,113,.45);border-radius:50%;font-size:11px;color:#ffc1b4}
-.day-multipass-chip span{max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.day-multipass-chip.is-active{border-color:rgba(255,124,105,.65);color:#ffd5c9;background:rgba(247,93,74,.16)}
-.day-multipass-add{max-width:none;background:rgba(246,96,77,.09);color:#ffc0b3;border-color:rgba(246,96,77,.33);font-weight:650}
-.day-multipass-remove{border:0;padding:4px 3px;align-self:flex-end;background:transparent;color:#de9086;font-size:11px;cursor:pointer}
-.day-multipass-chip:focus-visible,.day-multipass-add:focus-visible,.day-multipass-remove:focus-visible{outline:2px solid #ff9384;outline-offset:2px}
-@media(max-width:520px){#day-workout-multipass.day-workout-multipass{margin:5px 0 12px;padding:10px;border-radius:13px}.day-multipass-chip{max-width:145px}.day-multipass-chip span{max-width:75px}}
-
-/* Template editing is separate from the day's multiple scheduled sessions. */
-#day-workout-modal.classic-template-edit-mode #day-workout-multipass{display:none!important}
+#day-workout-multipass .day-multipass-row{
+  display:flex;align-items:center;gap:11px;width:100%;min-height:43px;
+  padding:9px 3px;border:0;border-bottom:1px solid rgba(255,255,255,.085);
+  background:transparent;box-shadow:none;border-radius:0;
+  color:var(--text-sec,#b2aeb4);text-align:left;cursor:pointer;
+  font-family:inherit;font-size:12px;font-weight:500;line-height:1.35;
+  transition:color .15s ease;
+}
+#day-workout-multipass .day-multipass-row:hover,
+#day-workout-multipass .day-multipass-row.is-active{
+  color:var(--text,#eee5e8);background:transparent;
+}
+#day-workout-multipass .day-multipass-number{
+  flex:0 0 22px;color:rgba(244,155,140,.62);
+  font-size:10px;letter-spacing:.06em;font-variant-numeric:tabular-nums;
+}
+#day-workout-multipass .day-multipass-name{
+  min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+#day-workout-multipass .day-multipass-row.is-active .day-multipass-name{
+  color:#f4c5ba;font-weight:650;
+}
+#day-workout-multipass .day-multipass-current{
+  flex:0 0 auto;color:rgba(244,155,140,.67);
+  font-size:10px;font-weight:500;
+}
+#day-workout-multipass .day-multipass-actions{
+  display:flex;justify-content:center;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:7px 0 3px;min-height:40px;
+}
+#day-workout-multipass .day-multipass-add,
+#day-workout-multipass .day-multipass-remove{
+  width:auto;min-height:32px;max-width:100%;padding:5px 10px;
+  border:0;border-radius:0;background:transparent;box-shadow:none;
+  cursor:pointer;font-family:inherit;font-size:12px;line-height:1.3;font-weight:550;
+}
+#day-workout-multipass .day-multipass-add{color:rgba(248,179,165,.9)}
+#day-workout-multipass .day-multipass-add:hover{color:#ffe0d8}
+#day-workout-multipass .day-multipass-remove{color:rgba(214,144,139,.68);font-size:11px}
+#day-workout-multipass .day-multipass-remove:hover{color:#ffbcb1}
+#day-workout-multipass button:focus-visible{
+  outline:2px solid #f48e81;outline-offset:2px;border-radius:5px;
+}
+/* Mallpass editing is not a date-specific list of planned sessions. */
+#day-workout-modal.classic-template-edit-mode #day-workout-multipass,
+#day-workout-modal.classic-template-edit-mode #day-workout-current-pass{display:none!important}
+@media(max-width:520px){
+  #day-workout-multipass.day-workout-multipass{margin:12px 0 4px}
+  #day-workout-multipass .day-multipass-row{min-height:42px;gap:9px}
+  #day-workout-multipass .day-multipass-actions{padding:5px 0 2px}
+}
+@media(prefers-reduced-motion:reduce){
+  #day-workout-multipass .day-multipass-row{transition:none}
+}
