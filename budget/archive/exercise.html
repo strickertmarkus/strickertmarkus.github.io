@@ -1014,8 +1014,8 @@ if(!window.__FIELD_EMBEDDED__){
         <button type="button" class="btn-sm" onclick="pulseClassicConfirmSaveAsTemplate()">Spara mall</button>
       </div>
     </div>
-    <div id="day-workout-multipass" class="day-workout-multipass" aria-label="Flera pass på samma dag"></div>
     <button type="button" id="day-workout-back-day" class="classic-back-to-day" onclick="pulseClassicBackToDay()" hidden>← Tillbaka till dagspass</button>
+    <div id="day-workout-current-pass" class="day-workout-current-pass" hidden aria-live="polite"></div>
     <div class="form-row classic-pass-fields">
       <div class="form-group">
         <label for="day-workout-name">Passnamn</label>
@@ -1039,6 +1039,7 @@ if(!window.__FIELD_EMBEDDED__){
       <button class="btn-sm classic-rest-day" type="button" onclick="setDayWorkoutRest()" aria-label="Gör dagen till vilodag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>Vilodag</button>
       <button class="btn-primary classic-save-pass" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
     </div>
+    <div id="day-workout-multipass" class="day-workout-multipass" aria-label="Flera pass på samma dag"></div>
   </div>
 </div>
 
@@ -2603,14 +2604,33 @@ function pulseExtraRenderV1(){
   var date=modal.dataset.date||todayISO(),day=getPlannedSessions()[date]||{},extra=pulseExtraListV1(day);
   var current=pulseExtraCurrentV1(),pending=current&&pulseExtraDraftsV1[date+'_'+current];
   var others=extra.slice();
-  if(pending&&!others.some(function(p){return p.id===current;}))others.push(Object.assign({id:current},pending));
-  var tabs=[{id:'',name:day.name||day.type||'Pass 1'}].concat(others.map(function(p){return{id:String(p.id),name:p.name||p.type||'Nytt pass'};}));
-  box.innerHTML='<div class="day-multipass-head"><strong>Pass samma dag</strong><span>'+tabs.length+' planerade</span></div>'+
-    '<div class="day-multipass-tabs">'+tabs.map(function(t,i){
-      return '<button type="button" class="day-multipass-chip'+(current===t.id?' is-active':'')+'" onclick="pulseExtraSelectV1('+JSON.stringify(t.id).replace(/"/g,'&quot;')+')" aria-pressed="'+String(current===t.id)+'"><small>'+(i+1)+'</small><span>'+escHtml(t.name)+'</span></button>';
-    }).join('')+
-    '<button type="button" class="day-multipass-add" onclick="pulseExtraAddV1()">＋ Lägg till pass</button></div>'+
-    (current?'<button type="button" class="day-multipass-remove" onclick="pulseExtraRemoveV1()">Ta bort detta pass</button>':'');
+  if(pending&&!others.some(function(p){return String(p.id)===current;}))others.push(Object.assign({id:current},pending));
+  var mainDraft=pulseExtraDraftsV1[date+'_main'];
+  var mainName=mainDraft?(mainDraft.name||mainDraft.type):day.name||day.type||'Pass 1';
+  var tabs=[{id:'',name:mainName}].concat(others.map(function(p){return{id:String(p.id),name:p.name||p.type||'Nytt pass'};}));
+  var selected=tabs.findIndex(function(tab){return tab.id===current;});
+  if(selected<0)selected=0;
+  var label=document.getElementById('day-workout-current-pass');
+  if(label){
+    label.hidden=tabs.length<2;
+    label.textContent=tabs.length>1?'PASS '+(selected+1)+' AV '+tabs.length:'';
+  }
+  // One day with a single workout needs no selector, only the quiet add link.
+  // With multiple workouts, a hairline separates small selectable text rows.
+  // The existing editor continues to show only the selected workout.
+  box.innerHTML=(tabs.length>1?
+    '<div class="day-multipass-list" role="group" aria-label="Välj vilket pass du redigerar">'+
+      tabs.map(function(t,i){
+        return '<button type="button" class="day-multipass-row'+(current===t.id?' is-active':'')+
+          '" onclick="pulseExtraSelectV1('+JSON.stringify(t.id).replace(/"/g,'&quot;')+
+          ')" aria-pressed="'+String(current===t.id)+'">'+
+          '<span class="day-multipass-number">'+String(i+1).padStart(2,'0')+'</span>'+
+          '<span class="day-multipass-name">'+escHtml(t.name)+'</span>'+
+          (current===t.id?'<span class="day-multipass-current" aria-hidden="true">Aktivt</span>':'')+
+          '</button>';
+      }).join('')+'</div>':'')+
+    '<div class="day-multipass-actions"><button type="button" class="day-multipass-add" onclick="pulseExtraAddV1()">+ Nytt pass</button>'+
+    (current?'<button type="button" class="day-multipass-remove" onclick="pulseExtraRemoveV1()">Ta bort passet</button>':'')+'</div>';
 }
 function pulseExtraDraftCurrentV1(){
  var date=document.getElementById('day-workout-modal').dataset.date,id=pulseExtraCurrentV1()||'main';
