@@ -394,8 +394,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     }
     byId('rhythm-orbit-art').innerHTML=rhythmOrbit(week,goal,zenDays);
     var zenFacts=byId('rhythm-zen-facts');
-    if(zenFacts)zenFacts.innerHTML='<span class="rhythm-zen-mark is-stretch">Stretch <b>'+zenTotals.stretch+' d</b></span>'+
-      '<span class="rhythm-zen-mark is-meditation">Meditation <b>'+zenTotals.meditation+' d</b></span>';
+    if(zenFacts)zenFacts.innerHTML='<span class="rhythm-zen-mark is-stretch">Stretch <b>'+zenTotals.stretch+(zenTotals.stretch===1?' dag':' dagar')+'</b></span>'+
+      '<span class="rhythm-zen-mark is-meditation">Meditation <b>'+zenTotals.meditation+(zenTotals.meditation===1?' dag':' dagar')+'</b></span>';
   }
 
   var PROGRESS_CHART={rhythm:'activity-chart',volume:'volume-chart',body:'insight-chart'};
