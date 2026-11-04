@@ -126,3 +126,27 @@ test('page versions load the new scene, shader, styles and single source of time
   assert.match(html,/zen\.js\?v=20261104-smooth-orbit-3/);
   assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-desktop-gutters-3/);
 });
+
+
+test('on mobile the SVG timer keeps updating while heavy forest/WebGL frames are throttled',()=>{
+  const begin=scene.indexOf(' let lastHeavyPaint=0;');
+  const end=scene.indexOf(' function showControls(){',begin);
+  assert.ok(begin>0&&end>begin);
+  let heavy=0,light=0,frames=0;
+  const ctx={
+    frame:0,active:true,document:{hidden:false},last:0,motionTime:0,
+    snapshot:{kind:'stretch',preparing:false,paused:false},
+    reduced:{matches:false},width:390,
+    paint(){heavy++;},paintStretchOrbits(){light++;},
+    requestAnimationFrame(){frames++;return frames;},cancelAnimationFrame(){},
+    performance:{now:()=>1000}
+  };
+  vm.runInNewContext(scene.slice(begin,end)+'\nthis.loop=loop;this.wake=wake;',ctx);
+  ctx.loop(1000);assert.equal(heavy,1);
+  ctx.loop(1016);assert.equal(heavy,1);assert.equal(light,1);
+  ctx.loop(1032);assert.equal(heavy,2);
+  ctx.loop(1048);assert.equal(light,2);
+  assert.equal(frames,4,'single RAF scheduling path');
+  ctx.width=1280;ctx.loop(1064);
+  assert.equal(heavy,3,'desktop continues to render each frame');
+});
