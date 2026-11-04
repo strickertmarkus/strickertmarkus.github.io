@@ -209,7 +209,7 @@
  // The figure and the two clocks now share a 260-degree light path.
  // Reuse the session scene's requestAnimationFrame: no additional timers,
  // expensive animated conic gradients or whole-element repaints.
- const stretchOrbits=['stretch-clock','stretch-prep'].reduce((out,prefix)=>{
+ const stretchOrbits=['stretch-prep'].reduce((out,prefix)=>{
   out[prefix]={
    progress:$(prefix+'-progress'),bloom:$(prefix+'-bloom'),
    tip:$(prefix+'-tip'),last:''
@@ -224,22 +224,18 @@
   ring.last=offset;
   ring.progress.setAttribute('stroke-dashoffset',offset);
   ring.bloom.setAttribute('stroke-dashoffset',offset);
-  const angle=(140+260*value)*Math.PI/180;
+  // Like the training mode's 5s start circle: one full turn from 12 o'clock.
+  const angle=(-90+360*value)*Math.PI/180;
   ring.tip.setAttribute('transform','translate('+(100+78*Math.cos(angle)).toFixed(2)+' '+(100+78*Math.sin(angle)).toFixed(2)+')');
   ring.tip.style.opacity=value>0?.98:.28;
  }
  function paintStretchOrbits(now){
-  if(snapshot.kind!=='stretch')return;
-  const seconds=Math.max(1,Number(snapshot.step?.seconds)||1);
-  const drift=snapshot.paused||snapshot.preparing||snapshot.done||reduced.matches?0:
-   Math.min(1,Math.max(0,now-sampledAt)/1000/seconds);
-  const motion=snapshot.done?1:(snapshot.stepProgress||0)+drift;
-  renderStretchOrbit('stretch-clock',motion);
-  if(snapshot.preparing){
-   const remaining=Math.max(0,Number(snapshot.prepRemainingMs)||0);
-   const ms=snapshot.paused||reduced.matches?0:Math.max(0,now-sampledAt);
-   renderStretchOrbit('stretch-prep',1-Math.max(0,remaining-ms)/5000);
-  }
+  if(snapshot.kind!=='stretch'||!snapshot.preparing)return;
+  // Same five-second start anchor as the training-mode pretimer. This visual
+  // interpolation does not modify the session or create another clock.
+  const remaining=Math.max(0,Number(snapshot.prepRemainingMs)||0);
+  const ms=snapshot.paused||reduced.matches?0:Math.max(0,now-sampledAt);
+  renderStretchOrbit('stretch-prep',1-Math.max(0,remaining-ms)/5000);
  }
  function paint(now){
   if(!active)return;paintSessionProgress(now);paintStretchOrbits(now);const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
