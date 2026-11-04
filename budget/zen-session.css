@@ -381,20 +381,16 @@ body[data-kind=stretch] .stretch-orbit-track{
   stroke:rgba(179,229,134,.32);stroke-width:1.8;
 }
 body[data-kind=stretch] .stretch-orbit-bloom{
-  stroke:rgba(159,244,102,.52);stroke-width:7;
-  filter:drop-shadow(0 0 7px rgba(177,255,117,.58));
+  stroke:rgba(162,245,110,.29);stroke-width:13;
 }
 body[data-kind=stretch] .stretch-orbit-progress{
-  stroke:#e1ffbd;stroke-width:2.45;
-  filter:drop-shadow(0 0 5px rgba(193,255,137,.94));
+  stroke:#e6ffc1;stroke-width:2.7;
 }
 body[data-kind=stretch] .stretch-orbit-tip-bloom{
-  fill:rgba(188,255,121,.40);
-  filter:drop-shadow(0 0 8px rgba(197,255,133,.95));
+  fill:rgba(184,255,120,.47);
 }
 body[data-kind=stretch] .stretch-orbit-tip-core{
-  fill:#f0ffcf;
-  filter:drop-shadow(0 0 4px rgba(229,255,178,.92));
+  fill:#f7ffdc;
 }
 body[data-kind=stretch] .session-clock .stretch-clock-kicker{
   position:relative;z-index:1;display:block;
