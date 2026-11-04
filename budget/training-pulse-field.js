@@ -340,7 +340,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       else s+='<path class="ro-empty" d="'+arc(i)+'"/>';
     }
     // The recovery tracks share the training ring's *four-stop* rhythm.
-    // Fill one segment per completed session this week, independent of day.
+    // Fill one segment per distinct day with that recovery type, regardless
+    // of whether one or several sessions were completed on that day.
     // Keep these rings separate from the workout goal and centre count.
     var monday=startOfWeek(new Date()),zenSlots=4,zenAngle=360/zenSlots,zenGap=10;
     function zenArc(slot,r){
@@ -353,7 +354,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var radius=index?58:53,color=index?'#f5d58c':'#b8e99b',completed=0;
       for(var day=0;day<7;day++){
         var counts=zenDays[isoDate(shiftDate(monday,day))]||{};
-        completed+=Math.max(0,number(counts[kind])||0);
+        if(number(counts[kind])>0)completed++;
       }
       s+='<g class="ro-zen-track ro-zen-'+kind+'">';
       for(var slot=0;slot<zenSlots;slot++){
@@ -388,12 +389,13 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var zenDays=zenKindsSnapshot(),zenTotals={stretch:0,meditation:0};
     for(var zi=0;zi<7;zi++){
       var z=zenDays[isoDate(shiftDate(startOfWeek(new Date()),zi))]||{};
-      zenTotals.stretch+=z.stretch||0;zenTotals.meditation+=z.meditation||0;
+      if(z.stretch>0)zenTotals.stretch++;
+      if(z.meditation>0)zenTotals.meditation++;
     }
     byId('rhythm-orbit-art').innerHTML=rhythmOrbit(week,goal,zenDays);
     var zenFacts=byId('rhythm-zen-facts');
-    if(zenFacts)zenFacts.innerHTML='<span class="rhythm-zen-mark is-stretch">Stretch <b>'+zenTotals.stretch+'</b></span>'+
-      '<span class="rhythm-zen-mark is-meditation">Meditation <b>'+zenTotals.meditation+'</b></span>';
+    if(zenFacts)zenFacts.innerHTML='<span class="rhythm-zen-mark is-stretch">Stretch <b>'+zenTotals.stretch+' d</b></span>'+
+      '<span class="rhythm-zen-mark is-meditation">Meditation <b>'+zenTotals.meditation+' d</b></span>';
   }
 
   var PROGRESS_CHART={rhythm:'activity-chart',volume:'volume-chart',body:'insight-chart'};
