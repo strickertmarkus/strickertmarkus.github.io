@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="stylesheet" href="training-multipass-v1.css?v=20261103-pass-slots-2">
+  <link rel="stylesheet" href="training-multipass-v1.css?v=20261104-quiet-bottom-3">
   <script>
   if(!window.__FIELD_EMBEDDED__){
     document.write('<script defer src="exercise-timer-focus.js?v=20261026-energy-loop-4"><\/script>');
@@ -2672,11 +2672,17 @@ function pulseExtraLoadV1(id){
  if(window.PulseZen)PulseZen.loadBuilder(p);
  pulseExtraRenderV1();
 }
+function pulseExtraRevealV1(){
+ var label=document.getElementById('day-workout-current-pass'),input=document.getElementById('day-workout-name');
+ var target=label&&!label.hidden?label:input;
+ if(target&&target.scrollIntoView)target.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function pulseExtraSelectV1(id){
  var current=pulseExtraCurrentV1();
  if(String(id)===String(current))return;
  pulseExtraDraftCurrentV1();
  pulseExtraLoadV1(String(id||''));
+ pulseExtraRevealV1();
 }
 function pulseExtraAddV1(){
  var modal=document.getElementById('day-workout-modal'),date=modal.dataset.date,day=getPlannedSessions()[date]||{};
@@ -2688,6 +2694,7 @@ function pulseExtraAddV1(){
  var id=pulseExtraIdV1();
  pulseExtraDraftsV1[date+'_'+id]={type:'Styrka',name:'',exercises:[]};
  pulseExtraLoadV1(id);
+ pulseExtraRevealV1();
 }
 function pulseExtraRemoveV1(){
  var modal=document.getElementById('day-workout-modal'),date=modal.dataset.date,id=pulseExtraCurrentV1();
