@@ -209,36 +209,48 @@
  // The figure and the two clocks now share a 260-degree light path.
  // Reuse the session scene's requestAnimationFrame: no additional timers,
  // expensive animated conic gradients or whole-element repaints.
- const stretchOrbits=['stretch-prep'].reduce((out,prefix)=>{
-  out[prefix]={
-   progress:$(prefix+'-progress'),bloom:$(prefix+'-bloom'),
-   tip:$(prefix+'-tip'),last:''
-  };
-  return out;
- },{});
- function renderStretchOrbit(prefix,fraction){
-  const ring=stretchOrbits[prefix];if(!ring?.progress||!ring.bloom||!ring.tip)return;
-  const value=Math.max(0,Math.min(1,Number(fraction)||0));
-  const offset=(100*(1-value)).toFixed(2);
-  if(offset===ring.last)return;
-  ring.last=offset;
-  ring.progress.setAttribute('stroke-dashoffset',offset);
-  ring.bloom.setAttribute('stroke-dashoffset',offset);
-  // Like the training mode's 5s start circle: one full turn from 12 o'clock.
-  const angle=(-90+360*value)*Math.PI/180;
-  ring.tip.setAttribute('transform','translate('+(100+78*Math.cos(angle)).toFixed(2)+' '+(100+78*Math.sin(angle)).toFixed(2)+')');
-  ring.tip.style.opacity=value>0?.98:.28;
- }
- function paintStretchOrbits(now){
-  if(snapshot.kind!=='stretch'||!snapshot.preparing)return;
-  // Same five-second start anchor as the training-mode pretimer. This visual
-  // interpolation does not modify the session or create another clock.
+ // Identical five-step easing and horizontal line used by the Pulse
+ // Flow training-mode pretimer (exercise-pulse-flow-motion-v67.js).
+ // Only the background colour tokens differ. The authoritative start time
+ // continues to come from Zen's existing session anchor.
+ let preWasVisible=false,preStepIndex=-1,preDisplayProgress=0,
+     preStepFrom=0,preStepTo=0,preStepStartedAt=0,lastPreValue='';
+ const preLineRoot=$('session-prep-ring'),preNumber=$('session-prep-count');
+ function easeStep(t){t=Math.max(0,Math.min(1,t));return 1-Math.pow(1-t,3);}
+ function paintTrainingPretimer(now){
+  if(snapshot.kind!=='stretch'||!snapshot.preparing){
+    preWasVisible=false;preStepIndex=-1;preDisplayProgress=0;
+    preStepFrom=0;preStepTo=0;preStepStartedAt=0;lastPreValue='';
+    return;
+  }
   const remaining=Math.max(0,Number(snapshot.prepRemainingMs)||0);
   const ms=snapshot.paused||reduced.matches?0:Math.max(0,now-sampledAt);
-  renderStretchOrbit('stretch-prep',1-Math.max(0,remaining-ms)/5000);
+  const raw=Math.max(0,Math.min(1,1-Math.max(0,remaining-ms)/5000));
+  const step=Math.max(0,Math.min(5,Math.floor(raw*5+.0001)));
+  if(!preWasVisible){
+    preWasVisible=true;preStepIndex=step;preDisplayProgress=step/5;
+    preStepFrom=preDisplayProgress;preStepTo=preDisplayProgress;preStepStartedAt=now;
+  }else if(step!==preStepIndex){
+    preStepIndex=step;preStepFrom=preDisplayProgress;preStepTo=step/5;preStepStartedAt=now;
+  }
+  if(reduced.matches||snapshot.paused||preStepFrom===preStepTo)preDisplayProgress=preStepTo;
+  else{
+    const t=Math.max(0,Math.min(1,(now-preStepStartedAt)/360));
+    preDisplayProgress=preStepFrom+(preStepTo-preStepFrom)*easeStep(t);
+  }
+  preLineRoot.style.setProperty('--pf-pre-progress',Math.max(0,Math.min(1,preDisplayProgress)).toFixed(6));
+  const value=String(preNumber.textContent||'').trim();
+  if(value&&value!==lastPreValue){
+    lastPreValue=value;
+    if(!reduced.matches){
+      preNumber.classList.remove('pf-pre-heartbeat-v80');
+      void preNumber.offsetWidth;
+      preNumber.classList.add('pf-pre-heartbeat-v80');
+    }
+  }
  }
  function paint(now){
-  if(!active)return;paintSessionProgress(now);paintStretchOrbits(now);const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
+  if(!active)return;paintSessionProgress(now);paintTrainingPretimer(now);const t=motionTime;c.clearRect(0,0,width,height);c.drawImage(still,0,0,width,height);
   if(snapshot.kind==='meditation'){
    const sun=$('breathing-field').getBoundingClientRect(),rect=host.getBoundingClientRect(),sx=sun.left+sun.width/2-rect.left,horizon=height*.59;
    const scale=snapshot.scale||1;
@@ -294,7 +306,7 @@
   if(!snapshot.paused&&!snapshot.preparing&&!reduced.matches)motionTime+=delta/1000;
   last=now;
   const mobileScene=snapshot.kind==='stretch'&&width<=760;
-  if(mobileScene&&now-lastHeavyPaint<29)paintStretchOrbits(now);
+  if(mobileScene&&now-lastHeavyPaint<29)paintTrainingPretimer(now);
   else{paint(now);lastHeavyPaint=now;}
   if(!reduced.matches&&!snapshot.paused)frame=requestAnimationFrame(loop);
  }
