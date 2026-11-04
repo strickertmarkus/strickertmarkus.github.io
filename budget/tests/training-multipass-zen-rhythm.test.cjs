@@ -243,4 +243,35 @@ test('builder places only a quiet New Pass link at bottom until another pass exi
  assert.match(style,/#day-workout-multipass\.day-workout-multipass\{[\s\S]*?background:transparent;border:0/);
  assert.match(style,/\.day-multipass-row\{[\s\S]*?border-bottom:1px solid/);
  assert.match(archive,/id="day-workout-current-pass"/);
+ assert.match(style,/#day-workout-multipass\{order:10;flex:none\}/);
 });
+
+test('multi-pass rendering shows one quiet add link or understated separators for multiple passes',()=>{
+ const a=archive.indexOf('function pulseExtraRenderV1(){'),b=archive.indexOf('function pulseExtraDraftCurrentV1(){',a);
+ assert.ok(a>=0&&b>a);
+ const date='2026-11-03',box={innerHTML:''},label={hidden:true,textContent:''};
+ const modal={dataset:{date,extraId:''}},day={name:'Bröst & Triceps',type:'Styrka',exercises:[{name:'Bänkpress'}]};
+ const ctx={
+  document:{getElementById:id=>({'day-workout-multipass':box,'day-workout-modal':modal,'day-workout-current-pass':label}[id])},
+  getPlannedSessions:()=>({[date]:day}),pulseExtraListV1:d=>d&&d.additionalSessions||[],
+  pulseExtraCurrentV1:()=>modal.dataset.extraId,
+  pulseExtraDraftsV1:{},todayISO:()=>date,
+  escHtml:str=>String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+ };
+ vm.runInNewContext(archive.slice(a,b)+'\nthis.render=pulseExtraRenderV1;',ctx);
+ ctx.render();
+ assert.match(box.innerHTML,/\+ Nytt pass/);
+ assert.doesNotMatch(box.innerHTML,/day-multipass-row|Pass samma dag/);
+ assert.equal(label.hidden,true);
+
+ day.additionalSessions=[{id:'extra-2',name:'Axlar & mage',type:'Styrka',exercises:[{name:'Axelpress'}]}];
+ modal.dataset.extraId='extra-2';ctx.render();
+ assert.equal((box.innerHTML.match(/class="day-multipass-row/g)||[]).length,2);
+ assert.match(box.innerHTML,/day-multipass-list/);
+ assert.match(box.innerHTML,/day-multipass-actions/);
+ assert.match(box.innerHTML,/\+ Nytt pass/);
+ assert.match(box.innerHTML,/aria-pressed="true"/);
+ assert.match(label.textContent,/PASS 2 AV 2/);
+ assert.equal(label.hidden,false);
+});
+
