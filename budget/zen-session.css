@@ -352,6 +352,7 @@ body[data-kind=stretch] .session-pose-3d{z-index:2}
 /* One visual language for the active motion clock and its 5-second lead-in.
    Timekeeping is still owned by zen.js, not CSS animations. */
 body[data-kind=stretch] .session-guidance{min-width:0}
+body[data-kind=meditation] .stretch-clock-kicker{display:none!important}
 body[data-kind=stretch] .session-clock{
   --zen-clock-progress:0%;
   --zen-dial-size:clamp(150px,18vw,278px);
