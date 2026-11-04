@@ -141,6 +141,16 @@
     $('session-clock').textContent=preparing?String(Math.ceil((session.anchor-now)/1000)):fmt(p.remaining);$('clock-caption').textContent=isStretch?'kvar i rörelsen':'kvar av passet';$('session-elapsed').textContent=fmt(Math.floor(M.practiced(session,now)/1000))+' aktiv tid';document.querySelector('.session-progress').setAttribute('aria-valuenow',String(Math.round(p.spent/p.total*100)));
     $('pause-session').textContent=session.paused?'Fortsätt':'Pausa';document.body.classList.toggle('is-paused',session.paused);$('session-footnote').textContent=isStretch?'Rör dig mjukt. Backa om något känns obehagligt.':'Du får alltid andas i din egen takt.';document.title=fmt(p.total-p.spent)+' · '+session.routine.name+' · Zen';
     const step=isStretch?session.routine.steps[p.index]:null;
+    // The clock ring is purely a visual representation of the authoritative
+    // session model's current step. No timer, interval or saved data is added.
+    if(isStretch&&step){
+      const dial=$('session-clock').closest('.session-clock');
+      const seconds=Math.max(1,Number(step.seconds)||1);
+      const fraction=Math.max(0,Math.min(1,1-p.remaining/seconds));
+      dial.style.setProperty('--zen-clock-progress',(fraction*100).toFixed(2)+'%');
+      dial.classList.toggle('is-rest',step.id==='rest');
+      dial.classList.toggle('is-paused',session.paused);
+    }
     $('session-phase-detail').textContent=session.paused?'Ta den tid du behöver':preparing?'Hitta en bekväm position':guided?breathing.seconds+' SEKUNDER · '+({inhale:'IN',exhale:'UT',holdIn:'EFTER IN',holdOut:'EFTER UT'}[breathing.id]):isStretch?'Följ din egen andning':'Ingenting att prestera';
     $('session-side').textContent=step?.id?.endsWith('-left')?'Vänster sida':step?.id?.endsWith('-right')?'Höger sida':'';
     $('previous-step').disabled=isStretch&&p.index===0;
