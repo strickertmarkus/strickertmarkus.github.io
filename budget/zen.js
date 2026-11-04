@@ -103,7 +103,7 @@
     $('resume-banner').hidden=!S.active;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));
   }
   function feelingLabel(value){return {lighter:'Lite lättare',calm:'Lugnare',present:'Mer närvarande'}[value]||'';}
-  function showView(next){view=next;if(next!=='session')$('session-preparation').hidden=true;syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
+  function showView(next){view=next;if(next!=='session'){$('session-preparation').hidden=true;$('session-view').classList.remove('is-stretch-preparing');}syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
   function confirm(title,message,yes,action){$('confirm-title').textContent=title;$('confirm-copy').textContent=message;$('confirm-yes').textContent=yes;$('confirm-no').textContent='Tillbaka';confirmAction=action;SurfaceMotion.showDialog($('confirm-dialog'));}
   $('confirm-yes').onclick=()=>{const action=confirmAction;confirmAction=null;SurfaceMotion.closeDialog($('confirm-dialog'));if(action)action();};$('confirm-no').onclick=()=>SurfaceMotion.closeDialog($('confirm-dialog'));$('confirm-dialog').addEventListener('close',()=>confirmAction=null);
   function openSession(s){ending=false;document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=false);$('session-ending').hidden=true;$('session-view').classList.remove('clock-hidden','session-finished');$('clock-toggle').textContent='Dölj tiden';$('clock-toggle').setAttribute('aria-pressed','true');session=s;breathOffset=M.position(s,Date.now()).spent;setKind(s.routine.kind);lastStep=-1;lastPhase='';showView('session');$('session-routine-name').textContent=session.routine.name;updateSound();tick();$('session-title').focus();}
@@ -122,13 +122,15 @@
     // the visual five-second countdown; no second clock or work time is added.
     const prepVisible=isStretch&&preparing,prepOverlay=$('session-preparation');
     prepOverlay.hidden=!prepVisible;
+    $('session-view').classList.toggle('is-stretch-preparing',prepVisible);
     if(prepVisible){
       const remaining=Math.max(0,session.anchor-now),count=Math.max(1,Math.ceil(remaining/1000));
       if($('session-prep-count').textContent!==String(count)){
         $('session-prep-count').textContent=String(count);
         $('session-prep-remaining').textContent=String(count);
       }
-      $('session-prep-ring').style.setProperty('--prep-progress',Math.min(100,Math.max(0,(1-remaining/5000)*100)).toFixed(2)+'%');
+      // The visible ring follows this same start anchor in zen-session-scene.js.
+      // Its SVG is animated every frame instead of repainting a conic gradient.
     }
     if(isStretch&&lastStep!==p.index){lastStep=p.index;const step=session.routine.steps[p.index];$('session-overline').textContent='RÖRELSE '+(p.index+1)+' AV '+session.routine.steps.length;$('session-title').textContent=step.name;document.querySelector('.session-copy').classList.toggle('is-long',step.name.length>30||step.cue.length>150);$('session-cue').textContent=step.cue;$('next-step').textContent=p.index+1<session.routine.steps.length?'Härnäst · '+session.routine.steps[p.index+1].name:'Sista övningen i passet.';if(p.index>0)playDing();}
     if(!isStretch){$('session-overline').textContent='MEDITATION';$('session-title').textContent=session.routine.guidance==='breath'?'Guidad andning':'Meditation utan guide';$('session-cue').textContent=session.routine.guidance==='breath'?M.breathingSummary(session.routine)+'. Byt till egen andning när du vill.':'Rikta uppmärksamheten mot andningen. När du märker att du tänker på annat, återgå till andetagen.';
@@ -141,22 +143,14 @@
     $('session-clock').textContent=preparing?String(Math.ceil((session.anchor-now)/1000)):fmt(p.remaining);$('clock-caption').textContent=isStretch?'kvar i rörelsen':'kvar av passet';$('session-elapsed').textContent=fmt(Math.floor(M.practiced(session,now)/1000))+' aktiv tid';document.querySelector('.session-progress').setAttribute('aria-valuenow',String(Math.round(p.spent/p.total*100)));
     $('pause-session').textContent=session.paused?'Fortsätt':'Pausa';document.body.classList.toggle('is-paused',session.paused);$('session-footnote').textContent=isStretch?'Rör dig mjukt. Backa om något känns obehagligt.':'Du får alltid andas i din egen takt.';document.title=fmt(p.total-p.spent)+' · '+session.routine.name+' · Zen';
     const step=isStretch?session.routine.steps[p.index]:null;
-    // The clock ring is purely a visual representation of the authoritative
-    // session model's current step. No timer, interval or saved data is added.
-    if(isStretch&&step){
-      const dial=$('session-clock').closest('.session-clock');
-      const seconds=Math.max(1,Number(step.seconds)||1);
-      const fraction=Math.max(0,Math.min(1,1-p.remaining/seconds));
-      dial.style.setProperty('--zen-clock-progress',(fraction*100).toFixed(2)+'%');
-      dial.classList.toggle('is-rest',step.id==='rest');
-      dial.classList.toggle('is-paused',session.paused);
-    }
+    // SVG orbital clock is interpolated from this authoritative position by
+    // the existing session scene renderer. No additional clock is created.
     $('session-phase-detail').textContent=session.paused?'Ta den tid du behöver':preparing?'Hitta en bekväm position':guided?breathing.seconds+' SEKUNDER · '+({inhale:'IN',exhale:'UT',holdIn:'EFTER IN',holdOut:'EFTER UT'}[breathing.id]):isStretch?'Följ din egen andning':'Ingenting att prestera';
     $('session-side').textContent=step?.id?.endsWith('-left')?'Vänster sida':step?.id?.endsWith('-right')?'Höger sida':'';
     $('previous-step').disabled=isStretch&&p.index===0;
     $('following-step').disabled=isStretch&&p.index===session.routine.steps.length-1;
     $('restart-step').hidden=!isStretch||!session.paused;
-    document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind:session.routine.kind,step,index:p.index,steps:session.routine.steps||[],progress:p.spent/p.total,stepProgress:step?1-p.remaining/step.seconds:0,phase,cycle,breathing,guided,preparing,paused:session.paused,scale,volume,sound}}));
+    document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind:session.routine.kind,step,index:p.index,steps:session.routine.steps||[],progress:p.spent/p.total,stepProgress:step?1-p.remaining/step.seconds:0,phase,cycle,breathing,guided,preparing,prepRemainingMs:preparing?Math.max(0,session.anchor-now):0,paused:session.paused,scale,volume,sound}}));
     updateBreathAudio(guided&&!preparing&&!session.paused,breathing.id);
 
   }
