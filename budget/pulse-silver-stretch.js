@@ -10,7 +10,9 @@ const api={ready:false,failed:false,loading:false,supports:id=>!!POSES[id]};
 window.PulseSilverStretch=api;
 const pressContraction={value:0},muscleUniform={value:new Float32Array(10)},pilotUniform={value:0},activationUniform={value:1},tissueLight={value:new THREE.Vector3()};
 const tissueLightWorld=new THREE.Vector3(-2,4,3).normalize();
-const skin=new THREE.MeshStandardMaterial({color:0x8a929c,metalness:.78,roughness:.30}),soleMat=new THREE.MeshStandardMaterial({color:0x86939e,roughness:.8}),shoeMat=new THREE.MeshStandardMaterial({color:0x35404e,roughness:.65});
+// Stretch-only finish. The exercise explorer owns its own materials and is
+// intentionally untouched: soft ivory hands, satin body and a brighter green rim.
+const skin=new THREE.MeshStandardMaterial({color:0xf1efe7,metalness:.035,roughness:.76}),soleMat=new THREE.MeshStandardMaterial({color:0xb1bdb4,roughness:.83}),shoeMat=new THREE.MeshStandardMaterial({color:0x354c46,roughness:.76});
 let scene,camera,renderer,body,bones,rest,hands=[],shoes=[],host=null,lastSize='',lastMuscles='';
 function mesh(g,m,parent){const o=new THREE.Mesh(g,m);o.castShadow=true;parent.add(o);return o;}
 function sphere(pos,scale,m,parent){const o=mesh(new THREE.SphereGeometry(1,20,14),m,parent);o.position.copy(v(pos));o.scale.copy(v(scale));return o;}
@@ -62,13 +64,13 @@ async function initialize(){
  if(api.loading||api.ready)return;api.loading=true;
  try{
   renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.85;
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
   scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(30,1,.1,20);
   const environment=new RoomEnvironment(),pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromScene(environment,.04);
-  scene.environment=env.texture;scene.environmentIntensity=.65;environment.dispose();pmrem.dispose();
-  scene.add(new THREE.HemisphereLight(0xeaffe0,0x1d3022,.8));
-  const key=new THREE.DirectionalLight(0xfff6e6,2);key.position.set(-2,4,3);scene.add(key);
-  const rim=new THREE.DirectionalLight(0xcfffb0,1.5);rim.position.set(2,2,-2);scene.add(rim);
+  scene.environment=env.texture;scene.environmentIntensity=.78;environment.dispose();pmrem.dispose();
+  scene.add(new THREE.HemisphereLight(0xfffaee,0x243a2d,1.15));
+  const key=new THREE.DirectionalLight(0xfffaf0,1.7);key.position.set(-2,4,3);scene.add(key);
+  const rim=new THREE.DirectionalLight(0xc0ff97,2.2);rim.position.set(2,2,-2);scene.add(rim);
   const base=new URL('./assets/pulse-figure/',import.meta.url);
   const [metaResponse,binaryResponse]=await Promise.all([fetch(new URL('body.json',base)),fetch(new URL('body.bin',base))]);
   if(!metaResponse.ok||!binaryResponse.ok)throw new Error('Mannequin asset unavailable');
@@ -85,7 +87,7 @@ async function initialize(){
   if(meta.texture){
    const map=await new THREE.TextureLoader().loadAsync(new URL(meta.texture,base).href);
    map.flipY=false;map.colorSpace=THREE.NoColorSpace;map.anisotropy=4;
-   Object.assign(mat,{map,opacity:1,transparent:false,depthWrite:true,roughness:.30,metalness:.78});mat.color.set(0xffffff);
+   Object.assign(mat,{map,opacity:1,transparent:false,depthWrite:true,roughness:.70,metalness:.04});mat.color.set(0xffffff);
    const compile=mat.onBeforeCompile;
    const textured=[
     ['vec3 pearl = mix(vec3(0.86, 0.90, 0.95), mix(diffuseColor.rgb,vec3(0.055,0.085,0.13),shortsExtension), clothingMask);',
@@ -93,12 +95,16 @@ async function initialize(){
     float modelShade = clamp(dot(modelTex, vec3(0.299,0.587,0.114)) * 1.9, 0.0, 1.3);
     float muscleTex = smoothstep(0.015, 0.08, modelTex.r - modelTex.b) * (1.0 - clothingMask);
     float muscleShape = max(muscleTex, 0.35) * (1.0 - clothingMask);
-    vec3 chrome = vec3(0.34,0.37,0.41) * (0.28 + 0.95 * modelShade);
-    chrome = mix(chrome, chrome * vec3(1.04,0.98,0.96), muscleTex * 0.35);
+    // Warm milk-white anatomy, retaining the model's sculpted dark-to-light
+    // normals and texture rather than washing the skin out to flat white.
+    float ivoryShade = smoothstep(0.035, 1.15, modelShade);
+    vec3 chrome = mix(vec3(0.48,0.50,0.47), vec3(0.96,0.96,0.92), ivoryShade);
+    chrome *= 0.91 + 0.09 * smoothstep(0.0, 1.0, modelShade);
+    chrome = mix(chrome, chrome * vec3(1.02,1.01,0.985), muscleTex * 0.16);
     // Shadowed eye sockets under the brow give the mannequin face some depth.
     float eyeShade = exp(-pow((p.x - 0.037) / 0.021, 2.0) - pow((p.y - 1.718) / 0.014, 2.0)) * smoothstep(0.105, 0.13, p.z);
-    chrome *= 1.0 - 0.62 * eyeShade;
-    vec3 pearl = mix(chrome, vec3(0.040,0.052,0.075), clothingMask);`],
+    chrome *= 1.0 - 0.34 * eyeShade;
+    vec3 pearl = mix(chrome, vec3(0.11,0.15,0.14), clothingMask);`],
     ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, vec3(0.55,0.90,0.38) * (0.50 + 0.85 * modelShade), muscleMask);'],
     ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.45;'],
     ['muscleMask=region*mix(0.85,0.99,primary);','// Worked glutes show through the shorts as a glow on the fabric.\n     float seen=max(muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8);\n     muscleMask=max(region*muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8)*mix(0.45,1.0,primary);'],
@@ -106,15 +112,15 @@ async function initialize(){
      diffuseColor.rgb=mix(pearl,flesh,muscleMask);`],
     ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.55,0.95,0.40)*volume*reflection'],
     // The main worked muscle glows from within, strongest along its shading highlights.
-    ['generalGlow*=uActivation;','generalGlow+=vec3(0.55,1.0,0.32)*primary*region*seen*(0.28+0.42*modelShade+0.12*silk);\n     generalGlow*=uActivation;'],
-    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.45,0.95,0.30) * muscleMask * (0.10 + 0.20 * modelShade) * uActivation;'],
+    ['generalGlow*=uActivation;','generalGlow+=vec3(0.56,1.0,0.33)*primary*region*seen*(0.50+0.67*modelShade+0.18*silk);\n     generalGlow*=uActivation;'],
+    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.48,1.0,0.34) * muscleMask * (0.19 + 0.39 * modelShade) * uActivation;'],
     ['generalGlow=region*(','generalGlow=region*seen*mix(0.45,1.0,primary)*('],
-    ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.48, max(muscleMask, clothingMask));'],
-    ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.04, max(muscleMask, clothingMask));']
+    ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.66, max(muscleMask, clothingMask));'],
+    ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.02, max(muscleMask, clothingMask));']
    ];
    textured.push(['+vec3(1.0, 0.42, 0.20) * secondaryVolume','+vec3(0.55, 0.95, 0.40) * secondaryVolume']);
    mat.onBeforeCompile=(shader,r)=>{compile(shader,r);for(const [x,y] of textured){if(shader.fragmentShader.includes(x))shader.fragmentShader=shader.fragmentShader.replace(x,y);}};
-   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-green';
+   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-satin-green-v2';
   }
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
