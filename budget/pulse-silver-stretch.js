@@ -14,6 +14,8 @@ const tissueLightWorld=new THREE.Vector3(-2,4,3).normalize();
 // intentionally untouched: soft ivory hands, satin body and a brighter green rim.
 const skin=new THREE.MeshStandardMaterial({color:0xf1efe7,metalness:.035,roughness:.76}),soleMat=new THREE.MeshStandardMaterial({color:0xb1bdb4,roughness:.83}),shoeMat=new THREE.MeshStandardMaterial({color:0x354c46,roughness:.76});
 let scene,camera,renderer,body,bones,rest,hands=[],shoes=[],host=null,lastSize='',lastMuscles='';
+let poseReady=false,lastPoseTime=0;
+const easedOrientation=new THREE.Quaternion();
 function mesh(g,m,parent){const o=new THREE.Mesh(g,m);o.castShadow=true;parent.add(o);return o;}
 function sphere(pos,scale,m,parent){const o=mesh(new THREE.SphereGeometry(1,20,14),m,parent);o.position.copy(v(pos));o.scale.copy(v(scale));return o;}
 function buildHandsAndShoes(){
@@ -28,7 +30,12 @@ function buildHandsAndShoes(){
  }
 }
 const rotZ=(vec,a)=>vec.clone().applyAxisAngle(new THREE.Vector3(0,0,1),a);
-function pose(id,elapsed){
+function pose(id,elapsed,now){
+ // Each skinned bone is driven toward its target, rather than snapped into it.
+ // This keeps the reaching arm continuous when changing sides.
+ const dt=lastPoseTime?Math.min(.08,Math.max(0,(now-lastPoseTime)/1000)):0;
+ const follow=poseReady?1-Math.exp(-dt/.16):1;
+ lastPoseTime=now;
  const cfg=POSES[id],dir=cfg.dir,ease=x=>x*x*(3-2*x);
  // Ease into the lean, then breathe in it.
  const lean=THREE.MathUtils.degToRad(4+22*ease(Math.min(1,elapsed/2.4))+2.2*Math.sin(elapsed*1.25));
@@ -55,16 +62,25 @@ function pose(id,elapsed){
  segments.push([v([0,.86,0]),v([0,1.02,0])]);
  for(let i=0;i<bones.length;i++){
   const [p,q]=segments[i],from=v(rest[i][1]).sub(v(rest[i][0])).normalize(),to=q.clone().sub(p).normalize();
-  bones[i].position.copy(p);bones[i].quaternion.setFromUnitVectors(from,to);bones[i].scale.setScalar(1);
+  easedOrientation.setFromUnitVectors(from,to);
+  if(!poseReady){bones[i].position.copy(p);bones[i].quaternion.copy(easedOrientation);}
+  else{bones[i].position.lerp(p,follow);bones[i].quaternion.slerp(easedOrientation,follow);}
+  bones[i].scale.setScalar(1);
  }
- for(let i=0;i<2;i++){const [el,wr]=wrists[i],d=wr.clone().sub(el).normalize();hands[i].position.copy(wr);hands[i].quaternion.setFromUnitVectors(v([0,-1,0]),d);}
+ for(let i=0;i<2;i++){
+  const [el,wr]=wrists[i],d=wr.clone().sub(el).normalize();
+  easedOrientation.setFromUnitVectors(v([0,-1,0]),d);
+  if(!poseReady){hands[i].position.copy(wr);hands[i].quaternion.copy(easedOrientation);}
+  else{hands[i].position.lerp(wr,follow);hands[i].quaternion.slerp(easedOrientation,follow);}
+ }
+ poseReady=true;
  body.morphTargetInfluences&&(body.morphTargetInfluences.fill?body.morphTargetInfluences.fill(0):0);
 }
 async function initialize(){
  if(api.loading||api.ready)return;api.loading=true;
  try{
   renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.35));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
   scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(30,1,.1,20);
   const environment=new RoomEnvironment(),pmrem=new THREE.PMREMGenerator(renderer),env=pmrem.fromScene(environment,.04);
   scene.environment=env.texture;scene.environmentIntensity=.78;environment.dispose();pmrem.dispose();
@@ -94,7 +110,7 @@ async function initialize(){
      `vec3 modelTex = diffuseColor.rgb;
     float modelShade = clamp(dot(modelTex, vec3(0.299,0.587,0.114)) * 1.9, 0.0, 1.3);
     float muscleTex = smoothstep(0.015, 0.08, modelTex.r - modelTex.b) * (1.0 - clothingMask);
-    float muscleShape = max(muscleTex, 0.35) * (1.0 - clothingMask);
+    float muscleShape = max(muscleTex, 0.70) * (1.0 - clothingMask);
     // Warm milk-white anatomy, retaining the model's sculpted dark-to-light
     // normals and texture rather than washing the skin out to flat white.
     float ivoryShade = smoothstep(0.035, 1.15, modelShade);
@@ -105,22 +121,22 @@ async function initialize(){
     float eyeShade = exp(-pow((p.x - 0.037) / 0.021, 2.0) - pow((p.y - 1.718) / 0.014, 2.0)) * smoothstep(0.105, 0.13, p.z);
     chrome *= 1.0 - 0.34 * eyeShade;
     vec3 pearl = mix(chrome, vec3(0.11,0.15,0.14), clothingMask);`],
-    ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, vec3(0.55,0.90,0.38) * (0.50 + 0.85 * modelShade), muscleMask);'],
+    ['diffuseColor.rgb = mix(pearl, muscleColor, muscleMask);','muscleMask *= muscleShape;\n    diffuseColor.rgb = mix(pearl, vec3(0.34,0.86,0.22) * (0.53 + 0.52 * modelShade), muscleMask);'],
     ['float secondary = max(shoulder, triceps) * 0.85;','float secondary = max(shoulder, triceps) * 0.45;'],
-    ['muscleMask=region*mix(0.85,0.99,primary);','// Worked glutes show through the shorts as a glow on the fabric.\n     float seen=max(muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8);\n     muscleMask=max(region*muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8)*mix(0.45,1.0,primary);'],
-    ['diffuseColor.rgb=mix(pearl,red,muscleMask);',`vec3 flesh = mix(vec3(0.03,0.11,0.035), vec3(0.62,0.92,0.40), clamp(modelShade * 1.2 + silk * 0.25, 0.0, 1.0));
+    ['muscleMask=region*mix(0.85,0.99,primary);','// Worked glutes show through the shorts as a glow on the fabric.\n     float seen=max(muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8);\n     muscleMask=max(region*muscleShape, glutes*min(uMuscles[6],1.0)*clothingMask*0.8)*mix(0.78,1.0,primary);'],
+    ['diffuseColor.rgb=mix(pearl,red,muscleMask);',`vec3 flesh = mix(vec3(0.045,0.16,0.04), vec3(0.34,0.87,0.21), clamp(modelShade * 1.05 + silk * 0.20, 0.0, 1.0));
      diffuseColor.rgb=mix(pearl,flesh,muscleMask);`],
     ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.55,0.95,0.40)*volume*reflection'],
     // The main worked muscle glows from within, strongest along its shading highlights.
-    ['generalGlow*=uActivation;','generalGlow+=vec3(0.56,1.0,0.33)*primary*region*seen*(0.50+0.67*modelShade+0.18*silk);\n     generalGlow*=uActivation;'],
-    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.48,1.0,0.34) * muscleMask * (0.19 + 0.39 * modelShade) * uActivation;'],
+    ['generalGlow*=uActivation;','generalGlow+=vec3(0.41,0.93,0.21)*primary*region*seen*(0.62+0.75*modelShade+0.19*silk);\n     generalGlow*=uActivation;'],
+    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.36,1.0,0.19) * muscleMask * (0.27 + 0.44 * modelShade) * uActivation;'],
     ['generalGlow=region*(','generalGlow=region*seen*mix(0.45,1.0,primary)*('],
     ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.66, max(muscleMask, clothingMask));'],
     ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.02, max(muscleMask, clothingMask));']
    ];
    textured.push(['+vec3(1.0, 0.42, 0.20) * secondaryVolume','+vec3(0.55, 0.95, 0.40) * secondaryVolume']);
    mat.onBeforeCompile=(shader,r)=>{compile(shader,r);for(const [x,y] of textured){if(shader.fragmentShader.includes(x))shader.fragmentShader=shader.fragmentShader.replace(x,y);}};
-   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-satin-green-v2';
+   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-visible-muscle-v3';
   }
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
@@ -139,7 +155,7 @@ api.render=({target,stepId,elapsed,width,height})=>{
  if(size!==lastSize){lastSize=size;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
  const cfg=POSES[stepId],key=cfg.muscles.join('|');
  if(key!==lastMuscles){lastMuscles=key;muscleUniform.value.fill(0);cfg.muscles.forEach((n,i)=>{const k=muscleNames.indexOf(n);if(k>=0)muscleUniform.value[k]=i===0?2:1;});}
- pose(stepId,elapsed);
+ pose(stepId,elapsed,performance.now());
  camera.position.set(.35,1.05,4.3);camera.lookAt(0,.98,0);camera.updateMatrixWorld();
  tissueLight.value.copy(tissueLightWorld).transformDirection(camera.matrixWorldInverse);
  renderer.render(scene,camera);return true;
