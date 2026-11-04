@@ -358,7 +358,7 @@ body[data-kind=stretch] .session-clock{
   --zen-dial-size:clamp(150px,18vw,278px);
   position:relative;isolation:isolate;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:5px;width:var(--zen-dial-size);height:var(--zen-dial-size);
+  gap:5px;width:min(100%,var(--zen-dial-size));height:auto;
   max-width:100%;aspect-ratio:1;margin:0 auto;padding:18px;
   border:0;border-radius:50%;
   background:radial-gradient(circle at 42% 31%,rgba(193,252,158,.15),rgba(29,67,42,.25) 42%,rgba(7,32,24,.65) 72%,rgba(4,23,18,.87));
