@@ -287,8 +287,28 @@
    if(!snapshot.preparing){drawPose(t,now);drawNextPreview(t);}
   }
  }
- function loop(now){frame=0;if(!active||document.hidden)return;const delta=last?Math.min(100,now-last):0;if(!snapshot.paused&&!snapshot.preparing&&!reduced.matches)motionTime+=delta/1000;last=now;paint(now);if(!reduced.matches&&!snapshot.paused)frame=requestAnimationFrame(loop);}
- function wake(){cancelAnimationFrame(frame);frame=0;last=0;if(active&&!document.hidden){paint(performance.now());if(!reduced.matches&&!snapshot.paused)frame=requestAnimationFrame(loop);}}
+ // On small screens the large 2D forest and skinned WebGL body are
+ // expensive. Render scenery/figure at a steady ~30fps, while the SVG clock
+ // progresses on every display frame. This avoids coupling timer smoothness
+ // to the slower full-scene render and does not start another RAF or interval.
+ let lastHeavyPaint=0;
+ function loop(now){
+  frame=0;if(!active||document.hidden)return;
+  const delta=last?Math.min(100,now-last):0;
+  if(!snapshot.paused&&!snapshot.preparing&&!reduced.matches)motionTime+=delta/1000;
+  last=now;
+  const mobileScene=snapshot.kind==='stretch'&&width<=760;
+  if(mobileScene&&now-lastHeavyPaint<29)paintStretchOrbits(now);
+  else{paint(now);lastHeavyPaint=now;}
+  if(!reduced.matches&&!snapshot.paused)frame=requestAnimationFrame(loop);
+ }
+ function wake(){
+  cancelAnimationFrame(frame);frame=0;last=0;lastHeavyPaint=0;
+  if(active&&!document.hidden){
+   const now=performance.now();paint(now);lastHeavyPaint=now;
+   if(!reduced.matches&&!snapshot.paused)frame=requestAnimationFrame(loop);
+  }
+ }
  function showControls(){clearTimeout(idle);host.classList.remove('controls-asleep');$('reveal-session-controls').hidden=true;
   if(active&&snapshot.kind==='meditation'&&!snapshot.paused&&!snapshot.done&&!$('session-audio').open)idle=setTimeout(()=>{if(keyboardMode&&host.contains(document.activeElement))return;if(host.contains(document.activeElement)&&document.activeElement.matches('button,input,summary'))document.activeElement.blur();host.classList.add('controls-asleep');$('reveal-session-controls').hidden=false;},9000);
  }
