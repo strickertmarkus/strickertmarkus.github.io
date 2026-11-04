@@ -59,6 +59,10 @@
 #day-workout-multipass button:focus-visible{
   outline:2px solid #f48e81;outline-offset:2px;border-radius:5px;
 }
+/* Embedded passbyggare uses flex order, not DOM order. Keep the link below
+   the save/start actions (order 9), never above the date header (order 1). */
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-current-pass{order:2}
+html.pbu-v1[data-field-embedded] body #day-workout-modal.pbu-builder #day-workout-multipass{order:10;flex:none}
 /* Mallpass editing is not a date-specific list of planned sessions. */
 #day-workout-modal.classic-template-edit-mode #day-workout-multipass,
 #day-workout-modal.classic-template-edit-mode #day-workout-current-pass{display:none!important}
