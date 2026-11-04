@@ -43,59 +43,49 @@ test('reaching arm and hand animate with frame-delta quaternion/position interpo
   assert.match(scene,/const size=Math\.round\(2\*155\*s\)/);
 });
 
-test('both timers use identical SVG orbit geometry and no animated CSS conic gradient',()=>{
+test('only the figure owns the active progress ring; a separate green full-circle pretimer remains',()=>{
   assert.match(html,/<span class="stretch-clock-kicker" aria-hidden="true">ÅTERSTÅR<\/span>/);
-  for(const id of ['stretch-clock-progress','stretch-clock-tip','stretch-prep-progress','stretch-prep-tip'])
+  assert.match(html,/id="session-clock" role="timer"/);
+  assert.doesNotMatch(html,/id="stretch-clock-progress"|id="stretch-clock-tip"/);
+  for(const id of ['stretch-prep-progress','stretch-prep-tip','stretch-prep-bloom'])
     assert.match(html,new RegExp('id="'+id+'"'));
-  const paths=[...html.matchAll(/class="stretch-orbit-progress"[^>]+d="([^"]+)"/g)].map(m=>m[1]);
-  assert.equal(paths.length,2);
-  assert.equal(paths[0],paths[1]);
-  assert.match(html,/pathLength="100" stroke-dasharray="100 100"/);
-  assert.match(sessionCss,/\.stretch-orbit-progress\{/);
-  assert.doesNotMatch(sessionCss,/--zen-clock-progress/);
+  assert.match(html,/class="stretch-orbit-visual stretch-prep-training-ring"/);
+  assert.match(html,/class="stretch-orbit-progress" id="stretch-prep-progress" cx="100" cy="100" r="78" pathLength="100"/);
+  assert.match(sessionCss,/\.session-clock\{[\s\S]*?aspect-ratio:auto/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-prep-ring\{[\s\S]*?--concept-timer-accent:#baff84/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.stretch-prep-training-ring \.stretch-orbit-progress/);
   assert.doesNotMatch(zenJs,/--prep-progress|--zen-clock-progress/);
-  assert.doesNotMatch(sessionCss,/stretch-orbit-progress\{[^}]*filter:/);
-  assert.doesNotMatch(sessionCss,/stretch-orbit-bloom\{[^}]*filter:/);
   assert.match(sessionCss,/body\[data-kind=meditation\] \.stretch-clock-kicker,/);
-  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-preparation\{[\s\S]*?background:transparent/);
-  assert.match(sessionCss,/\.session-view\.is-stretch-preparing \.session-stage/);
-  assert.match(zenJs,/classList\.toggle\('is-stretch-preparing',prepVisible\)/);
 });
 
-test('both orbit progress values interpolate between 200ms session model snapshots',()=>{
+test('one five-second circle interpolates from the authoritative start anchor',()=>{
   const begin=scene.indexOf(' const stretchOrbits=');
   const end=scene.indexOf(' function paint(now){',begin);
   assert.ok(begin>=0&&end>begin);
   const dom={};
-  for(const id of ['stretch-clock-progress','stretch-clock-bloom','stretch-clock-tip',
-                  'stretch-prep-progress','stretch-prep-bloom','stretch-prep-tip']){
+  for(const id of ['stretch-prep-progress','stretch-prep-bloom','stretch-prep-tip']){
     dom[id]={attributes:{},style:{},setAttribute(name,val){this.attributes[name]=String(val);}};
   }
   const ctx={
-    $:id=>dom[id],snapshot:{kind:'stretch',step:{seconds:60},stepProgress:.25,paused:false,preparing:false,done:false},
-    sampledAt:1000,reduced:{matches:false}
+    $:id=>dom[id],snapshot:{kind:'stretch',preparing:true,prepRemainingMs:4000,paused:false},
+    sampledAt:2000,reduced:{matches:false}
   };
   vm.runInNewContext(scene.slice(begin,end)+'\nthis.paintOrbit=paintStretchOrbits;',ctx);
-  ctx.paintOrbit(1000);
-  const start=Number(dom['stretch-clock-progress'].attributes['stroke-dashoffset']);
-  const tipStart=dom['stretch-clock-tip'].attributes.transform;
-  ctx.paintOrbit(1080);
-  const mid=Number(dom['stretch-clock-progress'].attributes['stroke-dashoffset']);
-  const tipMid=dom['stretch-clock-tip'].attributes.transform;
-  assert.ok(mid<start,'80ms after snapshot should produce visible progress');
-  assert.notEqual(tipStart,tipMid,'glowing tip must also move between snapshots');
-  ctx.snapshot={kind:'stretch',step:{seconds:60},stepProgress:.25,paused:true,preparing:false,done:false};
-  ctx.paintOrbit(1250);
-  assert.equal(Number(dom['stretch-clock-progress'].attributes['stroke-dashoffset']),start,
-    'paused timer must remain stationary at the authoritative snapshot');
-
-  ctx.snapshot={kind:'stretch',step:{seconds:60},stepProgress:0,paused:false,preparing:true,prepRemainingMs:4000};
+  ctx.paintOrbit(2000);
+  const start=Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']);
+  const tipStart=dom['stretch-prep-tip'].attributes.transform;
+  ctx.paintOrbit(2080);
+  const next=Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']);
+  assert.ok(next<start,'visual progress must advance within a 200ms snapshot');
+  assert.notEqual(dom['stretch-prep-tip'].attributes.transform,tipStart,'marker must move smoothly');
+  assert.match(scene.slice(begin,end),/const angle=\(-90\+360\*value\)\*Math\.PI\/180/);
+  ctx.snapshot.preparing=false;
+  ctx.paintOrbit(2200);
+  assert.equal(Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']),next,'pretimer stops when preparation ends');
+  ctx.snapshot={kind:'stretch',preparing:true,prepRemainingMs:4000,paused:true};
   ctx.sampledAt=2000;
   ctx.paintOrbit(2000);
-  const prepStart=Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']);
-  ctx.paintOrbit(2100);
-  const prepNext=Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']);
-  assert.ok(prepNext<prepStart,'five-second lead-in must advance smoothly within its snapshots');
+  assert.equal(Number(dom['stretch-prep-progress'].attributes['stroke-dashoffset']),start,'paused snapshot remains stationary');
   assert.doesNotMatch(scene.slice(begin,end),/setInterval|requestAnimationFrame/);
   assert.match(scene,/paintSessionProgress\(now\);paintStretchOrbits\(now\);/);
 });
@@ -120,10 +110,10 @@ test('desktop margins and stretching sizes do not affect mobile or meditation',(
 });
 
 test('page versions load the new scene, shader, styles and single source of time',()=>{
-  assert.match(html,/zen-session\.css\?v=20261104-unified-orbit-3/);
+  assert.match(html,/zen-session\.css\?v=20261104-mobile-layout-4/);
   assert.match(html,/pulse-silver-stretch\.js\?v=20261104-smooth-green-3/);
-  assert.match(html,/zen-session-scene\.js\?v=20261104-smooth-orbit-3/);
-  assert.match(html,/zen\.js\?v=20261104-smooth-orbit-3/);
+  assert.match(html,/zen-session-scene\.js\?v=20261104-training-pretimer-4/);
+  assert.match(html,/zen\.js\?v=20261104-training-pretimer-4/);
   assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-desktop-gutters-3/);
 });
 
@@ -149,4 +139,18 @@ test('on mobile the SVG timer keeps updating while heavy forest/WebGL frames are
   assert.equal(frames,4,'single RAF scheduling path');
   ctx.width=1280;ctx.loop(1064);
   assert.equal(heavy,3,'desktop continues to render each frame');
+});
+
+
+test('iPhone viewport uses natural heading height, constrained mannequin and a single text time',()=>{
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-layout\{[\s\S]*?display:flex;flex-direction:column/);
+  assert.match(sessionCss,/--pose-size:clamp\(156px,min\(calc\(100vw - 44px\),calc\(100dvh - 460px\)\),325px\)/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-copy\{[\s\S]*?max-height:none/);
+  assert.match(sessionCss,/overflow:visible;overscroll-behavior:auto/);
+  assert.match(sessionCss,/\.session-copy\.is-long h1\{[\s\S]*?overflow-wrap:anywhere/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-stage\{[\s\S]*?flex:0 0 var\(--pose-size\)/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-guidance\{[\s\S]*?transform:none!important/);
+  assert.match(sessionCss,/@media\(max-width:760px\) and \(max-height:700px\)/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-clock\{[\s\S]*?flex-wrap:nowrap/);
+  assert.match(sessionCss,/body\[data-kind=stretch\] \.session-clock small\{[\s\S]*?display:none/);
 });
