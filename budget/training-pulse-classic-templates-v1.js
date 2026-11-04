@@ -173,7 +173,9 @@ function saveAsTemplate(){
  if(mode==='template'){saveTemplate();return;}
  var inline=byId('day-workout-inline-template'),name=byId('day-workout-new-template-name');
  inline.hidden=false;name.value=String(byId('day-workout-name').value||'').trim();
- name.focus({preventScroll:true});name.select();
+ // The name field lives in the builder's settings; open them so it is actually seen.
+ if(box.classList.contains('pbu-builder')&&!box.classList.contains('pbu-settings-open')){var toggle=box.querySelector('.pbu-settings-toggle');if(toggle)toggle.click();}
+ setTimeout(function(){try{inline.scrollIntoView({block:'center',behavior:'smooth'});}catch(_){}name.focus({preventScroll:true});name.select();},60);
 }
 function confirmSaveAsTemplate(){
  var name=String(byId('day-workout-new-template-name').value||'').trim().slice(0,70);
