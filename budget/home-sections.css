@@ -414,104 +414,104 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   #home-economy .home-economy-links{margin-top:34px}
 }
 
-/* Ekonomi v2: visual month card and mortgage card. */
-#home-economy{--eco-house:#FDBA74;--eco-ica:#E9D5B7;--eco-interest:#FB7185;--eco-amort:#4ADE80;--eco-drift:#94A3B8;--eco-reno:#C4B5FD}
-#home-economy .home-economy-snapshot{max-width:none}
-#home-economy .home-economy-snapshot-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.home-economy-delta{font-size:11px;font-weight:650;color:var(--text-sec,#929ba9);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.05);font-variant-numeric:tabular-nums}
-.home-economy-delta.is-up{color:#FCA5A5;background:rgba(251,113,133,.1)}
-.home-economy-delta.is-down{color:#86EFAC;background:rgba(74,222,128,.1)}
-.home-economy-hero{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(14px,3vw,36px);align-items:stretch}
-.home-economy-total{position:relative;overflow:hidden;padding:18px 20px 16px;border-radius:18px;border:1px solid rgba(var(--home-view-rgb,253,186,116),.22);
+/* Ekonomi v3: hero card, two mini cards, mortgage card and a transfer bottom sheet. */
+#home-economy{--eco-house:#FDBA74;--eco-ica:#E9D5B7;--eco-interest:#FB7185;--eco-amort:#4ADE80;--eco-markus:#38BDF8;--eco-maja:#F9A8D4}
+#home-economy .home-economy-snapshot{max-width:none;padding-bottom:0;margin-bottom:0}
+#home-economy .home-economy-snapshot-top{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:0;padding-bottom:0}
+.home-economy-arrows{display:flex;gap:6px}
+.home-economy-arrows button{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:none;color:var(--text-sec,#929ba9);font:600 15px/1 Inter,sans-serif;cursor:pointer}
+.home-economy-arrows button:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.35)}
+.home-economy-total{padding:18px 20px 16px;border-radius:18px;border:1px solid rgba(var(--home-view-rgb,253,186,116),.22);
   background:radial-gradient(120% 140% at 0% 0%,rgba(var(--home-view-rgb,253,186,116),.16),transparent 60%),linear-gradient(160deg,rgba(255,255,255,.035),rgba(255,255,255,.01))}
-.home-economy-total>span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-sec,#929ba9);font-weight:650}
-.home-economy-total>strong{display:block;margin:6px 0 14px;font-size:clamp(28px,4.2vw,44px);font-weight:800;line-height:1;letter-spacing:-.02em;color:var(--home-view-accent,#FDBA74);font-variant-numeric:tabular-nums}
-.home-economy-split,.home-loan-stack{display:flex;gap:3px;height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06)}
-.home-economy-split i,.home-loan-stack i{display:block;height:100%;border-radius:999px;min-width:4px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.home-economy-total>span,.home-economy-mini-label{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-sec,#929ba9);font-weight:650}
+.home-economy-total>strong{display:block;margin:6px 0 14px;font-size:clamp(30px,4.4vw,46px);font-weight:800;line-height:1;letter-spacing:-.02em;color:var(--home-view-accent,#FDBA74);font-variant-numeric:tabular-nums}
+.home-economy-split{display:flex;gap:3px;height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06)}
+.home-economy-split i{display:block;height:100%;border-radius:999px;min-width:4px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
 .home-economy-split .is-house,.home-economy-legend b.is-house{background:var(--eco-house)}
 .home-economy-split .is-ica,.home-economy-legend b.is-ica{background:var(--eco-ica)}
 .home-economy-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:11px;color:var(--text-sec,#929ba9)}
 .home-economy-legend span{display:inline-flex;align-items:center;gap:6px}
 .home-economy-legend b{width:8px;height:8px;border-radius:3px;display:inline-block}
 .home-economy-legend em{font-style:normal;color:var(--text,#f0f6fc);font-weight:650;font-variant-numeric:tabular-nums}
-#home-economy .home-economy-side{display:grid;gap:10px;align-content:stretch}
-#home-economy .home-economy-side .home-economy-metric{border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 14px!important;background:rgba(255,255,255,.025);gap:5px}
-#home-economy .home-economy-side .home-economy-metric>span{font-size:11px}
-.home-economy-note{font-size:10.5px;color:var(--text-sec,#929ba9)}
-.home-loan{margin-top:clamp(16px,2.4vw,26px);padding:18px 20px;border-radius:18px;border:1px solid rgba(74,222,128,.16);
+.home-economy-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.home-economy-mini{display:grid;align-content:start;gap:6px;min-width:0;padding:13px 14px;border-radius:15px;border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.028);text-align:left;color:var(--text,#f0f6fc);font:inherit}
+button.home-economy-mini{cursor:pointer;transition:border-color .2s,background .2s}
+button.home-economy-mini:hover{border-color:rgba(var(--home-view-rgb,253,186,116),.3);background:rgba(var(--home-view-rgb,253,186,116),.05)}
+button.home-economy-mini:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:2px}
+#home-economy .home-economy-mini .home-economy-income-action{font-size:clamp(17px,1.8vw,22px)}
+.home-economy-note{font-size:11px;color:var(--text-sec,#929ba9);line-height:1.4}
+.home-economy-note b{white-space:nowrap;font-weight:700}
+.home-economy-note b.is-pos{color:var(--eco-amort)}.home-economy-note b.is-neg{color:var(--eco-interest)}
+.home-economy-who{display:grid;gap:4px}
+.home-economy-who-row{display:flex;justify-content:space-between;gap:8px;font-size:14px}
+.home-economy-who-row>span{display:inline-flex;align-items:center;gap:7px;color:var(--text,#f0f6fc)}
+.home-economy-who-row i{width:7px;height:7px;border-radius:50%}
+.home-economy-who-row i.is-markus{background:var(--eco-markus)}.home-economy-who-row i.is-maja{background:var(--eco-maja)}
+.home-economy-who-row b{font-variant-numeric:tabular-nums;font-weight:700}
+.home-economy-tap{font-size:10.5px;font-weight:650;color:var(--home-view-accent,#FDBA74)}
+.home-loan{margin-top:14px;padding:18px 20px;border-radius:18px;border:1px solid rgba(74,222,128,.16);
   background:radial-gradient(90% 120% at 100% 0%,rgba(74,222,128,.08),transparent 60%),linear-gradient(160deg,rgba(255,255,255,.03),rgba(255,255,255,.008))}
 .home-loan-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .home-loan-head span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:750;color:var(--home-view-accent,#FDBA74)}
 .home-loan-head a{font-size:11px;font-weight:650;color:var(--text-sec,#929ba9);text-decoration:none;padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.09)}
 .home-loan-head a:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.3)}
-.home-loan-body{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.5fr);gap:clamp(14px,2.4vw,28px);align-items:center}
-.home-loan-ring{position:relative;width:104px;height:104px}
+.home-loan-body{display:flex;gap:18px;align-items:center}
+.home-loan-ring{position:relative;width:84px;height:84px;flex:none}
 .home-loan-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.home-loan-ring circle{fill:none;stroke-width:9}
+.home-loan-ring circle{fill:none;stroke-width:10}
 .home-loan-ring .track{stroke:rgba(255,255,255,.07)}
 .home-loan-ring .fill{stroke:var(--eco-amort);stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(74,222,128,.45))}
 .home-loan-ring>div{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
-.home-loan-ring strong{font-size:17px;font-weight:800;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums}
-.home-loan-ring span{font-size:9.5px;color:var(--text-sec,#929ba9);letter-spacing:.04em}
-.home-loan-main{display:grid;gap:4px;min-width:0}
-.home-loan-main>span{font-size:11px;color:var(--text-sec,#929ba9)}
-.home-loan-main strong{font-size:clamp(22px,2.8vw,30px);font-weight:800;letter-spacing:-.015em;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums;line-height:1.1}
-.home-loan-main small{font-size:11px;color:var(--text-sec,#929ba9)}
-.home-loan-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.home-loan-tile{position:relative;display:grid;gap:3px;min-width:0;padding:12px 12px 11px 15px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);overflow:hidden}
-.home-loan-tile::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--tone)}
-.home-loan-tile.is-interest{--tone:var(--eco-interest)}
-.home-loan-tile.is-amort{--tone:var(--eco-amort)}
-.home-loan-tile.is-total{--tone:var(--home-view-accent,#FDBA74)}
-.home-loan-tile span{font-size:10.5px;color:var(--text-sec,#929ba9)}
-.home-loan-tile strong{font-size:clamp(15px,1.6vw,19px);font-weight:750;color:var(--tone);font-variant-numeric:tabular-nums;white-space:nowrap}
-.home-loan-tile small{font-size:10px;color:var(--text-sec,#929ba9)}
-.home-loan-costs{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)}
-.home-loan-costs-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:11px;color:var(--text-sec,#929ba9)}
-.home-loan-costs-label strong{font-size:13px;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums}
-.home-loan-stack .is-interest,.home-economy-legend b.is-interest{background:var(--eco-interest)}
-.home-loan-stack .is-amort,.home-economy-legend b.is-amort{background:var(--eco-amort)}
-.home-loan-stack .is-drift,.home-economy-legend b.is-drift{background:var(--eco-drift)}
-.home-loan-stack .is-reno,.home-economy-legend b.is-reno{background:var(--eco-reno)}
-@media(max-width:900px){
-  .home-loan-body{grid-template-columns:auto minmax(0,1fr)}
-  .home-loan-tiles{grid-column:1/-1}
-}
+.home-loan-ring strong{font-size:15px;font-weight:800;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums}
+.home-loan-ring span{font-size:9px;color:var(--text-sec,#929ba9)}
+.home-loan-main{display:grid;gap:3px;min-width:0}
+.home-loan-main>span,.home-loan-main small{font-size:11px;color:var(--text-sec,#929ba9)}
+.home-loan-main strong{font-size:clamp(24px,3vw,32px);font-weight:800;letter-spacing:-.015em;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums;line-height:1.1}
+.home-loan-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px}
+.home-loan-tile{display:grid;gap:3px;min-width:0;padding:10px 10px 10px 12px;border-radius:12px;background:rgba(255,255,255,.035);border-left:3px solid var(--tone)}
+.home-loan-tile.is-interest{--tone:var(--eco-interest)}.home-loan-tile.is-amort{--tone:var(--eco-amort)}.home-loan-tile.is-total{--tone:var(--home-view-accent,#FDBA74)}
+.home-loan-tile span{font-size:10px;color:var(--text-sec,#929ba9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-loan-tile strong{font-size:clamp(14px,1.7vw,19px);font-weight:750;color:var(--tone);font-variant-numeric:tabular-nums;white-space:nowrap}
+.home-loan-milestone{margin:12px 0 0;padding:9px 12px;border-radius:11px;font-size:11.5px;line-height:1.45;color:var(--text-sec,#929ba9);background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.14)}
+.home-loan-milestone b{color:var(--eco-amort);font-weight:700}
+/* Bottom sheet holding the existing transfer widget. */
+.home-transfer-sheet{position:fixed;inset:0;z-index:1200}
+.home-transfer-sheet[hidden]{display:none}
+.home-transfer-sheet-dim{position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .22s}
+.home-transfer-sheet-panel{position:absolute;left:50%;bottom:0;width:min(640px,100%);max-height:86vh;overflow:auto;box-sizing:border-box;
+  padding:10px 18px calc(22px + env(safe-area-inset-bottom));border-radius:22px 22px 0 0;background:#171c24;border-top:1px solid rgba(255,255,255,.1);
+  box-shadow:0 -20px 50px rgba(0,0,0,.45);transform:translate(-50%,100%);transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+.home-transfer-sheet.is-open .home-transfer-sheet-dim{opacity:1}
+.home-transfer-sheet.is-open .home-transfer-sheet-panel{transform:translate(-50%,0)}
+.home-transfer-sheet-grab{width:38px;height:4px;border-radius:4px;background:rgba(255,255,255,.22);margin:0 auto 12px}
+body.home-sheet-open{overflow:hidden}
+body.home-calendar-polish-v5 .home-transfer-sheet #transfer-widget,
+.home-transfer-sheet #transfer-widget{margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;max-width:none}
+.home-transfer-sheet #transfer-widget>.widget-head{padding:0 0 10px;margin:0;background:none;border:0}
+.home-transfer-sheet #transfer-widget .transfer-actions{display:flex;margin:0 0 12px;padding:3px;border-radius:12px;background:rgba(255,255,255,.05);border:0}
+.home-transfer-sheet #transfer-widget .transfer-actions .btn{flex:1;justify-content:center;text-align:center}
+.home-transfer-sheet .transfer-amount-total th,.home-transfer-sheet .transfer-amount-total td{font-weight:750;color:var(--text,#f0f6fc)}
+.home-transfer-sheet .transfer-amount-total .transfer-total-cell{color:var(--home-view-accent,#FDBA74)}
+.home-transfer-sheet .transfer-total-cell{font-weight:700}
+@media(min-width:900px){.home-transfer-sheet-panel{bottom:auto;top:50%;border-radius:22px;transform:translate(-50%,-40%);opacity:0;transition:transform .24s,opacity .2s}
+  .home-transfer-sheet.is-open .home-transfer-sheet-panel{transform:translate(-50%,-50%);opacity:1}.home-transfer-sheet-grab{display:none}}
 @media(max-width:640px){
-  .home-economy-hero{grid-template-columns:minmax(0,1fr)}
-  #home-economy .home-economy-side{grid-template-columns:repeat(2,minmax(0,1fr))}
   .home-economy-total,.home-loan{padding:15px 15px 14px}
-  .home-loan-ring{width:86px;height:86px}
-  .home-loan-ring strong{font-size:15px}
-  .home-loan-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .home-loan-tile.is-total{grid-column:1/-1}
+  .home-economy-mini{padding:12px}
+  .home-loan-ring{width:74px;height:74px}.home-loan-ring strong{font-size:13px}
+  .home-loan-tile{padding:9px 8px 9px 10px}.home-loan-tile strong{font-size:14px}
 }
-
-#home-economy .home-economy-side .home-economy-metric{align-content:center}
-.home-loan-legend{gap:6px}
-.home-loan-key{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;border:1px solid transparent;background:none;color:var(--text-sec,#929ba9);font:500 11px/1.3 Inter,sans-serif;cursor:pointer}
-.home-loan-key:hover{background:rgba(255,255,255,.04)}
-.home-loan-key em{display:none}
-.home-loan-key[aria-pressed="true"]{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text,#f0f6fc)}
-.home-loan-key[aria-pressed="true"] em{display:inline}
-.home-loan-key:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:2px}
-.home-loan-stack i{cursor:pointer;transition:width .6s cubic-bezier(.2,.8,.2,1),opacity .2s}
-.home-loan-stack i.is-dim{opacity:.25}
-
-#home-economy .home-economy-transfer-slot{min-width:0}
-body.home-calendar-polish-v5 #home-economy .home-economy-transfer-slot #transfer-widget,
-#home-economy .home-economy-transfer-slot #transfer-widget{margin-top:16px!important;padding:14px 0 0!important;border:0!important;border-top:1px solid rgba(255,255,255,.08)!important;border-radius:0!important;background:none!important}
-#home-economy .home-economy-transfer-slot #transfer-widget>.widget-head{padding:0 0 8px;margin:0 0 6px;background:none;border:0}
-#home-economy .home-economy-transfer-slot #transfer-widget .widget-title{font-size:11px}
-#home-economy .home-economy-transfer-slot #transfer-widget .transfer-actions{margin:0;padding:0;border:0}
-#home-economy .home-economy-hero{align-items:start}
-@media(max-width:640px){#home-economy .home-economy-side{grid-template-columns:minmax(0,1fr)}}
-
-#home-economy .home-economy-hero{grid-template-columns:minmax(0,1fr)}
-.home-economy-total-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px 28px;flex-wrap:wrap}
-.home-economy-total-main>span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-sec,#929ba9);font-weight:650}
-.home-economy-total-main>strong{display:block;margin:6px 0 14px;font-size:clamp(28px,4.2vw,44px);font-weight:800;line-height:1;letter-spacing:-.02em;color:var(--home-view-accent,#FDBA74);font-variant-numeric:tabular-nums}
-#home-economy .home-economy-total .home-economy-income{border:0;padding:2px 0 0!important;text-align:right;justify-items:end;gap:4px}
-#home-economy .home-economy-total .home-economy-income>span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:650}
-#home-economy .home-economy-total .home-economy-income .home-economy-income-action{justify-content:flex-end;width:auto}
-@media(max-width:640px){#home-economy .home-economy-total .home-economy-income{text-align:left;justify-items:start;margin-bottom:12px}#home-economy .home-economy-total .home-economy-income .home-economy-income-action{justify-content:flex-start}}
+.home-transfer-sheet #transfer-widget .transfer-amount-table th:first-child{width:28%}
+.home-transfer-sheet #transfer-widget .transfer-amount-table th:nth-child(2),
+.home-transfer-sheet #transfer-widget .transfer-amount-table th:nth-child(3),
+.home-transfer-sheet #transfer-widget .transfer-amount-table th:nth-child(4){width:24%}
+.home-transfer-sheet #transfer-widget .transfer-amount-table{font-size:12.5px}
+.home-transfer-sheet #transfer-widget .transfer-amount-table tbody td,
+.home-transfer-sheet #transfer-widget .transfer-amount-table tbody th{font-size:12.5px}
+.home-transfer-sheet #transfer-widget .transfer-amount-table thead th{font-size:10.5px}
+.home-transfer-sheet #transfer-widget .transfer-amount-table tbody td.transfer-total-cell{color:var(--text,#f0f6fc);font-weight:700}
+.home-transfer-sheet #transfer-widget .transfer-amount-table tfoot tr{border-top:1px solid rgba(255,255,255,.14)}
+.home-transfer-sheet #transfer-widget .transfer-amount-table tfoot th{text-align:left;font-size:12.5px;font-weight:750;padding:10px 4px}
+.home-transfer-sheet #transfer-widget .transfer-amount-table tfoot td{text-align:right;font-size:12.5px;font-weight:750;padding:10px 4px;white-space:nowrap}
+.home-transfer-sheet #transfer-widget .transfer-amount-table tfoot td.transfer-total-cell{color:var(--home-view-accent,#FDBA74)}
+.home-transfer-sheet #transfer-widget.open .transfer-popup{max-height:none}
