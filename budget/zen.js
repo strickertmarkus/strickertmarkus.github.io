@@ -236,14 +236,14 @@
   function renderPoseOptions(){
     if(!builder||builder.kind!=='stretch')return;
     const query=$('pose-search').value.trim().toLocaleLowerCase('sv-SE'),group=$('pose-group').value;
-    const matches=M.poses.filter(p=>(!group||p.group===group)&&(!query||(p.name+' '+p.group).toLocaleLowerCase('sv-SE').includes(query)));
+    const matches=M.poses.filter(p=>(!group||p.group===group)&&(!query||(p.name+' '+p.group+' '+(p.muscle||'')).toLocaleLowerCase('sv-SE').includes(query)));
     const previous=$('pose-select').value;
     $('pose-select').innerHTML=matches.length?[...new Set(matches.map(p=>p.group))].map(g=>'<optgroup label="'+escape(g)+'">'+matches.filter(p=>p.group===g).map(p=>'<option value="'+p.id+'">'+escape(p.name)+'</option>').join('')+'</optgroup>').join(''):'<option value="">Inga matchande övningar</option>';
     if(matches.some(p=>p.id===previous))$('pose-select').value=previous;
     $('pose-count').textContent=matches.length+' valbara alternativ · '+window.ZenStretch.families.length+' rörelser, med sidvarianter';
     $('add-pose').disabled=!matches.length||builder.steps.length>=20;updatePoseDescription();
   }
-  function updatePoseDescription(){const pose=M.poses.find(p=>p.id===$('pose-select').value);$('pose-description').textContent=pose?pose.cue:'Prova en annan sökning eller muskelgrupp.';}
+  function updatePoseDescription(){const pose=M.poses.find(p=>p.id===$('pose-select').value);$('pose-description').textContent=pose?(pose.muscle?'Muskler: '+pose.muscle+'. ':'')+pose.cue:'Prova en annan sökning eller muskelgrupp.';}
   $('pose-search').oninput=renderPoseOptions;$('pose-group').onchange=renderPoseOptions;$('pose-select').onchange=updatePoseDescription;
   let milestoneDraft=null;
   $('collection').onclick=e=>{

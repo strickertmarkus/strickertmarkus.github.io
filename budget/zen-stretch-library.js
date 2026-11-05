@@ -19,10 +19,13 @@
  prone={head:[75,199],torso:[[109,211],[171,223]],arms:[[[111,220],[87,239],[57,231]],[[111,202],[95,218],[66,219]]],legs:[[[168,224],[216,234],[263,237]],[[168,213],[216,220],[266,220]]]},
  side={head:[67,177],torso:[[101,194],[158,213]],arms:[[[102,196],[70,219],[48,204]],[[108,190],[135,218],[155,232]]],legs:[[[155,217],[209,238],[261,246]],[[159,204],[213,220],[263,231]]]};
  const families=[];
- function add(id,name,group,cue,base,motion,changes={},paired=false){
+ function add(id,name,group,cue,base,motion,changes={},paired=false,extra={}){
   const rig={...clone(typeof base==='string'?rigs[base]:base),...changes};
-  families.push({id,name,group,cue,rig,motion,paired});
+  families.push({id,name,group,cue,rig,motion,paired,muscle:extra.muscle||'',area:extra.area||''});
  }
+ // Wider catalogue: smaller muscles get their own entries. They reuse the nearest
+ // existing rig and motion; `muscle` names the target and `area` sets the glow.
+ function more(id,name,group,muscle,area,cue,base,motion,paired=false,changes={}){add(id,name,group,cue,base,motion,changes,paired,{muscle,area});}
  add("arrive","Stående avslappning","Helkropp","Stå bekvämt. Låt axlarna sjunka och känn fötterna mot marken.","arrive","breathe",{},false);
  add("neck","Axelrullningar","Axlar & bröst","Rulla axlarna långsamt bakåt. Släpp ned dem mellan varje rörelse.","neck","shoulders",{},false);
  add("side","Sidosträck","Rygg & bål","Sträck motsatt arm uppåt och luta mjukt åt den angivna sidan.","side-left","side",{},true);
@@ -82,7 +85,81 @@
  add("palm-rock","Handledsgungning på alla fyra","Armar & händer","På alla fyra med handflatorna i golvet: för vikten försiktigt framåt och tillbaka.","cat","palm",{},false);
 
  add('biceps','Bicepsstretch med raka armar','Armar & händer','För raka armar en liten bit bakom kroppen med handflatorna framåt. Håll axlarna sänkta och lyft bara så långt det känns mjukt.',stand,'biceps',{arms:[[[134,91],[112,131],[95,172]],[[166,91],[184,131],[205,172]]]});
- const poses=families.flatMap(f=>f.paired?['left','right'].map(side=>({id:f.id+'-'+side,name:f.name+' · '+(side==='left'?'vänster':'höger'),cue:f.cue,group:f.group,family:f.id,side})): [{id:f.id,name:f.name,cue:f.cue,group:f.group,family:f.id}]);
+
+ // Nacke & käke
+ more('scalene','Scalenusstretch','Nacke','Scalenus, sidan av halsen','neck','Sänk axeln på angiven sida, luta huvudet åt motsatt håll och vänd hakan en aning uppåt.',stand,'neckTilt',true);
+ more('scm','Främre halsstretch','Nacke','Sternocleidomastoideus','neck','Vrid huvudet bort från angiven sida och lyft hakan lite. Håll bröstbenet lågt och axlarna sänkta.',stand,'neckTurn',true);
+ more('suboccipital','Övre nackstretch','Nacke','Suboccipitala muskler, nackens överdel','neck','Gör en liten hakindragning och nicka sedan bara med huvudet, som ett litet ja, utan att böja hela nacken.',stand,'neckNod');
+ more('trap-seated','Trapeziusstretch med handstöd','Nacke','Övre trapezius','neck','Sitt på angiven hand för att hålla axeln nere och luta huvudet åt motsatt sida. Låt andra handen vila lätt på huvudet.',seat,'neckTilt',true);
+ more('jaw','Käkavslappning','Nacke','Käkmuskler (masseter, temporalis)','neck','Låt tungan vila bakom framtänderna och öppna munnen långsamt så långt det är bekvämt. Stäng lika lugnt.',stand,'chin');
+ more('neck-extension','Nackextension med stöd','Nacke','Främre halsmuskler','neck','Stöd nacken med händerna och låt blicken gå mjukt uppåt. Gå bara så långt det känns fritt.',seat,'neckNod');
+ // Axlar & bröst
+ more('doorway-pec','Bröststretch i dörrkarm','Axlar & bröst','Pectoralis major','chest','Placera angiven underarm mot en dörrkarm med armbågen i axelhöjd. Kliv ett litet steg fram tills det känns i bröstet.',stand,'armHold',true,{arms:[[[134,91],[93,95],[90,53]],[[166,91],[180,134],[176,166]]]});
+ more('pec-minor','Bröststretch med hög arm','Axlar & bröst','Pectoralis minor','chest','Som i dörrkarmen men med armbågen ovanför huvudet. Luta dig snett framåt och håll revbenen nere.',stand,'armHold',true,{arms:[[[134,91],[104,58],[98,20]],[[166,91],[180,134],[176,166]]]});
+ more('sleeper','Sovarens stretch','Axlar & bröst','Rotatorkuff, bakre axel (infraspinatus, teres minor)','shoulder','Ligg på angiven sida med armen i 90 grader framför dig. Tryck underarmen mjukt mot golvet med andra handen.',side,'armHold',true);
+ more('towel-reach','Handduksstretch bakom ryggen','Axlar & bröst','Rotatorkuff (subscapularis), främre axel','shoulder','Håll en handduk bakom ryggen med angiven hand nederst. Dra den långsamt uppåt med den övre handen.',stand,'overhead',true,{arms:[[[134,91],[124,140],[148,150]],[[166,91],[185,51],[152,60]]]});
+ more('front-delt','Främre axelstretch vid vägg','Axlar & bröst','Främre deltoideus','shoulder','Placera angiven handflata mot en vägg bakom dig i axelhöjd och vrid kroppen långsamt bort från armen.',stand,'armHold',true,{arms:[[[134,91],[95,105],[58,110]],[[166,91],[174,135],[176,166]]]});
+ more('rear-delt','Bakre axelstretch med böjd arm','Axlar & bröst','Bakre deltoideus','shoulder','Böj angiven arm 90 grader framför bröstet och dra armbågen mot motsatt axel med andra handen.',stand,'armHold',true,{arms:[[[134,91],[170,105],[170,75]],[[166,91],[178,144],[170,108]]]});
+ more('wall-angel','Väggänglar','Axlar & bröst','Skulderbladsmuskler, bröst','shoulder','Stå med ryggen mot en vägg och för armarna långsamt upp och ned med armbågar och handryggar nära väggen.',stand,'goalpost',false,{arms:[[[134,91],[93,95],[90,53]],[[166,91],[207,95],[210,53]]]});
+ more('reverse-prayer','Omvänd bön','Axlar & bröst','Främre axel, underarmar','chest','För handflatorna mot varandra bakom ryggen med fingrarna uppåt, eller håll i armbågarna om det är lättare.',stand,'prayer',false,{arms:[[[134,91],[121,144],[151,140]],[[166,91],[184,143],[151,140]]]});
+ more('prone-t','Liggande bröstöppning','Axlar & bröst','Bröst, främre axel','chest','Ligg på mage med angiven arm rakt ut åt sidan. Rulla mjukt över mot armen och böj det övre knät för stöd.',prone,'breathe',true);
+ more('serratus','Sidosträck i dörrkarm','Axlar & bröst','Serratus anterior, sidan av bröstkorgen','torso','Håll i en dörrkarm med angiven hand ovanför huvudet och låt höften glida ut åt motsatt sida.','side-left','side',true);
+ // Rygg & bål
+ more('lat-bench','Latsstretch mot bänk','Rygg & bål','Latissimus dorsi','torso','Placera händerna på en bänk eller stolsrygg, gå bakåt och sänk bröstet med raka armar.',stand,'hinge',false,{head:[100,140],torso:[[118,128],[151,150]],arms:[[[118,130],[85,125],[52,122]],[[124,128],[90,118],[55,115]]]});
+ more('rhomboid','Övre ryggrundning','Rygg & bål','Rhomboideus, mellersta trapezius','shoulder','Fläta fingrarna framför dig, skjut händerna framåt och runda ryggen mellan skulderbladen.',stand,'hug',false,{arms:[[[134,91],[140,128],[150,140]],[[166,91],[160,128],[150,140]]]});
+ more('ql','Quadratus lumborum-stretch','Rygg & bål','Quadratus lumborum, ländryggens sida','torsoLow','Stå med fötterna korsade, angiven sida bakom, och luta bålen åt motsatt håll med armen över huvudet.','side-left','side',true);
+ more('seated-side','Sittande sidosträck','Rygg & bål','Sneda bukmuskler, latissimus','torso','Sitt brett, låt ena handen vila i golvet och sträck den andra armen över huvudet åt angiven sida.',seat,'side',true,{arms:[[[134,140],[112,177],[108,205]],[[166,140],[160,95],[130,70]]]});
+ more('standing-back','Stående bakåtböjning','Rygg & bål','Raka bukmuskeln, höftböjare','torso','Placera händerna på ländryggen och böj dig lätt bakåt med blicken framåt. Andas lugnt.',stand,'cobra',false,{arms:[[[134,91],[125,135],[140,160]],[[166,91],[175,135],[160,160]]]});
+ more('towel-thoracic','Bröstryggsextension över handduk','Rygg & bål','Bröstryggen (thorakal extension)','torso','Ligg med en hoprullad handduk tvärs under skulderbladen och låt armarna vila ovanför huvudet.','rest','breathe');
+ more('quadruped-rotation','Bröstryggsrotation på alla fyra','Rygg & bål','Bröstryggens rotatorer','torso','Placera angiven hand bakom huvudet och rotera armbågen långsamt mot taket. Följ med blicken.','cat','thread',true);
+ more('supine-twist','Liggande ryggvridning','Rygg & bål','Ländrygg, sneda bukmuskler, säte','torsoLow','Ligg på rygg, för angivet knä över kroppen och låt det sjunka mot golvet. Vänd blicken åt motsatt håll.','rest','kneeSway',true,{legs:[[[159,222],[209,165],[249,239]],[[159,211],[210,214],[260,217]]]});
+ more('chair-fold','Framåthäng på stol','Rygg & bål','Ländryggens muskler (erector spinae)','torsoLow','Sitt på en stol med knäna isär och låt överkroppen hänga ned mellan benen. Rulla upp långsamt.',seat,'hinge',false,{head:[150,215],torso:[[150,180],[151,206]]});
+ more('belly-breath','Magandning med sträck','Rygg & bål','Diafragma, bukväggen','torso','Ligg på rygg med händerna på magen. Andas långsamt in så att magen lyfter och sträck lätt i bålen.','rest','breathe');
+ // Höfter & säte
+ more('piriformis-chair','Piriformisstretch på stol','Höfter & säte','Piriformis','hip','Sitt på en stol, lägg angiven fotled på motsatt knä och fäll fram från höften med rak rygg.',seat,'glute',true);
+ more('pigeon','Duvan','Höfter & säte','Säte, piriformis, höftrotatorer','hip','Från alla fyra: för angivet knä fram mot handen och sträck det andra benet bakåt. Sänk höften mjukt mot underlaget.','cat','frog',true);
+ more('tfl','Stående TFL-stretch','Höfter & säte','Tensor fasciae latae, IT-bandet','hip','Korsa angivet ben bakom det andra och skjut höften försiktigt ut åt samma sida.','side-left','side',true);
+ more('couch','Soffstretch','Höfter & säte','Rectus femoris, höftböjare','thigh','Placera angiven fot mot en soffa eller vägg bakom dig med knät på mjukt underlag. Res överkroppen långsamt.','hip-left','lunge',true);
+ more('psoas-bed','Höftböjarstretch vid sängkant','Höfter & säte','Iliopsoas','hip','Ligg vid kanten av en säng, låt angivet ben hänga ned och håll det andra knät mot bröstet.','rest','kneeChest',true,{legs:[[[159,222],[148,166],[201,199]],[[159,211],[205,240],[250,262]]]});
+ more('windshield','Vindrutetorkare','Höfter & säte','Höftens inåt- och utåtrotatorer','hip','Sitt med böjda knän brett isär och händerna bakom dig. Låt knäna falla lugnt från sida till sida.',seat,'kneeSway');
+ more('happy-baby','Glada bebisen','Höfter & säte','Inre lår, säte, ländrygg','hip','Ligg på rygg, håll om fötternas utsidor och låt knäna sjunka mot armhålorna.','rest','butterfly',false,{legs:[[[159,222],[146,170],[165,140]],[[159,211],[150,160],[175,132]]]});
+ more('lizard','Ödlan','Höfter & säte','Höftböjare, inre lår','hip','Från utfall: placera båda händerna innanför angiven främre fot och sänk höfterna mot golvet.','hip-left','lunge',true);
+ more('standing-figure-four','Stående fyran','Höfter & säte','Gluteus medius och maximus','hip','Stå på ett ben med stöd, lägg angiven fotled över knät och sätt dig lite bakåt som på en stol.',stand,'glute',true,{legs:[[[141,159],[175,170],[150,185]],[[159,159],[165,210],[170,261]]]});
+ more('cross-body-leg','Liggande ben över kroppen','Höfter & säte','Gluteus medius, IT-bandet','hip','Ligg på rygg och för angivet raka ben över kroppen. Håll det lätt med motsatt hand och behåll axlarna i golvet.','rest','figureFour',true);
+ more('frog-prone','Liggande groda','Höfter & säte','Inre lår, höftleder','hip','Ligg på mage och för angivet knä uppåt längs golvet åt sidan. Låt höften sjunka.',prone,'breathe',true);
+ // Lår
+ more('straddle','Grenstretch sittande','Lår','Adduktorer, baksida lår','thigh','Sitt med benen brett isär och fäll fram från höften med rak rygg. Mjuka knän går bra.','fold','hinge',false,{legs:[[[93,224],[150,250],[205,262]],[[95,214],[160,200],[230,190]]]});
+ more('heel-step','Baksida lår med häl på pall','Lår','Hamstrings','thigh','Placera angiven häl på en låg pall med rakt ben och fäll fram från höften med rak rygg.',stand,'hinge',true,{legs:[[[141,159],[115,190],[90,215]],[[159,159],[163,210],[170,261]]]});
+ more('prone-quad','Framsida lår på mage','Lår','Quadriceps','thigh','Ligg på mage, böj angivet knä och håll om foten eller använd en handduk runt vristen.',prone,'quad',true,{legs:[[[168,224],[216,234],[200,185]],[[168,213],[216,220],[266,220]]]});
+ more('kneeling-quad','Knästående bakåtlutning','Lår','Quadriceps, höftböjare','thigh','Sitt på knä med händerna bakom dig och luta överkroppen försiktigt bakåt.',kneel,'cobra');
+ more('legs-wall-wide','Ben isär mot väggen','Lår','Adduktorer','thigh','Ligg med benen uppför en vägg och låt dem sjunka isär åt sidorna av sin egen vikt.','rest','butterfly',false,{legs:[[[159,222],[190,160],[230,110]],[[159,211],[180,150],[200,90]]]});
+ more('gracilis','Sidoutfall med tårna upp','Lår','Gracilis, långa adduktorer','thigh','Stå brett, böj det andra knät och håll angivet ben rakt med tårna pekande uppåt.',stand,'sideLunge',true,{head:[128,71],torso:[[135,107],[153,167]],legs:[[[145,169],[94,207],[80,262]],[[161,169],[208,215],[255,264]]]});
+ more('legs-wall','Ben uppför väggen','Lår','Hamstrings, vader','thigh','Ligg på rygg med benen vilande uppför väggen. Låt baksidan av låren mjukna.','rest','hamstring',false,{legs:[[[159,222],[175,150],[190,80]],[[159,211],[172,140],[185,70]]]});
+ more('chair-hamstring','Sittande baksida lår på stol','Lår','Hamstrings, vad','thigh','Sitt på stolskanten, sträck angivet ben med hälen i golvet och dra tårna mot dig. Fäll fram från höften.',seat,'hinge',true,{legs:[[[143,209],[190,225],[240,250]],[[158,209],[196,240],[136,254]]]});
+ // Underben & fötter
+ more('tibialis','Framsida underben','Underben & fötter','Tibialis anterior','calf','Stå med stöd och placera angiven fot bakom dig med fotryggen mot golvet. Böj stödbenet lätt.',stand,'instep',true,{legs:[[[141,159],[150,210],[175,255]],[[159,159],[163,210],[170,261]]]});
+ more('peroneus','Fotledsstretch inåt','Underben & fötter','Peroneusmusklerna, utsidan av underbenet','calf','Sitt med angiven fot över motsatt knä och vrid fotsulan försiktigt uppåt och inåt.',seat,'ankle',true);
+ more('plantar','Fotvalvsstretch','Underben & fötter','Fotsulan (plantarfascian)','foot','Sitt och dra tårna på angiven fot bakåt mot smalbenet med handen tills det känns i fotvalvet.',seat,'toes',true);
+ more('toe-spread','Tåspretning','Underben & fötter','Fotens små muskler','foot','Spreta ut tårna så brett det går, håll en stund och slappna sedan av.',seat,'anklePump');
+ more('step-calf','Hälsenestretch på trappsteg','Underben & fötter','Vadmusklerna, hälsenan','calf','Stå med framfoten på ett trappsteg och sänk angiven häl långsamt. Håll i räcket.',stand,'calf',true);
+ more('big-toe','Stortåstretch mot vägg','Underben & fötter','Stortåns böjare','foot','Placera stortån mot en vägg med hälen i golvet och luta knät försiktigt framåt.',stand,'toes',true);
+ more('ball-roll','Fotsula mot boll','Underben & fötter','Fotsulan, fotens små muskler','foot','Rulla angiven fotsula långsamt över en boll eller flaska med lätt tryck.',seat,'anklePump',true);
+ // Armar & händer
+ more('finger-stretch','Fingerstretch bakåt','Armar & händer','Fingrarnas böjare','forearm','Håll angiven hand framför dig med handflatan utåt och dra fingrarna försiktigt bakåt med andra handen.',stand,'wristFlex',true,{arms:[[[134,91],[107,128],[78,133]],[[166,91],[142,151],[76,143]]]});
+ more('thumb','Tumstretch','Armar & händer','Tummens muskler och senor','forearm','Böj in tummen i handflatan, slut fingrarna runt den och luta handleden lätt mot lillfingersidan.',stand,'wristExtend',true,{arms:[[[134,91],[107,128],[78,133]],[[166,91],[142,151],[76,143]]]});
+ more('finger-spread','Fingerspretning','Armar & händer','Handens små muskler','forearm','Spreta ut fingrarna så brett det går, håll en stund och knyt sedan handen mjukt.',stand,'wrists',false,{arms:[[[134,91],[117,137],[116,103]],[[166,91],[183,137],[184,103]]]});
+ more('forearm-rotation','Underarmsrotation','Armar & händer','Pronatorer och supinatorer','forearm','Håll armbågarna mot sidorna och vrid handflatorna långsamt upp och ned.',stand,'wrists',false,{arms:[[[134,91],[126,135],[105,140]],[[166,91],[174,135],[195,140]]]});
+ more('biceps-wall','Bicepsstretch mot vägg','Armar & händer','Biceps, brachialis','upperArm','Placera angiven handflata mot väggen bakom dig med rak arm och fingrarna bakåt. Vrid kroppen långsamt bort.',stand,'biceps',true,{arms:[[[134,91],[95,105],[58,110]],[[166,91],[174,135],[176,166]]]});
+ more('table-wrist','Handledsstretch mot bord','Armar & händer','Handledens böjare','forearm','Placera handflatorna på ett bord med fingrarna mot dig och luta dig försiktigt bakåt.',stand,'wristFlex',false);
+ more('table-wrist-back','Handrygg mot bord','Armar & händer','Handledens sträckare','forearm','Placera handryggarna mot ett bord och luta dig lätt framåt tills det känns ovanpå underarmen.',stand,'wristExtend',false);
+ more('triceps-wall','Tricepsstretch mot vägg','Armar & händer','Triceps','upperArm','Placera angiven armbåge högt mot en vägg med handen bakom huvudet och luta bröstet mot väggen.',stand,'overhead',true,{arms:[[[134,91],[120,35],[150,74]],[[166,91],[174,135],[176,166]]]});
+ // Helkropp
+ more('long-stretch','Liggande helkroppssträck','Helkropp','Hela kroppen','','Ligg på rygg, sträck armarna över huvudet och tårna bort från dig. Andas ut och släpp.','rest','breathe');
+ more('reach-tall','Stående sträck på tå','Helkropp','Hela kroppen, vader','','Sträck båda armarna mot taket, gå upp på tå och sjunk sedan lugnt ned.',stand,'overhead',false,{arms:[[[134,91],[128,48],[126,10]],[[166,91],[172,48],[174,10]]]});
+ more('worlds-greatest','Världens bästa stretch','Helkropp','Höftböjare, bröstrygg, baksida lår','','Från utfall: placera handen innanför angiven främre fot och rotera den andra armen mot taket.','hip-left','lunge',true);
+ more('deep-squat','Djup knäböjsvila','Helkropp','Fotleder, höfter, ländrygg','hip','Sjunk ned i en djup knäböj med hälarna i golvet. Håll i något stadigt vid behov.',kneel,'breathe');
+ more('down-dog','Mjuk nedåtgående hund','Helkropp','Vader, baksida lår, axlar','','Från alla fyra: lyft höfterna mot taket med mjuka knän och tryck hälarna lätt mot golvet.','cat','puppy',false,{head:[110,215],torso:[[120,195],[175,130]],arms:[[[118,200],[95,222],[70,235]],[[124,195],[100,218],[75,230]]],legs:[[[175,135],[200,190],[230,235]],[[172,138],[195,192],[222,232]]]});
+ const poses=families.flatMap(f=>f.paired?['left','right'].map(side=>({id:f.id+'-'+side,name:f.name+' · '+(side==='left'?'vänster':'höger'),cue:f.cue,group:f.group,family:f.id,side,...(f.muscle?{muscle:f.muscle}:{})})): [{id:f.id,name:f.name,cue:f.cue,group:f.group,family:f.id,...(f.muscle?{muscle:f.muscle}:{})}]);
  const byId=new Map(poses.map(p=>[p.id,p])),byFamily=new Map(families.map(f=>[f.id,f]));
  function frame(id,t=0,reduced=false){
   const entry=byId.get(id);if(!entry)return null;const family=byFamily.get(entry.family),p=clone(family.rig);
@@ -130,7 +207,12 @@
   const mark=(a,b,r=11)=>p.highlights.push({a:[...a],b:[...b],r});
   const segment=(limb,a,b,r=10)=>mark(mix(limb[0],limb[1],a),mix(limb[0],limb[1],b),r);
   const arms=entry.side?[p.arms[0]]:p.arms,legs=entry.side?[p.legs[0]]:p.legs;
-  if(family.id==='hip')segment(p.legs[1],0,.45,14);
+  const areas={neck:()=>mark(mix(p.head,p.torso[0],.6),p.torso[0],11),shoulder:()=>arms.forEach(a=>segment(a,0,.35,12)),upperArm:()=>arms.forEach(a=>segment(a,.22,.8,10)),
+   forearm:()=>arms.forEach(a=>mark(mix(a[1],a[2],.3),a[2],9)),chest:()=>mark(mix(p.arms[0][0],p.torso[0],.5),mix(p.arms[1][0],p.torso[0],.5),15),
+   torso:()=>mark(torsoAt(.2),torsoAt(.7),13),torsoLow:()=>mark(torsoAt(.55),torsoAt(.95),13),hip:()=>legs.forEach(a=>segment(a,0,.25,17)),
+   thigh:()=>legs.forEach(a=>segment(a,.15,.8,13)),calf:()=>legs.forEach(a=>segment([a[1],a[2]],.2,.75,12)),foot:()=>legs.forEach(a=>mark(mix(a[1],a[2],.85),a[2],10))};
+  if(family.muscle){if(areas[family.area])areas[family.area]();}
+  else if(family.id==='hip')segment(p.legs[1],0,.45,14);
   else if(m==='cobra'||m==='sphinx'){mark(torsoAt(.45),torsoAt(.88),12);const a=torsoAt(.38),b=torsoAt(.78);mark([a[0],a[1]+12],[b[0],b[1]+12],10);}
   else if(m.startsWith('neck')||m==='chin')mark(mix(p.head,p.torso[0],.6),p.torso[0],11);
   else if(['shoulders','armHold','armCircles','goalpost','hug','eagle'].includes(m))arms.forEach(a=>segment(a,0,.35,12));
@@ -146,5 +228,5 @@
   else if(['side','twist','thread','book','cat','child','puppy','pelvis','kneeSway'].includes(m))mark(torsoAt(m==='puppy'?.05:.35),torsoAt(m==='puppy'?.45:.85),13);
   return p;
  }
- return {poses,frame,families:families.map(({id,name,group})=>({id,name,group}))};
+ return {poses,frame,families:families.map(({id,name,group,muscle})=>({id,name,group,...(muscle?{muscle}:{})}))};
 });

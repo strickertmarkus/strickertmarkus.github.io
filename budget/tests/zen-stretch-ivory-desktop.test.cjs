@@ -141,7 +141,7 @@ test('page versions load the new scene, shader, styles and single source of time
   assert.match(html,/zen-session\.css\?v=20261104-training-preline-5/);
   assert.match(html,/pulse-silver-stretch\.js\?v=20261104-deep-green-1/);
   assert.match(html,/zen-session-scene\.js\?v=20261104-training-preline-5/);
-  assert.match(html,/zen\.js\?v=20261104-training-preline-5/);
+  assert.match(html,/zen\.js\?v=20261105-more-stretches-1/);
   assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-remove-pass-1/);
 });
 
