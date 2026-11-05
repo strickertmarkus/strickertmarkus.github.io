@@ -289,6 +289,31 @@ function fixWatchVo2(store) {
   store.ex_goals[WATCH_VO2_FIX_MARK] = true;
   return true;
 }
+/**
+ * One-time backfill for Markus: workouts saved before body mass was stored per
+ * session (or while no mass was set) get his current body mass, so bodyweight
+ * exercises count in total volume. Only adds fields; nothing is removed, and
+ * sessions that already hold a mass keep it. Maja's data is never touched.
+ */
+const BODYWEIGHT_BACKFILL_MARK = 'bodyweightBackfill20261105';
+function backfillBodyweight(store) {
+  if (store.ex_goals && store.ex_goals[BODYWEIGHT_BACKFILL_MARK]) return false;
+  if (!Array.isArray(store.ex_wk)) return false;
+  const mass = Number(store.ex_goals && store.ex_goals.bodyweightKg) > 0 ? Number(store.ex_goals.bodyweightKg) : MARKUS_BODY_MASS;
+  let count = 0;
+  store.ex_wk.forEach(w => {
+    if (!w || typeof w !== 'object' || Number(w.bodyweightKg) > 0) return;
+    const usesBodyweight = (w.exercises || []).some(ex => ex && ex.weightMode === 'bodyweight'
+      && (ex.kind || ((ex.distance || ex.time) ? 'cardio' : 'strength')) === 'strength');
+    if (!usesBodyweight) return;
+    w.bodyweightKg = mass;
+    w.bodyweightBackfilled = true;
+    count++;
+  });
+  store.ex_goals = Object.assign({ weeklyWk: 4, runDistanceGoal: 10, vo2Goal: 45 }, store.ex_goals || {}, { [BODYWEIGHT_BACKFILL_MARK]: { date: '2026-11-05', mass, workouts: count } });
+  return true;
+}
+
 async function runBodyweight78Migration() {
   if (!isExercisePage || !db || !syncEnabled) return;
   const keys = ['ex_wk', 'ex_templates', 'ex_plannedSessions', 'ex_prs', 'ex_goals', 'ex_vo2'];
@@ -309,21 +334,27 @@ async function runBodyweight78Migration() {
   const added = addWatchRuns(store);
   const vo2Fixed = fixWatchVo2(store);
   const vo2Added = addWatchVo2(store);
-  if (!fixed && !added && !vo2Added && !vo2Fixed) return;
+  const backfilled = backfillBodyweight(store);
+  if (!fixed && !added && !vo2Added && !vo2Fixed && !backfilled) return;
+  // Keep the untouched workout list on this device before anything is written.
+  if (backfilled && before.ex_wk) safeSetLocal('ex_wk_backup_before_bodyweight_backfill', before.ex_wk);
+  let workoutsFailed = false;
   for (const key of keys) {
     if (store[key] == null) continue;
+    // If the workouts could not be written, leave the backfill unmarked so it runs again.
+    if (key === 'ex_goals' && workoutsFailed && backfilled) delete store.ex_goals[BODYWEIGHT_BACKFILL_MARK];
     const value = JSON.stringify(store[key]);
     if (value === before[key]) continue;
     try {
       // Commit only if the server still holds the value the fix was computed from.
       const result = await db.ref(key).transaction(current => (current == null || current === before[key]) && (before[key] != null || current == null) ? value : undefined);
-      if (!result || !result.committed) { console.warn('[Firebase] Training data fix skipped, data changed meanwhile:', key); continue; }
-    } catch (error) { console.warn('[Firebase] Training data fix failed', key, error.message); continue; }
+      if (!result || !result.committed) { if (key === 'ex_wk') workoutsFailed = true; console.warn('[Firebase] Training data fix skipped, data changed meanwhile:', key); continue; }
+    } catch (error) { if (key === 'ex_wk') workoutsFailed = true; console.warn('[Firebase] Training data fix failed', key, error.message); continue; }
     safeSetLocal(key, value);
     lastKnownValues[key] = value;
     if (exerciseUser === 'markus') window.dispatchEvent(new CustomEvent('firebase-sync', { detail: { key, value } }));
   }
-  console.log('[Firebase] One-time training data fixes applied', { fixed, added, vo2Added, vo2Fixed });
+  console.log('[Firebase] One-time training data fixes applied', { fixed, added, vo2Added, vo2Fixed, backfilled });
 }
 
 /**
