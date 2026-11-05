@@ -428,15 +428,16 @@
         zoom.innerHTML='<div class="st-zoom-stage"></div>'+
           '<button type="button" class="st-zoom-close" data-zoom-close aria-label="Tillbaka till översikten">'+ICON.back+'<span>Översikt</span></button>'+
           '<div class="st-mm-detail-header"><span class="st-eyebrow">DETALJ · '+(i+1)+' / '+p.ids.length+'</span><span class="st-mm-detail-muscles">'+esc(e.muscles.join(' · '))+'</span></div>'+
-          '<div class="st-mm-detail-content"><h2>'+esc(e.name)+'</h2>'+
-          '<div class="st-mm-detail-dose">'+esc(d.big+' '+d.unit)+'</div>'+
+          '<div class="st-mm-detail-content"><div class="st-mm-detail-title"><h2>'+esc(e.name)+'</h2>'+
+          '<div class="st-mm-detail-dose">'+esc(d.big+' '+d.unit)+'</div></div>'+
           (after?'<p class="st-mm-detail-next">Efteråt: <strong>'+esc(after.title)+'</strong>'+(after.sub?' · '+esc(after.sub):'')+'</p>':'<p class="st-mm-detail-next">Sista övningen i passet</p>')+
-          '<div class="st-mm-detail-tech"><span class="st-eyebrow">TEKNIK</span><ol>'+technique.map(function(step){return '<li>'+esc(step)+'</li>';}).join('')+'</ol>'+
-          (e.tip?'<p>'+esc(e.tip)+'</p>':'')+'</div>'+
+          '<div class="st-mm-detail-tech"><ol>'+technique.map(function(step){return '<li>'+esc(step)+'</li>';}).join('')+'</ol>'+
+          (e.tip?'<p>'+esc(e.tip)+'</p>':'')+'</div></div>'+
+          // One compact bar: previous, play from here, next.
           '<div class="st-mm-detail-actions">'+
-          '<button type="button" data-detail-prev '+(i===0?'disabled':'')+' aria-label="Föregående övning">'+ICON.back+' Föregående</button>'+
-          '<button type="button" data-detail-next '+(i===p.ids.length-1?'disabled':'')+'>Nästa '+ICON.fwd+'</button></div>'+
-          '<button type="button" class="st-cta st-mm-detail-play" data-start-at="'+i+'">'+ICON.play+'<span>Spela från denna övning</span></button></div>';
+          '<button type="button" class="st-mm-detail-step" data-detail-prev '+(i===0?'disabled':'')+' aria-label="Föregående övning">'+ICON.back+'</button>'+
+          '<button type="button" class="st-cta st-mm-detail-play" data-start-at="'+i+'">'+ICON.play+'<span>Spela härifrån</span></button>'+
+          '<button type="button" class="st-mm-detail-step" data-detail-next '+(i===p.ids.length-1?'disabled':'')+' aria-label="Nästa övning">'+ICON.fwd+'</button></div>';
         zoom.querySelector('.st-zoom-stage').appendChild($('studio-stage'));
         ui.select(id); ui.setPaused(false);
         addSceneLayer('detail');
@@ -642,6 +643,8 @@
     }
     window.PulseGymScene = {
       enter:enter,leave:leave,isOpen:function(){return !root.hidden;},onLeave:function(fn){onLeave=fn;},
+      // Opens one programme's overview over the scene (used by the explorer's browse list).
+      openProgram:function(id){var p=explore.programs.find(function(x){return x.id===id;});if(!p||root.hidden)return;openSheet('programs');showProgram(p);},
       backWithinProgram:function(){
         // The hosting exercise page receives Safari's outer history gesture.
         // Consume it inside the visible programme before closing the explorer.

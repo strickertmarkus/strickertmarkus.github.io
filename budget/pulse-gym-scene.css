@@ -329,7 +329,7 @@ html[data-explore-profile="ingemar"] .st-sheet.is-mm-program{
 html[data-explore-profile="markus"] .st-zoom.is-mm-detail,
 html[data-explore-profile="maja"] .st-zoom.is-mm-detail,
 html[data-explore-profile="ingemar"] .st-zoom.is-mm-detail{
-  display:grid;grid-template-rows:minmax(190px,40svh) minmax(0,1fr);
+  display:grid;grid-template-rows:minmax(260px,1fr) auto auto;
   overflow:hidden;
   background:#0e1017;
 }
@@ -349,40 +349,39 @@ html[data-explore-profile="ingemar"] .st-zoom.is-mm-detail{
 .st-zoom.is-mm-detail .st-zoom-close{z-index:5;display:flex;align-items:center;gap:7px;width:auto;min-width:44px;padding:0 13px;background:#2b2229dc;color:#f8c6bb;font-family:inherit;font-size:12px;line-height:1.2;font-weight:600}
 .st-zoom.is-mm-detail .st-zoom-close:focus-visible{outline:2px solid #ffb0a2}
 .st-mm-detail-content{
-  grid-row:2;overflow-y:auto;overscroll-behavior:contain;
-  padding:17px 22px calc(20px + env(safe-area-inset-bottom));
-  background:linear-gradient(180deg,#1b171f 0%,#101118 15%);
+  grid-row:2;overflow-y:auto;overscroll-behavior:contain;max-height:34svh;
+  padding:12px 20px 4px;
+  background:linear-gradient(180deg,#1b171f 0%,#101118 30%);
   border-top:1px solid #f45c4640;
 }
-.st-mm-detail-content h2{font-size:clamp(24px,5vw,34px);line-height:1.12;margin:0 0 7px;letter-spacing:-.03em;color:#fff1ee}
-.st-mm-detail-dose{color:#ffb7aa;font-size:18px;font-weight:650}
-.st-mm-detail-next{margin:12px 0 0;font-size:12px;color:#b4aeb5;line-height:1.5}
+.st-mm-detail-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.st-mm-detail-content h2{font-size:clamp(21px,4.6vw,30px);line-height:1.12;margin:0;letter-spacing:-.03em;color:#fff1ee;min-width:0}
+.st-mm-detail-dose{flex:none;color:#ffb7aa;font-size:16px;font-weight:700;white-space:nowrap}
+.st-mm-detail-next{margin:5px 0 0;font-size:11.5px;color:#b4aeb5;line-height:1.45}
 .st-mm-detail-next strong{color:#f7c1b5}
-.st-mm-detail-tech{margin:18px 0 0;padding:15px 0 8px;border-top:1px solid #ffffff15}
-.st-mm-detail-tech>.st-eyebrow{color:#cf8e83;font-size:11px;letter-spacing:.17em}
-.st-mm-detail-tech ol{list-style:decimal;padding-left:21px;margin:10px 0;display:grid;gap:9px}
-.st-mm-detail-tech li{font-size:13px;line-height:1.5;color:#e4dcdb;padding-left:4px}
-.st-mm-detail-tech>p{font-size:12px;line-height:1.55;margin:10px 0;color:#bea9a8}
-.st-mm-detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-.st-mm-detail-actions button{
-  display:flex;align-items:center;justify-content:center;gap:7px;
-  min-height:42px;padding:9px;border:1px solid #ffa18b35;border-radius:11px;
-  color:#f4b4a8;background:#ff5a4810;font-family:inherit;font-weight:600;font-size:12px;line-height:1.2;cursor:pointer;
+.st-mm-detail-tech{margin:10px 0 0;padding:9px 0 4px;border-top:1px solid #ffffff12}
+.st-mm-detail-tech ol{list-style:decimal;padding-left:19px;margin:0;display:grid;gap:4px}
+.st-mm-detail-tech li{font-size:12.5px;line-height:1.45;color:#e4dcdb;padding-left:3px}
+.st-mm-detail-tech>p{font-size:11.5px;line-height:1.45;margin:6px 0 0;color:#bea9a8}
+.st-mm-detail-actions{grid-row:3;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:8px;padding:8px 20px calc(10px + env(safe-area-inset-bottom));background:#101118}
+.st-mm-detail-step{
+  display:flex;align-items:center;justify-content:center;
+  height:44px;padding:0;border:1px solid #ffa18b35;border-radius:12px;
+  color:#f4b4a8;background:#ff5a4810;cursor:pointer;
 }
-.st-mm-detail-actions svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
-.st-mm-detail-actions button:disabled{opacity:.28;cursor:default}
-.st-mm-detail-play{
+.st-mm-detail-step svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8}
+.st-mm-detail-step:disabled{opacity:.28;cursor:default}
+.st-zoom.is-mm-detail .st-mm-detail-play{
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
-  width:auto;max-width:100%;min-height:42px;margin-top:12px;
-  padding:10px 15px;font-size:12px;line-height:1.25;font-weight:600;
-  color:#f9b8ac;background:#ef655017;border:1px solid #ed73544f;
-  border-radius:12px;box-shadow:none
+  width:100%;height:44px;min-height:44px;margin:0;
+  padding:0 15px;font-size:13px;line-height:1.25;font-weight:650;
+  color:#fff1ee;background:#e5584a;border:0;border-radius:12px;box-shadow:none
 }
 .st-zoom.is-mm-detail .st-mm-detail-play svg{
   display:block!important;flex:0 0 14px;width:14px!important;height:14px!important;
   max-width:14px!important;max-height:14px!important;fill:currentColor
 }
-.st-zoom.is-mm-detail .st-mm-detail-play span{display:inline!important;font-size:12px;line-height:1.25}
+.st-zoom.is-mm-detail .st-mm-detail-play span{display:inline!important;font-size:13px;line-height:1.25}
 @media(min-width:700px){
  html[data-explore-profile="markus"] .st-sheet.is-mm-program,
  html[data-explore-profile="maja"] .st-sheet.is-mm-program,
@@ -405,7 +404,7 @@ html[data-explore-profile="ingemar"] .st-zoom.is-mm-detail{
    A fixed inset is necessary in a same-origin iframe, where env(safe-area-
    inset-top) may report zero even on an iPhone. */
 .st-zoom.is-mm-detail .st-zoom-stage #studio-stage{
-  transform:translateY(clamp(40px,6svh,66px)) scale(.85);
+  transform:translateY(clamp(24px,3.5svh,44px)) scale(1.14);
   transform-origin:50% 55%;
 }
 @media(min-width:820px){
