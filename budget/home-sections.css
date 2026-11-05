@@ -413,3 +413,76 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   #home-economy .home-economy-metrics{gap:12px 0}
   #home-economy .home-economy-links{margin-top:34px}
 }
+
+/* Ekonomi v2: visual month card and mortgage card. */
+#home-economy{--eco-house:#FDBA74;--eco-ica:#7DD3FC;--eco-interest:#FB7185;--eco-amort:#4ADE80;--eco-drift:#94A3B8;--eco-reno:#C4B5FD}
+#home-economy .home-economy-snapshot{max-width:none}
+#home-economy .home-economy-snapshot-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.home-economy-delta{font-size:11px;font-weight:650;color:var(--text-sec,#929ba9);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.05);font-variant-numeric:tabular-nums}
+.home-economy-delta.is-up{color:#FCA5A5;background:rgba(251,113,133,.1)}
+.home-economy-delta.is-down{color:#86EFAC;background:rgba(74,222,128,.1)}
+.home-economy-hero{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(14px,3vw,36px);align-items:stretch}
+.home-economy-total{position:relative;overflow:hidden;padding:18px 20px 16px;border-radius:18px;border:1px solid rgba(var(--home-view-rgb,253,186,116),.22);
+  background:radial-gradient(120% 140% at 0% 0%,rgba(var(--home-view-rgb,253,186,116),.16),transparent 60%),linear-gradient(160deg,rgba(255,255,255,.035),rgba(255,255,255,.01))}
+.home-economy-total>span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-sec,#929ba9);font-weight:650}
+.home-economy-total>strong{display:block;margin:6px 0 14px;font-size:clamp(28px,4.2vw,44px);font-weight:800;line-height:1;letter-spacing:-.02em;color:var(--home-view-accent,#FDBA74);font-variant-numeric:tabular-nums}
+.home-economy-split,.home-loan-stack{display:flex;gap:3px;height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06)}
+.home-economy-split i,.home-loan-stack i{display:block;height:100%;border-radius:999px;min-width:4px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.home-economy-split .is-house,.home-economy-legend b.is-house{background:var(--eco-house)}
+.home-economy-split .is-ica,.home-economy-legend b.is-ica{background:var(--eco-ica)}
+.home-economy-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:11px;color:var(--text-sec,#929ba9)}
+.home-economy-legend span{display:inline-flex;align-items:center;gap:6px}
+.home-economy-legend b{width:8px;height:8px;border-radius:3px;display:inline-block}
+.home-economy-legend em{font-style:normal;color:var(--text,#f0f6fc);font-weight:650;font-variant-numeric:tabular-nums}
+#home-economy .home-economy-side{display:grid;gap:10px;align-content:stretch}
+#home-economy .home-economy-side .home-economy-metric{border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 14px!important;background:rgba(255,255,255,.025);gap:5px}
+#home-economy .home-economy-side .home-economy-metric>span{font-size:11px}
+.home-economy-note{font-size:10.5px;color:var(--text-sec,#929ba9)}
+.home-loan{margin-top:clamp(16px,2.4vw,26px);padding:18px 20px;border-radius:18px;border:1px solid rgba(74,222,128,.16);
+  background:radial-gradient(90% 120% at 100% 0%,rgba(74,222,128,.08),transparent 60%),linear-gradient(160deg,rgba(255,255,255,.03),rgba(255,255,255,.008))}
+.home-loan-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.home-loan-head span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:750;color:var(--home-view-accent,#FDBA74)}
+.home-loan-head a{font-size:11px;font-weight:650;color:var(--text-sec,#929ba9);text-decoration:none;padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.09)}
+.home-loan-head a:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.3)}
+.home-loan-body{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.5fr);gap:clamp(14px,2.4vw,28px);align-items:center}
+.home-loan-ring{position:relative;width:104px;height:104px}
+.home-loan-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.home-loan-ring circle{fill:none;stroke-width:9}
+.home-loan-ring .track{stroke:rgba(255,255,255,.07)}
+.home-loan-ring .fill{stroke:var(--eco-amort);stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(74,222,128,.45))}
+.home-loan-ring>div{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.home-loan-ring strong{font-size:17px;font-weight:800;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums}
+.home-loan-ring span{font-size:9.5px;color:var(--text-sec,#929ba9);letter-spacing:.04em}
+.home-loan-main{display:grid;gap:4px;min-width:0}
+.home-loan-main>span{font-size:11px;color:var(--text-sec,#929ba9)}
+.home-loan-main strong{font-size:clamp(22px,2.8vw,30px);font-weight:800;letter-spacing:-.015em;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums;line-height:1.1}
+.home-loan-main small{font-size:11px;color:var(--text-sec,#929ba9)}
+.home-loan-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.home-loan-tile{position:relative;display:grid;gap:3px;min-width:0;padding:12px 12px 11px 15px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);overflow:hidden}
+.home-loan-tile::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--tone)}
+.home-loan-tile.is-interest{--tone:var(--eco-interest)}
+.home-loan-tile.is-amort{--tone:var(--eco-amort)}
+.home-loan-tile.is-total{--tone:var(--home-view-accent,#FDBA74)}
+.home-loan-tile span{font-size:10.5px;color:var(--text-sec,#929ba9)}
+.home-loan-tile strong{font-size:clamp(15px,1.6vw,19px);font-weight:750;color:var(--tone);font-variant-numeric:tabular-nums;white-space:nowrap}
+.home-loan-tile small{font-size:10px;color:var(--text-sec,#929ba9)}
+.home-loan-costs{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)}
+.home-loan-costs-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:11px;color:var(--text-sec,#929ba9)}
+.home-loan-costs-label strong{font-size:13px;color:var(--text,#f0f6fc);font-variant-numeric:tabular-nums}
+.home-loan-stack .is-interest,.home-economy-legend b.is-interest{background:var(--eco-interest)}
+.home-loan-stack .is-amort,.home-economy-legend b.is-amort{background:var(--eco-amort)}
+.home-loan-stack .is-drift,.home-economy-legend b.is-drift{background:var(--eco-drift)}
+.home-loan-stack .is-reno,.home-economy-legend b.is-reno{background:var(--eco-reno)}
+@media(max-width:900px){
+  .home-loan-body{grid-template-columns:auto minmax(0,1fr)}
+  .home-loan-tiles{grid-column:1/-1}
+}
+@media(max-width:640px){
+  .home-economy-hero{grid-template-columns:minmax(0,1fr)}
+  #home-economy .home-economy-side{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-economy-total,.home-loan{padding:15px 15px 14px}
+  .home-loan-ring{width:86px;height:86px}
+  .home-loan-ring strong{font-size:15px}
+  .home-loan-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-loan-tile.is-total{grid-column:1/-1}
+}

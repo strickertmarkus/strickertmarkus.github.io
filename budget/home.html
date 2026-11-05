@@ -1026,7 +1026,7 @@
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261023-restore-overview-cards-v1">
+<link rel="stylesheet" href="home-sections.css?v=20261105-loan-card-1">
 <link rel="stylesheet" href="home-morph-router.css?v=20261016-radial-fast-clean-1">
 <script defer src="home-morph-router.js?v=20261016-radial-fast-clean-1"></script>
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
@@ -2401,26 +2401,75 @@ function renderHomeEconomySnapshot() {
   var salaries = getTransferMonthlyIncomes(current.key);
   var net = salaries.markus !== null && salaries.maja !== null
     ? fmtKr(salaries.markus + salaries.maja) : '—';
-  var cells = [
-    ['Gemensamt totalt',fmtKr(total)],
-    ['Nettoinkomst',net],
-    ['Husutgifter',fmtKr(house)],
-    ['ICA-kort',fmtKr(ica)],
-    ['Planerat sparande',savings === null ? '—' : fmtKr(savings)]
-  ];
-  root.innerHTML = '<div class="home-economy-snapshot-top"><span>' + escHtml(current.month + ' ' + current.year)
-    + '</span></div>'
-    + '<div class="home-economy-metrics">' + cells.map(function(cell) {
-        return '<div class="home-economy-metric"><span>' + escHtml(cell[0]) + '</span>'
-          + (cell[0] === 'Nettoinkomst'
-            ? '<button type="button" class="home-economy-income-action" onclick="toggleMonthPopup(true)" aria-label="Redigera månadens nettoinkomster">'
-              + escHtml(cell[1]) + '<small>Redigera</small></button>'
-            : '<strong>' + escHtml(cell[1]) + '</strong>') + '</div>';
-      }).join('') + '</div>'
-    + (delta === null ? '' : '<p class="home-economy-comparison">Gemensamt jämfört med '
-        + escHtml(transferMonthInfo(-1).month.toLowerCase())
-        + ': <strong>' + (delta > 0 ? '+' : delta < 0 ? '−' : '±') + escHtml(fmtKr(Math.abs(delta)))
-        + '</strong></p>');
+  var share = total > 0 ? Math.round(house / total * 100) : 0;
+  var incomeTotal = salaries.markus !== null && salaries.maja !== null ? salaries.markus + salaries.maja : null;
+  var deltaHtml = delta === null ? '' : '<span class="home-economy-delta ' + (delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : '') + '">'
+    + (delta > 0 ? '+' : delta < 0 ? '−' : '±') + escHtml(fmtKr(Math.abs(delta))) + ' mot ' + escHtml(transferMonthInfo(-1).month.toLowerCase()) + '</span>';
+  root.innerHTML = '<div class="home-economy-snapshot-top"><span>' + escHtml(current.month + ' ' + current.year) + '</span>' + deltaHtml + '</div>'
+    + '<div class="home-economy-hero">'
+    + '<div class="home-economy-total"><span>Gemensamt totalt</span><strong>' + escHtml(fmtKr(total)) + '</strong>'
+    + '<div class="home-economy-split" role="img" aria-label="Husutgifter ' + share + ' procent, ICA-kort ' + (100 - share) + ' procent">'
+    + '<i class="is-house" style="width:' + share + '%"></i><i class="is-ica" style="width:' + (100 - share) + '%"></i></div>'
+    + '<div class="home-economy-legend"><span><b class="is-house"></b>Husutgifter <em>' + escHtml(fmtKr(house)) + '</em></span>'
+    + '<span><b class="is-ica"></b>ICA-kort <em>' + escHtml(fmtKr(ica)) + '</em></span></div></div>'
+    + '<div class="home-economy-side">'
+    + '<div class="home-economy-metric"><span>Nettoinkomst</span><button type="button" class="home-economy-income-action" onclick="toggleMonthPopup(true)" aria-label="Redigera månadens nettoinkomster">'
+    + escHtml(incomeTotal === null ? '—' : fmtKr(incomeTotal)) + '<small>Redigera</small></button>'
+    + (incomeTotal ? '<small class="home-economy-note">' + Math.round(total / incomeTotal * 100) + ' % går till det gemensamma</small>' : '') + '</div>'
+    + '<div class="home-economy-metric"><span>Planerat sparande</span><strong>' + escHtml(savings === null ? '—' : fmtKr(savings)) + '</strong></div>'
+    + '</div></div>'
+    + renderHomeLoanCard(data, current);
+}
+
+// Mortgage figures use the same equations as Familjebudget (Lån Översikt).
+function homeLoanFigures(data, current) {
+  var defaults = { huspris:5000000, huslan:3750000, listranta:3.067, driftkostnad:47025, fastighetsavgift:9525, renovering:1, ammortering:2 };
+  var lp = Object.assign({}, defaults, data && data.loanParams || {});
+  var num = function(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; };
+  var transfers = data && Array.isArray(data.transfers) ? data.transfers : [];
+  var idx = transfers.findIndex(function(t) { return t && t.month === current.month && Number(t.year) === current.year; });
+  if (idx < 0) idx = Math.max(0, transfers.length - 1);
+  var amortAt = function(loan) {
+    var rate = loan > num(lp.huspris) * 0.7 ? num(lp.ammortering) : num(lp.ammortering) / 2;
+    return Math.round(num(lp.huslan) * (rate / 100) / 12);
+  };
+  var loan = num(lp.huslan);
+  for (var m = 1; m < idx + 1; m++) { loan -= amortAt(loan); if (loan < 0) loan = 0; }
+  var interest = Math.round(loan * (num(lp.listranta) / 100) / 12);
+  var amort = loan > 0 ? Math.min(loan, amortAt(loan)) : 0;
+  var drift = Math.round((num(lp.driftkostnad) + num(lp.fastighetsavgift)) / 12);
+  var reno = Math.round(num(lp.huspris) * (num(lp.renovering) / 100) / 12);
+  return { start:num(lp.huslan), loan:loan, paid:num(lp.huslan) - loan, rate:num(lp.listranta), amortRate:num(lp.ammortering),
+    interest:interest, amort:amort, drift:drift, reno:reno, months:idx + 1 };
+}
+function renderHomeLoanCard(data, current) {
+  var f = homeLoanFigures(data, current);
+  if (!f.start) return '';
+  var paidPct = Math.max(0, Math.min(100, f.paid / f.start * 100));
+  var housing = f.interest + f.amort + f.drift + f.reno;
+  var part = function(v) { return housing > 0 ? (v / housing * 100).toFixed(1) : 0; };
+  var pctText = paidPct.toLocaleString('sv-SE', { maximumFractionDigits:1 });
+  var ring = 2 * Math.PI * 42;
+  return '<section class="home-loan" aria-label="Huslånet">'
+    + '<div class="home-loan-head"><span>Huslånet</span><a href="familjebudget.html">Lån Översikt</a></div>'
+    + '<div class="home-loan-body">'
+    + '<div class="home-loan-ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" class="track"/>'
+    + '<circle cx="50" cy="50" r="42" class="fill" stroke-dasharray="' + (ring * paidPct / 100).toFixed(1) + ' ' + ring.toFixed(1) + '"/></svg>'
+    + '<div><strong>' + pctText + ' %</strong><span>amorterat</span></div></div>'
+    + '<div class="home-loan-main"><span>Kvar på lånet</span><strong>' + escHtml(fmtKr(f.loan)) + '</strong>'
+    + '<small>av ' + escHtml(fmtKr(f.start)) + ' · ' + escHtml(fmtKr(f.paid)) + ' amorterat</small></div>'
+    + '<div class="home-loan-tiles">'
+    + '<div class="home-loan-tile is-interest"><span>Ränta/mån</span><strong>' + escHtml(fmtKr(f.interest)) + '</strong><small>Listränta ' + escHtml(String(f.rate).replace('.', ',')) + ' %</small></div>'
+    + '<div class="home-loan-tile is-amort"><span>Amortering/mån</span><strong>' + escHtml(fmtKr(f.amort)) + '</strong><small>' + escHtml(fmtKr(f.amort * 12)) + ' per år</small></div>'
+    + '<div class="home-loan-tile is-total"><span>Ränta + amortering</span><strong>' + escHtml(fmtKr(f.interest + f.amort)) + '</strong><small>per månad</small></div>'
+    + '</div></div>'
+    + '<div class="home-loan-costs"><div class="home-loan-costs-label"><span>Boende per månad</span><strong>' + escHtml(fmtKr(housing)) + '</strong></div>'
+    + '<div class="home-loan-stack" role="img" aria-label="Ränta, amortering, drift och renovering">'
+    + '<i class="is-interest" style="width:' + part(f.interest) + '%"></i><i class="is-amort" style="width:' + part(f.amort) + '%"></i>'
+    + '<i class="is-drift" style="width:' + part(f.drift) + '%"></i><i class="is-reno" style="width:' + part(f.reno) + '%"></i></div>'
+    + '<div class="home-economy-legend"><span><b class="is-interest"></b>Ränta</span><span><b class="is-amort"></b>Amortering</span>'
+    + '<span><b class="is-drift"></b>Drift <em>' + escHtml(fmtKr(f.drift)) + '</em></span><span><b class="is-reno"></b>Renovering <em>' + escHtml(fmtKr(f.reno)) + '</em></span></div></div>'
+    + '</section>';
 }
 function transferIncomeValue(raw) {
   if (raw === '' || raw === null || raw === undefined) return null;
