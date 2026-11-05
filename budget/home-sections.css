@@ -415,7 +415,7 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
 }
 
 /* Ekonomi v2: visual month card and mortgage card. */
-#home-economy{--eco-house:#FDBA74;--eco-ica:#7DD3FC;--eco-interest:#FB7185;--eco-amort:#4ADE80;--eco-drift:#94A3B8;--eco-reno:#C4B5FD}
+#home-economy{--eco-house:#FDBA74;--eco-ica:#B45309;--eco-interest:#FB7185;--eco-amort:#4ADE80;--eco-drift:#94A3B8;--eco-reno:#C4B5FD}
 #home-economy .home-economy-snapshot{max-width:none}
 #home-economy .home-economy-snapshot-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .home-economy-delta{font-size:11px;font-weight:650;color:var(--text-sec,#929ba9);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.05);font-variant-numeric:tabular-nums}
@@ -486,3 +486,15 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   .home-loan-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
   .home-loan-tile.is-total{grid-column:1/-1}
 }
+
+#home-economy #transfer-widget{margin-bottom:6px!important}
+#home-economy .home-economy-side .home-economy-metric{align-content:center}
+.home-loan-legend{gap:6px}
+.home-loan-key{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;border:1px solid transparent;background:none;color:var(--text-sec,#929ba9);font:500 11px/1.3 Inter,sans-serif;cursor:pointer}
+.home-loan-key:hover{background:rgba(255,255,255,.04)}
+.home-loan-key em{display:none}
+.home-loan-key[aria-pressed="true"]{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text,#f0f6fc)}
+.home-loan-key[aria-pressed="true"] em{display:inline}
+.home-loan-key:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:2px}
+.home-loan-stack i{cursor:pointer;transition:width .6s cubic-bezier(.2,.8,.2,1),opacity .2s}
+.home-loan-stack i.is-dim{opacity:.25}

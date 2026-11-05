@@ -1026,7 +1026,7 @@
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261105-loan-card-1">
+<link rel="stylesheet" href="home-sections.css?v=20261105-loan-card-2">
 <link rel="stylesheet" href="home-morph-router.css?v=20261016-radial-fast-clean-1">
 <script defer src="home-morph-router.js?v=20261016-radial-fast-clean-1"></script>
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
@@ -1210,6 +1210,7 @@
             </div>
           </div>
         </article>
+    <div class="home-loan-slot" id="home-loan-slot"></div>
     <div class="home-economy-links" aria-label="Personliga budgetar">
       <a href="budget.html">Markus budget <span aria-hidden="true"></span></a>
       <a href="analytics.html">Markus analys <span aria-hidden="true"></span></a>
@@ -2387,15 +2388,13 @@ function renderHomeEconomySnapshot() {
   if (!row) {
     root.innerHTML = '<p class="home-economy-muted">Ingen budget finns sparad för ' + escHtml(current.month + ' ' + current.year)
       + '. <a href="familjebudget.html">Öppna Familjebudget </a></p>';
+    var emptySlot = document.getElementById('home-loan-slot');
+    if (emptySlot) emptySlot.innerHTML = renderHomeLoanCard(getFamilyBudgetData(), current);
     return;
   }
   var amount = function(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; };
   var house = amount(row.husutgifter), ica = amount(row.ica), total = house + ica;
   var data = getFamilyBudgetData();
-  var savings = data && Array.isArray(data.expenses)
-    ? data.expenses.filter(function(e) { return /sparande|buffert/i.test(String(e.name || '')); })
-        .reduce(function(sum, e) { return sum + amount(e.amount); }, 0)
-    : null;
   var previous = getTransferMonth(-1);
   var delta = previous ? total - amount(previous.husutgifter) - amount(previous.ica) : null;
   var salaries = getTransferMonthlyIncomes(current.key);
@@ -2403,7 +2402,7 @@ function renderHomeEconomySnapshot() {
     ? fmtKr(salaries.markus + salaries.maja) : '—';
   var share = total > 0 ? Math.round(house / total * 100) : 0;
   var incomeTotal = salaries.markus !== null && salaries.maja !== null ? salaries.markus + salaries.maja : null;
-  var deltaHtml = delta === null ? '' : '<span class="home-economy-delta ' + (delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : '') + '">'
+  var deltaHtml = delta === null ? '' : '<span class="home-economy-delta ' + (delta > 0 ? 'is-up' : delta < 0 ? 'is-down' : '') + '" title="Husutgifter + ICA-kort jämfört med förra månaden">'
     + (delta > 0 ? '+' : delta < 0 ? '−' : '±') + escHtml(fmtKr(Math.abs(delta))) + ' mot ' + escHtml(transferMonthInfo(-1).month.toLowerCase()) + '</span>';
   root.innerHTML = '<div class="home-economy-snapshot-top"><span>' + escHtml(current.month + ' ' + current.year) + '</span>' + deltaHtml + '</div>'
     + '<div class="home-economy-hero">'
@@ -2416,9 +2415,9 @@ function renderHomeEconomySnapshot() {
     + '<div class="home-economy-metric"><span>Nettoinkomst</span><button type="button" class="home-economy-income-action" onclick="toggleMonthPopup(true)" aria-label="Redigera månadens nettoinkomster">'
     + escHtml(incomeTotal === null ? '—' : fmtKr(incomeTotal)) + '<small>Redigera</small></button>'
     + (incomeTotal ? '<small class="home-economy-note">' + Math.round(total / incomeTotal * 100) + ' % går till det gemensamma</small>' : '') + '</div>'
-    + '<div class="home-economy-metric"><span>Planerat sparande</span><strong>' + escHtml(savings === null ? '—' : fmtKr(savings)) + '</strong></div>'
-    + '</div></div>'
-    + renderHomeLoanCard(data, current);
+    + '</div></div>';
+  var loanSlot = document.getElementById('home-loan-slot');
+  if (loanSlot) loanSlot.innerHTML = renderHomeLoanCard(data, current);
 }
 
 // Mortgage figures use the same equations as Familjebudget (Lån Översikt).
@@ -2441,6 +2440,16 @@ function homeLoanFigures(data, current) {
   var reno = Math.round(num(lp.huspris) * (num(lp.renovering) / 100) / 12);
   return { start:num(lp.huslan), loan:loan, paid:num(lp.huslan) - loan, rate:num(lp.listranta), amortRate:num(lp.ammortering),
     interest:interest, amort:amort, drift:drift, reno:reno, months:idx + 1 };
+}
+function toggleHomeLoanKey(el) {
+  var card = el.closest('.home-loan');
+  if (!card) return;
+  var tone = el.getAttribute('data-tone');
+  var key = card.querySelector('.home-loan-key[data-tone="' + tone + '"]');
+  var open = key && key.getAttribute('aria-pressed') !== 'true';
+  card.querySelectorAll('.home-loan-key').forEach(function(k) { k.setAttribute('aria-pressed', 'false'); });
+  card.querySelectorAll('.home-loan-stack i').forEach(function(i) { i.classList.toggle('is-dim', open && i.getAttribute('data-tone') !== tone); });
+  if (key && open) key.setAttribute('aria-pressed', 'true');
 }
 function renderHomeLoanCard(data, current) {
   var f = homeLoanFigures(data, current);
@@ -2465,10 +2474,12 @@ function renderHomeLoanCard(data, current) {
     + '</div></div>'
     + '<div class="home-loan-costs"><div class="home-loan-costs-label"><span>Boende per månad</span><strong>' + escHtml(fmtKr(housing)) + '</strong></div>'
     + '<div class="home-loan-stack" role="img" aria-label="Ränta, amortering, drift och renovering">'
-    + '<i class="is-interest" style="width:' + part(f.interest) + '%"></i><i class="is-amort" style="width:' + part(f.amort) + '%"></i>'
-    + '<i class="is-drift" style="width:' + part(f.drift) + '%"></i><i class="is-reno" style="width:' + part(f.reno) + '%"></i></div>'
-    + '<div class="home-economy-legend"><span><b class="is-interest"></b>Ränta</span><span><b class="is-amort"></b>Amortering</span>'
-    + '<span><b class="is-drift"></b>Drift <em>' + escHtml(fmtKr(f.drift)) + '</em></span><span><b class="is-reno"></b>Renovering <em>' + escHtml(fmtKr(f.reno)) + '</em></span></div></div>'
+    + [['interest',f.interest],['amort',f.amort],['drift',f.drift],['reno',f.reno]].map(function(c) {
+        return '<i class="is-' + c[0] + '" data-tone="' + c[0] + '" style="width:' + part(c[1]) + '%" onclick="toggleHomeLoanKey(this)"></i>';
+      }).join('') + '</div>'
+    + '<div class="home-economy-legend home-loan-legend">' + [['interest','Ränta',f.interest],['amort','Amortering',f.amort],['drift','Drift',f.drift],['reno','Renovering',f.reno]].map(function(c) {
+        return '<button type="button" class="home-loan-key" data-tone="' + c[0] + '" aria-pressed="false" onclick="toggleHomeLoanKey(this)"><b class="is-' + c[0] + '"></b>' + c[1] + '<em>' + escHtml(fmtKr(c[2])) + '</em></button>';
+      }).join('') + '</div></div>'
     + '</section>';
 }
 function transferIncomeValue(raw) {

@@ -22,6 +22,12 @@
    - Ask one concise question if the target, intended result, or technical behavior is genuinely ambiguous.
    - Do not ask for confirmation when the request and desired result are already clear.
 
+## Tests: only on request (overrides the verification rules below)
+
+- Do **not** run test suites (node tests, WebKit/Playwright regression runs, CI polling) unless the user explicitly asks for tests. Just implement; the user tests himself.
+- Exception: a really large task may run the relevant tests.
+- A quick syntax check of changed JavaScript and one preview screenshot of the changed UI are still fine.
+
 ## Design iteration mode
 
 When the user is still choosing or refining the visual style, prioritize short design iterations. This mode takes precedence over the full verification requirements below until the user says the style is settled or requests full verification.
