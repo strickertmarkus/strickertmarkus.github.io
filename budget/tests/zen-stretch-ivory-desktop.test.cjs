@@ -19,8 +19,8 @@ test('milky-white mannequin and active-muscle green emission are exclusively str
   assert.match(stretch,/roughness:\.70,metalness:\.04/);
   assert.match(stretch,/float muscleShape = max\(muscleTex, 0\.92\)/);
   assert.match(stretch,/mix\(0\.78,1\.0,primary\)/);
-  assert.match(stretch,/totalEmissiveRadiance \+= vec3\(0\.05,0\.40,0\.04\)/);
-  assert.match(stretch,/pulse-tissue-stretch-ivory-visible-muscle-v6/);
+  assert.match(stretch,/totalEmissiveRadiance \+= vec3\(0\.06,0\.56,0\.05\)/);
+  assert.match(stretch,/pulse-tissue-stretch-ivory-visible-muscle-v7/);
   assert.match(stretch,/createTissueMaterial\(skin,/);
   assert.doesNotMatch(material,/milk-white|ivoryShade|stretch-ivory|vec3\(0\.36,1\.0,0\.19\)/);
   assert.match(stretch,/mat\.onBeforeCompile=\(shader,r\)=>\{compile\(shader,r\);/);
@@ -30,15 +30,17 @@ test('milky-white mannequin and active-muscle green emission are exclusively str
   assert.match(material,/generalGlow\*=uActivation;/);
 });
 
-test('stretches are held 3D positions: forward kinematics, glide in, then breathe',()=>{
+test('stretches are held 3D positions: forward kinematics, shown directly, then breathe',()=>{
   // Segment lengths come from the mannequin's own rest skeleton, so limbs never stretch or tear.
   assert.match(stretch,/const LEN=\{spine:\.52,shoulder:\.47,shoulderW:\.225,neck:\.30,upper:\.329,fore:\.2698,hipW:\.12,thigh:\.4304,shin:\.41\}/);
   assert.match(stretch,/const base=i===3\|\|i===5\|\|i===7\|\|i===9\?solved\[i-1\]:i===1\?s\.head\.q:i>=6\?s\.pelvis\.q:s\.torso\.q;/);
   assert.match(stretch,/bones\[i\]\.scale\.setScalar\(1\)/);
   // The lowest contact rests on the floor; every pose glides on from where the figure was.
   assert.match(stretch,/const lift=Math\.max\(\.\.\.contacts\.map\(\(\[x,r\]\)=>r-x\.y\)\)/);
-  assert.match(stretch,/const glide=ease\(Math\.min\(1,Math\.max\(0,elapsed\)\/3\)\)/);
-  assert.match(stretch,/mixPose\(T\.neutral,T\.target,1-\.055\*breath\)/);
+  // Held positions: no in-between animation, only a faint breath; hands placed by two-bone IK.
+  assert.doesNotMatch(stretch,/const glide=/);
+  assert.match(stretch,/mixPose\(T\.neutral,T\.target,1-\.03\*breath\)/);
+  assert.match(stretch,/function ik\(start,target,pole,a,b\)/);
   assert.match(stretch,/side:\{mirror:'x',base:standFront,muscles:\['Mage','Rygg'\]/);
   for(const id of ['supine-hamstring','figure-four','hip','child','calf','seated-twist','sphinx','cross-arm','triceps'])assert.ok(stretch.includes(id),id);
   assert.match(stretch,/float flank=/);
@@ -146,9 +148,9 @@ test('desktop margins and stretching sizes do not affect mobile or meditation',(
 
 test('page versions load the new scene, shader, styles and single source of time',()=>{
   assert.match(html,/zen-session\.css\?v=20261104-training-preline-5/);
-  assert.match(html,/pulse-silver-stretch\.js\?v=20261105-static-poses-1/);
+  assert.match(html,/pulse-silver-stretch\.js\?v=20261105-static-hold-1/);
   assert.match(html,/zen-session-scene\.js\?v=20261104-training-preline-5/);
-  assert.match(html,/zen\.js\?v=20261105-static-poses-1/);
+  assert.match(html,/zen\.js\?v=20261105-pass-list-1/);
   assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-remove-pass-1/);
 });
 

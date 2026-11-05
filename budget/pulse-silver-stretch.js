@@ -25,6 +25,9 @@ const supine=()=>({up:d(-1,0,0),front:d(0,1,0),arms:[[d(1,0,.18),d(1,0,.1)],[d(1
 const prone=()=>({up:d(-1,0,0),front:d(0,-1,0),arms:[[d(1,0,-.18),d(1,0,-.1)],[d(1,0,.18),d(1,0,.1)]],legs:[[d(1,0,-.04),d(1,0,0)],[d(1,0,.04),d(1,0,0)]],feet:[point(1,0,0),point(1,0,0)]});
 const kneelUp=()=>({up:d(0,1,0),front:d(1,0,0),arms:[[d(0,-1,.2),d(.1,-1,.06)],[d(0,-1,-.2),d(.1,-1,-.06)]],legs:[[d(0,-1,.03),d(-1,0,0)],[d(0,-1,-.03),d(-1,0,0)]],feet:[point(-1,0,0),point(-1,0,0)]});
 const seatedFront=()=>({up:d(0,1,0),front:d(0,0,1),arms:[[d(-.15,-1,-.15),d(0,-1,-.2)],[d(.15,-1,-.15),d(0,-1,-.2)]],legs:[[d(-.12,.4,1),d(0,-.5,.87)],[d(.12,.4,1),d(0,-.5,.87)]],feet:[flat(0,0,1),flat(0,0,1)]});
+// A hand placed at a point (relative to the pelvis centre, before the figure is set on the
+// floor), with the elbow bending toward `pole`: two-bone IK keeps both arm lengths exact.
+function reach(to,pole){return {to:v(to),pole:d(...pole)};}
 function flat(x,y,z){return {toe:d(x,y,z),up:d(0,1,0)};}
 function point(x,y,z){return {toe:d(x,y,z),up:d(0,-1,0)};}
 const POSE_DEFS={
@@ -38,18 +41,20 @@ const POSE_DEFS={
    legs:[[d(-.02,-1,.03),d(0,-1,-.01)],[d(.02,-1,.03),d(0,-1,-.01)]],feet:[flat(0,0,1),flat(0,0,1)]};
  }},
  // Liggande baksida lår: the left leg (far side) rises straight, both hands behind the thigh.
- 'supine-hamstring':{mirror:'z',base:supine,muscles:['Baksida lår','Vader'],cam:{yaw:-6,pitch:10},pose(){
+ 'supine-hamstring':{mirror:'z',base:supine,muscles:['Baksida lår','Vader'],cam:{yaw:28,pitch:16},pose(){
   const p=supine();p.legs[1]=[d(.12,1,0),d(.03,1,0)];p.feet[1]={toe:d(-1,.15,0),up:d(0,-1,0)};
-  p.arms=[[d(.52,.78,-.28),d(.92,.42,-.36)],[d(.52,.78,.1),d(.92,.42,.12)]];p.headUp=d(-1,.12,0);return p;}},
+  // One hand each side of the raised thigh, elbows opening outward, so the arms never cross.
+  p.arms=[reach([.0,.27,-.03],[-.4,.2,1]),reach([.0,.25,-.21],[-.4,.2,-1])];p.headUp=d(-1,.12,0);return p;}},
  // Liggande fyran: right thigh drawn in, left ankle across it, hands behind the right thigh.
- 'figure-four':{mirror:'z',base:supine,muscles:['Säte','Baksida lår'],cam:{yaw:-8,pitch:12},pose(){
+ 'figure-four':{mirror:'z',base:supine,muscles:['Säte','Baksida lår'],cam:{yaw:30,pitch:22},pose(){
   const p=supine();p.legs[0]=[d(-.3,1,0),d(1,.08,0)];p.feet[0]={toe:d(.08,1,0),up:d(-1,.08,0)};
   p.legs[1]=[d(-.25,.7,-.6),d(.15,.1,1)];p.feet[1]={toe:d(.2,1,.1),up:d(-1,.1,.15)};
-  p.arms=[[d(.5,.8,0),d(.9,.5,-.05)],[d(.5,.8,.35),d(.85,.45,.6)]];p.headUp=d(-1,.1,0);return p;}},
+  // The right hand around the outside of the right thigh, the left hand through the gap between the legs.
+  p.arms=[reach([-.07,.25,.21],[-.3,.1,1]),reach([-.07,.22,.04],[-.3,.1,-1])];p.headUp=d(-1,.14,0);return p;}},
  // Knästående höftböjarstretch: left foot forward, right knee down; the right hip opens.
  hip:{mirror:'z',base:kneelUp,muscles:['Framsida lår','Mage'],cam:{yaw:-6,pitch:6},pose(){
   return {up:d(-.06,1,0),front:d(1,0,0),
-   arms:[[d(.45,-.85,-.3),d(.8,-.5,-.25)],[d(.45,-.85,.0),d(.8,-.5,.05)]],
+   arms:[reach([.36,.08,-.05],[0,-.2,1]),reach([.38,.08,-.2],[0,-.2,-1])],
    legs:[[d(-.5,-1,.02),d(-1,-.03,0)],[d(1,.12,-.02),d(0,-1,0)]],feet:[point(-1,0,0),flat(1,0,0)]};}},
  // Barnets position: seated back on the heels, chest over the thighs, arms long on the floor.
  child:{base:kneelUp,muscles:['Rygg','Axlar'],cam:{yaw:-12,pitch:12},pose(){
@@ -73,10 +78,11 @@ const POSE_DEFS={
   p.arms=[[d(-.12,-1,-.12),d(-1,0,-.05)],[d(-.12,-1,.12),d(-1,0,.05)]];p.legs=[[d(1,-.06,-.05),d(1,0,0)],[d(1,-.06,.05),d(1,0,0)]];return p;}},
  // Axelstretch över bröstet: the left arm crosses the chest, the right hand supports it.
  'cross-arm':{mirror:'x',base:standFront,muscles:['Axlar','Rygg'],cam:{yaw:16,pitch:5},pose(){
-  const p=standFront();p.arms=[[d(.12,-.8,.6),d(.4,.85,-.3)],[d(-1,-.06,.38),d(-1,.06,.1)]];return p;}},
+  const p=standFront();p.arms=[reach([.0,.33,.2],[-.3,-1,.2]),reach([-.36,.4,.14],[0,-.2,1])];return p;}},
  // Tricepsstretch över huvudet: the left elbow points up, the hand drops behind the head.
  triceps:{mirror:'x',base:standFront,muscles:['Triceps','Axlar'],cam:{yaw:22,pitch:6},pose(){
-  const p=standFront();p.arms=[[d(.2,1,.18),d(1,.1,-.2)],[d(-.15,1,-.1),d(-.3,-1,-.25)]];return p;}}
+  // The right hand reaches behind the head to the raised left elbow, keeping the face clear.
+  const p=standFront();p.arms=[reach([.13,.79,-.13],[-1,.5,-.2]),reach([.02,.62,-.12],[.15,1,-.1])];return p;}}
 };
 const POSES={};
 for(const [family,def] of Object.entries(POSE_DEFS)){
@@ -112,8 +118,16 @@ function buildHandsAndShoes(){
 
 /* ---------- Pose parameters: mirror, blend ---------- */
 const VEC_KEYS=['up','front','pelvisUp','pelvisFront','headUp','headFront'];
+function ik(start,target,pole,a,b){
+ const D=target.clone().sub(start),n=D.clone().normalize(),dist=Math.min(a+b-1e-3,Math.max(Math.abs(a-b)+1e-3,D.length()));
+ const m=pole.clone().addScaledVector(n,-pole.dot(n)).normalize(),cos=(a*a+dist*dist-b*b)/(2*a*dist),sin=Math.sqrt(Math.max(0,1-cos*cos));
+ const elbow=start.clone().addScaledVector(n,a*cos).addScaledVector(m,a*sin),end=start.clone().addScaledVector(n,dist);
+ return [elbow.clone().sub(start).normalize(),end.sub(elbow).normalize()];
+}
 function complete(p){
  const q={...p};q.pelvisUp=q.pelvisUp||q.up;q.pelvisFront=q.pelvisFront||q.front;q.headUp=q.headUp||q.up;q.headFront=q.headFront||q.front;
+ const torso=frameOf(q.up,q.front);
+ q.arms=q.arms.map((arm,i)=>arm.to?ik(v([0,0,0]).addScaledVector(torso.u,LEN.shoulder).addScaledVector(torso.r,(i?1:-1)*LEN.shoulderW),arm.to,arm.pole,LEN.upper,LEN.fore):arm);
  q.feet=(q.feet||[null,null]).map((f,i)=>f||defaultFoot(q,i));return q;
 }
 function defaultFoot(p,i){
@@ -196,24 +210,19 @@ function viewFor(p,cam,also){
  const yaw=cam.yaw*DEG,pitch=cam.pitch*DEG,dir=new THREE.Vector3(Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch));
  return {center,position:center.clone().addScaledVector(dir,dist),floor:box};
 }
-// Where the figure is now, so the next movement glides on from it.
-let shown=null,shownView=null,fromPose=null,fromView=null,currentId='';
-const ease=x=>x*x*(3-2*x);
+// Each movement is shown straight in its held position: no in-between animation,
+// only a slow, barely visible breath (about 5.5 s per cycle).
+let shown=null;
 function poseAt(id,elapsed){
- const T=targetFor(id);
- if(id!==currentId){
-  fromPose=shown?clonePose(shown):clonePose(T.neutral);fromView=shownView?{center:shownView.center.clone(),position:shownView.position.clone()}:null;currentId=id;
-  T.view=T.view||viewFor(T.target,T.cam,T.neutral);if(!fromView)fromView=T.view;
- }
- // Settle in over three seconds, then hold with a slow breath (about 5.5 s per cycle).
- const glide=ease(Math.min(1,Math.max(0,elapsed)/3)),breath=.5-.5*Math.cos(Math.max(0,elapsed-3)*2*Math.PI/5.5);
- const held=mixPose(T.neutral,T.target,1-.055*breath);
- shown=mixPose(fromPose,held,glide);
- shownView={center:fromView.center.clone().lerp(T.view.center,glide),position:fromView.position.clone().lerp(T.view.position,glide)};
- return {pose:shown,view:shownView,floor:T.view.floor};
+ const T=targetFor(id);T.view=T.view||viewFor(T.target,T.cam);
+ const breath=.5-.5*Math.cos(Math.max(0,elapsed)*2*Math.PI/5.5);
+ shown=mixPose(T.neutral,T.target,1-.03*breath);
+ return {pose:shown,view:T.view,floor:T.view.floor};
 }
-async function initialize(){
- if(api.loading||api.ready)return;api.loading=true;
+let initializing=null;
+function initialize(){if(!initializing&&!api.ready)initializing=initializeOnce();return initializing||Promise.resolve();}
+async function initializeOnce(){
+ api.loading=true;
  try{
   renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.35));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.02;
@@ -264,8 +273,8 @@ async function initialize(){
      diffuseColor.rgb=mix(pearl,flesh,muscleMask);`],
     ['+vec3(1.0,0.42,0.20)*volume*reflection','+vec3(0.10,0.48,0.07)*volume*reflection'],
     // The main worked muscle glows from within, strongest along its shading highlights.
-    ['generalGlow*=uActivation;','generalGlow+=vec3(0.05,0.30,0.04)*primary*region*seen*(0.40+0.45*modelShade+0.12*silk);\n     generalGlow*=uActivation;'],
-    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.05,0.40,0.04) * muscleMask * (0.12 + 0.20 * modelShade) * uActivation;'],
+    ['generalGlow*=uActivation;','generalGlow+=vec3(0.06,0.44,0.05)*primary*region*seen*(0.62+0.55*modelShade+0.16*silk);\n     generalGlow*=uActivation;'],
+    ['#include <emissivemap_fragment>','#include <emissivemap_fragment>\n    totalEmissiveRadiance += vec3(0.06,0.56,0.05) * muscleMask * (0.30 + 0.34 * modelShade) * uActivation;'],
     ['generalGlow=region*(','generalGlow=region*seen*mix(0.45,1.0,primary)*('],
     ['#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\n    roughnessFactor = mix(roughnessFactor, 0.66, max(muscleMask, clothingMask));'],
     ['#include <metalnessmap_fragment>','#include <metalnessmap_fragment>\n    metalnessFactor = mix(metalnessFactor, 0.02, max(muscleMask, clothingMask));']
@@ -278,7 +287,7 @@ async function initialize(){
    textured.push(['+tissueFibre*silk*mix(0.05,0.12,primary)','+vec3(0.08,0.42,0.06)*silk*mix(0.05,0.12,primary)']);
    textured.push(['+vec3(1.0, 0.42, 0.20) * secondaryVolume','+vec3(0.10, 0.48, 0.07) * secondaryVolume']);
    mat.onBeforeCompile=(shader,r)=>{compile(shader,r);for(const [x,y] of textured){if(shader.fragmentShader.includes(x))shader.fragmentShader=shader.fragmentShader.replace(x,y);}};
-   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-visible-muscle-v6';
+   mat.customProgramCacheKey=()=>'pulse-tissue-stretch-ivory-visible-muscle-v7';
   }
   body=new THREE.SkinnedMesh(geo,mat);body.frustumCulled=false;
   bones=rest.map(([a])=>{const b=new THREE.Bone();b.position.copy(v(a));body.add(b);return b;});
@@ -311,7 +320,7 @@ api.snapshot=async(stepId,size=360)=>{
  if(!POSES[stepId])return null;
  if(!api.ready){await initialize();if(!api.ready)return null;}
  renderer.setSize(size,size,false);lastSize='';camera.aspect=1;camera.updateProjectionMatrix();
- shown=null;shownView=null;currentId='';draw(stepId,3);
+ draw(stepId,0);
  return renderer.domElement.toDataURL('image/png');
 };
 api.poses=()=>Object.keys(POSES);

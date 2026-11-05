@@ -2770,3 +2770,30 @@ body[data-kind=meditation] .pose-library select{background:#dbe8df;color:#173b34
  .history-row .history-expanded{margin-left:38px}
 }
 @media(prefers-reduced-motion:reduce){.history-row .history-chevron{transition:none}}
+
+/* ---------- Pass overview: compact rows, open one to see its exercises, start directly ---------- */
+#routines.rituals,body[data-kind] .ritual-section>#routines.rituals{display:block;grid-template-columns:none;gap:0;border-top:1px solid var(--line)}
+.pass-count{margin:0;padding:10px 2px 6px;color:var(--faint);font-size:11px;letter-spacing:1.4px;text-transform:uppercase}
+.pass-row{border-bottom:1px solid var(--line)}
+.pass-main{display:flex;align-items:center;gap:6px}
+.pass-toggle{display:flex;align-items:center;gap:14px;flex:1;min-width:0;min-height:62px;padding:8px 2px;border:0;background:none;color:var(--text);text-align:left;cursor:pointer;font:inherit}
+.pass-glyph{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);color:var(--accent);font-size:15px}
+.pass-row.is-current .pass-glyph{border-color:rgba(var(--accent-rgb),.6);box-shadow:0 0 14px rgba(var(--accent-rgb),.22)}
+.pass-text{display:grid;gap:2px;min-width:0}
+.pass-text strong{font:500 20px/1.15 var(--serif);overflow-wrap:anywhere}
+.pass-text small{color:var(--muted);font-size:12px}
+.pass-chevron{flex:none;width:18px;height:18px;margin-left:auto;fill:none;stroke:var(--faint);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.pass-row.is-open .pass-chevron{transform:rotate(180deg)}
+.pass-play{display:grid;place-items:center;flex:none;width:44px;height:44px;border:1px solid rgba(var(--accent-rgb),.45);border-radius:50%;background:rgba(var(--accent-rgb),.08);color:var(--accent);cursor:pointer}
+.pass-play svg{width:16px;height:16px;fill:currentColor;margin-left:2px}
+.pass-play:hover,.pass-play:focus-visible{background:rgba(var(--accent-rgb),.18)}
+.pass-toggle:focus-visible,.pass-play:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pass-detail{padding:0 0 14px 48px}
+.pass-detail[hidden]{display:none}
+.pass-steps{margin:0;padding:0;list-style:none;columns:2 220px;column-gap:28px;counter-reset:step}
+.pass-steps li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px dashed var(--line);break-inside:avoid;font-size:13px;color:var(--text);counter-increment:step}
+.pass-steps li span::before{content:counter(step) ". ";color:var(--faint)}
+.pass-steps li small{flex:none;color:var(--muted);font-variant-numeric:tabular-nums}
+.pass-summary{margin:0;color:var(--muted);font-size:13px}
+.pass-tools{display:flex;gap:18px;margin-top:10px}
+.builder-actions{display:flex;gap:10px;margin-left:auto}
