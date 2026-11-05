@@ -29,6 +29,13 @@ const seatedFront=()=>({up:d(0,1,0),front:d(0,0,1),arms:[[d(-.15,-1,-.15),d(0,-1
 // floor), with the elbow bending toward `pole`: two-bone IK keeps both arm lengths exact.
 function reach(to,pole){return {to:v(to),pole:d(...pole)};}
 function flat(x,y,z){return {toe:d(x,y,z),up:d(0,1,0)};}
+// On hands and knees in profile, head toward +x.
+const allFours=()=>({up:d(1,.29,0),front:d(.29,-1,0),headUp:d(1,.05,0),arms:[[d(0,-1,.04),d(0,-1,0)],[d(0,-1,-.04),d(0,-1,0)]],legs:[[d(0,-1,.03),d(-1,-.02,0)],[d(0,-1,-.03),d(-1,-.02,0)]],feet:[point(-1,0,0),point(-1,0,0)]});
+// Seated on the floor in profile, legs long toward +x.
+const seatedSide=()=>({up:d(.05,1,0),front:d(1,-.05,0),pelvisUp:d(0,1,0),pelvisFront:d(1,0,0),arms:[[d(-.1,-1,.15),d(0,-1,.05)],[d(-.1,-1,-.15),d(0,-1,-.05)]],legs:[[d(1,.02,.03),d(1,-.02,0)],[d(1,.02,-.03),d(1,-.02,0)]],feet:[{toe:d(0,1,0),up:d(-1,0,0)},{toe:d(0,1,0),up:d(-1,0,0)}]});
+// On the back with knees bent and feet on the floor.
+const supineKnees=()=>{const p=supine();p.legs=[[d(.6,.8,.02),d(.43,-.9,0)],[d(.6,.8,-.02),d(.43,-.9,0)]];p.feet=[flat(1,0,0),flat(1,0,0)];return p;};
+
 function point(x,y,z){return {toe:d(x,y,z),up:d(0,-1,0)};}
 const POSE_DEFS={
  side:{mirror:'x',base:standFront,muscles:['Mage','Rygg'],cam:{yaw:4,pitch:3},pose(){
@@ -82,8 +89,65 @@ const POSE_DEFS={
  // Tricepsstretch över huvudet: the left elbow points up, the hand drops behind the head.
  triceps:{mirror:'x',base:standFront,muscles:['Triceps','Axlar'],cam:{yaw:22,pitch:6},pose(){
   // The right hand reaches behind the head to the raised left elbow, keeping the face clear.
-  const p=standFront();p.arms=[reach([.13,.79,-.13],[-1,.5,-.2]),reach([.02,.62,-.12],[.15,1,-.1])];return p;}}
+  const p=standFront();p.arms=[reach([.13,.79,-.13],[-1,.5,-.2]),reach([.02,.62,-.12],[.15,1,-.1])];return p;}},
+ /* ---------- Movements in the ready-made passes ---------- */
+ rest:{base:supine,muscles:[],cam:{yaw:12,pitch:26},pose(){const p=supine();p.arms=[[d(1,0,.4),d(1,0,.32)],[d(1,0,-.4),d(1,0,-.32)]];p.legs=[[d(1,0,.07),d(1,0,.03)],[d(1,0,-.07),d(1,0,-.03)]];return p;}},
+ arrive:{base:standFront,muscles:[],cam:{yaw:10,pitch:4},pose:standFront},
+ neck:{base:standFront,muscles:['Axlar'],cam:{yaw:12,pitch:4},pose(){const p=standFront();p.arms=[[d(-.25,-1,-.05),d(-.08,-1,.05)],[d(.25,-1,-.05),d(.08,-1,.05)]];p.up=d(0,1,-.04);return p;}},
+ 'lat-reach':{mirror:'x',base:standFront,muscles:['Mage','Rygg'],cam:{yaw:4,pitch:3},pose(){
+  const p=complete(POSE_DEFS.side.pose());p.arms=[reach([.27,.95,.07],[-1,.2,0]),reach([.47,.86,.07],[1,.3,0])];return p;}},
+ 'standing-quad':{mirror:'z',base:standSide,muscles:['Framsida lår','Mage'],cam:{yaw:-14,pitch:4},pose(){
+  const p=standSide();p.legs[1]=[d(-.06,-1,-.02),d(-.31,.95,0)];p.feet[1]={toe:d(-.31,.95,0),up:d(-.95,-.31,0)};
+  p.arms=[[d(1,.05,.25),d(1,.1,.05)],reach([-.2,-.08,-.24],[-.3,0,-1])];return p;}},
+ fold:{base:seatedSide,muscles:['Baksida lår','Rygg'],cam:{yaw:-12,pitch:10},pose(){
+  const p=seatedSide();p.up=d(.8,.6,0);p.front=d(.6,-.8,0);p.pelvisUp=d(.45,.89,0);p.pelvisFront=d(.89,-.45,0);p.headUp=d(.85,.45,0);
+  p.arms=[reach([.62,.0,.14],[0,-1,.6]),reach([.62,.0,-.14],[0,-1,-.6])];return p;}},
+ cat:{base:allFours,muscles:['Rygg','Mage'],cam:{yaw:-12,pitch:10},pose(){const p=allFours();p.headUp=d(1,-.35,0);return p;}},
+ 'chest-open':{base:standFront,muscles:['Bröst','Axlar'],cam:{yaw:38,pitch:5},pose(){
+  const p=standFront();p.up=d(0,1,-.07);p.arms=[reach([-.05,-.06,-.17],[-1,0,-.3]),reach([.05,-.06,-.17],[1,0,-.3])];p.headUp=d(0,1,-.12);return p;}},
+ thread:{mirror:'z',base:allFours,muscles:['Rygg','Axlar'],cam:{yaw:22,pitch:26},pose(){
+  const p=allFours();p.up=d(1,.15,0);p.front=d(.08,-.8,.6);p.pelvisUp=d(1,.29,0);p.pelvisFront=d(.29,-1,0);p.headUp=d(1,-.15,.25);p.headFront=d(0,-.6,.8);
+  p.arms=[reach([.5,-.36,.24],[0,0,1]),reach([.47,-.40,.32],[0,-1,0])];return p;}},
+ goalpost:{base:standFront,muscles:['Bröst','Axlar'],cam:{yaw:12,pitch:4},pose(){const p=standFront();p.arms=[[d(-1,.02,-.15),d(0,1,-.05)],[d(1,.02,-.15),d(0,1,-.05)]];return p;}},
+ biceps:{base:standFront,muscles:['Biceps','Bröst'],cam:{yaw:55,pitch:6},pose(){const p=standFront();p.arms=[[d(-.15,-.85,-.5),d(-.12,-.85,-.52)],[d(.15,-.85,-.5),d(.12,-.85,-.52)]];return p;}},
+ 'open-book':{mirror:'z',base:supine,muscles:['Bröst','Rygg'],cam:{yaw:0,pitch:52},pose(){
+  return {up:d(-1,0,0),front:d(0,.85,.5),pelvisUp:d(-1,0,0),pelvisFront:d(0,0,1),headUp:d(-1,.05,0),headFront:d(0,.7,-.7),
+   arms:[[d(0,-.1,1),d(0,0,1)],[d(0,-.25,-1),d(0,-.1,-1)]],legs:[[d(.15,0,1),d(1,0,0)],[d(.15,.05,1),d(1,0,0)]],feet:[{toe:d(0,0,1),up:d(-1,0,0)},{toe:d(0,0,1),up:d(-1,0,0)}]};}},
+ soleus:{mirror:'z',base:standSide,muscles:['Vader'],cam:{yaw:-10,pitch:4},pose(){
+  return {up:d(.12,1,0),front:d(1,-.12,0),arms:[[d(1,.08,.25),d(1,.15,.05)],[d(1,.08,-.25),d(1,.15,-.05)]],
+   legs:[[d(.35,-1,.02),d(.1,-1,0)],[d(-.05,-1,-.02),d(-.35,-1,0)]],feet:[flat(1,0,0),flat(1,0,0)]};}},
+ puppy:{base:allFours,muscles:['Axlar','Rygg','Bröst'],cam:{yaw:-14,pitch:10},pose(){
+  const p=allFours();p.up=d(1,-.55,0);p.front=d(-.55,-1,0);p.headUp=d(1,-.4,0);p.arms=[[d(.92,-.38,.05),d(1,-.05,0)],[d(.92,-.38,-.05),d(1,-.05,0)]];return p;}},
+ 'self-hug':{base:standFront,muscles:['Rygg','Axlar'],cam:{yaw:14,pitch:4},pose(){const p=standFront();p.up=d(0,1,.04);p.arms=[reach([.2,.42,.13],[0,-1,.6]),reach([-.2,.39,.16],[0,-1,.7])];return p;}},
+ butterfly:{base:seatedFront,muscles:['Säte'],cam:{yaw:18,pitch:20},pose(){
+  return {up:d(0,1,.15),front:d(0,-.15,1),pelvisUp:d(0,1,0),pelvisFront:d(0,0,1),
+   arms:[reach([-.08,-.02,.36],[-1,0,0]),reach([.08,-.02,.36],[1,0,0])],
+   legs:[[d(-.85,.1,.55),d(.4,-.1,.13)],[d(.85,.1,.55),d(-.4,-.1,.13)]],feet:[{toe:d(0,0,1),up:d(-1,.3,0)},{toe:d(0,0,1),up:d(1,.3,0)}]};}},
+ 'knee-sways':{base:supineKnees,muscles:['Rygg','Mage'],cam:{yaw:14,pitch:30},pose(){
+  const p=supineKnees();p.legs=[[d(.6,.6,.5),d(.43,-.8,.4)],[d(.6,.65,.45),d(.43,-.8,.4)]];p.feet=[flat(1,0,.3),flat(1,0,.3)];p.arms=[[d(.3,0,1),d(.2,0,1)],[d(.3,0,-1),d(.2,0,-1)]];return p;}},
+ /* ---------- Neck, more floor work, standing folds ---------- */
+ 'neck-tilt':{mirror:'x',base:standFront,muscles:['Axlar'],cam:{yaw:8,pitch:4},pose(){const p=standFront();p.headUp=d(.42,.9,0);return p;}},
+ 'neck-turn':{base:standFront,muscles:['Axlar'],cam:{yaw:8,pitch:4},pose(){const p=standFront();p.headFront=d(.75,0,.66);return p;}},
+ 'neck-nod':{base:standFront,muscles:['Axlar','Rygg'],cam:{yaw:40,pitch:4},pose(){const p=standFront();p.headUp=d(0,.82,.57);return p;}},
+ levator:{mirror:'x',base:standFront,muscles:['Axlar'],cam:{yaw:12,pitch:4},pose(){const p=standFront();p.headUp=d(.25,.85,.45);p.headFront=d(.4,-.45,.8);return p;}},
+ 'chin-tuck':{base:standFront,muscles:['Axlar'],cam:{yaw:60,pitch:4},pose(){const p=standFront();p.headUp=d(0,1,-.14);return p;}},
+ 'knee-chest':{mirror:'z',base:supine,muscles:['Säte','Rygg'],cam:{yaw:20,pitch:18},pose(){
+  const p=supine();p.legs[1]=[d(-.5,.85,0),d(.75,-.66,0)];p.feet[1]={toe:d(.66,.75,0),up:d(-.75,.66,0)};
+  p.arms=[reach([-.1,.36,-.03],[-.3,.3,1]),reach([-.1,.34,-.21],[-.3,.3,-1])];return p;}},
+ 'both-knees':{base:supine,muscles:['Rygg','Säte'],cam:{yaw:20,pitch:18},pose(){
+  const p=supine();p.legs=[[d(-.5,.85,.03),d(.75,-.66,0)],[d(-.5,.85,-.03),d(.75,-.66,0)]];p.feet=[{toe:d(.66,.75,0),up:d(-.75,.66,0)},{toe:d(.66,.75,0),up:d(-.75,.66,0)}];
+  p.arms=[reach([-.08,.34,.2],[-.3,.3,1]),reach([-.08,.34,-.2],[-.3,.3,-1])];return p;}},
+ 'pelvic-tilt':{base:supine,muscles:['Mage','Rygg'],cam:{yaw:10,pitch:14},pose:supineKnees},
+ 'supine-twist':{mirror:'z',base:supine,muscles:['Rygg','Säte','Mage'],cam:{yaw:14,pitch:34},pose(){
+  const p=supine();p.legs[1]=[d(-.3,.4,.87),d(.65,-.55,.5)];p.feet[1]={toe:d(.2,0,1),up:d(-.6,.2,.5)};p.arms=[[d(.1,0,1),d(.05,0,1)],[d(.1,0,-1),d(.05,0,-1)]];p.headFront=d(0,.55,-.84);return p;}},
+ 'standing-fold':{base:standSide,muscles:['Baksida lår','Rygg'],cam:{yaw:-14,pitch:4},pose(){
+  return {up:d(.45,-.9,0),front:d(-.9,-.45,0),pelvisUp:d(.55,.83,0),pelvisFront:d(.83,-.55,0),headUp:d(.2,-1,0),
+   arms:[[d(.08,-1,.12),d(.04,-1,.05)],[d(.08,-1,-.12),d(.04,-1,-.05)]],legs:[[d(-.14,-1,.03),d(.06,-1,0)],[d(-.14,-1,-.03),d(.06,-1,0)]],feet:[flat(1,0,0),flat(1,0,0)]};}},
+ cobra:{base:prone,muscles:['Mage','Rygg'],cam:{yaw:-10,pitch:14},pose(){
+  const p=prone();p.up=d(-1,.75,0);p.front=d(-.75,-1,0);p.headUp=d(-.8,.6,0);
+  p.arms=[reach([-.42,-.09,-.25],[1,.2,-.3]),reach([-.42,-.09,.25],[1,.2,.3])];p.legs=[[d(1,-.06,-.05),d(1,0,0)],[d(1,-.06,.05),d(1,0,0)]];return p;}}
 };
+
 const POSES={};
 for(const [family,def] of Object.entries(POSE_DEFS)){
  if(def.mirror){POSES[family+'-left']={def,mirror:null};POSES[family+'-right']={def,mirror:def.mirror};}

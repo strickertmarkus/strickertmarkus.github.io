@@ -83,6 +83,22 @@
     const monday=new Date(now);monday.setHours(0,0,0,0);monday.setDate(monday.getDate()-(monday.getDay()+6)%7);
     return Array.from({length:7},(_,i)=>{const d=new Date(monday);d.setDate(d.getDate()+i);const key=localDate(d);return {date:key,minutes:records.filter(r=>r.kind===kind&&localDate(r.completedAt)===key).reduce((sum,r)=>sum+r.seconds/60,0)};});
   }
+  // Minutes per bar for a period: this week by day, this month by day, or this year by month.
+  function period(records,kind,now,range){
+    const selected=records.filter(r=>r.kind===kind),sum=test=>selected.filter(test).reduce((n,r)=>n+r.seconds/60,0);
+    if(range==='year'){const year=new Date(now).getFullYear();return Array.from({length:12},(_,m)=>({key:year+'-'+String(m+1).padStart(2,'0'),month:m,minutes:sum(r=>{const d=new Date(r.completedAt);return d.getFullYear()===year&&d.getMonth()===m;})}));}
+    if(range==='month'){const first=new Date(now);first.setHours(12,0,0,0);first.setDate(1);const days=new Date(first.getFullYear(),first.getMonth()+1,0).getDate();
+      return Array.from({length:days},(_,i)=>{const d=new Date(first);d.setDate(i+1);const key=localDate(d);return {date:key,day:i+1,minutes:sum(r=>localDate(r.completedAt)===key)};});}
+    return week(records,kind,now);
+  }
+  // Seconds of stretching per muscle group in a period, from the movements saved with each pass.
+  function groups(records,now,range){
+    const start=new Date(now);start.setHours(0,0,0,0);
+    if(range==='year'){start.setMonth(0,1);}else if(range==='month'){start.setDate(1);}else start.setDate(start.getDate()-(start.getDay()+6)%7);
+    const byId=new Map(poses.map(p=>[p.id,p.group])),totals={};
+    for(const r of records)if(r.kind==='stretch'&&r.completedAt>=start.getTime()&&Array.isArray(r.steps))for(const step of r.steps){const g=byId.get(step.id);if(g&&g!=='Helkropp')totals[g]=(totals[g]||0)+(Number(step.seconds)||0);}
+    return Object.entries(totals).map(([group,seconds])=>({group,seconds})).sort((a,b)=>b.seconds-a.seconds);
+  }
   function stats(records,kind,now){
     const selected=records.filter(r=>r.kind===kind),days=new Set(selected.map(r=>localDate(r.completedAt))),cursor=new Date(now);cursor.setHours(12,0,0,0);
     if(!days.has(localDate(cursor)))cursor.setDate(cursor.getDate()-1);
@@ -108,5 +124,5 @@
     return e.steps===undefined||(e.kind==='stretch'&&Array.isArray(e.steps)&&e.steps.length<=20&&e.steps.every(s=>s&&typeof s.name==='string'&&s.name.length>0&&s.name.length<=100&&typeof s.id==='string'&&s.id.length<=100&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600));
   }
   function merge(a,b){const result={};for(const source of [a,b])for(const [id,e]of Object.entries(source||{})){if(e&&e.id===id&&entryValid(e)&&(!result[id]||e.updatedAt>result[id].updatedAt))result[id]=e;}return result;}
-  return {milestoneMetrics,milestoneValid,milestones,poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
+  return {period,groups,milestoneMetrics,milestoneValid,milestones,poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
 });

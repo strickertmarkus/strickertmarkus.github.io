@@ -9,7 +9,7 @@
   let prefs={};try{prefs=JSON.parse(localStorage.getItem(prefKey)||'{}');}catch(_){}
   if(!prefs||typeof prefs!=='object')prefs={};
   const routeKind=new URLSearchParams(location.search).get('wellness');
-  let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:typeof prefs.selected?.stretch==='string'?prefs.selected.stretch:'forest',meditation:typeof prefs.selected?.meditation==='string'?prefs.selected.meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false,editingHistoryId=null,editingHistoryVersion=0,expandedHistory=new Set(),expandedRoutines=new Set(),builderOrigin='';
+  let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:typeof prefs.selected?.stretch==='string'?prefs.selected.stretch:'forest',meditation:typeof prefs.selected?.meditation==='string'?prefs.selected.meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false,editingHistoryId=null,editingHistoryVersion=0,expandedHistory=new Set(),expandedRoutines=new Set(),builderOrigin='',statsRange='week';
   var requestedRoutine=new URLSearchParams(location.search).get('routine');
   var requested=M.routines.find(r=>r.id===requestedRoutine&&r.kind===kind);if(requested)selected[kind]=requested.id;
   // A planned day with several passes: the next ones come after this one is saved.
@@ -33,7 +33,8 @@
   let volume=Number.isFinite(prefs.volume)?Math.max(0,Math.min(100,prefs.volume)):100,prepare=prefs.prepare!==false,ending=false,breathOffset=0;
   const TRANSITION_SECONDS=7,TRANSITION_NOTES=[440,523.25,587.33,659.25,783.99,880,1046.5];
   let transitionCue=null;
-  function savePrefs(){prefs={kind,sound,volume,prepare,selected};try{localStorage.setItem(prefKey,JSON.stringify(prefs));}catch(_){} }
+  let ambient=['rain','sea','wind'].includes(prefs.ambient)?prefs.ambient:'',intervalMinutes=[1,2,5,10].includes(prefs.interval)?prefs.interval:0,ambientNodes=null,lastIntervalMark=-1;
+  function savePrefs(){prefs={kind,sound,volume,prepare,selected,ambient,interval:intervalMinutes};try{localStorage.setItem(prefKey,JSON.stringify(prefs));}catch(_){} }
   function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
   function routines(){return [...M.routines,...S.entries.filter(e=>e.type==='routine').map(e=>e.routine)];}
   function chosen(){return routines().find(r=>r.id===selected[kind]&&r.kind===kind)||M.routines.find(r=>r.kind===kind);}
@@ -73,6 +74,43 @@
       kindMotionTimer=setTimeout(()=>home.classList.remove('zen-kind-surface-enter'),200);
     });
   }
+  const isBuiltin=r=>M.routines.some(p=>p.id===r.id);
+  const passSymbols=()=>kind==='stretch'?['✧','⌁','⋮']:['≈','◌','○'];
+  // One compact row per pass: name, time and count, a start button; it opens to show its exercises.
+  function passRow(r,i){
+    const own=!isBuiltin(r),open=expandedRoutines.has(r.id),current=r.id===chosen().id,minutes=mins(M.duration(r));
+    const meta=minutes+' min · '+(r.kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide')+(own?' · egen':'');
+    const detail=r.kind==='stretch'
+      ?'<ol class="pass-steps">'+r.steps.map(step=>'<li><span>'+escape(step.name)+'</span><small>'+fmt(step.seconds)+'</small></li>').join('')+'</ol>'
+      :'<p class="pass-summary">'+escape(r.description||M.breathingSummary(r))+'</p>';
+    return '<article class="pass-row'+(current?' is-current':'')+(open?' is-open':'')+'"><div class="pass-main">'+
+      '<button type="button" class="pass-toggle" data-expand="'+escape(r.id)+'" aria-expanded="'+open+'">'+
+      '<span class="pass-glyph" aria-hidden="true">'+passSymbols()[i%3]+'</span><span class="pass-text"><strong>'+escape(r.name)+'</strong><small>'+escape(meta)+'</small></span>'+
+      '<svg class="pass-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10l4 4 4-4"/></svg></button>'+
+      '<button type="button" class="pass-play" data-play="'+escape(r.id)+'" aria-label="Starta '+escape(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7l8 5-8 5z"/></svg></button></div>'+
+      '<div class="pass-detail"'+(open?'':' hidden')+'>'+detail+
+      '<div class="pass-tools"><button type="button" class="text-button" data-edit="'+escape(r.id)+'">'+(own?'Redigera':'Anpassa som egen')+'</button>'+(own?'<button type="button" class="text-button" data-remove="'+escape(r.id)+'">Ta bort</button>':'')+'</div></div></article>';
+  }
+  /* The pass menu: every template, filtered by training category and searchable by pass or exercise name. */
+  const LIBRARY_GROUPS=[['all','Alla'],['base','Baspass'],['chest','Bröst + Triceps'],['back','Biceps + Rygg'],['legs','Axlar + Mage + Ben'],['cardio','Kondition'],['own','Mina egna']];
+  let libraryGroup='all';
+  function libraryGroupOf(r){return isBuiltin(r)?(r.category||'base'):'own';}
+  function renderLibrary(){
+    const all=routines().filter(r=>r.kind===kind),query=$('library-search').value.trim().toLocaleLowerCase('sv-SE');
+    const groups=kind==='stretch'?LIBRARY_GROUPS:[['all','Alla'],['own','Mina egna']];
+    if(!groups.some(g=>g[0]===libraryGroup))libraryGroup='all';
+    $('library-title').textContent=kind==='stretch'?'Stretchpass':'Meditationer';
+    $('library-groups').innerHTML=groups.map(([id,label])=>{const n=id==='all'?all.length:all.filter(r=>kind==='stretch'?libraryGroupOf(r)===id:(id==='own')!==isBuiltin(r)).length;return '<button type="button" class="library-chip" data-group="'+id+'" aria-pressed="'+(libraryGroup===id)+'">'+label+' <small>'+n+'</small></button>';}).join('');
+    const match=r=>!query||(r.name+' '+(r.description||'')+' '+(r.steps||[]).map(x=>x.name).join(' ')).toLocaleLowerCase('sv-SE').includes(query);
+    const inGroup=r=>libraryGroup==='all'||(kind==='stretch'?libraryGroupOf(r)===libraryGroup:(libraryGroup==='own')!==isBuiltin(r));
+    const list=all.filter(r=>inGroup(r)&&match(r));
+    let html='';
+    if(libraryGroup==='all'&&kind==='stretch'&&!query){
+      for(const [id,label] of LIBRARY_GROUPS.slice(1)){const part=list.filter(r=>libraryGroupOf(r)===id);if(part.length)html+='<h3 class="library-heading">'+label+'</h3>'+part.map((r,i)=>passRow(r,i)).join('');}
+    }else html=list.map((r,i)=>passRow(r,i)).join('');
+    $('library-list').innerHTML=html||'<p class="history-empty">'+(query?'Inga pass matchar sökningen.':'Inga egna mallar ännu. Skapa ett pass eller anpassa en färdig mall.')+'</p>';
+  }
+  function openLibrary(){renderLibrary();SurfaceMotion.showDialog($('library-dialog'));$('library-title').focus({preventScroll:true});}
   function renderHome(){
     const r=chosen();$('selected-name').textContent=r.name;$('selected-meta').textContent=mins(M.duration(r))+' min · '+(kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide');
     document.querySelector('.start-ring-symbol').textContent=copy[kind].symbol;
@@ -80,29 +118,32 @@
     document.querySelector('.start-ring-meta').textContent=$('selected-meta').textContent;
     $('start-button').setAttribute('aria-label','Starta '+r.name+', '+$('selected-meta').textContent);
     const symbols=kind==='stretch'?['✧','⌁','⋮']:['≈','◌','○'];
-    const builtin=r=>M.routines.some(p=>p.id===r.id),category=$('routine-category').value;
-    $('routine-filter').hidden=kind!=='stretch';
-    const visible=routines().filter(r=>r.kind===kind&&(kind!=='stretch'||category==='all'||(category==='own'?!builtin(r):builtin(r)&&(r.category||'base')===category)));
-    // A compact list: one row per pass with a start button; a row opens to show its exercises.
-    $('routines').innerHTML=visible.length?'<p class="pass-count">'+visible.length+(visible.length===1?' pass':' pass')+'</p>'+visible.map((r,i)=>{
-      const own=!builtin(r),open=expandedRoutines.has(r.id),current=r.id===chosen().id,minutes=mins(M.duration(r));
-      const meta=minutes+' min · '+(kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide')+(own?' · egen':'');
-      const detail=kind==='stretch'
-        ?'<ol class="pass-steps">'+r.steps.map(step=>'<li><span>'+escape(step.name)+'</span><small>'+fmt(step.seconds)+'</small></li>').join('')+'</ol>'
-        :'<p class="pass-summary">'+escape(r.description||M.breathingSummary(r))+'</p>';
-      return '<article class="pass-row'+(current?' is-current':'')+(open?' is-open':'')+'"><div class="pass-main">'+
-        '<button type="button" class="pass-toggle" data-expand="'+escape(r.id)+'" aria-expanded="'+open+'" aria-controls="pass-detail-'+escape(r.id)+'">'+
-        '<span class="pass-glyph" aria-hidden="true">'+symbols[i%3]+'</span><span class="pass-text"><strong>'+escape(r.name)+'</strong><small>'+escape(meta)+'</small></span>'+
-        '<svg class="pass-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10l4 4 4-4"/></svg></button>'+
-        '<button type="button" class="pass-play" data-play="'+escape(r.id)+'" aria-label="Starta '+escape(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7l8 5-8 5z"/></svg></button></div>'+
-        '<div class="pass-detail" id="pass-detail-'+escape(r.id)+'"'+(open?'':' hidden')+'>'+detail+
-        '<div class="pass-tools"><button type="button" class="text-button" data-edit="'+escape(r.id)+'">'+(own?'Redigera':'Anpassa som egen')+'</button>'+(own?'<button type="button" class="text-button" data-remove="'+escape(r.id)+'">Ta bort</button>':'')+'</div></div></article>';
-    }).join(''):'<p class="history-empty">Inga egna mallar ännu. Välj Skapa pass eller anpassa en färdig mall.</p>';
+    // Start page: only the chosen pass and a few recently used ones; every pass lives in the pass menu.
+    const all=routines().filter(r=>r.kind===kind),recentNames=[...new Set(records().filter(e=>e.kind===kind).sort((a,b)=>b.completedAt-a.completedAt).map(e=>e.name))];
+    const shortlist=[chosen()];
+    for(const name of recentNames){const r=all.find(x=>x.name===name);if(r&&!shortlist.includes(r))shortlist.push(r);if(shortlist.length>=4)break;}
+    for(const r of all.filter(r=>!isBuiltin(r)))if(shortlist.length<4&&!shortlist.includes(r))shortlist.push(r);
+    $('routines').innerHTML='<p class="pass-count">'+(recentNames.length?'Valt och senast använda':'Valt pass')+'</p>'+shortlist.map((r,i)=>passRow(r,i)).join('');
+    $('open-library').textContent='Alla pass · '+all.length;
+    if($('library-dialog').open)renderLibrary();
 
-    const st=M.stats(records(),kind,Date.now()),weekly=st.week.reduce((n,d)=>n+d.minutes,0);$('weekly-minutes').innerHTML=escape(Number(weekly.toFixed(1)).toLocaleString('sv-SE'))+'<small>minuter</small>';$('weekly-copy').textContent=weekly?'Sammanlagd tid denna vecka.':'Inga pass sparade denna vecka.';$('total-minutes').textContent=st.minutes;$('total-sessions').textContent=st.count;$('streak-days').textContent=st.streak;
-    const days=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],max=Math.max(10,...st.week.map(d=>d.minutes));
-    $('week-chart').innerHTML=st.week.map((d,i)=>'<div class="day-column '+(d.date===M.localDate(Date.now())?'today':'')+'"><span class="day-minutes">'+(d.minutes?Number(d.minutes.toFixed(1)).toLocaleString('sv-SE'):'·')+'</span><div class="day-track"><span class="day-fill '+(!d.minutes?'empty':'')+'" style="height:'+Math.max(4,d.minutes/max*100)+'%"></span></div><span class="day-label">'+days[i]+'</span></div>').join('');
-    $('week-chart').setAttribute('aria-label','Minuter denna vecka: '+st.week.map((d,i)=>days[i]+' '+Number(d.minutes.toFixed(1))).join(', '));
+    // Statistics for the chosen period: this week (days), this month (days) or this year (months).
+    const now=Date.now(),st=M.stats(records(),kind,now),bars=M.period(records(),kind,now,statsRange),total=bars.reduce((n,d)=>n+d.minutes,0);
+    const periodWord={week:'denna vecka',month:'denna månad',year:'i år'}[statsRange];
+    $('weekly-minutes').innerHTML=escape(Number(total.toFixed(1)).toLocaleString('sv-SE'))+'<small>minuter</small>';$('weekly-copy').textContent=total?'Sammanlagd tid '+periodWord+'.':'Inga pass sparade '+periodWord+'.';
+    $('total-minutes').textContent=st.minutes;$('total-sessions').textContent=st.count;$('streak-days').textContent=st.streak;
+    document.querySelectorAll('[data-stats-range]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.statsRange===statsRange)));
+    const days=['Mån','Tis','Ons','Tor','Fre','Lör','Sön'],months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],max=Math.max(10,...bars.map(d=>d.minutes));
+    const today=M.localDate(now),thisMonth=new Date(now).getMonth();
+    const label=(d,i)=>statsRange==='year'?months[d.month]:statsRange==='month'?(d.day===1||d.day%5===0?String(d.day):''):days[i];
+    const isNow=d=>statsRange==='year'?d.month===thisMonth:d.date===today;
+    $('week-chart').classList.toggle('is-month',statsRange==='month');$('week-chart').classList.toggle('is-year',statsRange==='year');
+    $('week-chart').innerHTML=bars.map((d,i)=>'<div class="day-column '+(isNow(d)?'today':'')+'"><span class="day-minutes">'+(d.minutes?Number(d.minutes.toFixed(statsRange==='week'?1:0)).toLocaleString('sv-SE'):'·')+'</span><div class="day-track"><span class="day-fill '+(!d.minutes?'empty':'')+'" style="height:'+Math.max(4,d.minutes/max*100)+'%"></span></div><span class="day-label">'+label(d,i)+'</span></div>').join('');
+    $('week-chart').setAttribute('aria-label','Minuter '+periodWord+': '+bars.map((d,i)=>(statsRange==='year'?months[d.month]:statsRange==='month'?d.day:days[i])+' '+Number(d.minutes.toFixed(1))).join(', '));
+    // Which muscle groups got the most stretching in the period.
+    const groups=kind==='stretch'?M.groups(records(),now,statsRange):[],groupMax=Math.max(1,...groups.map(g=>g.seconds));
+    $('muscle-groups').hidden=kind!=='stretch';
+    $('muscle-groups-list').innerHTML=groups.length?groups.slice(0,6).map(g=>'<li><span>'+escape(g.group)+'</span><span class="group-bar"><i style="width:'+Math.max(4,g.seconds/groupMax*100)+'%"></i></span><small>'+Math.round(g.seconds/60)+' min</small></li>').join(''):'<li class="group-empty">Inga stretchpass sparade '+periodWord+'.</li>';
     const symbolsMilestone=kind==='stretch'?['✧','⌁','✦','∞']:['◌','≈','☼','∞'];
     $('collection').innerHTML=M.milestones(kind,S.entries).map(m=>{const value=st[m.metric],done=value>=m.goal;return '<article class="keepsake '+(done?'unlocked':'')+'"><span class="keepsake-symbol" aria-hidden="true">'+symbolsMilestone[m.slot]+'</span><h3>'+escape(m.name)+'</h3><p>'+m.goal+' '+M.milestoneMetrics[m.metric]+'</p><small>'+(done?'Uppnått':Math.min(value,m.goal)+' / '+m.goal)+'</small><button class="text-button milestone-edit" data-milestone="'+m.slot+'" aria-label="Redigera '+escape(m.name)+'">Redigera</button></article>';}).join('');
     const history=records().filter(r=>r.kind===kind).sort((a,b)=>b.completedAt-a.completedAt);$('history-more').hidden=history.length<=5;$('history-more').textContent=allHistory?'Visa färre':'Visa alla ('+history.length+')';
@@ -124,7 +165,7 @@
     else if(!want&&wakeLock){const lock=wakeLock;wakeLock=null;lock.release().catch(()=>{});}
   }
   document.addEventListener('visibilitychange',updateWakeLock);
-  function showView(next){view=next;setTimeout(updateWakeLock,0);if(next!=='session'){$('session-preparation').hidden=true;$('session-view').classList.remove('is-stretch-preparing');}syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
+  function showView(next){view=next;setTimeout(updateWakeLock,0);if(next!=='session')stopAmbient();if(next!=='session'){$('session-preparation').hidden=true;$('session-view').classList.remove('is-stretch-preparing');}syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
   function confirm(title,message,yes,action){$('confirm-title').textContent=title;$('confirm-copy').textContent=message;$('confirm-yes').textContent=yes;$('confirm-no').textContent='Tillbaka';confirmAction=action;SurfaceMotion.showDialog($('confirm-dialog'));}
   $('confirm-yes').onclick=()=>{const action=confirmAction;confirmAction=null;SurfaceMotion.closeDialog($('confirm-dialog'));if(action)action();};$('confirm-no').onclick=()=>SurfaceMotion.closeDialog($('confirm-dialog'));$('confirm-dialog').addEventListener('close',()=>confirmAction=null);
   function openSession(s){ending=false;document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=false);$('session-ending').hidden=true;$('session-view').classList.remove('clock-hidden','session-finished');$('clock-toggle').textContent='Dölj tiden';$('clock-toggle').setAttribute('aria-pressed','true');session=s;breathOffset=M.position(s,Date.now()).spent;setKind(s.routine.kind);lastStep=-1;lastPhase='';showView('session');$('session-routine-name').textContent=session.routine.name;updateSound();tick();$('session-title').focus();}
@@ -137,7 +178,7 @@
   function tick(){
     if(view!=='session'||!session||ending)return;
     const now=Date.now(),p=M.position(session,now);
-    if(p.done){if(!ending){ending=true;session=M.pause(session,now);S.setActive(session);$('session-ending').hidden=false;$('session-view').classList.add('session-finished');document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=true);$('session-ending-title').focus();updateBreathAudio(false);document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind,paused:true,done:true,progress:1}}));playDing();}return;}
+    if(p.done){if(!ending){ending=true;stopAmbient();session=M.pause(session,now);S.setActive(session);$('session-ending').hidden=false;$('session-view').classList.add('session-finished');document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=true);$('session-ending-title').focus();updateBreathAudio(false);document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind,paused:true,done:true,progress:1}}));playDing();}return;}
     const isStretch=session.routine.kind==='stretch',preparing=!session.paused&&now<session.anchor;
     // Keep the authoritative start anchor in the session model. This is only
     // the visual five-second countdown; no second clock or work time is added.
@@ -181,6 +222,7 @@
     $('restart-step').hidden=!isStretch||!session.paused;
     document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind:session.routine.kind,step,index:p.index,steps:session.routine.steps||[],progress:p.spent/p.total,stepProgress:step?1-p.remaining/step.seconds:0,phase,cycle,breathing,guided,preparing,prepRemainingMs:preparing?Math.max(0,session.anchor-now):0,paused:session.paused,scale,volume,sound}}));
     updateBreathAudio(guided&&!preparing&&!session.paused,breathing.id);
+    updateAmbient();if(!preparing)updateIntervalBell(p);
 
   }
   function complete(early){
@@ -200,7 +242,7 @@
       }
       toast('Passet är sparat.');}
   }
-  function updateSound(){setDingVolume();$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Ljud på':'Ljud av';$('sound-toggle').setAttribute('aria-pressed',String(sound));$('session-audio').dataset.enabled=String(sound);$('session-audio').querySelector('summary').setAttribute('aria-label','Ljudinställningar, ljud '+(sound?'på':'av'));}
+  function updateSound(){const medi=session?session.routine.kind==='meditation':kind==='meditation';$('session-interval').hidden=!medi;$('session-interval-label').hidden=!medi;setDingVolume();$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Ljud på':'Ljud av';$('sound-toggle').setAttribute('aria-pressed',String(sound));$('session-audio').dataset.enabled=String(sound);$('session-audio').querySelector('summary').setAttribute('aria-label','Ljudinställningar, ljud '+(sound?'på':'av'));}
   function mixedAudioContext(){
     // Fail silent when audio mixing cannot be requested; preserve external music.
     try{
@@ -276,6 +318,46 @@
       });
     }catch(_){transitionCue=null;}
   }
+  /* Background sound, made in the browser: rain (bright filtered noise with soft drops),
+     sea (deep noise rising and falling like waves) or wind in the trees (swaying band of noise). */
+  function noiseBuffer(type){
+    const length=audioContext.sampleRate*6,buffer=audioContext.createBuffer(2,length,audioContext.sampleRate);
+    for(let ch=0;ch<2;ch++){const d=buffer.getChannelData(ch);let b0=0,b1=0,b2=0,brown=0;
+      for(let i=0;i<length;i++){const w=Math.random()*2-1;
+        if(type==='sea'){brown=(brown+.02*w)/1.02;d[i]=brown*3.2;}
+        else{b0=.99765*b0+w*.0990460;b1=.96300*b1+w*.2965164;b2=.57000*b2+w*1.0526913;d[i]=(b0+b1+b2+w*.1848)*.18;}
+        if(type==='rain'&&Math.random()<.0009)d[i]+=(Math.random()*2-1)*.5;}
+      // Fade the loop seam so it repeats without a click.
+      for(let i=0;i<2048;i++){const f=i/2048;d[i]*=f;d[length-1-i]*=f;}}
+    return buffer;
+  }
+  function stopAmbient(){if(!ambientNodes)return;const n=ambientNodes;ambientNodes=null;try{const t=audioContext.currentTime;n.gain.gain.setTargetAtTime(0,t,.4);setTimeout(()=>{n.nodes.forEach(x=>{try{x.stop();}catch(_){}});try{n.gain.disconnect();}catch(_){}},1800);}catch(_){}}
+  function updateAmbient(){
+    const want=view==='session'&&!!session&&!session.paused&&sound&&!document.hidden&&!ending&&ambient;
+    if(ambientNodes&&(!want||ambientNodes.type!==ambient))stopAmbient();
+    if(!want||ambientNodes)return;
+    try{
+      if(!prepareDing())return;
+      const t=audioContext.currentTime,gain=audioContext.createGain(),src=audioContext.createBufferSource(),filter=audioContext.createBiquadFilter(),nodes=[src];
+      src.buffer=noiseBuffer(ambient);src.loop=true;
+      if(ambient==='rain'){filter.type='highpass';filter.frequency.value=900;}
+      else if(ambient==='sea'){filter.type='lowpass';filter.frequency.value=520;}
+      else{filter.type='bandpass';filter.frequency.value=420;filter.Q.value=.6;}
+      src.connect(filter);filter.connect(gain);gain.connect(dingBus);
+      const level=ambient==='sea'?.20:ambient==='rain'?.10:.16;
+      gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(level,t+2.5);
+      // Slow movement: waves for the sea, gusts for the wind.
+      if(ambient!=='rain'){const lfo=audioContext.createOscillator(),depth=audioContext.createGain();lfo.frequency.value=ambient==='sea'?.11:.07;depth.gain.value=ambient==='sea'?level*.75:180;lfo.connect(depth);depth.connect(ambient==='sea'?gain.gain:filter.frequency);lfo.start(t);nodes.push(lfo);}
+      src.start(t);ambientNodes={type:ambient,gain,nodes};
+    }catch(_){ambientNodes=null;}
+  }
+  // An optional bell every few minutes in a meditation, for keeping time without a guide.
+  function updateIntervalBell(p){
+    if(!session||session.routine.kind!=='meditation'||!intervalMinutes||session.paused||p.done){lastIntervalMark=-1;return;}
+    const mark=Math.floor(p.spent/(intervalMinutes*60));
+    if(lastIntervalMark<0){lastIntervalMark=mark;return;}
+    if(mark>lastIntervalMark){lastIntervalMark=mark;if(p.remaining>5)playDing();}
+  }
   function updateBreathAudio(active,phase='inhale'){
     if(!active||!sound||document.hidden||view!=='session'||ending){breathSoundPhase=null;return;}
     if(phase!==breathSoundPhase){breathSoundPhase=phase;playDing();}
@@ -283,6 +365,9 @@
   document.addEventListener('visibilitychange',()=>{setDingVolume();if(document.hidden)breathSoundPhase=null;});
   document.addEventListener('zen:session-view',()=>updateBreathAudio(false));
   $('show-session-summary').onclick=()=>complete(false);
+  $('session-ambient').value=ambient;$('session-interval').value=String(intervalMinutes);
+  $('session-ambient').onchange=()=>{ambient=$('session-ambient').value;savePrefs();updateAmbient();};
+  $('session-interval').onchange=()=>{intervalMinutes=Number($('session-interval').value);lastIntervalMark=-1;savePrefs();};
   $('session-volume').oninput=()=>{volume=Number($('session-volume').value);savePrefs();updateSound();tick();};
   $('prepare-session').checked=prepare;
   $('prepare-session').onchange=()=>{prepare=$('prepare-session').checked;savePrefs();};
@@ -352,21 +437,28 @@
   }
   function builderTotal(){if(!builder)return;const seconds=builder.kind==='stretch'?M.duration(builder):Number($('meditation-minutes').value)*60;$('builder-total').textContent=Number.isFinite(seconds)?mins(seconds)+' minuter totalt':'';}
   document.querySelectorAll('.kind-switch button').forEach(b=>b.onclick=()=>setKind(b.dataset.kind));
-  $('routines').onclick=e=>{const b=e.target.closest('button');if(!b)return;
-    if(b.dataset.expand){const rid=b.dataset.expand;if(expandedRoutines.has(rid))expandedRoutines.delete(rid);else expandedRoutines.add(rid);selected[kind]=rid;savePrefs();renderHome();return;}
+  function passClick(e){const b=e.target.closest('button');if(!b)return;const inLibrary=!!e.target.closest('#library-dialog');
+    if(b.dataset.group){libraryGroup=b.dataset.group;renderLibrary();return;}
+    if(b.dataset.expand){const rid=b.dataset.expand;if(expandedRoutines.has(rid))expandedRoutines.delete(rid);else expandedRoutines.add(rid);selected[kind]=rid;savePrefs();renderHome();if(inLibrary)renderLibrary();return;}
     // Starting straight from a template: choose it and begin.
-    if(b.dataset.play){selected[kind]=b.dataset.play;savePrefs();renderHome();startSession();return;}
-    if(b.dataset.edit){const r=routines().find(r=>r.id===b.dataset.edit);if(r)openBuilder(r,false);}if(b.dataset.remove){const rid=b.dataset.remove;confirm('Ta bort passmallen?','Genomförda pass finns kvar i historiken.','Ta bort',()=>S.remove(rid));}};
+    if(b.dataset.play){selected[kind]=b.dataset.play;savePrefs();if(inLibrary)SurfaceMotion.closeDialog($('library-dialog'));renderHome();startSession();return;}
+    if(b.dataset.edit){const r=routines().find(r=>r.id===b.dataset.edit);if(r){if(inLibrary)SurfaceMotion.closeDialog($('library-dialog'));openBuilder(r,false);}}
+    if(b.dataset.remove){const rid=b.dataset.remove;confirm('Ta bort passmallen?','Genomförda pass finns kvar i historiken.','Ta bort',()=>S.remove(rid));}}
+  $('routines').onclick=passClick;$('library-dialog').addEventListener('click',passClick);
+  $('open-library').onclick=openLibrary;
+  document.querySelector('.stats-range').onclick=e=>{const b=e.target.closest('[data-stats-range]');if(!b)return;statsRange=b.dataset.statsRange;renderHome();};$('library-search').oninput=renderLibrary;
+  $('library-create').onclick=()=>{SurfaceMotion.closeDialog($('library-dialog'));$('create-routine').click();};
   const selectedRoutine=document.querySelector('.selected-routine');
   selectedRoutine.onclick=()=>openBuilder(chosen(),false);
   selectedRoutine.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openBuilder(chosen(),false);}};
-  $('routine-category').onchange=renderHome;
   $('create-routine').onclick=()=>openBuilder(kind==='stretch'?{id:id(),kind,name:'',steps:[{...M.poses[0],seconds:60},{...M.poses.find(p=>p.id==='rest'),seconds:60}]}:{id:id(),kind,name:'',seconds:600,guidance:'breath'},true);
   $('builder-steps').oninput=e=>{if(e.target.matches('[data-step-time]')){builder.steps[Number(e.target.dataset.stepTime)].seconds=Number(e.target.value);builderTotal();}};
   $('builder-steps').onclick=e=>{const b=e.target.closest('[data-remove-step]');if(b&&builder.steps.length>1){builder.steps.splice(Number(b.dataset.removeStep),1);renderBuilder();}};
   window.ZenBuilderSort.attach($('builder-steps'),(from,to)=>{const [step]=builder.steps.splice(from,1);builder.steps.splice(to,0,step);renderBuilder();$('builder-sort-status').textContent=step.name+' flyttad till plats '+(to+1);});
 
   // A movement done on both sides is added as a pair: the chosen side first, then the other.
+  // One tap sets the same hold time for every movement in the pass.
+  document.querySelector('.step-time-presets').onclick=e=>{const b=e.target.closest('[data-all-seconds]');if(!b||!builder||builder.kind!=='stretch')return;const seconds=Number(b.dataset.allSeconds);builder.steps.forEach(step=>step.seconds=seconds);renderBuilder();builderTotal();};
   $('add-pose').onclick=()=>{const pose=M.poses.find(p=>p.id===$('pose-select').value);if(!pose||builder.steps.length>=20)return;
     const other=pose.side?M.poses.find(p=>p.id===pose.id.replace(/-(left|right)$/,pose.side==='left'?'-right':'-left')):null;
     builder.steps.push({...pose,seconds:60});if(other&&builder.steps.length<20)builder.steps.push({...other,seconds:60});renderBuilder();};$('meditation-minutes').oninput=builderTotal;
@@ -374,14 +466,14 @@
   document.querySelectorAll('[data-breath-preset]').forEach(b=>b.onclick=()=>{const values=b.dataset.breathPreset.split(',');breathKeys.forEach((k,i)=>$('breath-'+k).value=values[i]);updateBreathingBuilder();});
   function builderShape(r){return JSON.stringify({name:r.name,steps:(r.steps||[]).map(x=>[x.id,x.seconds]),seconds:r.seconds,guidance:r.guidance,breathing:r.breathing});}
   function readBuilderForm(){builder.name=$('routine-name').value.trim();delete builder.description;if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;const breathing=readBreathing();builder.breathing=builder.guidance==='silent'&&!M.breathingValid({breathing})?M.breathingSettings(builder):breathing;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return false;}return true;}
-  $('builder-form').onsubmit=e=>{e.preventDefault();builder.name=$('routine-name').value.trim();delete builder.description;if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;const breathing=readBreathing();builder.breathing=builder.guidance==='silent'&&!M.breathingValid({breathing})?M.breathingSettings(builder):breathing;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return;}if(S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){selected[kind]=builder.id;savePrefs();if(kind==='stretch')$('routine-category').value='own';SurfaceMotion.closeDialog($('builder-dialog'));renderHome();toast(builderExisting?'Passmallen är uppdaterad.':'Passmallen är sparad.');}else $('builder-error').textContent='Vänta tills ditt konto har laddats.';};
+  $('builder-form').onsubmit=e=>{e.preventDefault();builder.name=$('routine-name').value.trim();delete builder.description;if(builder.kind==='meditation'){builder.seconds=Number($('meditation-minutes').value)*60;builder.guidance=$('meditation-guidance').value;const breathing=readBreathing();builder.breathing=builder.guidance==='silent'&&!M.breathingValid({breathing})?M.breathingSettings(builder):breathing;}if(!M.routineValid(builder)){$('builder-error').textContent='Ange ett namn och giltiga tider för passet.';return;}if(S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){selected[kind]=builder.id;savePrefs();libraryGroup='own';SurfaceMotion.closeDialog($('builder-dialog'));renderHome();toast(builderExisting?'Passmallen är uppdaterad.':'Passmallen är sparad.');}else $('builder-error').textContent='Vänta tills ditt konto har laddats.';};
   // "Starta" in the builder: an untouched ready-made template starts as it is; anything
   // changed (or your own template) is saved first, then the pass begins.
   $('builder-start').onclick=()=>{
     if(!builder||!readBuilderForm())return;
     const originId=builderOrigin.split('|')[0],untouched=builderOrigin&&!builderExisting&&builderOrigin===originId+'|'+builderShape(builder)&&M.routines.some(p=>p.id===originId);
     if(untouched)selected[kind]=originId;
-    else{if(!S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){$('builder-error').textContent='Vänta tills ditt konto har laddats.';return;}selected[kind]=builder.id;if(kind==='stretch')$('routine-category').value='own';}
+    else{if(!S.put({id:builder.id,type:'routine',routine:builder,updatedAt:Date.now()})){$('builder-error').textContent='Vänta tills ditt konto har laddats.';return;}selected[kind]=builder.id;libraryGroup='own';}
     savePrefs();SurfaceMotion.closeDialog($('builder-dialog'));renderHome();startSession();
   };
   $('start-button').onclick=startSession;

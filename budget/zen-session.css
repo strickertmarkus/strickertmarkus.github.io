@@ -750,3 +750,8 @@ body[data-kind=stretch] #session-preparation .session-prep-card>p:last-child{
   body[data-kind=stretch] .session-clock strong{font-size:34px}
   body[data-kind=stretch] .session-bottom{gap:2px 7px}
 }
+/* Background sound and interval bell in the sound panel. */
+.session-view .audio-panel select{display:block;width:calc(100% - 36px);margin:4px 18px 12px;min-height:38px;padding:0 10px;border:1px solid #bedb9040;border-radius:10px;background:#0b1f18;color:#edf4dc;font:500 13px var(--sans,system-ui);opacity:1}
+.audio-panel select[hidden],.audio-panel label[hidden]{display:none}
+.session-view .audio-panel label[for=session-ambient],.session-view .audio-panel label[for=session-interval]{display:block;margin:4px 18px 0!important;padding:0!important;font-size:12px;color:#c9dcc0;opacity:1}
+body[data-kind=meditation] .audio-panel select{background:#123530}
