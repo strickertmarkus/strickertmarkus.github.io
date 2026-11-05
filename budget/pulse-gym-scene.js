@@ -601,7 +601,8 @@
         if (image.decode) image.decode().then(play, play); else image.onload = play;
       }
       state.index = -1;
-      show(Math.max(0, state.list.indexOf(id != null ? id : ui.active())));
+      // A tapped muscle always opens on an exercise where it is the main muscle (the list puts those first).
+      show(id != null ? Math.max(0, state.list.indexOf(id)) : 0);
       close.focus({ preventScroll: true });
       // "Alla övningar" on the body opens the scene with its list already up.
       if (withList) openSheet('list');

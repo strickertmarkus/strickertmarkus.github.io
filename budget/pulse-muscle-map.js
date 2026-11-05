@@ -45,7 +45,7 @@
   const count=window.PulseGuideUI.countFor(name);
   document.getElementById('muscle-map-count').textContent=count+' övningar att utforska';
   document.getElementById('muscle-map-open').setAttribute('aria-label','Visa '+count+' övningar för '+name);
-  const items=window.PulseExplore.exercises.filter(e=>e.muscles.includes(name)).slice(0,3);
+  const items=window.PulseExplore.exercises.filter(e=>e.muscles.includes(name)).sort((a,b)=>a.muscles.indexOf(name)-b.muscles.indexOf(name)).slice(0,3);
   alternatives.replaceChildren(...items.map(e=>{
    const button=document.createElement('button');button.type='button';button.dataset.mapExercise=e.id;
    button.textContent=e.name+' ↗';button.setAttribute('aria-label','Se animerad teknik för '+e.name);return button;

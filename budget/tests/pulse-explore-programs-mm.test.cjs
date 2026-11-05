@@ -11,9 +11,9 @@ function explorerFor(profile){
 }
 const markus=explorerFor('markus'),maja=explorerFor('maja'),ingemar=explorerFor('ingemar');
 test('Markus/Maja have their own focus-based programme catalogue',()=>{
-  const expected=['Bröst + Triceps','Rygg + Biceps','Axlar + Mage + Ben','Calisthenics','Kroppsstyrka'];
+  const expected=['Bröst + Triceps','Rygg + Biceps','Axlar + Mage + Ben','Calisthenics','Kroppsstyrka','Skivstång'];
   assert.deepEqual([...new Set(markus.programs.map(p=>p.group))],expected);
-  assert.equal(markus.programs.length,18);
+  assert.equal(markus.programs.length,26);
   assert.deepEqual(markus.programs.map(p=>p.id),maja.programs.map(p=>p.id));
   assert.ok(markus.programs.every(p=>!/\b(push|pull)\b/i.test(p.name+' '+p.group)));
   assert.equal(markus.workout({version:1,ids:[9,20]}).type,'Styrka');
