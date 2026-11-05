@@ -30,19 +30,26 @@ test('milky-white mannequin and active-muscle green emission are exclusively str
   assert.match(material,/generalGlow\*=uActivation;/);
 });
 
-test('reaching arm moves as one joint chain: joints are smoothed, bones solved from them without twist',()=>{
-  assert.match(stretch,/let poseReady=false,lastPoseTime=0,smoothJoints=null;/);
-  assert.match(stretch,/const dt=lastPoseTime\?Math\.min\(\.08,Math\.max\(0,\(now-lastPoseTime\)\/1000\)\):0;/);
-  assert.match(stretch,/1-Math\.exp\(-dt\/\.16\)/);
-  assert.match(stretch,/smoothJoints\.forEach\(\(x,i\)=>x\.lerp\(flat\[i\],follow\)\)/);
-  assert.match(stretch,/smoothJoints\[2\*child\]\.copy\(smoothJoints\[2\*parent\+1\]\)/);
-  assert.match(stretch,/const base=i===3\|\|i===5\?solved\[i-1\]:i<=5\?torsoQ:new THREE\.Quaternion\(\)/);
-  assert.doesNotMatch(stretch,/bones\[i\]\.position\.lerp\(p,follow\)/);
-  assert.match(stretch,/muscles:\['Mage','Rygg'\]/);
+test('stretches are held 3D positions: forward kinematics, glide in, then breathe',()=>{
+  // Segment lengths come from the mannequin's own rest skeleton, so limbs never stretch or tear.
+  assert.match(stretch,/const LEN=\{spine:\.52,shoulder:\.47,shoulderW:\.225,neck:\.30,upper:\.329,fore:\.2698,hipW:\.12,thigh:\.4304,shin:\.41\}/);
+  assert.match(stretch,/const base=i===3\|\|i===5\|\|i===7\|\|i===9\?solved\[i-1\]:i===1\?s\.head\.q:i>=6\?s\.pelvis\.q:s\.torso\.q;/);
+  assert.match(stretch,/bones\[i\]\.scale\.setScalar\(1\)/);
+  // The lowest contact rests on the floor; every pose glides on from where the figure was.
+  assert.match(stretch,/const lift=Math\.max\(\.\.\.contacts\.map\(\(\[x,r\]\)=>r-x\.y\)\)/);
+  assert.match(stretch,/const glide=ease\(Math\.min\(1,Math\.max\(0,elapsed\)\/3\)\)/);
+  assert.match(stretch,/mixPose\(T\.neutral,T\.target,1-\.055\*breath\)/);
+  assert.match(stretch,/side:\{mirror:'x',base:standFront,muscles:\['Mage','Rygg'\]/);
+  for(const id of ['supine-hamstring','figure-four','hip','child','calf','seated-twist','sphinx','cross-arm','triceps'])assert.ok(stretch.includes(id),id);
   assert.match(stretch,/float flank=/);
-  assert.match(stretch,/pose\(stepId,elapsed,performance\.now\(\)\)/);
   assert.match(stretch,/setPixelRatio\(Math\.min\(devicePixelRatio\|\|1,1\.35\)\)/);
   assert.match(scene,/const size=Math\.round\(2\*155\*s\)/);
+});
+
+test('a seven second cue rises toward the next movement and stops when paused or skipped',()=>{
+  assert.match(zenJs,/const TRANSITION_SECONDS=7,TRANSITION_NOTES=\[440,523\.25,587\.33,659\.25,783\.99,880,1046\.5\];/);
+  assert.match(zenJs,/p\.index<session\.routine\.steps\.length-1&&session\.routine\.steps\[p\.index\]\.seconds>=15&&p\.remaining<=TRANSITION_SECONDS\+\.05/);
+  assert.match(zenJs,/if\(transitionCue&&transitionCue\.key!==key\)stopTransitionCue\(\);/);
 });
 
 test('stretch uses precisely the training-mode v67 straight-line markup, not its own circular timer',()=>{
@@ -139,9 +146,9 @@ test('desktop margins and stretching sizes do not affect mobile or meditation',(
 
 test('page versions load the new scene, shader, styles and single source of time',()=>{
   assert.match(html,/zen-session\.css\?v=20261104-training-preline-5/);
-  assert.match(html,/pulse-silver-stretch\.js\?v=20261104-deep-green-1/);
+  assert.match(html,/pulse-silver-stretch\.js\?v=20261105-static-poses-1/);
   assert.match(html,/zen-session-scene\.js\?v=20261104-training-preline-5/);
-  assert.match(html,/zen\.js\?v=20261105-more-stretches-1/);
+  assert.match(html,/zen\.js\?v=20261105-static-poses-1/);
   assert.match(trainingHtml,/training-pulse-field\.css\?v=20261104-remove-pass-1/);
 });
 

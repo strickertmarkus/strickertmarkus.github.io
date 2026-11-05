@@ -31,6 +31,8 @@
     meditation:{eyebrow:'ANDNING & FOKUS',title:'Meditation',description:'Välj längd och meditera med andningsguide eller i egen takt.',symbol:'≈',hint:'Andningsguiden kan stängas av under passet.',growth:'Statistik',growthEyebrow:'ÖVERSIKT',collection:'Milstolpar',home:'← Till startsidan'}
   };
   let volume=Number.isFinite(prefs.volume)?Math.max(0,Math.min(100,prefs.volume)):100,prepare=prefs.prepare!==false,ending=false,breathOffset=0;
+  const TRANSITION_SECONDS=7,TRANSITION_NOTES=[440,523.25,587.33,659.25,783.99,880,1046.5];
+  let transitionCue=null;
   function savePrefs(){prefs={kind,sound,volume,prepare,selected};try{localStorage.setItem(prefKey,JSON.stringify(prefs));}catch(_){} }
   function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
   function routines(){return [...M.routines,...S.entries.filter(e=>e.type==='routine').map(e=>e.routine)];}
@@ -150,6 +152,10 @@
     // SVG orbital clock is interpolated from this authoritative position by
     // the existing session scene renderer. No additional clock is created.
     $('session-phase-detail').textContent=session.paused?'Ta den tid du behöver':preparing?'Hitta en bekväm position':guided?breathing.seconds+' SEKUNDER · '+({inhale:'IN',exhale:'UT',holdIn:'EFTER IN',holdOut:'EFTER UT'}[breathing.id]):isStretch?'Följ din egen andning':'Ingenting att prestera';
+    // The last seven seconds of a movement: a soft rising cue and a quiet countdown to the next one.
+    const nextUp=isStretch&&!preparing&&!session.paused&&p.index<session.routine.steps.length-1&&session.routine.steps[p.index].seconds>=15&&p.remaining<=TRANSITION_SECONDS+.05;
+    if(nextUp)$('session-phase-detail').textContent='NÄSTA ÖVNING OM '+Math.max(1,Math.ceil(p.remaining))+' S';
+    updateTransitionCue(nextUp,p);
     $('session-side').textContent=step?.id?.endsWith('-left')?'Vänster sida':step?.id?.endsWith('-right')?'Höger sida':'';
     $('previous-step').disabled=isStretch&&p.index===0;
     $('following-step').disabled=isStretch&&p.index===session.routine.steps.length-1;
@@ -215,6 +221,41 @@
         oscillator.onended=()=>{oscillator.disconnect();envelope.disconnect();};oscillator.start(now);oscillator.stop(now+decay+.03);
       });
     }catch(_){sound=false;setDingVolume();updateSound();toast('Ljudet kunde inte startas i den här webbläsaren.');}
+  }
+  /* Seven seconds before the next movement: one soft glass note per second, rising
+     through a pentatonic scale over a quiet swelling pad; the bell then marks the change. */
+  function stopTransitionCue(){
+    if(!transitionCue)return;
+    const cue=transitionCue;transitionCue=null;
+    try{const now=audioContext.currentTime;cue.gain.gain.cancelScheduledValues(now);cue.gain.gain.setTargetAtTime(0,now,.05);cue.nodes.forEach(n=>{try{n.stop(now+.3);}catch(_){}});setTimeout(()=>{try{cue.gain.disconnect();}catch(_){}},500);}catch(_){}
+  }
+  function updateTransitionCue(active,p){
+    const key=active&&session?session.id+':'+p.index:'';
+    if(transitionCue&&transitionCue.key!==key)stopTransitionCue();
+    if(transitionCue&&!sound)stopTransitionCue();
+    if(!active||transitionCue||!sound||document.hidden||view!=='session'||ending)return;
+    try{
+      if(!prepareDing())return;
+      const now=audioContext.currentTime,left=Math.max(0,p.remaining),end=now+left,gain=audioContext.createGain(),nodes=[];
+      gain.gain.value=1;gain.connect(dingBus);gain.connect(dingReverb);
+      transitionCue={key,gain,nodes};
+      // Pad: two soft fifths that swell toward the change and are gone when the bell rings.
+      [[220,.010],[329.63,.007]].forEach(([frequency,level])=>{
+        const o=audioContext.createOscillator(),g=audioContext.createGain(),f=audioContext.createBiquadFilter();
+        o.type='triangle';o.frequency.value=frequency;f.type='lowpass';f.frequency.value=900;
+        g.gain.setValueAtTime(0,now);g.gain.linearRampToValueAtTime(level,Math.max(now+.2,end-.4));g.gain.linearRampToValueAtTime(0,end+.05);
+        o.connect(f);f.connect(g);g.connect(gain);o.start(now);o.stop(end+.1);nodes.push(o);
+      });
+      // Notes on each whole second that is still ahead: 7, 6, … 1 seconds left.
+      TRANSITION_NOTES.forEach((frequency,i)=>{
+        const at=end-(TRANSITION_SECONDS-i);if(at<now-.02)return;
+        const start=Math.max(now,at),o=audioContext.createOscillator(),overtone=audioContext.createOscillator(),g=audioContext.createGain(),level=.022+i*.004;
+        o.type='sine';o.frequency.value=frequency;overtone.type='sine';overtone.frequency.value=frequency*2.01;
+        const og=audioContext.createGain();og.gain.value=.18;overtone.connect(og);og.connect(g);
+        g.gain.setValueAtTime(0,start);g.gain.linearRampToValueAtTime(level,start+.01);g.gain.exponentialRampToValueAtTime(.0001,start+.7);
+        o.connect(g);g.connect(gain);o.start(start);overtone.start(start);o.stop(start+.75);overtone.stop(start+.75);nodes.push(o,overtone);
+      });
+    }catch(_){transitionCue=null;}
   }
   function updateBreathAudio(active,phase='inhale'){
     if(!active||!sound||document.hidden||view!=='session'||ending){breathSoundPhase=null;return;}
