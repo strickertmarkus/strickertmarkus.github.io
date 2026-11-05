@@ -85,7 +85,7 @@
       '<input type="date" name="dueDate" aria-label="Förfallodatum"></div>'+
       (shop?'</details>':'')+'</form>'+
       (shop?'<details class="ft-shop-filter-more"><summary>Filtrera uppgifter</summary>':'')+
-      '<div class="ft-filters"><select data-ft-member aria-label="Filtrera på ansvarig"><option value="all">Alla ansvariga</option>'+memberOpts('family')+'</select>'+
+      '<div class="ft-filters"><select data-ft-member aria-label="Filtrera på ansvarig"><option value="all" selected>Alla ansvariga</option>'+memberOpts('')+'</select>'+
       '<select data-ft-status aria-label="Visa uppgifter"><option value="all">Aktiva och klara</option><option value="active">Aktiva</option><option value="done">Klarmarkerade</option></select></div>'+
       (shop?'</details>':'')+
       '<div class="ft-list" data-ft-list aria-live="polite"></div>';

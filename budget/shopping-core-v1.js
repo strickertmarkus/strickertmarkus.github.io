@@ -389,6 +389,11 @@
     var statTemplates = document.getElementById('shopping-stat-templates');
     if (listName) listName.textContent = name;
     if (summary) summary.textContent = remaining + ' kvar · ' + items.length + ' totalt';
+    var clearDone = document.getElementById('shopping-clear-done');
+    if (clearDone) {
+      clearDone.hidden = done === 0;
+      clearDone.textContent = 'Rensa avbockade (' + done + ')';
+    }
     if (headerMeta) headerMeta.textContent = name + ' · ' + remaining + ' kvar';
     if (statLists) statLists.textContent = String(modeLists().length);
     if (statTemplates) statTemplates.textContent = String(getSavedTemplates().length);

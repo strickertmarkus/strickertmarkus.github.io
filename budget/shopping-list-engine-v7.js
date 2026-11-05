@@ -240,6 +240,22 @@
     saveLists(lists, true);
   }
 
+  function clearCheckedItems() {
+    var lists = getLists();
+    var list = getActiveList(lists);
+    if (!list) return;
+    var before = list.items.length;
+    var kept = list.items.filter(function (entry) {
+      return entry && (entry.type === 'category' || !entry.checked);
+    });
+    if (kept.length === before) return;
+    pushUndo();
+    list.items = kept;
+    saveLists(lists, true);
+    if (typeof window.__shoppingShellV1UpdateSummary === 'function') window.__shoppingShellV1UpdateSummary();
+  }
+  window.clearCheckedShoppingItems = clearCheckedItems;
+
   function activeEditorExists() {
     return !!(state.editingItem || state.editingCategory || state.draft || state.newCategory);
   }
