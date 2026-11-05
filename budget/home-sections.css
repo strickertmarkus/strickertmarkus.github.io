@@ -415,7 +415,7 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
 }
 
 /* Ekonomi v2: visual month card and mortgage card. */
-#home-economy{--eco-house:#FDBA74;--eco-ica:#B45309;--eco-interest:#FB7185;--eco-amort:#4ADE80;--eco-drift:#94A3B8;--eco-reno:#C4B5FD}
+#home-economy{--eco-house:#FDBA74;--eco-ica:#E9D5B7;--eco-interest:#FB7185;--eco-amort:#4ADE80;--eco-drift:#94A3B8;--eco-reno:#C4B5FD}
 #home-economy .home-economy-snapshot{max-width:none}
 #home-economy .home-economy-snapshot-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .home-economy-delta{font-size:11px;font-weight:650;color:var(--text-sec,#929ba9);padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.05);font-variant-numeric:tabular-nums}
@@ -487,7 +487,6 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
   .home-loan-tile.is-total{grid-column:1/-1}
 }
 
-#home-economy #transfer-widget{margin-bottom:6px!important}
 #home-economy .home-economy-side .home-economy-metric{align-content:center}
 .home-loan-legend{gap:6px}
 .home-loan-key{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;border:1px solid transparent;background:none;color:var(--text-sec,#929ba9);font:500 11px/1.3 Inter,sans-serif;cursor:pointer}
@@ -498,3 +497,21 @@ body.home-calendar-polish-v5 #home-economy #transfer-widget{
 .home-loan-key:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:2px}
 .home-loan-stack i{cursor:pointer;transition:width .6s cubic-bezier(.2,.8,.2,1),opacity .2s}
 .home-loan-stack i.is-dim{opacity:.25}
+
+#home-economy .home-economy-transfer-slot{min-width:0}
+body.home-calendar-polish-v5 #home-economy .home-economy-transfer-slot #transfer-widget,
+#home-economy .home-economy-transfer-slot #transfer-widget{margin-top:16px!important;padding:14px 0 0!important;border:0!important;border-top:1px solid rgba(255,255,255,.08)!important;border-radius:0!important;background:none!important}
+#home-economy .home-economy-transfer-slot #transfer-widget>.widget-head{padding:0 0 8px;margin:0 0 6px;background:none;border:0}
+#home-economy .home-economy-transfer-slot #transfer-widget .widget-title{font-size:11px}
+#home-economy .home-economy-transfer-slot #transfer-widget .transfer-actions{margin:0;padding:0;border:0}
+#home-economy .home-economy-hero{align-items:start}
+@media(max-width:640px){#home-economy .home-economy-side{grid-template-columns:minmax(0,1fr)}}
+
+#home-economy .home-economy-hero{grid-template-columns:minmax(0,1fr)}
+.home-economy-total-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px 28px;flex-wrap:wrap}
+.home-economy-total-main>span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-sec,#929ba9);font-weight:650}
+.home-economy-total-main>strong{display:block;margin:6px 0 14px;font-size:clamp(28px,4.2vw,44px);font-weight:800;line-height:1;letter-spacing:-.02em;color:var(--home-view-accent,#FDBA74);font-variant-numeric:tabular-nums}
+#home-economy .home-economy-total .home-economy-income{border:0;padding:2px 0 0!important;text-align:right;justify-items:end;gap:4px}
+#home-economy .home-economy-total .home-economy-income>span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:650}
+#home-economy .home-economy-total .home-economy-income .home-economy-income-action{justify-content:flex-end;width:auto}
+@media(max-width:640px){#home-economy .home-economy-total .home-economy-income{text-align:left;justify-items:start;margin-bottom:12px}#home-economy .home-economy-total .home-economy-income .home-economy-income-action{justify-content:flex-start}}
