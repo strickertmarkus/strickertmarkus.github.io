@@ -12,7 +12,8 @@
   let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:typeof prefs.selected?.stretch==='string'?prefs.selected.stretch:'forest',meditation:typeof prefs.selected?.meditation==='string'?prefs.selected.meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false,editingHistoryId=null,editingHistoryVersion=0,expandedHistory=new Set(),expandedRoutines=new Set(),builderOrigin='',statsRange='week';
   let tempMinutes=0; // temporary meditation length in minutes, 0 = the template length
   var requestedRoutine=new URLSearchParams(location.search).get('routine');
-  var requested=M.routines.find(r=>r.id===requestedRoutine&&r.kind===kind);if(requested)selected[kind]=requested.id;
+  // Built-in or own pass from a plan; own passes resolve once the store is ready (chosen() falls back until then).
+  var requested=M.routines.find(r=>r.id===requestedRoutine&&r.kind===kind);if(requested)selected[kind]=requested.id;else if(requestedRoutine&&/^[A-Za-z0-9_-]{1,100}$/.test(requestedRoutine))selected[kind]=requestedRoutine;
   // A planned day with several passes: the next ones come after this one is saved.
   let queue=(new URLSearchParams(location.search).get('then')||'').split(',').filter(Boolean);
   // Started from the training page: the pass begins right away, with the "get ready" countdown.

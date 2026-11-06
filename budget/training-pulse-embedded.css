@@ -1216,3 +1216,9 @@ html[data-field-embedded] body #plan-modal .pulse-plan-program-hint{margin:0;pad
 .session-end-card button{height:46px;border:1px solid #ffffff1a;border-radius:13px;background:#ffffff08;color:#e8e2e4;font:600 14px 'Inter',sans-serif;cursor:pointer}
 .session-end-card .session-end-save{border:0;background:#e5584a;color:#fff}
 .session-end-card .session-end-discard{border-color:transparent;background:none;color:#ff8f86}
+
+.session-weight-hint{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:12px;row-gap:2px;margin:8px 0 4px;padding:10px 10px 10px 14px;border:1px solid #3ad29f33;border-radius:12px;background:#3ad29f0d;font:500 12px/1.4 'Inter',sans-serif;color:#9fb5ad}
+.session-weight-hint[hidden]{display:none}
+.session-weight-hint strong{grid-column:1;color:#d6f7ea;font-size:14px;font-weight:650}
+.session-weight-hint button{grid-column:2;grid-row:1/3;height:32px;padding:0 14px;border:1px solid #3ad29f66;border-radius:999px;background:none;color:#7fe6c0;font:650 12px 'Inter',sans-serif;cursor:pointer}
+

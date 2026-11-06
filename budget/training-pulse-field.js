@@ -280,7 +280,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function wireProfileLinks() {
     byId('profile-name').textContent=profile==='maja'?'Maja':'Markus Strickert';
-    if(byId('field-hero-script'))byId('field-hero-script').textContent=(profile==='maja'?'Majas':'Markus')+' pass och plan';
+
     document.querySelectorAll('[data-field-profile]').forEach(function(link){
       var target=new URL(location.href);
       if(link.dataset.fieldProfile==='maja')target.searchParams.set('user','maja');else target.searchParams.delete('user');
@@ -315,7 +315,15 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     logs.forEach(function(w){if(w.plannedSessionKey)done[w.plannedSessionKey]=true;else unlinked++;});
     return passes.filter(function(p){return !done[p.key];}).slice(unlinked);
   }
+  // A four-week plan from the explorer shows as "Vecka 2 av 4 · StrongLifts 5×5" under the title.
+  function renderPlanLine(){
+    var line=byId('field-hero-script');if(!line)return;
+    var today=new Date(),start=startOfWeek(today),found=null;
+    for(var i=0;i<14&&!found;i++){var key=isoDate(shiftDate(start,i)),plan=data.planned&&data.planned[key];if(plan&&plan.planId&&plan.planWeek&&key>=isoDate(start))found=plan;}
+    line.textContent=found?'Vecka '+found.planWeek+' av '+(found.planWeeks||4)+' · '+(found.planName||String(found.planId).replace(/-/g,' ')):(profile==='maja'?'Majas':'Markus')+' pass och plan';
+  }
   function renderHero() {
+    renderPlanLine();
     // The circle names the next planned pass: today's remaining passes first, then the coming days.
     var today=new Date(),found=null;
     for(var i=0;i<14;i++){

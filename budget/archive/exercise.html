@@ -554,7 +554,7 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return:hover{background:#28202a}
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20261106-step2-1">
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20261106-step3-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261103-log-day-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261103-between-inline-1">
@@ -567,7 +567,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-drag-2">
-<script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261106-actual-steps-1"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
+<script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261106-actual-steps-1"></script><script defer src="training-zen-plans.js?v=20261106-step3-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -2991,6 +2991,37 @@ function updateSessionTimers(){
   if(setEl)setEl.textContent=fmtSec(setSec);
 }
 
+/* A weight suggestion from last time: +2,5 kg when every planned set and rep was done, otherwise the same weight.
+   It is only shown; the planned weight changes only if the user taps Använd. */
+function sessionWeightSuggestion(ex){
+  if(!ex||ex.kind==='cardio'||ex.weightMode==='bodyweight')return null;
+  var name=String(ex.name||'').trim().toLowerCase(),before=sessionState&&sessionState.date||'9999-12-31';
+  var last=null;
+  getWorkouts().slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))||Number(b.id)-Number(a.id);}).some(function(w){
+    if(String(w.date)>before)return false;
+    var hit=(w.exercises||[]).find(function(e){return e&&e.kind!=='cardio'&&!(e.distance||e.time)&&e.weightMode!=='bodyweight'&&String(e.name||'').trim().toLowerCase()===name&&Number(e.weight)>0;});
+    if(hit){last=hit;return true;}return false;
+  });
+  if(!last)return null;
+  var logs=Array.isArray(last.logs)&&last.logs.length?last.logs:null,sets=logs?logs.length:Number(last.sets)||0;
+  var repsOk=logs?logs.every(function(l){return Number(l.actualReps)>=Number(ex.reps||0);}):Number(last.reps)>=Number(ex.reps||0);
+  var allDone=sets>=Number(ex.plannedSets||0)&&repsOk,weight=Number(last.weight);
+  return {last:weight,lastText:sets+'×'+(logs?Math.round(logs.reduce(function(n,l){return n+Number(l.actualReps||0);},0)/sets):last.reps),next:allDone?Math.round((weight+2.5)*10)/10:weight,up:allDone};
+}
+function renderSessionWeightHint(ex){
+  var el=document.getElementById('session-weight-hint');
+  if(!el){el=document.createElement('div');el.id='session-weight-hint';el.className='session-weight-hint';var target=document.getElementById('session-current-target');target.parentNode.insertBefore(el,target.nextSibling);}
+  var hint=sessionState&&sessionState.currentSet===1&&!sessionState.setRunning?sessionWeightSuggestion(ex):null;
+  el.hidden=!hint;if(!hint)return;
+  var same=Number(ex.weight)===hint.next;
+  el.innerHTML='<span>Förra gången '+String(hint.last).replace('.',',')+' kg · '+hint.lastText+'</span><strong>Förslag: '+String(hint.next).replace('.',',')+' kg'+(hint.up?' (+2,5)':'')+'</strong>'+
+    (same?'':'<button type="button" onclick="useSessionWeightHint('+hint.next+')">Använd</button>');
+}
+function useSessionWeightHint(weight){
+  if(!sessionState)return;var ex=sessionState.exercises[sessionState.exerciseIndex];if(!ex)return;
+  ex.weight=Number(weight);renderSessionMode();
+}
+
 function renderSessionMode(){
   if(!sessionState)return;
   var doneAll=sessionState.exerciseIndex>=sessionState.exercises.length;
@@ -3016,6 +3047,7 @@ function renderSessionMode(){
     currentTargetEl.textContent=ex.kind==='cardio'
       ? 'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)
       : 'Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps · '+(ex.weightMode==='bodyweight'?'Kroppsvikt':ex.weight+' kg');
+    renderSessionWeightHint(ex);
 
     if(sessionState.setRunning){
       controls.className='session-cta-row';
@@ -3218,6 +3250,44 @@ function saveSessionWorkout(){
   refreshAll();
   stopSessionMode(false);
   showToast('Pass sparat från passläge.');
+  offerStretchAfter(wk);
+}
+
+/* After a saved pass: suggest the stretch routine that matches what was trained. Nothing starts by itself. */
+function stretchRoutineFor(wk){
+  var text=(wk.type+' '+(wk.exercises||[]).map(function(e){return e.name;}).join(' ')).toLowerCase(),hits={chest:0,back:0,legs:0,cardio:0};
+  (wk.exercises||[]).forEach(function(e){
+    var n=String(e.name||'').toLowerCase();
+    if(e.kind==='cardio'||e.distance||e.time){hits.cardio+=2;return;}
+    if(/bänk|bench|bröst|press|dips|armhäv|push|flyes|flyg|tricep|militär|axel|overhead/.test(n))hits.chest++;
+    if(/rodd|row|chins|pull|drag|lat|curl|bicep|marklyft|deadlift|superman/.test(n))hits.back++;
+    if(/knäb|squat|utfall|lunge|ben|vad|höft|hip|glute|marklyft|deadlift|step|split/.test(n))hits.legs++;
+  });
+  if(/löp|run|jogg/.test(text))return 'cardio-run';
+  var best=Object.keys(hits).sort(function(a,b){return hits[b]-hits[a];})[0];
+  if(!hits[best])return 'forest';
+  return best==='cardio'?'cardio-cross':best+'-short';
+}
+var STRETCH_AFTER_CSS=".stretch-after{position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:12px;width:min(360px,calc(100vw - 32px));box-sizing:border-box;padding:12px 10px 12px 16px;border:1px solid #ffffff1f;border-radius:16px;background:#18121c;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 18px 40px #000a;font-family:Inter,sans-serif}"+
+  ".stretch-after div{flex:1;min-width:0;display:grid;gap:2px}.stretch-after small{font-size:11px;color:#9d95a0}"+
+  ".stretch-after strong{font-size:14px;font-weight:600;color:#f4eef2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"+
+  ".stretch-after a{height:34px;padding:0 14px;border-radius:999px;background:#ff8f86;color:#1a1015;font:650 13px/34px Inter,sans-serif;text-decoration:none}"+
+  ".stretch-after button{width:30px;height:30px;border:0;background:none;color:#9d95a0;font-size:20px;cursor:pointer}";
+function offerStretchAfter(wk){
+  var model=window.ZenModel||(window.parent&&window.parent.ZenModel),id=stretchRoutineFor(wk);
+  var r=model&&model.routines&&model.routines.find(function(x){return x.id===id;});if(!r)return;
+  // The pass iframe hides when the session ends, so the prompt is shown in the training page itself.
+  var doc=document;try{if(window.parent!==window&&window.parent.document)doc=window.parent.document;}catch(_){}
+  var old=doc.getElementById('stretch-after');if(old)old.remove();
+  if(!doc.getElementById('stretch-after-style')){var st=doc.createElement('style');st.id='stretch-after-style';st.textContent=STRETCH_AFTER_CSS;doc.head.appendChild(st);}
+  var url=new URL('zen.html',doc.baseURI);
+  url.searchParams.set('wellness','stretch');url.searchParams.set('routine',id);
+  if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
+  var el=doc.createElement('div');el.id='stretch-after';el.className='stretch-after';el.setAttribute('role','status');
+  el.innerHTML='<div><small>Avsluta med stretch · '+Math.round(model.duration(r)/60)+' min</small><strong>'+escHtml(r.name)+'</strong></div><a href="'+escHtml(url.href)+'" target="_top">Starta</a><button type="button" aria-label="Stäng">×</button>';
+  el.querySelector('button').onclick=function(){el.remove();};
+  doc.body.appendChild(el);
+  setTimeout(function(){if(el.isConnected)el.remove();},15000);
 }
 
 // ══ CHARTS ══════════════════════════════════════════════════════
@@ -4164,7 +4234,7 @@ window.addEventListener('firebase-sync',function(event){
   },{once:true});
 })();
 </script>
-<script src="pulse-plans.js?v=20261106-plans-1"></script>
+<script src="pulse-plans.js?v=20261106-step3-1"></script>
 <script src="training-month-planner.js?v=20261106-plans-1"></script>
 <script src="training-pass-autofill.js?v=20261031-cardio-name-1"></script>
 <script src="training-pulse-classic-templates-v1.js?v=20261104-save-tpl-1"></script>

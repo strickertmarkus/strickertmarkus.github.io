@@ -137,7 +137,7 @@
       if (e.group === 'Kondition') return { kind: 'cardio', name: e.name, distance: 0, time: 20 };
       return { kind: 'strength', name: e.name, sets: Math.max(1, sets), reps: timed ? (it[2] || 30) : Math.max(1, reps), weight: 0, weightMode: e.equipment === 'Kroppsvikt' ? 'bodyweight' : 'kg' };
     }).filter(Boolean);
-    return { type: s.type, name: s.name, planId: plan.id, planWeek: week + 1, exercises: exercises };
+    return { type: s.type, name: s.name, planId: plan.id, planName: plan.name, planWeek: week + 1, planWeeks: plan.pattern.length, exercises: exercises };
   }
   function find(id) { return plans.find(function (p) { return p.id === id; }) || null; }
   function sessionIds(plan, key) { return items(plan.sessions[key]).filter(Array.isArray).map(function (it) { return it[0]; }); }

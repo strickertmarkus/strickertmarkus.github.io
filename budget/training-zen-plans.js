@@ -10,8 +10,17 @@ PulseZen.duration=function(plan){return PulseZen.list(plan).reduce(function(sum,
 var escape=function(value){return String(value||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
 var clone=function(value){return value==null?null:JSON.parse(JSON.stringify(value));};
 var label=function(k){return k==='stretch'?'Stretch':'Meditation';};
-function routines(k,query){var q=String(query||'').trim().toLocaleLowerCase('sv-SE');return ZenModel.routines.filter(function(r){return r.kind===k&&(!q||(k+' '+r.name).toLocaleLowerCase('sv-SE').indexOf(q)>=0);});}
-function session(id){var r=ZenModel.routines.find(function(r){return r.id===id;});return r?{type:label(r.kind),name:r.name,zenRoutine:clone(r),exercises:[]}:null;}
+// Built-in passes plus the profile's own templates (ZenStore lives on the training page; the tool frame reads it from there).
+function ownRoutines(){
+ try{
+  var store=window.ZenStore||(window.parent&&window.parent!==window?window.parent.ZenStore:null);
+  if(!store||!store.ready)return [];
+  return store.entries.filter(function(e){return e&&e.type==='routine'&&ZenModel.routineValid(e.routine);}).map(function(e){return e.routine;});
+ }catch(_){return [];}
+}
+function allRoutines(){var own=ownRoutines(),ids={};own.forEach(function(r){ids[r.id]=true;});return ZenModel.routines.filter(function(r){return !ids[r.id];}).concat(own);}
+function routines(k,query){var q=String(query||'').trim().toLocaleLowerCase('sv-SE');return allRoutines().filter(function(r){return r.kind===k&&(!q||(k+' '+r.name).toLocaleLowerCase('sv-SE').indexOf(q)>=0);});}
+function session(id){var r=allRoutines().find(function(r){return r.id===id;});return r?{type:label(r.kind),name:r.name,zenRoutine:clone(r),exercises:[]}:null;}
 PulseZen.session=session;
 PulseZen.modeFor=function(record){var value=record&&record.session||record;if(!value)return '';if(value.zenRoutine)return kind(value.zenRoutine.kind);if((value.exercises||[]).length)return '';return /^(stretch|meditation)$/i.test(value.type||'')?kind(value.type):'';};
 PulseZen.controls=function(selected,plannerIndex){return '<div class="pulse-zen-modes" role="group" aria-label="Passläge">'+['stretch','meditation'].map(function(k){return '<button type="button" class="pulse-zen-mode" data-zen-mode="'+k+'"'+(plannerIndex!=null?' data-zen-day="'+plannerIndex+'"':'')+' aria-label="'+label(k)+'" aria-pressed="'+String(selected===k)+'" title="'+label(k)+'">'+PulseZen.icon(k)+'<span>'+label(k)+'</span></button>';}).join('')+'</div>';};
