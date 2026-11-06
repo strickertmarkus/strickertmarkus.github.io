@@ -1183,3 +1183,40 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 .field-menu .field-menu-label{display:block;margin:10px 13px 2px;color:#7f8792;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .record-manage{display:inline-flex;align-items:center;height:30px;padding:0 11px;border:1px solid #ff9a9126;border-radius:999px;color:#ffb1a6;font-size:11.5px;font-weight:650;text-decoration:none}
 .record-manage:hover{background:#ff657a12}
+
+/* Header C: home-style tabs and the menu share one row; title block stays below. */
+html body .field-header{display:flex;align-items:center;gap:8px;justify-content:space-between}
+html body .field-header .field-brand[hidden]{display:none}
+html body .field-header .field-home-tabs{position:static;flex:1;display:flex;width:auto;max-width:none;height:auto;min-height:0;margin:0;padding:0;gap:4px;background:none}
+html body .field-header .field-home-tabs::before{display:none}
+html body .field-header .field-home-tabs a{flex:1;height:44px;min-height:44px;gap:7px;padding:0 8px;border-radius:12px;color:#8f98a2;font-size:13.5px;font-weight:500;white-space:nowrap}
+html body .field-header .field-home-tabs a::after{display:none}
+html body .field-header .field-home-tabs a .pk-icon{width:16px;height:16px;color:currentColor;filter:none}
+html body .field-header .field-home-tabs a:hover{color:#d8dee4;background:#ffffff06}
+html body .field-header .field-home-tabs a.is-active{color:var(--field-coral,#ff9a91);background:#ff9a9114;font-weight:600}
+html body .field-header .field-home-tabs a.is-active .pk-icon{color:var(--field-coral,#ff9a91);filter:none}
+html body .field-header .field-header-actions{flex:none}
+html body .field-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:#ffffff10}
+.field-menu-switch{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:46px;margin-top:4px;padding:0 13px;border:0;border-top:1px solid #ffffff10;border-radius:0 0 10px 10px;background:none;color:#c8cfd7;font:inherit;font-size:13px;cursor:pointer}
+html body #training-overview-toggle.field-menu-switch{width:100%;height:auto;flex-basis:auto;border-radius:0 0 10px 10px;border:0;border-top:1px solid #ffffff10;background:none;box-shadow:none}
+html body #training-overview-toggle.field-menu-switch .training-overview-toggle-icon{position:relative;width:34px;height:20px;border-radius:12px;background:#ffffff1f;font-size:0;transition:background .2s}
+html body #training-overview-toggle.field-menu-switch .training-overview-toggle-icon::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#e9eef3;transition:transform .2s}
+html body #training-overview-toggle.field-menu-switch[aria-pressed="true"] .training-overview-toggle-icon{background:var(--field-coral,#ff9a91)}
+html body #training-overview-toggle.field-menu-switch[aria-pressed="true"] .training-overview-toggle-icon::after{transform:translateX(14px)}
+html body #training-overview-toggle.field-menu-switch:hover{background:#ff657a0b;color:#fff}
+@media(max-width:760px){
+  html body .field-header{height:calc(70px + env(safe-area-inset-top,0px));max-height:none}
+  html body .field-header .field-home-tabs a{font-size:13px;gap:5px;padding:0 4px}
+  html body .field-header .field-home-tabs a .pk-icon{width:14px;height:14px}
+  html body .field-hero{min-height:0;padding-top:24px}
+  html body .field-start-area{margin:28px 0 0}
+}
+@media(max-width:360px){html body .field-header .field-home-tabs a .pk-icon{display:none}}
+html body #field-menu #training-overview-toggle.field-menu-switch{display:flex!important;align-items:center;justify-content:space-between;width:100%!important;height:46px!important;flex:none!important;padding:0 13px!important;color:#c8cfd7!important;font-size:13px;border-radius:0 0 10px 10px!important}
+html body #field-menu #training-overview-toggle.field-menu-switch:active{transform:none}
+html body #field-menu #training-overview-toggle .training-overview-toggle-icon{display:block;flex:none;transform:none}
+@media(max-width:760px){html body #field-menu #training-overview-toggle.field-menu-switch{width:100%!important;height:46px!important}}
+@media(min-width:761px){
+  html body .field-header .field-home-tabs{flex:0 1 auto}
+  html body .field-header .field-home-tabs a{flex:0 0 auto;padding:0 20px}
+}

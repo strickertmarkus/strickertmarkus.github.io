@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261106-app-menu-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261106-header-c-3">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -35,7 +35,7 @@
   <script defer src="firebase-sync.js?v=20261105-bodyweight-backfill-1"></script>
 <script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261106-app-menu-1"></script>
+  <script defer src="training-pulse-field.js?v=20261106-header-c-1"></script>
   <script defer src="training-pulse-editor.js?v=20261106-plans-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261103-multipass-import-4"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
@@ -76,12 +76,13 @@
   </div>
 
   <header class="field-header">
-    <a class="field-brand" href="home.html" aria-label="Pulse Flow startsida">
-      <strong>PULSE <span>FLOW</span></strong>
-      <small id="profile-name">Markus Strickert</small>
-    </a>
+    <a class="field-brand" href="home.html" aria-label="Pulse Flow startsida" hidden><small id="profile-name">Markus Strickert</small></a>
+    <nav class="kind-switch field-home-tabs" aria-label="Välj träningsområde">
+      <a class="is-active" href="exercise.html" aria-current="page"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Träning</a>
+      <a id="stretch-link" href="zen.html?wellness=stretch"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg>Stretch</a>
+      <a id="meditation-link" href="zen.html?wellness=meditation"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9c3-2 6 2 9 0s6-2 9 0M3 15c3-2 6 2 9 0s6-2 9 0"/></svg>Meditation</a>
+    </nav>
     <div class="field-header-actions">
-      <button id="training-overview-toggle" class="training-overview-toggle" type="button" aria-pressed="false" aria-label="Aktivera Compact vy" title="Compact vy"><span class="training-overview-toggle-icon" aria-hidden="true">◆</span></button>
       <a class="version-link" id="original-link" href="#week-field" data-field-action="build">Passverktyg</a>
       <button class="round-control" id="menu-toggle" type="button" aria-label="Öppna meny" aria-expanded="false" aria-controls="field-menu">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12M6 12h12M6 16h12"/></svg>
@@ -108,14 +109,10 @@
         </div>
       </div>
       <a href="data.html">Data &amp; formler</a>
+      <button id="training-overview-toggle" class="training-overview-toggle field-menu-switch" type="button" aria-pressed="false" aria-label="Aktivera Compact vy" title="Compact vy"><span class="field-menu-switch-label">Kompakt vy</span><span class="training-overview-toggle-icon" aria-hidden="true"></span></button>
     </nav>
   </header>
 
-  <nav class="kind-switch" aria-label="Välj träningsområde">
-    <a class="is-active" href="exercise.html" aria-current="page"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>Träning</a>
-    <a id="stretch-link" href="zen.html?wellness=stretch"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg>Stretch</a>
-    <a id="meditation-link" href="zen.html?wellness=meditation"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9c3-2 6 2 9 0s6-2 9 0M3 15c3-2 6 2 9 0s6-2 9 0"/></svg>Meditation</a>
-  </nav>
 
   <main>
     <section class="field-hero" aria-labelledby="field-title">

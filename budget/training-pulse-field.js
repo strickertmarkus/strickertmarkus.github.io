@@ -1553,7 +1553,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     toggle.addEventListener('click',function(){setMenu(!menu.classList.contains('is-open'));});
     window.addEventListener('pulse-field:close-menu',function(){setMenu(false);});
     document.addEventListener('keydown',function(event){if(event.key==='Escape'&&menu.classList.contains('is-open')){setMenu(false);toggle.focus({preventScroll:true});}});
-    menu.addEventListener('click',function(event){if(event.target.closest('a'))setMenu(false);});
+    menu.addEventListener('click',function(event){if(event.target.closest('a,#training-overview-toggle'))setMenu(false);});
     var compactToggle=byId('training-overview-toggle');
     if(compactToggle)compactToggle.addEventListener('click',openOriginalCompact);
     byId('record-groups').addEventListener('click',function(event){
