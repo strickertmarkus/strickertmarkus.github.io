@@ -2835,3 +2835,26 @@ body[data-kind=meditation] .pose-library select{background:#dbe8df;color:#173b34
 .group-bar{height:6px;border-radius:99px;background:rgba(var(--accent-rgb),.10);overflow:hidden}
 .group-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,rgba(var(--accent-rgb),.55),rgba(var(--accent-rgb),.95));box-shadow:0 0 10px rgba(var(--accent-rgb),.45)}
 .muscle-groups li.group-empty{display:block;color:var(--muted)}
+
+/* Header tabs (same pattern as the training page): Träning · Stretch · Meditation beside the menu. */
+html body .zen-header{gap:8px}
+html body .zen-header .zen-brand[hidden]{display:none}
+html body .zen-header .zen-header-tabs{position:static;flex:1;display:flex;gap:4px;width:auto;max-width:none;height:auto;min-height:0;margin:0;padding:0;border:0}
+html body .zen-header .zen-header-tabs button{flex:1;height:44px;min-height:44px;gap:6px;padding:0 6px;border-radius:12px;color:var(--muted);font-size:13.5px;font-weight:500;white-space:nowrap;text-shadow:none}
+html body .zen-header .zen-header-tabs button span{font-size:16px}
+html body .zen-header .zen-header-tabs button:after{display:none}
+html body .zen-header .zen-header-tabs button:hover{background:rgba(var(--accent-rgb),.06)}
+html body .zen-header .zen-header-tabs button[aria-pressed=true]{color:var(--accent);background:rgba(var(--accent-rgb),.13);font-weight:600;text-shadow:none}
+html body .zen-header .zen-header-end{flex:none}
+html body .zen-header::after{content:"";position:absolute;left:5.5%;right:5.5%;bottom:0;height:1px;background:var(--line)}
+@media(max-width:760px){
+  html body .zen-header{padding:env(safe-area-inset-top,0px) 0 0;height:calc(70px + env(safe-area-inset-top,0px));max-height:none}
+  html body .zen-header::after{left:0;right:0}
+  html body .zen-header .zen-header-tabs button{font-size:13px;gap:5px;padding:0 4px}
+  html body .zen-header .zen-header-tabs button span{font-size:14px}
+  html body .zen-header .zen-header-end>.icon-button{min-width:44px;min-height:44px}
+}
+@media(min-width:761px){
+  html body .zen-header .zen-header-tabs{flex:0 1 auto}
+  html body .zen-header .zen-header-tabs button{flex:0 0 auto;padding:0 20px}
+}

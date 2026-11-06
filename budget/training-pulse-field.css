@@ -1208,8 +1208,6 @@ html body #training-overview-toggle.field-menu-switch:hover{background:#ff657a0b
   html body .field-header{height:calc(70px + env(safe-area-inset-top,0px));max-height:none}
   html body .field-header .field-home-tabs a{font-size:13px;gap:5px;padding:0 4px}
   html body .field-header .field-home-tabs a .pk-icon{width:14px;height:14px}
-  html body .field-hero{min-height:0;padding-top:24px}
-  html body .field-start-area{margin:28px 0 0}
 }
 @media(max-width:360px){html body .field-header .field-home-tabs a .pk-icon{display:none}}
 html body #field-menu #training-overview-toggle.field-menu-switch{display:flex!important;align-items:center;justify-content:space-between;width:100%!important;height:46px!important;flex:none!important;padding:0 13px!important;color:#c8cfd7!important;font-size:13px;border-radius:0 0 10px 10px!important}
@@ -1220,3 +1218,4 @@ html body #field-menu #training-overview-toggle .training-overview-toggle-icon{d
   html body .field-header .field-home-tabs{flex:0 1 auto}
   html body .field-header .field-home-tabs a{flex:0 0 auto;padding:0 20px}
 }
+@media(max-width:760px){html body .field-hero{min-height:clamp(480px,calc(100svh - 220px),530px)}}

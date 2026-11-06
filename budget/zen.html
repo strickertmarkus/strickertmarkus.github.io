@@ -6,7 +6,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ctext y='48' font-size='54'%3E✧%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="training-zen-nav.css?v=20261012-solar-bloom-1"><link rel="stylesheet" href="zen.css?v=20261105-library-1">
+  <link rel="stylesheet" href="training-zen-nav.css?v=20261012-solar-bloom-1"><link rel="stylesheet" href="zen.css?v=20261106-header-tabs-1">
   <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
   <!-- The visible canvas is independent of authentication and must paint first. -->
   <script defer src="zen-waterfall-v47.js?v=20260913-cleanup"></script>
@@ -41,12 +41,12 @@
   <a class="skip-link" href="#zen-main">Till innehållet</a>
   <div class="landscape" aria-hidden="true"><canvas class="landscape-forest"></canvas><div class="landscape-shade"></div></div>
   <header class="zen-header">
-    <a class="zen-brand" href="home.html" aria-label="Startsida"><span aria-hidden="true">✧</span><span>zen<small>STRETCH &amp; MEDITATION</small></span></a>
+    <a class="zen-brand" hidden href="home.html" aria-label="Startsida"><span aria-hidden="true">✧</span><span>zen<small>STRETCH &amp; MEDITATION</small></span></a>
+    <nav class="kind-switch zen-home-switch zen-header-tabs" aria-label="Välj Träning, Stretch eller Meditation"><button type="button" data-wellness-destination="training" aria-pressed="false"><span aria-hidden="true">⌁</span> Träning</button><button type="button" data-kind="stretch" aria-pressed="true"><span aria-hidden="true">✧</span> Stretch</button><button type="button" data-kind="meditation" aria-pressed="false"><span aria-hidden="true">≈</span> Meditation</button></nav>
     <div class="zen-header-end"><button class="icon-button" id="settings-open" aria-label="Inställningar och sparad data">⋯</button></div>
   </header>
   <main id="zen-main" tabindex="-1">
     <div id="home-view">
-      <nav class="kind-switch zen-home-switch" aria-label="Välj Träning, Stretch eller Meditation"><button type="button" data-wellness-destination="training" aria-pressed="false"><span aria-hidden="true">⌁</span> Träning</button><button type="button" data-kind="stretch" aria-pressed="true"><span aria-hidden="true">✧</span> Stretch</button><button type="button" data-kind="meditation" aria-pressed="false"><span aria-hidden="true">≈</span> Meditation</button></nav>
       <section class="sanctuary" aria-labelledby="hero-title">
         <div class="hero-copy"><p class="eyebrow" id="hero-eyebrow">RÖRLIGHET</p><h1 id="hero-title">Stretch</h1><p class="hero-description" id="hero-description">Välj ett pass för hela kroppen eller fokusera på ett område.</p></div>
         <div class="start-area"><div class="selected-routine" role="button" tabindex="0" aria-label="Konfigurera valt pass"><span class="small-symbol" id="selected-symbol" aria-hidden="true">✧</span><div><strong id="selected-name">Helkropp</strong><span id="selected-meta">8 min · 8 övningar</span></div></div><button class="primary-button" id="start-button" disabled><span id="start-label">Starta pass</span><span class="start-ring-symbol" aria-hidden="true">≈</span><span class="start-ring-name" aria-hidden="true"></span><span class="start-ring-meta" aria-hidden="true"></span><span aria-hidden="true">↗</span></button><p class="quiet-line" id="start-hint">Övningarna kräver inga redskap.</p></div>
