@@ -404,7 +404,7 @@ html[data-explore-profile="ingemar"] .st-zoom.is-mm-detail{
    A fixed inset is necessary in a same-origin iframe, where env(safe-area-
    inset-top) may report zero even on an iPhone. */
 .st-zoom.is-mm-detail .st-zoom-stage #studio-stage{
-  transform:translateY(clamp(24px,3.5svh,44px)) scale(1.14);
+  transform:translateY(clamp(30px,4.5svh,52px)) scale(.94);
   transform-origin:50% 55%;
 }
 @media(min-width:820px){
