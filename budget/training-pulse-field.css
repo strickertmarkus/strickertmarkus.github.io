@@ -1218,4 +1218,7 @@ html body #field-menu #training-overview-toggle .training-overview-toggle-icon{d
   html body .field-header .field-home-tabs{flex:0 1 auto}
   html body .field-header .field-home-tabs a{flex:0 0 auto;padding:0 20px}
 }
-@media(max-width:760px){html body .field-hero{min-height:clamp(480px,calc(100svh - 220px),530px)}}
+@media(max-width:760px){html body .field-hero{min-height:clamp(468px,calc(100svh - 232px),515px)}}
+
+.start-orbit-meta{max-width:112px}
+@media(max-width:760px){.start-orbit-meta{max-width:112px}}

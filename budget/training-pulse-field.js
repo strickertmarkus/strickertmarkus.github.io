@@ -295,22 +295,26 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
 
   function renderHero() {
-    var today=new Date(),found=null;
+    // The circle names the next planned pass (today first); rest days and today's finished pass are skipped.
+    var today=new Date(),found=null,rest=/^(vila|vilodag|ledig|återhämtning)$/i;
     for(var i=0;i<14;i++){
       var date=shiftDate(today,i),plan=planForDate(date);
-      if(plan){found={date:date,plan:plan};break;}
+      if(!plan||rest.test(String(plan.type||'').trim()))continue;
+      if(i===0&&workoutsOn(date).length)continue;
+      found={date:date,plan:plan,offset:i};break;
     }
     if(!found){
+      var last=data.workouts.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);})[0];
       byId('next-session-link').dataset.fieldDate=isoDate(today);
-      byId('next-session-title').textContent='Välj dagens rörelse';
-      byId('next-session-meta').textContent='Nästa pass · Bygg eller välj ett upplägg';
+      byId('next-session-title').textContent='Välj pass';
+      byId('next-session-meta').textContent=last?'Senast: '+String(workoutType(last)||last.type||'pass'):'Bygg eller välj ett';
       return;
     }
     var exercises=found.plan.exercises||[],sets=exercises.reduce(function(sum,ex){return sum+number(ex.sets);},0);
-    var dateLabel=isoDate(found.date)===isoDate(today)?'I dag · '+shortDate(found.date):dayNames[(found.date.getDay()+6)%7]+' · '+shortDate(found.date);
-    var detail=exercises.length?exercises.length+' övning'+(exercises.length===1?'':'ar')+(sets?' · '+sets+' set':''):'Planerat upplägg';
-    byId('next-session-title').textContent=found.plan.type||'Planerat pass';
-    byId('next-session-meta').textContent=dateLabel+' · '+detail;
+    var when=found.offset===0?'I dag':found.offset===1?'I morgon':dayNames[(found.date.getDay()+6)%7];
+    var detail=exercises.length?exercises.length+' övn'+(sets?' · '+sets+' set':''):'';
+    byId('next-session-title').textContent=found.plan.name||found.plan.type||'Planerat pass';
+    byId('next-session-meta').textContent=when+(detail?' · '+detail:'');
     byId('next-session-link').dataset.fieldDate=isoDate(found.date);
   }
 
