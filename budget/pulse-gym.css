@@ -43,7 +43,7 @@ html.gm-scene-open main{visibility:hidden}
 .gm-find-empty{padding:24px 8px;color:#a5a0ae;font-size:13px;line-height:1.5}
 @media(prefers-reduced-motion:reduce){.gm-find{transition:none}.gm-find-btn .gm-find-spark{animation:none}}
 
-.gm-find-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:14px;padding:4px;border-radius:14px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff10}
+.gm-find-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:14px;padding:4px;border-radius:14px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff10}
 .gm-find-tabs button{height:38px;border:0;border-radius:10px;background:none;color:#a5a0ae;font:650 13px Inter,system-ui,sans-serif;cursor:pointer}
 .gm-find-tabs button[aria-selected="true"]{background:#ff806f22;color:#ffd4cc;box-shadow:inset 0 0 0 1px #ff806f44}
 .gm-find-head .gm-find-field{margin-top:10px}
@@ -53,3 +53,33 @@ html.gm-scene-open main{visibility:hidden}
 .gm-find-chips button[aria-pressed="true"]{border-color:#ff806f66;background:#ff806f1f;color:#ffd4cc}
 .gm-find-section{margin:14px 6px 4px;color:#ff9a91;font:700 9.5px Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
 .gm-find-row .pk-thumb.is-pose img{object-fit:contain;transform:none;padding:4px;box-sizing:border-box}
+
+.gm-find-head [hidden]{display:none!important}
+.gm-plan{padding:6px 6px 10px}
+.gm-plan-back{margin:4px 0 8px;padding:6px 0;border:0;background:none;color:#ff9a91;font:650 12.5px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-plan h3{margin:0;font:400 30px/1.08 "Cormorant Garamond",Georgia,serif;color:#fff1ee}
+.gm-plan-meta{margin:6px 0 0;color:#a5a0ae;font:600 11.5px Inter,system-ui,sans-serif}
+.gm-plan-summary,.gm-plan-how{margin:10px 0 0;color:#d9d2d6;font:400 13px/1.55 Inter,system-ui,sans-serif}
+.gm-plan-how{color:#b8b0b8;font-size:12.5px}
+.gm-plan-grid{display:grid;grid-template-columns:26px repeat(7,minmax(0,1fr));gap:4px;margin:14px 0 4px;align-items:center}
+.gm-plan-grid>b{color:#77727f;font:700 9.5px Inter,system-ui,sans-serif;text-align:center;letter-spacing:.04em}
+.gm-plan-week{color:#77727f;font:700 9.5px Inter,system-ui,sans-serif}
+.gm-plan-grid i{display:grid;place-items:center;height:30px;border-radius:8px;background:#ffffff06;font:700 10px Inter,system-ui,sans-serif;font-style:normal;color:#ffffff30}
+.gm-plan-grid i.is-on{color:#160d10;background:var(--tone,#ff9a91)}
+.gm-plan [data-k="0"]{--tone:#ff9a91}.gm-plan [data-k="1"]{--tone:#fdba74}.gm-plan [data-k="2"]{--tone:#9cc5b0}.gm-plan [data-k="3"]{--tone:#b8a6f0}.gm-plan [data-k="4"]{--tone:#7fd3ef}.gm-plan [data-k="5"]{--tone:#e9a1a9}
+.gm-plan-notes{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:4px}
+.gm-plan-notes li{color:#b8b0b8;font:400 12px/1.45 Inter,system-ui,sans-serif}
+.gm-plan-notes b{color:#ffd4cc;font-weight:650;margin-right:6px}
+.gm-plan-session{margin-top:14px;padding-top:12px;border-top:1px solid #ffffff10}
+.gm-plan-session h4{display:flex;align-items:center;gap:9px;margin:0 0 6px;color:#f6ece9;font:650 14px Inter,system-ui,sans-serif}
+.gm-plan-session h4 span{display:grid;place-items:center;min-width:26px;height:22px;padding:0 5px;border-radius:7px;background:var(--tone);color:#160d10;font-size:10px;font-weight:800}
+.gm-plan-session ul{list-style:none;margin:0;padding:0}
+.gm-plan-session li{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:34px;border-top:1px solid #ffffff08}
+.gm-plan-session li:first-child{border-top:0}
+.gm-plan-session li button,.gm-plan-session li>span{padding:0;border:0;background:none;color:#e4dcdb;font:500 13px Inter,system-ui,sans-serif;text-align:left;cursor:pointer}
+.gm-plan-session li button:hover{color:#ffd4cc}
+.gm-plan-session em{flex:none;font-style:normal;color:#ff9a91;font:650 12px Inter,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.gm-plan-source{margin:16px 0 0;color:#77727f;font:400 11.5px/1.5 Inter,system-ui,sans-serif}
+.gm-plan-source a{color:#ff9a91}
+.gm-plan-apply{display:flex;align-items:center;justify-content:center;height:48px;margin-top:14px;border-radius:14px;background:#e5584a;color:#fff1ee;font:700 14px Inter,system-ui,sans-serif;text-decoration:none}
+.gm-plan-apply-note{margin:8px 2px 0;color:#77727f;font:400 11px/1.45 Inter,system-ui,sans-serif;text-align:center}

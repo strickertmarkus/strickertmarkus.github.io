@@ -1206,3 +1206,4 @@ html[data-field-embedded] #plan-modal .planner-day-head{display:flex;align-items
 html[data-field-embedded] #plan-modal .planner-day-dot{width:6px;height:6px;flex:none;margin-right:2px;border-radius:50%;background:var(--day-color);box-shadow:0 0 7px var(--day-color),0 0 14px color-mix(in srgb,var(--day-color) 45%,transparent)}
 html[data-field-embedded] #plan-modal .planner-day-head .pp-moon{width:13px;height:13px}
 html[data-field-embedded] #plan-modal .planner-month-day[data-kind=rest] .planner-day-name{color:#8f99a4}
+html[data-field-embedded] body #plan-modal .pulse-plan-program-hint{margin:0;padding:0 12px 10px;color:#8f8790;font:400 10.5px/1.45 'Inter',sans-serif}

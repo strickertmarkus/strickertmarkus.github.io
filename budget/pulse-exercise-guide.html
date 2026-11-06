@@ -267,7 +267,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261105-compact-detail-1"><script src="pulse-gym-scene.js?v=20261105-compact-detail-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261105-browse-1"><script src="pulse-gym.js?v=20261105-browse-1"></script>
+<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261105-compact-detail-1"><script src="pulse-gym-scene.js?v=20261105-compact-detail-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261106-plans-1"><script src="pulse-gym.js?v=20261106-plans-1"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261029-ring-4">
 </head>
 <body>
@@ -322,7 +322,8 @@ body:has(.studio-technique[open]){overflow:hidden}
  if(profile==='ingemar')document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('open-selection');if(b)b.textContent='Öppna i passbyggaren ↗';});
 })();
 </script>
-<script src="pulse-explore.js?v=20261105-more-exercises-1"></script>
+<script src="pulse-explore.js?v=20261106-plans-1"></script>
+<script src="pulse-plans.js?v=20261106-plans-1"></script>
 <script>
 'use strict';
 const exercises=window.PulseExplore.exercises;
@@ -460,7 +461,12 @@ const guideScenes=[
  ['frontSquat','Stående · stång framför axlarna',-54,14,-20,22],
  ['barLunge','Utfall · stång över övre ryggen',-73,17,-25,20],
  ['rdl','Stående · nästan raka knän',-78,12,-28,23],
- ['backSquat','Stående · paus i bottenläget',-76,13,145,20]
+ ['backSquat','Stående · paus i bottenläget',-76,13,145,20],
+ ['invertedRow','Hängande under stången · hälarna i golvet',-80,14,-35,26],
+ ['superman','Magliggande · armarna framåt',-80,16,-30,30],
+ ['pike','Upp-och-nedvänd V · händerna i golvet',-80,14,-30,22],
+ ['splitSquat','Bakre foten på bänken',-76,15,-28,20],
+ ['rdl','Stående · armarna längs sidorna',-78,12,-28,23,{bare:true}]
 ].map(([kind,stance,yaw,pitch,altYaw,altPitch,opts])=>({kind,stance,views:[{yaw,pitch},{yaw:altYaw,pitch:altPitch}],...(opts||{})}));
 window.guideScenes=guideScenes;
 let cameraIndex=0;
@@ -722,6 +728,28 @@ function makeScene(index,t,cycle=0,equipmentOnly=false){
    if(plank){const z=shoulderMid()[2];elbows=[[-.20,.075,z],[.20,.075,z]];hands=[[-.20,.075,z-.28],[.20,.075,z-.28]];}
    else{hands=[[-.29,.075,-.38],[.29,.075,-.38]];elbowPoles=[[-.48,.25,-.07],[.48,.25,-.07]];}
   }
+ }else if(kind==='invertedRow'){
+  // Straight body hinged at the heels; the bar sits where the chest meets it at the top.
+  const heel=[0,.075,.80],line=a=>A(heel,M([0,Math.sin(a),-Math.cos(a)],.867+bodyLength));
+  const top=rad(32),S1=line(top),barC=A(S1,[0,.10,.065]);
+  let low=rad(5);for(let a=rad(5);a<top;a+=rad(.5)){if(V.len(S(line(a),barC))>.55)low=a;}
+  const a=low+(top-low)*t,u=[0,Math.sin(a),-Math.cos(a)];
+  body(A(heel,M(u,.867)),u);feet=[[-.13,.075,.80],[.13,.075,.80]];kneePoles=[[-.13,.7,.45],[.13,.7,.45]];
+  grips(barC,.30);bar(barC,1.5,false);for(const x of [-.75,.75])rod([x,.02,barC[2]],[x,barC[1]+.08,barC[2]],.03);
+  const s=shoulderMid();elbowPoles=[[-.5,s[1]-.18,s[2]+.12],[.5,s[1]-.18,s[2]+.12]];
+ }else if(kind==='superman'){
+  const a=rad(3+11*t),u=[0,Math.sin(a),-Math.cos(a)];body([0,.13,.02],u,M(U([0,-u[2],u[1]]),-1));
+  feet=[[-.11,.09+.13*t,.86],[.11,.09+.13*t,.86]];kneePoles=[[-.12,-.4,.45],[.12,-.4,.45]];
+  const s=shoulderMid();hands=[[-.21,s[1]+.02+.16*t,s[2]-.56],[.21,s[1]+.02+.16*t,s[2]-.56]];elbowPoles=[[-.45,s[1]+.35,s[2]-.25],[.45,s[1]+.35,s[2]-.25]];
+ }else if(kind==='pike'){
+  // Hips stay high; the shoulders travel down towards the hands.
+  const h=[0,.82,-.02],H=[0,.075,-.50],want=.66-.32*t;let best=null,err=9;
+  for(let th=rad(185);th<rad(265);th+=rad(.5)){const u=[0,Math.sin(th),Math.cos(th)],sh=A(h,M(u,bodyLength)),e=Math.abs(V.len(S(sh,H))-want);if(e<err){err=e;best=u;}}
+  body(h,best,M(U([0,-best[2],best[1]]),-1));feet=[[-.13,.075,.42],[.13,.075,.42]];kneePoles=[[-.13,.9,.6],[.13,.9,.6]];
+  hands=[[-.27,.075,-.50],[.27,.075,-.50]];const s=shoulderMid();elbowPoles=[[-.5,s[1],s[2]+.15],[.5,s[1],s[2]+.15]];
+ }else if(kind==='splitSquat'){
+  body([0,.86-.33*t,-.12],[0,1,.06]);feet=[[-.16,.49,-.62],[.16,.075,.22]];kneePoles=[[-.16,-.2,-.25],[.16,.47,.9]];
+  bench([0,.42,-.66]);restHands();
  }else if(['treadmill','bike','elliptical','erg','stepper'].includes(kind)){
   const phi=cycle*TAU;
   if(kind==='treadmill'){

@@ -74,7 +74,12 @@ Skivstångsrodd med underhandsgrepp|Pull|Skivstång|row|Rygg,Biceps|Greppa stån
 Frontböj|Ben|Skivstång|squat|Framsida lår,Säte|Vila stången framför axlarna med armbågarna högt.|Sätt dig rakt ned med upprätt överkropp.|Res dig och håll armbågarna uppe.|Kräver rörlighet i handleder och fotleder; börja lätt.
 Utfall med skivstång|Ben|Skivstång|lunge|Framsida lår,Säte|Vila stången på övre ryggen som i knäböj.|Ta ett långt steg framåt och sänk bakre knät.|Tryck ifrån tillbaka till start.|Välj en lätt vikt; balansen är svårare än med hantlar.
 Marklyft med raka ben|Ben|Skivstång|hinge|Baksida lår,Säte,Rygg|Stå höftbrett med stången framför låren.|Fäll framåt från höften med nästan raka knän.|Res dig genom att föra höften framåt.|Sänk bara så långt som ryggen hålls neutral.
-Pausknäböj|Ben|Skivstång|squat|Framsida lår,Säte|Vila stången på övre ryggen och stå axelbrett.|Sätt dig ned och stanna i bottenläget i två sekunder.|Res dig utan att studsa.|Pausen bygger styrka i det tyngsta läget; använd lägre vikt.`;
+Pausknäböj|Ben|Skivstång|squat|Framsida lår,Säte|Vila stången på övre ryggen och stå axelbrett.|Sätt dig ned och stanna i bottenläget i två sekunder.|Res dig utan att studsa.|Pausen bygger styrka i det tyngsta läget; använd lägre vikt.
+Inverterad rodd|Pull|Kroppsvikt|row|Rygg,Biceps|Häng under en stång i höfthöjd med raka armar och hälarna i golvet.|Dra bröstet upp mot stången med armbågarna nära kroppen.|Sänk dig kontrollerat till raka armar.|Håll kroppen rak som en planka. Ju lägre stång, desto tyngre.
+Ryggresning på golvet|Bål|Kroppsvikt|extension|Rygg,Säte|Ligg på mage med armarna utsträckta framför dig.|Lyft armar, bröst och ben några centimeter från golvet.|Håll kort och sänk kontrollerat.|Titta ned i golvet så att nacken hålls neutral.
+Pike-armhävningar|Push|Kroppsvikt|pushup|Axlar,Triceps|Stå i en upp-och-nedvänd V med händerna axelbrett i golvet.|Böj armarna och sänk huvudet mot golvet mellan händerna.|Pressa upp tills armarna är raka.|Ju högre fötter, desto mer liknar det en axelpress.
+Bulgarisk utfallsböj|Ben|Kroppsvikt|lunge|Framsida lår,Säte|Ställ bakre foten på en bänk och främre foten en bra bit fram.|Sänk bakre knät rakt ned mot golvet.|Res dig genom att trycka genom främre hälen.|Gör alla repetitioner på ena benet och byt.
+Höftfällning utan vikt|Ben|Kroppsvikt|hinge|Baksida lår,Säte|Stå höftbrett med armarna längs sidorna och mjuka knän.|Fäll framåt från höften med rak rygg tills du känner baksida lår.|Res dig genom att föra höften framåt.|Övar samma rörelse som rumänska marklyft, utan vikt.`;
 const exercises=raw.split('\n').map((line,id)=>{const p=line.split('|');return {id,name:p[0],group:p[1],equipment:p[2],move:p[3],muscles:p[4].split(','),steps:p.slice(5,8),tip:p[8]};});
 const inspiration={46:'Träna bålen genom att stå emot vridning.',47:'Ett annat sätt att träna höftfällning och säte.',48:'Träna bålstabilitet och grepp medan du går.',49:'Arbeta med ett ben i taget på en stabil låda.',50:'Koordination och bålkontroll från ryggliggande.',51:'Balans och kontroll med motsatt arm och ben.',52:'Ett fritt alternativ för bakre axlar och övre rygg.',53:'Knäböj med vikten framför kroppen.'};
 // General repetition guidance: https://www.nhs.uk/live-well/exercise/how-to-improve-strength-flexibility/
@@ -147,7 +152,7 @@ function prescription(id,program){
  if(e.move==='carry')return {mode:'min',sets:2,minutes:.5,label:'2 × 30 sek',reps:null,range:''};
  if(e.move==='plank')return {mode:'min',sets:2,minutes:.5,label:'2 × 30 sek',reps:null,range:''};
  const count=program?program.sets:2,range=program&&program.reps||([50,51].includes(id)?[6,10]:[8,12]);
- return {mode:'kg',sets:count,minutes:null,reps:range[0],range:range.join('–'),label:count+' × '+range.join('–')+' reps'+([18,30,42,46,49,50,51,61,62,64,71].includes(id)?' / sida':'')};
+ return {mode:'kg',sets:count,minutes:null,reps:range[0],range:range.join('–'),label:count+' × '+range.join('–')+' reps'+([18,30,42,46,49,50,51,61,62,64,71,77].includes(id)?' / sida':'')};
 }
 function workout(request){
  if(!request||request.version!==1)return null;

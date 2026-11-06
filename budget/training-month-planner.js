@@ -81,3 +81,43 @@ function pulsePlanInstallMonthDrag(){
   });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',pulsePlanInstallMonthDrag,{once:true});else pulsePlanInstallMonthDrag();
+
+/* Four-week plans from the explorer (pulse-plans.js) fill the drafts; nothing is stored until Spara plan. */
+function pulsePlanRenderProgramPicker(selected){
+  var select=document.getElementById('pulse-plan-program-select');if(!select||!window.PulsePlans)return;
+  var keep=selected||select.value;
+  select.innerHTML='<option value="">Välj träningsplan</option>'+PulsePlans.plans.map(function(p){
+    return '<option value="'+escHtml(p.id)+'">'+escHtml(p.name+' · '+p.perWeek+' pass/vecka')+'</option>';
+  }).join('');
+  select.value=keep||'';
+}
+function pulsePlanApplyProgram(id){
+  var select=document.getElementById('pulse-plan-program-select');
+  id=id||select&&select.value;
+  var plan=window.PulsePlans&&PulsePlans.find(id);
+  if(!plan){showToast('Välj en träningsplan.');return false;}
+  pulsePlanCaptureV2();
+  var start=planTargetMondayISO||weekStartISO(),today=todayISO(),changed=0;
+  plan.pattern.forEach(function(week,w){
+    var monday=shiftISODate(start,w*7),draft=pulsePlanWeekDraftV2(monday);
+    week.forEach(function(key,i){
+      var date=shiftISODate(monday,i);
+      if(date<today)return; // Past days keep what was planned or logged.
+      var session=key?PulsePlans.session(plan,key,w):null;
+      draft[i]=session?{type:session.type,session:session}:{type:'Vila',session:null};
+      changed++;
+    });
+    pulsePlanDirtyWeeks[monday]=true;
+  });
+  pulsePlanRenderProgramPicker(plan.id);
+  pulsePlanView='month';pulsePlanSelected=start<today?today:start;pulsePlanMonth=pulsePlanSelected.slice(0,7)+'-01';planTargetMondayISO=start;
+  pulsePlanExpandedV2=-1;syncPlanWeekUI();
+  showToast(plan.name+' ligger i utkastet för fyra veckor. Tryck Spara plan för att spara.');
+  return changed>0;
+}
+(function(){
+  if(typeof openPlanModal!=='function'||openPlanModal.__programs)return;
+  var original=openPlanModal;
+  openPlanModal=function(){var out=original.apply(this,arguments);pulsePlanRenderProgramPicker();return out;};
+  openPlanModal.__programs=true;
+})();

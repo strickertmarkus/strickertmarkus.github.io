@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261105-more-exercises-1');
+  url.searchParams.set('v','20261106-plans-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -286,7 +286,15 @@ function selectTool(win,tool,button,date,extraId){
    }
    break;
   case 'editExercise':win.editWorkoutExercise(Number(button.dataset.workoutId),Number(button.dataset.exerciseIndex));break;
-  case 'week':win.openPlanModal();break;
+  case 'week':
+   win.openPlanModal();
+   // Deep link from the explorer: exercise.html?tool=week&plan=<id> fills four weeks in the draft.
+   var planId=new URLSearchParams(location.search).get('plan');
+   if(planId&&win.pulsePlanApplyProgram){
+    win.pulsePlanApplyProgram(planId);
+    try{var clean=new URL(location.href);clean.searchParams.delete('plan');clean.searchParams.delete('tool');history.replaceState(history.state,'',clean);}catch(_){}
+   }
+   break;
   case 'weekTemplates':win.openTemplateModal();break;
   case 'records':win.openPRModal();break;
   case 'editRecord':
@@ -462,7 +470,11 @@ function install(){
   runTool(detail.tool,detail.origin||null,detail.date||selectedDate,detail.extraId||null);
  });
  var deep=new URLSearchParams(location.search).get('tool');
- if(deep&&['build','start','log','week','records','goals'].includes(deep))runTool(deep,null);
+ if(deep&&['build','start','log','week','records','goals'].includes(deep)){
+  // Deep links run once the deferred motion helpers exist (they load after this script).
+  var tries=0,goDeep=function(){if((window.SurfaceMotion&&window.PulseMotion)||++tries>100)runTool(deep,null);else setTimeout(goDeep,50);};
+  goDeep();
+ }
 
  // The embedded builder is now a small local-only runtime. Start it just after
  // first paint so tapping Bygg pass or a week day normally opens immediately.

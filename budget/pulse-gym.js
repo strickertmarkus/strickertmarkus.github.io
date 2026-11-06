@@ -71,14 +71,14 @@
     find.className = 'gm-find'; find.hidden = true; find.setAttribute('role', 'dialog'); find.setAttribute('aria-modal', 'true'); find.setAttribute('aria-label', 'Bläddra bland övningar och program');
     find.innerHTML = '<div class="gm-find-head"><button type="button" class="gm-find-close" aria-label="Stäng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '<span class="eyebrow">Utforska</span><h2>Alla övningar</h2>' +
-      '<div class="gm-find-tabs" role="tablist"><button type="button" role="tab" data-find-mode="ex" aria-selected="true">Övningar</button><button type="button" role="tab" data-find-mode="prog" aria-selected="false">Program</button></div>' +
+      '<div class="gm-find-tabs" role="tablist"><button type="button" role="tab" data-find-mode="ex" aria-selected="true">Övningar</button><button type="button" role="tab" data-find-mode="prog" aria-selected="false">Program</button><button type="button" role="tab" data-find-mode="plan" aria-selected="false">Planer</button></div>' +
       '<label class="gm-find-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/></svg><input type="search" placeholder="Övning, muskel eller redskap" autocomplete="off" enterkeyhint="search" aria-label="Sök"></label>' +
       '<div class="gm-find-chips" role="group" aria-label="Filtrera"></div>' +
       '<p class="gm-find-count" aria-live="polite"></p></div><div class="gm-find-list" role="list"></div>';
     document.body.appendChild(find);
     var field = find.querySelector('input'), list = find.querySelector('.gm-find-list'), count = find.querySelector('.gm-find-count'), chips = find.querySelector('.gm-find-chips');
     var MUSCLES = ['Alla', 'Bröst', 'Axlar', 'Rygg', 'Biceps', 'Triceps', 'Mage', 'Framsida lår', 'Säte', 'Baksida lår', 'Vader', 'Kondition'];
-    var browse = { mode: 'ex', muscle: 'Alla', group: 'Alla' };
+    var browse = { mode: 'ex', muscle: 'Alla', group: 'Alla', planGroup: 'Alla', plan: null };
     var low = function (t) { return String(t || '').toLocaleLowerCase('sv-SE'); };
     var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
     function matches(e, q) {
@@ -87,11 +87,14 @@
       return e.muscles.concat([e.equipment, e.group]).some(function (w) { return low(w).split(/[\s,·]+/).some(function (part) { return part.indexOf(q) === 0; }) || low(w).indexOf(q) === 0; });
     }
     function renderChips() {
-      var values = browse.mode === 'ex' ? MUSCLES : ['Alla'].concat(window.PulseExplore.programs.map(function (p) { return p.group; }).filter(function (g, i, a) { return a.indexOf(g) === i; }));
-      var current = browse.mode === 'ex' ? browse.muscle : browse.group;
+      var source = browse.mode === 'plan' ? (window.PulsePlans ? window.PulsePlans.plans : []) : window.PulseExplore.programs;
+      var values = browse.mode === 'ex' ? MUSCLES : ['Alla'].concat(source.map(function (p) { return p.group; }).filter(function (g, i, a) { return a.indexOf(g) === i; }));
+      var current = browse.mode === 'ex' ? browse.muscle : browse.mode === 'plan' ? browse.planGroup : browse.group;
+      chips.hidden = browse.mode === 'plan' && !!browse.plan;
+      field.closest('.gm-find-field').hidden = browse.mode === 'plan' && !!browse.plan;
       chips.innerHTML = values.map(function (v) { return '<button type="button" data-find-chip="' + esc(v) + '" aria-pressed="' + (v === current) + '">' + esc(v) + '</button>'; }).join('');
       find.querySelectorAll('[data-find-mode]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.findMode === browse.mode)); });
-      field.placeholder = browse.mode === 'ex' ? 'Övning, muskel eller redskap' : 'Program eller övning';
+      field.placeholder = browse.mode === 'ex' ? 'Övning, muskel eller redskap' : browse.mode === 'plan' ? 'Plan, övning eller redskap' : 'Program eller övning';
     }
     function exerciseRows(q) {
       var X = window.PulseExplore, m = browse.muscle;
@@ -129,9 +132,55 @@
           '<span class="gm-find-copy"><b>' + esc(p.name) + '</b><small>' + p.ids.length + ' övningar · ' + esc(X.durationLabel(p)) + ' · ' + esc(p.equipment) + '</small></span></button>';
       }).join('') || '<p class="gm-find-empty">Inget program matchar.</p>';
     }
+    function planRows(q) {
+      var P = window.PulsePlans, X = window.PulseExplore;
+      if (!P) return '';
+      var hits = P.plans.filter(function (p) { return browse.planGroup === 'Alla' || p.group === browse.planGroup; }).filter(function (p) {
+        if (!q) return true;
+        var names = []; Object.keys(p.sessions).forEach(function (k) { P.sessionIds(p, k).forEach(function (id) { names.push(X.exercises[id].name); }); });
+        return [p.name, p.group, p.equipment, p.level].concat(names).some(function (t) { return low(t).indexOf(q) >= 0; });
+      });
+      count.textContent = hits.length + (hits.length === 1 ? ' plan' : ' planer') + ' · fyra veckor';
+      return hits.map(function (p) {
+        var lead = P.sessionIds(p, Object.keys(p.sessions)[0])[0];
+        return '<button type="button" class="gm-find-row" role="listitem" data-find-plan="' + esc(p.id) + '"><span class="pk-thumb is-pose">' + (lead != null ? '<img alt="" loading="lazy" src="assets/exercise-poses-v2/' + String(lead).padStart(2, '0') + '-end.webp">' : '') + '</span>' +
+          '<span class="gm-find-copy"><b>' + esc(p.name) + '</b><small>' + p.perWeek + ' pass i veckan · ' + esc(p.level) + ' · ' + (p.own ? 'Egen plan' : esc(p.source.label)) + '</small></span></button>';
+      }).join('') || '<p class="gm-find-empty">Ingen plan matchar.</p>';
+    }
+    function planDetail(p) {
+      var P = window.PulsePlans, X = window.PulseExplore;
+      count.textContent = '';
+      var keys = Object.keys(p.sessions);
+      var grid = '<div class="gm-plan-grid" role="table" aria-label="Fyra veckor"><span></span>' + P.DAY_NAMES.map(function (d) { return '<b>' + d + '</b>'; }).join('') +
+        p.pattern.map(function (week, w) {
+          return '<span class="gm-plan-week">V' + (w + 1) + '</span>' + week.map(function (key, d) {
+            return key ? '<i class="is-on" data-k="' + keys.indexOf(key) % 6 + '" title="' + esc(p.sessions[key].name) + '">' + esc(key.length > 2 ? key.slice(0, 2) : key) + '</i>' : '<i></i>';
+          }).join('');
+        }).join('') + '</div>';
+      var notes = p.weekNotes ? '<ol class="gm-plan-notes">' + p.weekNotes.map(function (n, i) { return '<li><b>Vecka ' + (i + 1) + '</b> ' + esc(n) + '</li>'; }).join('') + '</ol>' : '';
+      var sessions = keys.map(function (k, i) {
+        var s = p.sessions[k], first = P.session(p, k, 0);
+        return '<section class="gm-plan-session" data-k="' + i % 6 + '"><h4><span>' + esc(k) + '</span>' + esc(s.name) + '</h4><ul>' +
+          P.items(s).map(function (it, j) {
+            var ex = first.exercises[j];
+            if (!Array.isArray(it)) return '<li><span>' + esc(it.name) + '</span><em>' + ex.distance + ' km · ' + ex.time + ' min</em></li>';
+            var e = X.exercises[it[0]];
+            return '<li><button type="button" data-find-id="' + e.id + '">' + esc(e.name) + '</button><em>' + ex.sets + '×' + ex.reps + (e.id === 32 ? ' s' : '') + '</em></li>';
+          }).join('') + '</ul></section>';
+      }).join('');
+      var user = new URLSearchParams(location.search).get('user');
+      var href = 'exercise.html?tool=week&plan=' + encodeURIComponent(p.id) + (user ? '&user=' + encodeURIComponent(user) : '');
+      return '<div class="gm-plan"><button type="button" class="gm-plan-back" data-plan-back>‹ Alla planer</button>' +
+        '<h3>' + esc(p.name) + '</h3><p class="gm-plan-meta">' + p.perWeek + ' pass i veckan · ' + esc(p.level) + ' · ' + esc(p.equipment) + '</p>' +
+        '<p class="gm-plan-summary">' + esc(p.summary) + '</p>' + grid +
+        '<p class="gm-plan-how">' + esc(p.how) + '</p>' + notes + sessions +
+        (p.own ? '<p class="gm-plan-source">Egen plan, byggd av utforskarens övningar.</p>' : '<p class="gm-plan-source">Inspirerad av <a href="' + esc(p.source.url) + '" target="_blank" rel="noopener">' + esc(p.source.label) + '</a>. Upplägget är förenklat till våra övningar.</p>') +
+        '<a class="gm-plan-apply" href="' + href + '">Lägg in i träningsplanen</a><p class="gm-plan-apply-note">Fyra veckor läggs in från veckan du väljer. Inget sparas förrän du trycker Spara plan.</p></div>';
+    }
     function renderFind() {
       var q = low(field.value).trim();
-      list.innerHTML = browse.mode === 'ex' ? exerciseRows(q) : programRows(q);
+      if (browse.mode === 'plan' && browse.plan) { list.innerHTML = planDetail(browse.plan); return; }
+      list.innerHTML = browse.mode === 'ex' ? exerciseRows(q) : browse.mode === 'plan' ? planRows(q) : programRows(q);
     }
     // Grows out of the magnifier and shrinks back into it (pulse-motion.js), like the training tools.
     var motion = window.PulseMotion;
@@ -149,9 +198,12 @@
     find.addEventListener('click', function (event) {
       if (event.target.closest('.gm-find-close')) { closeFind(); return; }
       var mode = event.target.closest('[data-find-mode]');
-      if (mode) { browse.mode = mode.dataset.findMode; renderChips(); renderFind(); list.scrollTop = 0; return; }
+      if (mode) { browse.mode = mode.dataset.findMode; browse.plan = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
+      var planRow = event.target.closest('[data-find-plan]');
+      if (planRow && window.PulsePlans) { browse.plan = window.PulsePlans.find(planRow.dataset.findPlan); renderChips(); renderFind(); list.scrollTop = 0; return; }
+      if (event.target.closest('[data-plan-back]')) { browse.plan = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
       var chip = event.target.closest('[data-find-chip]');
-      if (chip) { if (browse.mode === 'ex') browse.muscle = chip.dataset.findChip; else browse.group = chip.dataset.findChip; renderChips(); renderFind(); list.scrollTop = 0; return; }
+      if (chip) { if (browse.mode === 'ex') browse.muscle = chip.dataset.findChip; else if (browse.mode === 'plan') browse.planGroup = chip.dataset.findChip; else browse.group = chip.dataset.findChip; renderChips(); renderFind(); list.scrollTop = 0; return; }
       var prog = event.target.closest('[data-find-program]');
       if (prog) {
         var X = window.PulseExplore, p = X.programs.find(function (x) { return x.id === prog.dataset.findProgram; });
