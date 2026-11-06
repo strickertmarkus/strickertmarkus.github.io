@@ -56,19 +56,34 @@
       ((r.kind==='stretch'&&Array.isArray(r.steps)&&r.steps.length>0&&r.steps.length<=20&&r.steps.every(s=>s&&typeof s.name==='string'&&s.name.length<=100&&typeof s.cue==='string'&&s.cue.length<=500&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600))||
       (r.kind==='meditation'&&Number.isInteger(r.seconds)&&r.seconds>=60&&r.seconds<=3600&&['breath','silent'].includes(r.guidance)&&breathingValid(r)));
   }
-  function start(r,now,id){if(!routineValid(r))throw Error('Ogiltig rutin');return {id,routine:clone(r),startedAt:now,anchor:now,elapsedMs:0,workMs:0,workAnchor:now,paused:false};}
+  function start(r,now,id){if(!routineValid(r))throw Error('Ogiltig rutin');return {id,routine:clone(r),startedAt:now,anchor:now,elapsedMs:0,workMs:0,workAnchor:now,paused:false,stepMs:r.kind==='stretch'?r.steps.map(()=>0):undefined,creditFrom:0};}
+  // Actual stretch time per step: the timeline only moves forward between checkpoints (pause, seek, complete),
+  // so the stretch since the last checkpoint is spread over the steps it passed. Countdown and pauses add nothing.
+  function credit(s,now){
+    if(s.routine.kind!=='stretch')return s;
+    const to=elapsed(s,now),from=Math.min(to,Number.isFinite(s.creditFrom)?s.creditFrom:0),steps=s.routine.steps;
+    const stepMs=steps.map((_,i)=>Number(s.stepMs&&s.stepMs[i])||0);let cursor=0;
+    for(let i=0;i<steps.length;i++){const end=cursor+steps[i].seconds*1000,overlap=Math.min(end,to)-Math.max(cursor,from);if(overlap>0)stepMs[i]+=overlap;cursor=end;}
+    return {...s,stepMs,creditFrom:to};
+  }
+  function actualSteps(s,now){
+    if(s.routine.kind!=='stretch')return undefined;
+    const ms=credit(s,now).stepMs;
+    return s.routine.steps.map((step,i)=>({id:step.id||'',name:step.name,seconds:Math.round(ms[i]/1000),planned:step.seconds})).filter(step=>step.seconds>0);
+  }
   function elapsed(s,now){return Math.min(duration(s.routine)*1000,Math.max(0,s.elapsedMs+(s.paused?0:Math.max(0,now-s.anchor))));}
   function practiced(s,now){
     if(!Number.isFinite(s.workMs))return elapsed(s,now);
     return s.workMs+(s.paused?0:Math.min(Math.max(0,now-(s.workAnchor??s.anchor)),Math.max(0,duration(s.routine)*1000-s.elapsedMs)));
   }
-  function pause(s,now){return {...s,workMs:practiced(s,now),workAnchor:now,elapsedMs:elapsed(s,now),anchor:now,paused:true};}
+  function pause(s,now){s=credit(s,now);return {...s,workMs:practiced(s,now),workAnchor:now,elapsedMs:elapsed(s,now),anchor:now,paused:true};}
   function resume(s,now){return {...s,anchor:now,workAnchor:now,paused:false};}
   function seek(s,index,now){
     if(s.routine.kind!=='stretch')return s;
     const target=Math.max(0,Math.min(s.routine.steps.length-1,index));
     const offset=s.routine.steps.slice(0,target).reduce((n,step)=>n+step.seconds*1000,0);
-    return {...s,workMs:practiced(s,now),workAnchor:now,elapsedMs:offset,anchor:now};
+    s=credit(s,now);
+    return {...s,workMs:practiced(s,now),workAnchor:now,elapsedMs:offset,anchor:now,creditFrom:offset};
   }
   function position(s,now){
     const spent=elapsed(s,now)/1000,total=duration(s.routine);
@@ -96,7 +111,7 @@
     const start=new Date(now);start.setHours(0,0,0,0);
     if(range==='year'){start.setMonth(0,1);}else if(range==='month'){start.setDate(1);}else start.setDate(start.getDate()-(start.getDay()+6)%7);
     const byId=new Map(poses.map(p=>[p.id,p.group])),totals={};
-    for(const r of records)if(r.kind==='stretch'&&r.completedAt>=start.getTime()&&Array.isArray(r.steps))for(const step of r.steps){const g=byId.get(step.id);if(g&&g!=='Helkropp')totals[g]=(totals[g]||0)+(Number(step.seconds)||0);}
+    for(const r of records)if(r.kind==='stretch'&&r.completedAt>=start.getTime()&&Array.isArray(r.steps)&&!r.stepsUnverified)for(const step of r.steps){const g=byId.get(step.id);if(g&&g!=='Helkropp')totals[g]=(totals[g]||0)+(Number(step.seconds)||0);}
     return Object.entries(totals).map(([group,seconds])=>({group,seconds})).sort((a,b)=>b.seconds-a.seconds);
   }
   function stats(records,kind,now){
@@ -121,8 +136,8 @@
     if(e.type!=='session'||!['stretch','meditation'].includes(e.kind)||typeof e.name!=='string'||e.name.length>80||!Number.isFinite(e.completedAt)||e.completedAt<=0||e.completedAt>8640000000000000||!Number.isFinite(e.seconds)||e.seconds<1||e.seconds>12000||typeof e.note!=='string'||e.note.length>500||!['','lighter','calm','present'].includes(e.feeling))return false;
     // Historical sessions have no steps. New stretch sessions retain a snapshot
     // so later changes to a routine do not rewrite the exercise history.
-    return e.steps===undefined||(e.kind==='stretch'&&Array.isArray(e.steps)&&e.steps.length<=20&&e.steps.every(s=>s&&typeof s.name==='string'&&s.name.length>0&&s.name.length<=100&&typeof s.id==='string'&&s.id.length<=100&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600));
+    return e.steps===undefined||(e.kind==='stretch'&&Array.isArray(e.steps)&&e.steps.length<=20&&e.steps.every(s=>s&&typeof s.name==='string'&&s.name.length>0&&s.name.length<=100&&typeof s.id==='string'&&s.id.length<=100&&Number.isInteger(s.seconds)&&s.seconds>=1&&s.seconds<=600));
   }
   function merge(a,b){const result={};for(const source of [a,b])for(const [id,e]of Object.entries(source||{})){if(e&&e.id===id&&entryValid(e)&&(!result[id]||e.updatedAt>result[id].updatedAt))result[id]=e;}return result;}
-  return {period,groups,milestoneMetrics,milestoneValid,milestones,poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
+  return {credit,actualSteps,period,groups,milestoneMetrics,milestoneValid,milestones,poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
 });

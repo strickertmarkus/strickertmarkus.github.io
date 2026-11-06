@@ -205,6 +205,10 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   function workoutType(workout) {
     return String(workout.type||workout.name||'Träningspass');
   }
+  // What the pass is called (e.g. "StrongLifts A"); workoutType stays the category used for grouping.
+  function workoutTitle(workout) {
+    return String(workout.name||workout.type||'Träningspass');
+  }
   function workoutKind(workout) {
     var type=workoutType(workout).toLowerCase();
     if (/kondition|löp|run|cardio|hopprep|cykel/.test(type)) return 'cardio';
@@ -295,20 +299,34 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     document.querySelector('.kind-switch .is-active').href=current.pathname.split('/').pop()+current.search;
   }
 
+  // Planned passes for one day in order: the primary plan, then extra passes. Rest entries are skipped.
+  function plannedPassesOn(date){
+    var plan=planForDate(date),rest=/^(vila|vilodag|ledig|återhämtning)$/i,list=[];
+    if(!plan)return list;
+    if(!rest.test(String(plan.type||'').trim()))list.push({key:'primary',plan:plan});
+    (Array.isArray(plan.additionalSessions)?plan.additionalSessions:[]).forEach(function(extra){
+      if(extra&&!rest.test(String(extra.type||'').trim()))list.push({key:'extra:'+extra.id,plan:extra});
+    });
+    return list;
+  }
+  // Passes still left on a day: linked logs remove their own pass; older logs without a link use up passes in order.
+  function remainingPassesOn(date){
+    var passes=plannedPassesOn(date),logs=workoutsOn(date),unlinked=0,done={};
+    logs.forEach(function(w){if(w.plannedSessionKey)done[w.plannedSessionKey]=true;else unlinked++;});
+    return passes.filter(function(p){return !done[p.key];}).slice(unlinked);
+  }
   function renderHero() {
-    // The circle names the next planned pass (today first); rest days and today's finished pass are skipped.
-    var today=new Date(),found=null,rest=/^(vila|vilodag|ledig|återhämtning)$/i;
+    // The circle names the next planned pass: today's remaining passes first, then the coming days.
+    var today=new Date(),found=null;
     for(var i=0;i<14;i++){
-      var date=shiftDate(today,i),plan=planForDate(date);
-      if(!plan||rest.test(String(plan.type||'').trim()))continue;
-      if(i===0&&workoutsOn(date).length)continue;
-      found={date:date,plan:plan,offset:i};break;
+      var date=shiftDate(today,i),left=i===0?remainingPassesOn(date):plannedPassesOn(date);
+      if(left.length){found={date:date,plan:left[0].plan,offset:i};break;}
     }
     if(!found){
       var last=data.workouts.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);})[0];
       byId('next-session-link').dataset.fieldDate=isoDate(today);
       byId('next-session-title').textContent='Välj pass';
-      byId('next-session-meta').textContent=last?'Senast: '+String(workoutType(last)||last.type||'pass'):'Bygg eller välj ett';
+      byId('next-session-meta').textContent=last?'Senast: '+workoutTitle(last):'Bygg eller välj ett';
       return;
     }
     var exercises=found.plan.exercises||[],sets=exercises.reduce(function(sum,ex){return sum+number(ex.sets);},0);
@@ -328,9 +346,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function nextPlanned(){
     var today=new Date();
-    for(var i=0;i<14;i++){var d=shiftDate(today,i),plan=planForDate(d);
-      if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())&&!(i===0&&workoutsOn(d).length))
-        return (i===0?'Idag':i===1?'Imorgon':dayNames[(d.getDay()+6)%7])+' · '+String(plan.name||plan.type);}
+    for(var i=0;i<14;i++){var d=shiftDate(today,i),left=i===0?remainingPassesOn(d):plannedPassesOn(d);
+      if(left.length)return (i===0?'Idag':i===1?'Imorgon':dayNames[(d.getDay()+6)%7])+' · '+String(left[0].plan.name||left[0].plan.type);}
     return '';
   }
   // One arc per pass toward the goal, in the pass's colour; extra passes as small sparks on an outer orbit.
@@ -716,7 +733,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
           count+=list.length;
           var kinds=list.map(workoutKind),cardio=kinds.indexOf('cardio')>=0,strength=kinds.indexOf('strength')>=0;
           cls+=' is-pass'+(cardio&&strength?' is-both':'');color=cardio&&!strength?'#7fe3ef':'#ff657a';
-          tip=list.map(function(w){return workoutType(w)+(number(w.duration)?' · '+formatNumber(w.duration,0)+' min':'');}).join(', ');
+          tip=list.map(function(w){return workoutTitle(w)+(number(w.duration)?' · '+formatNumber(w.duration,0)+' min':'');}).join(', ');
         }else if(key>=today){
           var plan=planForDate(date);
           if(plan&&!/^(vila|vilodag|ledig|återhämtning)$/i.test(String(plan.type||'').trim())){cls+=' is-planned';color=/kondition|löp|run|cardio|cykel|hopprep|rodd|crosstrainer|intervall/i.test(plan.type)?'#7fe3ef':'#ff657a';tip='Planerat: '+String(plan.name||plan.type);}
@@ -1429,7 +1446,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(globalBetween)rows='<p class="log-between-global">'+globalBetween+'</p>'+rows;
       var intervals=workoutMiniIntervals(workout);
       var notes=workout.notes?'<p class="log-secondary">'+escapeHtml(workout.notes)+'</p>':'';
-      return '<article class="log-card'+(open?' is-open':'')+(kind==='cardio'?' is-cardio':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time>'+pkThumb(workoutType(workout),kind)+'<span class="log-title"><strong>'+escapeHtml(workoutType(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">'+PK_ICON.chevron+'</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals" aria-label="Passets sammanfattning"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
+      return '<article class="log-card'+(open?' is-open':'')+(kind==='cardio'?' is-cardio':'')+'" data-log-card data-log-id="'+id+'" data-workout-id="'+escapeHtml(String(workout.id))+'"><button class="log-summary" type="button" aria-controls="'+id+'-panel" aria-expanded="'+open+'"><time class="log-date">'+logDate(workout.date)+'</time>'+pkThumb(workoutType(workout),kind)+'<span class="log-title"><strong>'+escapeHtml(workoutTitle(workout))+'</strong><span class="log-meta">'+escapeHtml(detail+' · '+(kind==='cardio'?'Kondition':'Styrka'))+'</span></span><span class="log-result"><strong>'+escapeHtml(workoutPrimary(workout))+'</strong><small>'+secondary+'</small></span><span class="log-chevron" aria-hidden="true">'+PK_ICON.chevron+'</span></button><div class="log-detail" id="'+id+'-panel"'+(open?'':' hidden')+'><div class="log-detail-overview"><div class="log-vitals" aria-label="Passets sammanfattning"><div class="vital"><span>Tid</span><strong>'+(number(workout.duration)?formatNumber(workout.duration,0)+' min':'—')+'</strong></div><div class="vital"><span>'+(kind==='cardio'?'Distans':'Volym')+'</span><strong>'+(kind==='cardio'?(distance?formatNumber(distance,2)+' km':'—'):(volume?formatNumber(Math.round(volume),0)+' kg':'—'))+'</strong></div></div>'+intervals+'</div><div class="exercise-stack">'+rows+notes+'</div></div></article>';
     }).join('');
     if(allWorkouts.length>workouts.length){
       var more=allWorkouts.length-workouts.length;

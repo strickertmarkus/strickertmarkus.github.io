@@ -554,7 +554,7 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return:hover{background:#28202a}
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20261106-plans-1">
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20261106-step2-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261103-log-day-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
 <link rel="stylesheet" href="pulse-builder-ui.css?v=20261103-between-inline-1">
@@ -567,7 +567,7 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-drag-2">
-<script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
+<script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261106-actual-steps-1"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -3132,6 +3132,9 @@ function finishCurrentExercise(){
 
 function stopSessionMode(confirmClose){
   if(confirmClose&&sessionState){
+    // With logged sets the user chooses: save what is done, keep training or discard.
+    var loggedSets=(sessionState.logs||[]).reduce(function(n,list){return n+((list||[]).length);},0);
+    if(loggedSets){openSessionEndChoice(loggedSets);return;}
     var ok=confirm('Avsluta passläge utan att spara?');
     if(!ok)return;
   }
@@ -3140,8 +3143,27 @@ function stopSessionMode(confirmClose){
   closeModal('session-modal');
 }
 
+function openSessionEndChoice(loggedSets){
+  var box=document.getElementById('session-end-choice');
+  if(!box){
+    box=document.createElement('div');box.id='session-end-choice';box.className='session-end-choice';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-labelledby','session-end-title');
+    box.innerHTML='<div class="session-end-card"><h3 id="session-end-title">Avsluta passet?</h3><p id="session-end-copy"></p>'+
+      '<button type="button" class="session-end-save" data-end="save"></button><button type="button" data-end="continue">Fortsätt passet</button><button type="button" class="session-end-discard" data-end="discard">Kasta passet</button></div>';
+    box.addEventListener('click',function(e){
+      var b=e.target.closest('[data-end]');if(!b&&e.target!==box)return;
+      var act=b?b.getAttribute('data-end'):'continue';box.hidden=true;
+      if(act==='save')saveSessionWorkout();
+      else if(act==='discard')stopSessionMode(false);
+    });
+    (document.getElementById('session-modal')||document.body).appendChild(box);
+  }
+  document.getElementById('session-end-copy').textContent='Du har loggat '+loggedSets+' set. Spara det du har gjort, eller fortsätt där du var.';
+  box.querySelector('[data-end="save"]').textContent='Spara genomfört ('+loggedSets+' set)';
+  box.hidden=false;box.querySelector('[data-end="save"]').focus();
+}
+
 function saveSessionWorkout(){
-  if(!sessionState)return;
+  if(!sessionState||sessionState.saving)return;
   var totalSec=Math.max(60,Math.round((Date.now()-sessionState.passStartedAt)/1000));
   var exercises=[];
   var exerciseTimings=[];
@@ -3164,6 +3186,7 @@ function saveSessionWorkout(){
     exerciseTimings.push({name:ex.name,durationSec:dur,exerciseIndex:exercises.length-1});
   });
   if(!exercises.length){showToast('Inga set loggade ännu.');return;}
+  sessionState.saving=true; // a double tap must not create a second log entry
   var hrAvg=parseInt(document.getElementById('session-hr').value,10)||null;
   var vo2=parseFloat(document.getElementById('session-vo2').value);
   vo2=isNaN(vo2)?null:vo2;
@@ -3173,6 +3196,9 @@ function saveSessionWorkout(){
     id:Date.now(),
     date:sessionState.date,
     type:sessionType,
+    // The pass name and which planned pass it was travel with the log; type stays the training category.
+    name:String(sessionState.name||sessionType),
+    plannedSessionKey:sessionState.sourceExtraId?'extra:'+sessionState.sourceExtraId:'primary',
     exercises:exercises,
     duration:Math.round(totalSec/60),
     hrAvg:hrAvg,

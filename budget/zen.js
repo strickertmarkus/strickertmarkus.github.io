@@ -236,7 +236,7 @@
     if(!session)return;ending=false;$('session-ending').hidden=true;
     session=M.pause(session,Date.now());const seconds=Math.floor(M.practiced(session,Date.now())/1000);
     if(seconds<1){toast('Passet behöver vara minst en sekund för att sparas.');session=M.resume(session,Date.now());S.setActive(session);return;}
-    S.setActive(session);pendingRecord={id:session.id,type:'session',name:session.routine.name,kind:session.routine.kind,seconds,completedAt:early?Date.now():session.anchor,updatedAt:Date.now(),note:'',feeling:'',...(session.routine.kind==='stretch'?{steps:session.routine.steps.map(step=>({id:step.id||'',name:step.name,seconds:step.seconds}))}:{})};
+    S.setActive(session);pendingRecord={id:session.id,type:'session',name:session.routine.name,kind:session.routine.kind,seconds,completedAt:early?Date.now():session.anchor,updatedAt:Date.now(),note:'',feeling:'',...(session.routine.kind==='stretch'?{steps:M.actualSteps(session,Date.now()),stepsActual:true}:{})};
     $('complete-summary').textContent=mins(seconds)+' minuter · '+session.routine.name;$('session-note').value='';document.querySelectorAll('[data-feeling]').forEach(b=>b.setAttribute('aria-pressed','false'));showView('complete');$('complete-title').focus();playDing();document.title='Passet avslutat · Zen';
   }
   function saveComplete(){
@@ -522,7 +522,8 @@
     const seconds=minutes*60+secondsPart,completedAt=new Date($('history-edit-date').value).getTime();
     const note=$('history-edit-note').value.trim();
     if(!Number.isInteger(minutes)||minutes<0||!Number.isInteger(secondsPart)||secondsPart<0||secondsPart>59||!Number.isInteger(seconds)||seconds<1||seconds>12000||!Number.isFinite(completedAt)||completedAt<=0||note.length>500){$('history-edit-error').textContent='Ange en giltig tid (högst 200 minuter), datum och anteckning.';return;}
-    const changed={...r,seconds,completedAt,note,updatedAt:Math.max(Date.now(),r.updatedAt+1)};
+    // A new total no longer matches the recorded step times; keep them but leave them out of muscle statistics.
+    const changed={...r,seconds,completedAt,note,updatedAt:Math.max(Date.now(),r.updatedAt+1),...(Array.isArray(r.steps)&&seconds!==r.seconds?{stepsUnverified:true}:{})};
     if(!S.put(changed)){$('history-edit-error').textContent='Kunde inte spara ändringarna.';return;}
     SurfaceMotion.closeDialog($('history-edit-dialog'));editingHistoryId=null;renderHome();toast('Passet har uppdaterats.');
   };
