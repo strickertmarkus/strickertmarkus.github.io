@@ -288,7 +288,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     byId('stretch-link').href=profileHref('zen.html',{wellness:'stretch'});
     byId('meditation-link').href=profileHref('zen.html',{wellness:'meditation'});
     byId('pulse-explore-link').href=profileHref('pulse-exercise-guide.html');
-    byId('menu-explore-training').href=profileHref('pulse-exercise-guide.html');
     document.querySelector('.field-brand').href=profileHref('home.html');
     document.querySelector('#field-menu a[href="home.html"]').href=profileHref('home.html');
     var current=new URL(location.href);if(profile==='maja')current.searchParams.set('user','maja');

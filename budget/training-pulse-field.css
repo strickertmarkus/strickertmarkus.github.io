@@ -1179,3 +1179,7 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 .toast.has-action.is-visible{pointer-events:auto}
 .toast-undo{min-height:32px;padding:0 14px;border:1px solid #ff9a9166;border-radius:999px;background:#ff657a1f;color:#ffd2c9;font:600 12px var(--pk-ui,inherit);cursor:pointer}
 .toast-undo:active{opacity:.7}
+
+.field-menu .field-menu-label{display:block;margin:10px 13px 2px;color:#7f8792;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.record-manage{display:inline-flex;align-items:center;height:30px;padding:0 11px;border:1px solid #ff9a9126;border-radius:999px;color:#ffb1a6;font-size:11.5px;font-weight:650;text-decoration:none}
+.record-manage:hover{background:#ff657a12}

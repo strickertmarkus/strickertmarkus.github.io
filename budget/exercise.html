@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261104-remove-pass-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261106-app-menu-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -35,7 +35,7 @@
   <script defer src="firebase-sync.js?v=20261105-bodyweight-backfill-1"></script>
 <script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261104-remove-pass-1"></script>
+  <script defer src="training-pulse-field.js?v=20261106-app-menu-1"></script>
   <script defer src="training-pulse-editor.js?v=20261106-plans-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261103-multipass-import-4"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
@@ -89,11 +89,17 @@
     </div>
     <nav class="field-menu" id="field-menu" aria-hidden="true">
       <a href="home.html">Startsida</a>
-      <a id="menu-build" href="#field-templates" data-field-action="build">Bygg pass</a>
-      <a id="menu-log" href="#training-log" data-field-action="log">Logga ett pass</a>
-      <a id="menu-training-settings" href="#pulse-goals" data-field-action="goals">Träningsinställningar</a>
-      <a id="menu-records" href="#records" data-field-action="records">Hantera rekord</a>
-      <a id="menu-explore-training" href="pulse-exercise-guide.html"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg> Utforska träning</a>
+      <a href="calendar.html">Familjekalender</a>
+      <a href="shopping.html">Listor</a>
+      <span class="field-menu-label">Ekonomi</span>
+      <a href="familjebudget.html">Familjebudget</a>
+      <a href="budget.html">Markus budget</a>
+      <a href="analytics.html">Markus analys</a>
+      <a href="budget_maja.html">Majas budget</a>
+      <a href="analytics_maja.html">Majas analys</a>
+      <span class="field-menu-label">Barnen</span>
+      <a href="mila.html">Milas milstolpar</a>
+      <a href="melker.html">Melkers milstolpar</a>
       <div class="field-profile-control" role="group" aria-label="Välj träningsprofil">
         <span>Träningsprofil</span>
         <div class="field-profile-options">
@@ -101,9 +107,7 @@
           <a id="field-profile-maja" data-field-profile="maja" href="exercise.html?user=maja">Maja</a>
         </div>
       </div>
-      <a href="#week-field">Veckoplan</a>
-      <a href="#progress-field">Utveckling</a>
-      <a href="#training-log">Träningslogg</a>
+      <a href="data.html">Data &amp; formler</a>
     </nav>
   </header>
 
@@ -312,7 +316,7 @@
     <section class="field-section records-section" id="records" aria-labelledby="records-title">
       <div class="section-head">
         <div><p class="eyebrow">STARKASTE SIGNALERNA</p><h2 id="records-title">Personliga rekord</h2></div>
-        <div class="record-actions"><span class="record-count" id="record-count">0 rekord</span><button class="record-customize planner-calendar-entry" id="record-customize" type="button" aria-expanded="false" aria-controls="record-picker" aria-label="Anpassa dina tre rekord" title="Anpassa"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
+        <div class="record-actions"><span class="record-count" id="record-count">0 rekord</span><a class="record-manage" id="record-manage" href="#records" data-field-action="records">Hantera</a><button class="record-customize planner-calendar-entry" id="record-customize" type="button" aria-expanded="false" aria-controls="record-picker" aria-label="Anpassa dina tre rekord" title="Anpassa"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button></div>
       </div>
       <div class="record-picker" id="record-picker" hidden>
         <div class="record-picker-head"><strong>Välj dina tre rekord</strong><button type="button" class="pk-close" id="record-picker-close" aria-label="Stäng val av rekord"><svg class="" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
