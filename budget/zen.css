@@ -2858,3 +2858,27 @@ html body .zen-header::after{content:"";position:absolute;left:5.5%;right:5.5%;b
   html body .zen-header .zen-header-tabs{flex:0 1 auto}
   html body .zen-header .zen-header-tabs button{flex:0 0 auto;padding:0 20px}
 }
+
+/* Family-app menu (same content as the training page) with settings at the bottom. */
+html body .zen-header{z-index:40}
+.zen-header-end{position:relative}
+.zen-menu-toggle{display:grid;place-items:center}
+.zen-menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
+.zen-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:30;display:grid;width:min(260px,calc(100vw - 32px));max-height:min(72vh,620px);overflow:auto;padding:8px;border:1px solid var(--line);border-radius:16px;background:rgba(14,26,20,.97);box-shadow:0 22px 60px rgba(0,0,0,.45);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.zen-menu[hidden]{display:none}
+.zen-menu a,.zen-menu-settings{display:flex;align-items:center;min-height:42px;padding:0 12px;border:0;border-radius:10px;background:none;color:#dfe9dc;font:500 14px var(--sans);text-align:left;text-decoration:none;cursor:pointer}
+.zen-menu a:hover,.zen-menu-settings:hover{background:rgba(var(--accent-rgb),.1);color:#fff}
+.zen-menu-label{margin:10px 12px 2px;color:#8ea596;font:700 10px var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.zen-menu-settings{margin-top:6px;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+body[data-kind=meditation] .zen-menu{background:rgba(232,242,236,.97)}
+body[data-kind=meditation] .zen-menu a,body[data-kind=meditation] .zen-menu-settings{color:#1f3a30}
+body[data-kind=meditation] .zen-menu-label{color:#5d7a6c}
+/* Temporary meditation length. */
+.medi-length{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:5px;max-width:100%;margin-top:10px;color:var(--muted);font:500 12px var(--sans)}
+.medi-length[hidden]{display:none}
+.medi-length button{min-width:36px;height:32px;padding:0 8px;border:1px solid var(--line);border-radius:999px;background:none;color:inherit;font:600 12.5px var(--sans);cursor:pointer}
+.medi-length button[aria-pressed=true]{border-color:rgba(var(--accent-rgb),.55);background:rgba(var(--accent-rgb),.16);color:var(--accent)}
+body[data-kind=meditation] .medi-length button[aria-pressed=true]{color:#1f3a30;background:rgba(var(--sun-rgb),.35);border-color:rgba(var(--sun-rgb),.7)}
+/* Explicit choice of start pass in the pass list. */
+.pass-chosen{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border-radius:999px;background:rgba(var(--accent-rgb),.14);color:var(--accent);font:600 11.5px var(--sans)}
+.pass-tools .pass-choose{color:var(--accent)}

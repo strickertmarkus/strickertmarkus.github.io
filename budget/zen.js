@@ -10,6 +10,7 @@
   if(!prefs||typeof prefs!=='object')prefs={};
   const routeKind=new URLSearchParams(location.search).get('wellness');
   let kind=routeKind==='stretch'||routeKind==='meditation'?routeKind:prefs.kind==='meditation'?'meditation':'stretch',selected={stretch:typeof prefs.selected?.stretch==='string'?prefs.selected.stretch:'forest',meditation:typeof prefs.selected?.meditation==='string'?prefs.selected.meditation:'water'},view='home',session=null,pendingRecord=null,builder=null,builderExisting=false,allHistory=false,sound=prefs.sound===true,audioContext=null,toastTimer,lastStep=-1,lastPhase='',confirmAction=null,readyOnce=false,editingHistoryId=null,editingHistoryVersion=0,expandedHistory=new Set(),expandedRoutines=new Set(),builderOrigin='',statsRange='week';
+  let tempMinutes=0; // temporary meditation length in minutes, 0 = the template length
   var requestedRoutine=new URLSearchParams(location.search).get('routine');
   var requested=M.routines.find(r=>r.id===requestedRoutine&&r.kind===kind);if(requested)selected[kind]=requested.id;
   // A planned day with several passes: the next ones come after this one is saved.
@@ -57,7 +58,7 @@
     document.querySelectorAll('.kind-switch button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===kind)));savePrefs();renderHome();
   }
   let kindMotionTimer=0,kindMotionToken=0;
-  function setKind(next){
+  function setKind(next){tempMinutes=0;
     const token=++kindMotionToken;clearTimeout(kindMotionTimer);
     next=next==='meditation'?'meditation':'stretch';
     const changed=next!==kind,home=$('home-view');
@@ -89,7 +90,7 @@
       '<svg class="pass-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10l4 4 4-4"/></svg></button>'+
       '<button type="button" class="pass-play" data-play="'+escape(r.id)+'" aria-label="Starta '+escape(r.name)+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7l8 5-8 5z"/></svg></button></div>'+
       '<div class="pass-detail"'+(open?'':' hidden')+'>'+detail+
-      '<div class="pass-tools"><button type="button" class="text-button" data-edit="'+escape(r.id)+'">'+(own?'Redigera':'Anpassa som egen')+'</button>'+(own?'<button type="button" class="text-button" data-remove="'+escape(r.id)+'">Ta bort</button>':'')+'</div></div></article>';
+      '<div class="pass-tools">'+(current?'<span class="pass-chosen">Startpass</span>':'<button type="button" class="text-button pass-choose" data-choose="'+escape(r.id)+'">Välj som startpass</button>')+'<button type="button" class="text-button" data-edit="'+escape(r.id)+'">'+(own?'Redigera':'Anpassa som egen')+'</button>'+(own?'<button type="button" class="text-button" data-remove="'+escape(r.id)+'">Ta bort</button>':'')+'</div></div></article>';
   }
   /* The pass menu: every template, filtered by training category and searchable by pass or exercise name. */
   const LIBRARY_GROUPS=[['all','Alla'],['base','Baspass'],['chest','Bröst + Triceps'],['back','Biceps + Rygg'],['legs','Axlar + Mage + Ben'],['cardio','Kondition'],['own','Mina egna']];
@@ -111,8 +112,14 @@
     $('library-list').innerHTML=html||'<p class="history-empty">'+(query?'Inga pass matchar sökningen.':'Inga egna mallar ännu. Skapa ett pass eller anpassa en färdig mall.')+'</p>';
   }
   function openLibrary(){renderLibrary();SurfaceMotion.showDialog($('library-dialog'));$('library-title').focus({preventScroll:true});}
+  // Meditation length for this session only; the template itself is never changed.
+  function renderMediLength(r){
+    const box=$('medi-length');if(!box)return;box.hidden=r.kind!=='meditation';if(box.hidden)return;
+    const own=Math.round(M.duration(r)/60),current=tempMinutes||own,options=[...new Set([5,10,15,20,own])].sort((a,b)=>a-b);
+    box.innerHTML=options.map(m=>'<button type="button" data-medi-min="'+m+'" aria-pressed="'+(m===current)+'" aria-label="'+m+' minuter">'+m+'</button>').join('');
+  }
   function renderHome(){
-    const r=chosen();$('selected-name').textContent=r.name;$('selected-meta').textContent=mins(M.duration(r))+' min · '+(kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide');
+    const r=chosen();renderMediLength(r);$('selected-name').textContent=r.name;$('selected-meta').textContent=mins(tempMinutes&&r.kind==='meditation'?tempMinutes*60:M.duration(r))+' min · '+(kind==='stretch'?r.steps.length+' övningar':r.guidance==='breath'?'guidad andning':'utan guide');
     document.querySelector('.start-ring-symbol').textContent=copy[kind].symbol;
     document.querySelector('.start-ring-name').textContent=r.name;
     document.querySelector('.start-ring-meta').textContent=$('selected-meta').textContent;
@@ -154,7 +161,7 @@
         :'<p class="history-legacy">Övningarna registrerades inte för detta äldre pass.</p>'):'';
       return '<article class="history-row"><button type="button" class="history-trigger" data-history="'+escape(r.id)+'" aria-expanded="'+open+'" aria-controls="zen-history-'+escape(r.id)+'"><span class="small-symbol" aria-hidden="true">'+copy[kind].symbol+'</span><span class="history-info"><strong>'+escape(r.name)+'</strong><time datetime="'+new Date(r.completedAt).toISOString()+'">'+new Date(r.completedAt).toLocaleString('sv-SE',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</time>'+(r.feeling?'<span class="history-feeling">'+escape(feelingLabel(r.feeling))+'</span>':'')+(r.note?'<span class="history-note">'+escape(r.note)+'</span>':'')+'</span><span class="history-length">'+mins(r.seconds)+' min</span><span class="history-chevron" aria-hidden="true">⌄</span></button><button type="button" class="text-button history-delete" data-delete="'+escape(r.id)+'" aria-label="Ta bort '+escape(r.name)+'">×</button><div id="zen-history-'+escape(r.id)+'" class="history-expanded" '+(open?'':'hidden')+'>'+exercises+'<button type="button" class="text-button history-edit-link" data-edit-session="'+escape(r.id)+'">Redigera pass</button></div></article>';
     }).join(''):'<p class="history-empty">Inga sparade pass ännu.</p>';
-    $('resume-banner').hidden=!S.active;$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));
+    $('resume-banner').hidden=!S.active;if(S.active){const a=S.active,left=Math.max(0,M.duration(a.routine)-Math.floor(M.elapsed(a,Date.now())/1000));$('resume-text').textContent='Pågående '+(a.routine.kind==='meditation'?'meditation':'stretch')+': '+a.routine.name+' · '+(left>=60?Math.round(left/60)+' min':left+' s')+' kvar';}$('start-button').disabled=!S.ready;document.dispatchEvent(new Event('zen:home-rendered'));
   }
   function feelingLabel(value){return {lighter:'Lite lättare',calm:'Lugnare',present:'Mer närvarande'}[value]||'';}
   // Keep the screen awake during a pass, so the phone does not lock in the middle of a stretch.
@@ -173,7 +180,7 @@
     force=force===true;
     if(!S.ready)return;
     if(S.active){confirm('Du har ett pågående pass','Fortsätt passet från startsidan eller avbryt det och starta ett nytt.','Starta nytt pass',()=>{S.setActive(null);startSession(force);});return;}
-    const routine=chosen();session=M.start(routine,Date.now()+(routine.kind==='stretch'||prepare||force?5000:0),id());S.setActive(session);openSession(session);playDing();
+    const base=chosen(),routine=tempMinutes&&base.kind==='meditation'?{...base,seconds:tempMinutes*60}:base;session=M.start(routine,Date.now()+(routine.kind==='stretch'||prepare||force?5000:0),id());S.setActive(session);openSession(session);playDing();
   }
   function tick(){
     if(view!=='session'||!session||ending)return;
@@ -242,7 +249,7 @@
       }
       toast('Passet är sparat.');}
   }
-  function updateSound(){const medi=session?session.routine.kind==='meditation':kind==='meditation';$('session-interval').hidden=!medi;$('session-interval-label').hidden=!medi;setDingVolume();$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Ljud på':'Ljud av';$('sound-toggle').setAttribute('aria-pressed',String(sound));$('session-audio').dataset.enabled=String(sound);$('session-audio').querySelector('summary').setAttribute('aria-label','Ljudinställningar, ljud '+(sound?'på':'av'));}
+  function updateSound(){const medi=session?session.routine.kind==='meditation':kind==='meditation';$('session-interval').hidden=!medi;$('session-interval-label').hidden=!medi;setDingVolume();$('session-volume').value=volume;$('volume-value').textContent=volume+' %';$('sound-toggle').textContent=sound?'Signaler på':'Signaler av';$('sound-toggle').setAttribute('aria-pressed',String(sound));$('session-audio').dataset.enabled=String(sound);$('session-audio').querySelector('summary').setAttribute('aria-label','Ljudinställningar, ljud '+(sound?'på':'av'));}
   function mixedAudioContext(){
     // Fail silent when audio mixing cannot be requested; preserve external music.
     try{
@@ -256,11 +263,11 @@
     }catch(_){return null;}
   }
   let dingBus=null,dingReverb=null,lastDing=-Infinity,breathSoundPhase=null;
-  function setDingVolume(){if(dingBus)dingBus.gain.setTargetAtTime(sound&&!document.hidden?volume/100:0,audioContext.currentTime,.06);}
+  function setDingVolume(){if(dingBus)dingBus.gain.setTargetAtTime((sound||ambient)&&!document.hidden?volume/100:0,audioContext.currentTime,.06);}
   function prepareDing(){
     if(!mixedAudioContext())return false;
     if(!dingBus){
-      dingBus=audioContext.createGain();dingBus.gain.value=sound?volume/100:0;dingBus.connect(audioContext.destination);
+      dingBus=audioContext.createGain();dingBus.gain.value=(sound||ambient)?volume/100:0;dingBus.connect(audioContext.destination);
       // A light, brief room reflection softens the bell without a dark trailing wash.
       dingReverb=audioContext.createConvolver();dingReverb.normalize=false;
       const length=Math.ceil(audioContext.sampleRate*.55),impulse=audioContext.createBuffer(2,length,audioContext.sampleRate);
@@ -333,7 +340,7 @@
   }
   function stopAmbient(){if(!ambientNodes)return;const n=ambientNodes;ambientNodes=null;try{const t=audioContext.currentTime;n.gain.gain.setTargetAtTime(0,t,.4);setTimeout(()=>{n.nodes.forEach(x=>{try{x.stop();}catch(_){}});try{n.gain.disconnect();}catch(_){}},1800);}catch(_){}}
   function updateAmbient(){
-    const want=view==='session'&&!!session&&!session.paused&&sound&&!document.hidden&&!ending&&ambient;
+    const want=view==='session'&&!!session&&!session.paused&&!document.hidden&&!ending&&ambient;
     if(ambientNodes&&(!want||ambientNodes.type!==ambient))stopAmbient();
     if(!want||ambientNodes)return;
     try{
@@ -366,7 +373,7 @@
   document.addEventListener('zen:session-view',()=>updateBreathAudio(false));
   $('show-session-summary').onclick=()=>complete(false);
   $('session-ambient').value=ambient;$('session-interval').value=String(intervalMinutes);
-  $('session-ambient').onchange=()=>{ambient=$('session-ambient').value;savePrefs();updateAmbient();};
+  $('session-ambient').onchange=()=>{ambient=$('session-ambient').value;savePrefs();setDingVolume();updateAmbient();};
   $('session-interval').onchange=()=>{intervalMinutes=Number($('session-interval').value);lastIntervalMark=-1;savePrefs();};
   $('session-volume').oninput=()=>{volume=Number($('session-volume').value);savePrefs();updateSound();tick();};
   $('prepare-session').checked=prepare;
@@ -439,8 +446,9 @@
   document.querySelectorAll('.kind-switch button').forEach(b=>b.onclick=()=>setKind(b.dataset.kind));
   function passClick(e){const b=e.target.closest('button');if(!b)return;const inLibrary=!!e.target.closest('#library-dialog');
     if(b.dataset.group){libraryGroup=b.dataset.group;renderLibrary();return;}
-    if(b.dataset.expand){const rid=b.dataset.expand;if(expandedRoutines.has(rid))expandedRoutines.delete(rid);else expandedRoutines.add(rid);selected[kind]=rid;savePrefs();renderHome();if(inLibrary)renderLibrary();return;}
+    if(b.dataset.expand){const rid=b.dataset.expand;if(expandedRoutines.has(rid))expandedRoutines.delete(rid);else expandedRoutines.add(rid);renderHome();if(inLibrary)renderLibrary();return;}
     // Starting straight from a template: choose it and begin.
+    if(b.dataset.choose){selected[kind]=b.dataset.choose;tempMinutes=0;savePrefs();renderHome();if(inLibrary)renderLibrary();toast('Valt som startpass.');return;}
     if(b.dataset.play){selected[kind]=b.dataset.play;savePrefs();if(inLibrary)SurfaceMotion.closeDialog($('library-dialog'));renderHome();startSession();return;}
     if(b.dataset.edit){const r=routines().find(r=>r.id===b.dataset.edit);if(r){if(inLibrary)SurfaceMotion.closeDialog($('library-dialog'));openBuilder(r,false);}}
     if(b.dataset.remove){const rid=b.dataset.remove;confirm('Ta bort passmallen?','Genomförda pass finns kvar i historiken.','Ta bort',()=>S.remove(rid));}}
@@ -521,7 +529,12 @@
   $('history-edit-dialog').addEventListener('close',()=>{editingHistoryId=null;});
   $('history-more').onclick=()=>{allHistory=!allHistory;renderHome();};
   document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>SurfaceMotion.closeDialog($(b.dataset.close)));
-  $('settings-open').onclick=$('storage-status').onclick=()=>SurfaceMotion.showDialog($('settings-dialog'));
+  function setZenMenu(open){$('zen-menu').hidden=!open;$('zen-menu-toggle').setAttribute('aria-expanded',String(open));}
+  $('zen-menu-toggle').onclick=e=>{e.stopPropagation();setZenMenu($('zen-menu').hidden);};
+  document.addEventListener('click',e=>{if(!$('zen-menu').hidden&&!e.target.closest('#zen-menu,#zen-menu-toggle'))setZenMenu(false);});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('zen-menu').hidden){setZenMenu(false);$('zen-menu-toggle').focus();}});
+  $('settings-open').onclick=$('storage-status').onclick=()=>{setZenMenu(false);SurfaceMotion.showDialog($('settings-dialog'));};
+  $('medi-length').onclick=e=>{const b=e.target.closest('[data-medi-min]');if(!b)return;const r=chosen(),m=Number(b.dataset.mediMin);tempMinutes=m===Math.round(M.duration(r)/60)?0:m;renderHome();};
   $('export-data').onclick=()=>{if(!S.ready){toast('Vänta tills ditt konto har laddats.');return;}const blob=new Blob([JSON.stringify(S.export(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='zen-'+S.profile+'-'+M.localDate(Date.now())+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);};
   $('import-data').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>10000000)throw Error('Filen är för stor. Välj en Zen-säkerhetskopia under 10 MB.');const data=JSON.parse(await file.text());const count=S.import(data);$('import-result').textContent=count+' sparade uppgifter inlästa. Befintliga pass har behållits.';}catch(error){$('import-result').textContent=error instanceof SyntaxError?'Filen kunde inte läsas som en Zen-säkerhetskopia.':error.message;}e.target.value='';};
   document.addEventListener('visibilitychange',()=>{document.body.classList.toggle('page-hidden',document.hidden);if(!document.hidden)tick();else updateBreathAudio(false);});
