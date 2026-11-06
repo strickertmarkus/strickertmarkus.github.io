@@ -60,12 +60,17 @@
       figure.addEventListener('transitionend', handoff);
       setTimeout(handoff, 600);
     });
-    scene.onLeave(function () { document.documentElement.classList.remove('gm-scene-open'); showBody(); });
+    // Exercises and programmes opened from the browse list return to it (same tab, plan and scroll).
+    var returnToFind = null;
+    scene.onLeave(function () {
+      document.documentElement.classList.remove('gm-scene-open'); showBody();
+      if (returnToFind) { var back = returnToFind; returnToFind = null; reopenFind(back.scroll); }
+    });
 
     /* Search every exercise: name, muscle, equipment or category ("bröst", "kabel", "pull"). */
     var findBtn = document.createElement('button');
     findBtn.type = 'button'; findBtn.className = 'gm-find-btn'; findBtn.setAttribute('aria-label', 'Bläddra bland alla övningar och program');
-    findBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/><path class="gm-find-spark" d="M10.5 7.4c.25 1.9.9 2.6 2.8 2.8-1.9.25-2.6.9-2.8 2.8-.25-1.9-.9-2.6-2.8-2.8 1.9-.25 2.6-.9 2.8-2.8z"/></svg><span>Alla övningar</span>';
+    findBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/><path class="gm-find-spark" d="M10.5 7.4c.25 1.9.9 2.6 2.8 2.8-1.9.25-2.6.9-2.8 2.8-.25-1.9-.9-2.6-2.8-2.8 1.9-.25 2.6-.9 2.8-2.8z"/></svg>';
     map.appendChild(findBtn);
     var find = document.createElement('div');
     find.className = 'gm-find'; find.hidden = true; find.setAttribute('role', 'dialog'); find.setAttribute('aria-modal', 'true'); find.setAttribute('aria-label', 'Bläddra bland övningar och program');
@@ -188,6 +193,10 @@
       field.value = ''; renderChips(); renderFind(); find.hidden = false; find.classList.add('is-open');
       if (motion) motion.reveal(find, findBtn); else find.style.opacity = 1;
     }
+    function reopenFind(scroll) {
+      renderChips(); renderFind(); find.hidden = false; find.classList.add('is-open'); find.style.opacity = 1;
+      list.scrollTop = scroll || 0;
+    }
     function closeFind(quiet) {
       if (find.hidden) return;
       var done = function () { find.hidden = true; find.classList.remove('is-open'); find.style.clipPath = ''; find.style.opacity = ''; };
@@ -196,7 +205,11 @@
     findBtn.addEventListener('click', openFind);
     field.addEventListener('input', renderFind);
     find.addEventListener('click', function (event) {
-      if (event.target.closest('.gm-find-close')) { closeFind(); return; }
+      if (event.target.closest('.gm-find-close')) {
+        // Inside a plan the cross steps back to the plan list instead of leaving the explorer.
+        if (browse.mode === 'plan' && browse.plan) { browse.plan = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
+        closeFind(); return;
+      }
       var mode = event.target.closest('[data-find-mode]');
       if (mode) { browse.mode = mode.dataset.findMode; browse.plan = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
       var planRow = event.target.closest('[data-find-plan]');
@@ -208,6 +221,7 @@
       if (prog) {
         var X = window.PulseExplore, p = X.programs.find(function (x) { return x.id === prog.dataset.findProgram; });
         if (!p) return;
+        returnToFind = { scroll: list.scrollTop };
         closeFind(true); ui.openMuscleExercise(X.exercises[p.ids[0]].muscles[0], p.ids[0]);
         setTimeout(function () { if (scene.openProgram) scene.openProgram(p.id); }, 650);
         return;
@@ -215,6 +229,7 @@
       var row = event.target.closest('[data-find-id]');
       if (row) {
         var e = window.PulseExplore.exercises[Number(row.dataset.findId)], m = browse.muscle;
+        returnToFind = { scroll: list.scrollTop };
         closeFind(true); ui.openMuscleExercise(m !== 'Alla' && m !== 'Kondition' && e.muscles.indexOf(m) >= 0 ? m : e.muscles[0], e.id);
       }
     });
@@ -222,7 +237,7 @@
     window.PulseExploreSearch = { open: openFind, close: closeFind };
     // Opened again from the training page: start on the body, without reloading anything.
     window.PulseGymReset = function () {
-      closeFind(true);
+      returnToFind = null; closeFind(true);
       if (scene.isOpen()) { scene.leave(true); document.documentElement.classList.remove('gm-scene-open'); }
       figure.classList.remove('gm-zooming'); figure.style.transformOrigin = '';
       showBody(); window.scrollTo(0, 0);
