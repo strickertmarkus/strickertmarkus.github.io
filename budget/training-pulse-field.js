@@ -276,6 +276,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   }
   function wireProfileLinks() {
     byId('profile-name').textContent=profile==='maja'?'Maja':'Markus Strickert';
+    if(byId('field-hero-script'))byId('field-hero-script').textContent=(profile==='maja'?'Majas':'Markus')+' pass och plan';
     document.querySelectorAll('[data-field-profile]').forEach(function(link){
       var target=new URL(location.href);
       if(link.dataset.fieldProfile==='maja')target.searchParams.set('user','maja');else target.searchParams.delete('user');

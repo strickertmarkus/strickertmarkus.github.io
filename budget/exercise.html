@@ -35,7 +35,7 @@
   <script defer src="firebase-sync.js?v=20261105-bodyweight-backfill-1"></script>
 <script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261012-milestones-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="training-zen-plans.js?v=20261103-zen-done-1"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261106-hero-1"></script>
+  <script defer src="training-pulse-field.js?v=20261106-texts-1"></script>
   <script defer src="training-pulse-editor.js?v=20261106-plans-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261103-multipass-import-4"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
@@ -119,7 +119,7 @@
       <div class="hero-copy">
         <p class="eyebrow"><span class="spark-symbol"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg></span> PULSE / FIELD</p>
         <h1 id="field-title">Träning</h1>
-        <p class="hero-script">styrka i rörelse.</p>
+        <p class="hero-script" id="field-hero-script">Markus pass och plan</p>
       </div>
 
       <div class="field-start-area">
@@ -135,7 +135,7 @@
         <span class="field-explore-star" aria-hidden="true"><svg viewBox="0 0 48 48"><defs><radialGradient id="explore-star-fill" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#fff6ee"/><stop offset=".45" stop-color="#ffc2b2"/><stop offset="1" stop-color="#ff657a"/></radialGradient></defs><path d="M24 4c1.3 10.6 5.4 14.7 16 16-10.6 1.3-14.7 5.4-16 16-1.3-10.6-5.4-14.7-16-16 10.6-1.3 14.7-5.4 16-16z" fill="url(#explore-star-fill)"/><path d="M38 31c.5 3.6 1.9 5 5.5 5.5-3.6.5-5 1.9-5.5 5.5-.5-3.6-1.9-5-5.5-5.5 3.6-.5 5-1.9 5.5-5.5z" fill="#ffd2bd" opacity=".75"/></svg></span>
         <span class="field-explore-copy">
           <strong>Utforska övningar</strong>
-          <span class="eyebrow">Kroppen · gymmet · programmen</span>
+          <span class="eyebrow">Övningar, program och planer</span>
         </span>
       </a>
 
@@ -164,8 +164,8 @@
 
     <section class="rhythm-section" id="rhythm-field" aria-labelledby="rhythm-title">
       <div class="section-intro">
-        <p class="eyebrow">VECKANS SIGNAL</p>
-        <h2 id="rhythm-title">Din rytm, i ett ögonblick.</h2>
+        <p class="eyebrow">DENNA VECKA</p>
+        <h2 id="rhythm-title">Veckans träning</h2>
       </div>
       <div class="rhythm-layout">
         <div class="rhythm-primary" role="button" tabindex="0" data-field-action="goals" aria-label="Redigera veckomål och VO₂">
@@ -177,8 +177,8 @@
             <dl class="rhythm-facts">
               <div><dt>Pass denna vecka</dt><dd id="rhythm-message"></dd></div>
               <div><dt>Nästa</dt><dd id="rhythm-next"></dd></div>
-              <div><dt>Rörelse · belastning</dt><dd class="rhythm-load"><span id="week-minutes">0</span> min · <span id="week-volume">0 kg</span></dd></div>
-            <div><dt>Återhämtning denna vecka</dt><dd id="rhythm-zen-facts" class="rhythm-zen-facts" aria-label="Stretch och meditation separat från veckans träningsmål"></dd></div>
+              <div><dt>Tid · lyft vikt</dt><dd class="rhythm-load"><span id="week-minutes">0</span> min · <span id="week-volume">0 kg</span></dd></div>
+            <div><dt>Stretch och meditation</dt><dd id="rhythm-zen-facts" class="rhythm-zen-facts" aria-label="Stretch och meditation separat från veckans träningsmål"></dd></div>
             </dl>
           </div>
         </div>
@@ -187,7 +187,7 @@
 
     <section class="field-section week-section" id="week-field" aria-labelledby="week-title">
       <div class="section-head">
-        <div><p class="eyebrow">PLANERA RYTMEN</p><h2 id="week-title">Veckofält</h2></div>
+        <div><p class="eyebrow">PLANERING</p><h2 id="week-title">Veckofält</h2></div>
         <div class="section-head-actions">
           <a class="planner-calendar-entry" aria-label="Mallpass: bygg eller redigera ett återanvändbart pass" title="Mallpass" href="#week-field" data-field-action="create-template"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="13.5" height="13.5" rx="2.5"/><path d="M3.5 7.5v10.5A2.5 2.5 0 0 0 6 20.5h10.5"/><path d="M13.75 7v6.5M10.5 10.25H17"/></svg></a>
           <a class="planner-calendar-entry" aria-label="Öppna vecko- och månadsplaneraren" title="Planera träning" id="edit-week-link" href="#week-field" data-field-action="week"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h1M12 14h1M16 14h1M8 17.5h1M12 17.5h1"/></svg></a>
