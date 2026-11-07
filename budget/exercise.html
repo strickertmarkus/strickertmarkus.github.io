@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261106-hero-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261107-t-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -35,8 +35,8 @@
   <script defer src="firebase-sync.js?v=20261105-bodyweight-backfill-1"></script>
 <script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261106-actual-steps-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="training-zen-plans.js?v=20261106-step3-1"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261106-step3-1"></script>
-  <script defer src="training-pulse-editor.js?v=20261106-step3-1"></script>
+  <script defer src="training-pulse-field.js?v=20261107-t-1"></script>
+  <script defer src="training-pulse-editor.js?v=20261107-t-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261103-multipass-import-4"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -187,7 +187,7 @@
 
     <section class="field-section week-section" id="week-field" aria-labelledby="week-title">
       <div class="section-head">
-        <div><p class="eyebrow">PLANERING</p><h2 id="week-title">Veckofält</h2></div>
+        <div><p class="eyebrow">PLANERING</p><h2 id="week-title">Veckoplan</h2></div>
         <div class="section-head-actions">
           <a class="planner-calendar-entry" aria-label="Mallpass: bygg eller redigera ett återanvändbart pass" title="Mallpass" href="#week-field" data-field-action="create-template"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3.5" width="13.5" height="13.5" rx="2.5"/><path d="M3.5 7.5v10.5A2.5 2.5 0 0 0 6 20.5h10.5"/><path d="M13.75 7v6.5M10.5 10.25H17"/></svg></a>
           <a class="planner-calendar-entry" aria-label="Öppna vecko- och månadsplaneraren" title="Planera träning" id="edit-week-link" href="#week-field" data-field-action="week"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M7.5 3v4M16.5 3v4M3.5 10h17M8 14h1M12 14h1M16 14h1M8 17.5h1M12 17.5h1"/></svg></a>
@@ -224,7 +224,7 @@
         <div class="view-tabs progress-tabs" role="tablist" aria-label="Välj graf">
         <button type="button" role="tab" id="progress-tab-rhythm" data-progress-tab="rhythm" aria-selected="true" aria-controls="activity-field">Rytm</button>
         <button type="button" role="tab" id="progress-tab-volume" data-progress-tab="volume" aria-selected="false" aria-controls="exercise-volume">Volym</button>
-        <button type="button" role="tab" id="progress-tab-body" data-progress-tab="body" aria-selected="false" aria-controls="insights">Mått</button>
+        <button type="button" role="tab" id="progress-tab-body" data-progress-tab="body" aria-selected="false" aria-controls="insights">Puls &amp; kondition</button>
         </div>
         <div class="segmented progress-range" id="progress-range" role="group" aria-label="Tidsperiod för graferna" hidden>
           <button type="button" data-chart-range="all" aria-pressed="true">Allt</button>
@@ -306,6 +306,10 @@
           <a class="planner-calendar-entry" id="log-action-link" href="#training-log" data-field-action="log" aria-label="Logga ett nytt pass" title="Logga pass"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg></a>
           <a class="planner-calendar-entry" id="log-edit-latest" href="#training-log" data-field-action="edit-log" aria-label="Redigera senaste passet" title="Redigera senaste passet" hidden><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4L15.8 5.2a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.5 18.5z"/><path d="M13.5 7.5l3 3"/></svg></a>
         </div>
+      </div>
+      <div class="log-filter" id="log-filter" role="search" hidden>
+        <input type="search" id="log-search" placeholder="Sök pass eller övning" aria-label="Sök i träningsloggen" autocomplete="off" enterkeyhint="search">
+        <select id="log-month" aria-label="Filtrera på månad"><option value="">Alla månader</option></select>
       </div>
       <div class="log-timeline" id="log-timeline"></div>
     </section>

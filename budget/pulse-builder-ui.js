@@ -544,6 +544,13 @@ function buildTop(modal){
  bar.innerHTML='<span class="pbu-settings-meta"></span><span class="pbu-settings-label"><svg class="pbu-gear" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Inställningar</span><i class="pbu-chev" aria-hidden="true"></i>';
  modalBox.insertBefore(kicker,modalBox.firstChild);
  modalBox.appendChild(bar);
+ // T01: the template choice sits under the name; a note says what an edit changes.
+ var group=modal.querySelector('.classic-template-group');
+ if(group&&!group.querySelector('.pbu-template-note')){var note=document.createElement('p');note.className='pbu-template-note';note.hidden=true;group.appendChild(note);}
+ // T02: the main button follows the day: plan ahead, train today, log what is done.
+ var footer=modal.querySelector('.classic-builder-footer');
+ if(footer&&!footer.querySelector('.pbu-intent-note')){var hint=document.createElement('p');hint.className='pbu-intent-note';hint.hidden=true;footer.appendChild(hint);}
+ var dateField=byId('day-workout-date');if(dateField)dateField.addEventListener('change',function(){paintTop(modal);});
  bar.addEventListener('click',function(){
   var open=!modal.classList.contains('pbu-settings-open');
   modal.classList.toggle('pbu-settings-open',open);
@@ -558,8 +565,22 @@ function paintTop(modal){
  if(kicker.textContent!==k)kicker.textContent=k;
  var sel=byId('day-workout-template-select'),tpl=sel&&sel.value&&sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].textContent:'';
  var type=(byId('day-workout-type')||{}).value||'';
- var meta=[type,tpl?'Mall: '+tpl:''].filter(Boolean).join(' · ');
- var m=modal.querySelector('.pbu-settings-meta');if(m.textContent!==meta)m.textContent=meta;
+ var m=modal.querySelector('.pbu-settings-meta');if(m.textContent!==type)m.textContent=type;
+ var editing=modal.classList.contains('classic-template-edit-mode');
+ var note=modal.querySelector('.pbu-template-note');
+ if(note){var nt=tpl&&!editing?'Ändringar här gäller bara den här dagen. Pennan ändrar själva mallen.':'';if(note.textContent!==nt)note.textContent=nt;note.hidden=!nt;}
+ paintIntent(modal,editing);
+}
+function localISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function paintIntent(modal,editing){
+ var date=(byId('day-workout-date')||{}).value||modal.dataset.date||'',today=localISO(new Date());
+ var intent=editing||!date||date>today?'save':date===today?'start':'log';
+ if(modal.dataset.pbuIntent!==intent)modal.dataset.pbuIntent=intent;
+ var save=modal.querySelector('.classic-save-pass'),log=modal.querySelector('.classic-log-pass');
+ if(save&&!editing&&save.textContent!=='Spara planering')save.textContent='Spara planering';
+ if(log&&log.textContent!=='Logga genomfört pass')log.textContent='Logga genomfört pass';
+ var hint=modal.querySelector('.pbu-intent-note');
+ if(hint){var t=intent==='start'?'Planeringen för dagen sparas också.':intent==='log'?'Planeringen för dagen sparas också.':'';if(hint.textContent!==t)hint.textContent=t;hint.hidden=!t;}
 }
 
 /* ---------- Wiring ---------- */

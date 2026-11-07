@@ -554,16 +554,16 @@ if(!window.__FIELD_EMBEDDED__){
 .archive-return:hover{background:#28202a}
 </style>
 <script defer src="training-overlay.js?v=20261026-energy-loop-4"></script>
-<link rel="stylesheet" href="training-pulse-embedded.css?v=20261106-step3-1">
+<link rel="stylesheet" href="training-pulse-embedded.css?v=20261107-t-1">
 <link rel="stylesheet" href="training-pulse-classic-builder-v1.css?v=20261103-log-day-1">
 <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-<link rel="stylesheet" href="pulse-builder-ui.css?v=20261103-between-inline-1">
+<link rel="stylesheet" href="pulse-builder-ui.css?v=20261107-t-1">
 <link rel="stylesheet" href="pulse-tools-ui.css?v=20261029-plan-2">
 <link rel="stylesheet" href="pulse-log-ui.css?v=20261103-setlog-2">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261103-history-back-3"></script>
 <script defer src="pulse-explore.js?v=20261106-plans-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261103-between-inline-1"></script>
+<script defer src="pulse-builder-ui.js?v=20261107-t-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261020-surfaces-4"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-drag-2">
@@ -1036,9 +1036,9 @@ if(!window.__FIELD_EMBEDDED__){
       <button class="btn-ghost" onclick="pulsePlanCancelBuilderV3()">Tillbaka</button>
       <button class="btn-sm classic-save-as-template" type="button" onclick="pulseClassicSaveAsTemplate()">Spara som mall</button>
       <button class="btn-sm classic-start-pass" type="button" onclick="startDayWorkoutFromBuilder()">Starta pass</button>
-      <button class="btn-sm classic-log-pass" type="button" onclick="logDayWorkoutFromBuilder()" title="Logga passet direkt, utan träningsläget">Logga pass</button>
+      <button class="btn-sm classic-log-pass" type="button" onclick="logDayWorkoutFromBuilder()" title="Logga passet direkt, utan träningsläget">Logga genomfört pass</button>
       <button class="btn-sm classic-rest-day" type="button" onclick="setDayWorkoutRest()" aria-label="Gör dagen till vilodag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>Vilodag</button>
-      <button class="btn-primary classic-save-pass" type="button" onclick="saveDayWorkoutPlan()">Spara passupplägg</button>
+      <button class="btn-primary classic-save-pass" type="button" onclick="saveDayWorkoutPlan()">Spara planering</button>
     </div>
     <div id="day-workout-multipass" class="day-workout-multipass" aria-label="Flera pass på samma dag"></div>
   </div>
@@ -1068,11 +1068,15 @@ if(!window.__FIELD_EMBEDDED__){
           <div id="session-set-log"></div>
         </div>
         <div class="session-complete" id="session-complete-box">
-          <div style="font-size:14px;font-weight:700;margin-bottom:10px">Passet är klart</div>
-          <div class="form-row">
-            <div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="session-hr" min="40" max="230" placeholder="145"></div>
-            <div class="form-group"><label>VO2 max (valfritt)</label><input type="number" id="session-vo2" min="10" max="100" step="0.1" placeholder="45"></div>
-          </div>
+          <div class="session-summary-kicker">Passet är klart</div>
+          <div id="session-summary" class="session-summary"></div>
+          <details class="session-metrics">
+            <summary>Puls och VO2 <span>valfritt</span></summary>
+            <div class="form-row">
+              <div class="form-group"><label>Medelpuls (bpm)</label><input type="number" id="session-hr" min="40" max="230" placeholder="145"></div>
+              <div class="form-group"><label>VO2 max</label><input type="number" id="session-vo2" min="10" max="100" step="0.1" placeholder="45"></div>
+            </div>
+          </details>
           <div class="session-cta-row">
             <button class="session-cta success" type="button" onclick="saveSessionWorkout()">Spara pass</button>
           </div>
@@ -2964,6 +2968,7 @@ function startWorkoutSessionForDate(iso,extraId){
   };
   sessionState.exercises.forEach(function(){sessionState.logs.push([]);});
   document.getElementById('session-hr').value='';
+  var metrics=document.querySelector('#session-complete-box .session-metrics');if(metrics)metrics.open=false;
   document.getElementById('session-vo2').value='';
   document.getElementById('session-complete-box').classList.remove('show');
   document.getElementById('session-modal').classList.add('show');
@@ -3022,6 +3027,29 @@ function useSessionWeightHint(weight){
   ex.weight=Number(weight);renderSessionMode();
 }
 
+/* T03: the finished pass shows what was done first; pulse and VO2 are optional below. Missing values stay missing. */
+function renderSessionSummary(){
+  var box=document.getElementById('session-summary');if(!box||!sessionState)return;
+  var work=sessionDoneWork(),wk={date:sessionState.date,type:canonicalWorkoutType(sessionState.type,sessionState.exercises),exercises:work.exercises};
+  var strength=work.exercises.filter(function(e){return e.kind!=='cardio';}),cardio=work.exercises.filter(function(e){return e.kind==='cardio';});
+  var sets=strength.reduce(function(n,e){return n+(e.logs?e.logs.length:Number(e.sets)||0);},0);
+  var volume=strength.length?calcVol(wk):0,run=cardio.length?workoutRunMetrics(wk):{};
+  var tile=function(v,l){return '<div><b>'+v+'</b><small>'+l+'</small></div>';},tiles=[tile(Math.round(work.totalSec/60)+' min','Tid')];
+  if(cardio.length&&run.distance>0)tiles.push(tile(String(+Number(run.distance).toFixed(2)).replace('.',',')+' km','Distans'));
+  if(cardio.length&&run.pace)tiles.push(tile(formatRunningPace(run.pace),'Tempo'));
+  if(strength.length)tiles.push(tile(sets,'Set'));
+  if(volume>0)tiles.push(tile(Math.round(volume).toLocaleString('sv-SE')+' kg','Volym'));
+  var rows=work.exercises.map(function(e){
+    var what=e.kind==='cardio'?[e.distance?String(e.distance).replace('.',',')+' km':'',e.time?formatCardioTime(e.time):''].filter(Boolean).join(' · ')||'Genomförd'
+      :(e.logs||[]).map(function(l){return l.actualReps;}).join(' · ')+' reps'+(e.weightMode==='bodyweight'?' · kroppsvikt':e.weight?' · '+String(e.weight).replace('.',',')+' kg':'');
+    return '<li><span>'+escHtml(e.name)+'</span><em>'+escHtml(what)+'</em></li>';
+  }).join('');
+  var planned=sessionState.exercises.length,done=work.exercises.length;
+  box.innerHTML='<strong class="session-summary-name">'+escHtml(sessionState.name||wk.type)+'</strong>'+
+    (done<planned?'<p class="session-summary-partial">'+done+' av '+planned+' övningar genomförda</p>':'')+
+    '<div class="session-summary-tiles">'+tiles.join('')+'</div>'+(rows?'<ul class="session-summary-list">'+rows+'</ul>':'<p class="session-summary-partial">Inga set loggade.</p>');
+}
+
 function renderSessionMode(){
   if(!sessionState)return;
   var doneAll=sessionState.exerciseIndex>=sessionState.exercises.length;
@@ -3037,7 +3065,8 @@ function renderSessionMode(){
   if(doneAll){
     controls.className='session-cta-row';
     currentExEl.textContent='Alla övningar klara';
-    currentTargetEl.textContent='Kontrollera puls/VO2 och spara passet.';
+    currentTargetEl.textContent='';
+    renderSessionSummary();
     document.getElementById('session-complete-box').classList.add('show');
   } else {
     document.getElementById('session-complete-box').classList.remove('show');
@@ -3194,8 +3223,8 @@ function openSessionEndChoice(loggedSets){
   box.hidden=false;box.querySelector('[data-end="save"]').focus();
 }
 
-function saveSessionWorkout(){
-  if(!sessionState||sessionState.saving)return;
+/* What was actually done in the running session: the source for the summary and the saved log. */
+function sessionDoneWork(){
   var totalSec=Math.max(60,Math.round((Date.now()-sessionState.passStartedAt)/1000));
   var exercises=[];
   var exerciseTimings=[];
@@ -3217,6 +3246,12 @@ function saveSessionWorkout(){
     }
     exerciseTimings.push({name:ex.name,durationSec:dur,exerciseIndex:exercises.length-1});
   });
+  return {totalSec:totalSec,exercises:exercises,exerciseTimings:exerciseTimings};
+}
+
+function saveSessionWorkout(){
+  if(!sessionState||sessionState.saving)return;
+  var work=sessionDoneWork(),totalSec=work.totalSec,exercises=work.exercises,exerciseTimings=work.exerciseTimings;
   if(!exercises.length){showToast('Inga set loggade ännu.');return;}
   sessionState.saving=true; // a double tap must not create a second log entry
   var hrAvg=parseInt(document.getElementById('session-hr').value,10)||null;
@@ -4237,6 +4272,6 @@ window.addEventListener('firebase-sync',function(event){
 <script src="pulse-plans.js?v=20261106-step3-1"></script>
 <script src="training-month-planner.js?v=20261106-plans-1"></script>
 <script src="training-pass-autofill.js?v=20261031-cardio-name-1"></script>
-<script src="training-pulse-classic-templates-v1.js?v=20261104-save-tpl-1"></script>
+<script src="training-pulse-classic-templates-v1.js?v=20261107-t-1"></script>
 </body>
 </html>

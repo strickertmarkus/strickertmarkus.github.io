@@ -60,7 +60,7 @@ function refreshMode(){
  var title=byId('day-workout-title');
  if(title&&editing)title.textContent=editTemplateId?'Redigera mallpass':'Skapa mallpass';
  var btn=box.querySelector('.classic-save-pass');
- if(btn)btn.textContent=editing?'Spara mallpass':'Spara passupplägg';
+ if(btn)btn.textContent=editing?'Spara mallpass':'Spara planering';
  var inline=byId('day-workout-inline-template');
  if(inline)inline.hidden=true;
  var del=box.querySelector('.classic-delete-template');

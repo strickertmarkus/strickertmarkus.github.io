@@ -1424,16 +1424,40 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var icon=rest?'<svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg>':PK_ICON.clock;
     return '<small class="exercise-between'+(rest?' is-rest':'')+'">'+icon+escapeHtml((rest?'Vila':String(cfg.name||'Övning').trim()||'Övning')+' · '+secs+' s '+where)+'</small>';
   }
+  /* T04: search by pass or exercise name and filter by month; the timeline itself stays the same. */
+  var MONTH_NAMES=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
+  function filterLog(all){
+    var box=byId('log-filter'),search=byId('log-search'),month=byId('log-month');
+    if(!box||!search||!month)return all;
+    box.hidden=all.length<2;
+    var months=[];all.forEach(function(w){var m=String(w.date||'').slice(0,7);if(/^\d{4}-\d{2}$/.test(m)&&months.indexOf(m)<0)months.push(m);});
+    var chosen=month.value,signature=months.join(',');
+    if(month.dataset.months!==signature){
+      month.dataset.months=signature;
+      month.innerHTML='<option value="">Alla månader</option>'+months.map(function(m){return '<option value="'+m+'">'+MONTH_NAMES[Number(m.slice(5))-1].replace(/^./,function(c){return c.toUpperCase();})+' '+m.slice(0,4)+'</option>';}).join('');
+      month.value=months.indexOf(chosen)>=0?chosen:'';
+    }
+    var query=search.value.trim().toLowerCase(),m=month.value;
+    if(!query&&!m)return all;
+    return all.filter(function(w){
+      if(m&&String(w.date||'').slice(0,7)!==m)return false;
+      if(!query)return true;
+      var text=[workoutTitle(w),workoutType(w),w.notes||''].concat((w.exercises||[]).map(function(e){return e&&e.name||'';})).join(' ').toLowerCase();
+      return query.split(/\s+/).every(function(word){return text.indexOf(word)>=0;});
+    });
+  }
   function renderLog() {
     var allWorkouts=data.workouts.slice().sort(function(a,b){
       return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);
     });
-    var workouts=allWorkouts.slice(0,state.logVisibleCount);
     var editLatest=byId('log-edit-latest');
     if(editLatest){editLatest.hidden=!allWorkouts.length;if(allWorkouts.length)editLatest.dataset.workoutId=String(allWorkouts[0].id);}
+    var filtered=filterLog(allWorkouts),filtering=filtered!==allWorkouts;
+    allWorkouts=filtered;
+    var workouts=allWorkouts.slice(0,state.logVisibleCount);
     var timeline=byId('log-timeline');
     if(!workouts.length){
-      timeline.innerHTML='<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';
+      timeline.innerHTML=filtering?'<p class="log-empty">Inga pass matchar sökningen.</p>':'<p class="log-empty">Inga loggade pass ännu. De kommer att visas här som en tidslinje.</p>';
       return;
     }
     if(params.get('demo')==='1'&&!state.logTouched&&state.openLogId===null) {
@@ -1604,6 +1628,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       var edit=event.target.closest('[data-record-edit-slot]');
       if(edit)setRecordPicker(true,number(edit.dataset.recordEditSlot));
     });
+    ['log-search','log-month'].forEach(function(id){var el=byId(id);if(el)el.addEventListener(id==='log-search'?'input':'change',function(){state.logVisibleCount=8;state.openLogId=null;renderLog();});});
     document.addEventListener('click',function(event){
       if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);
       var loadMore=event.target.closest('[data-log-more]');

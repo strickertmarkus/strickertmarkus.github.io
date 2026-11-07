@@ -1222,3 +1222,13 @@ html body #field-menu #training-overview-toggle .training-overview-toggle-icon{d
 
 .start-orbit-meta{max-width:112px}
 @media(max-width:760px){.start-orbit-meta{max-width:112px}}
+
+/* T04: log search and month filter */
+.log-filter{display:flex;gap:8px;margin:0 0 14px}
+.log-filter[hidden]{display:none}
+.log-filter input,.log-filter select{height:42px;border:1px solid #ffffff1c;border-radius:999px;background:#ffffff08;color:#f2eded;font:500 16px Inter,system-ui,sans-serif;outline:none}
+.log-filter input{flex:1 1 auto;min-width:0;padding:0 16px 0 38px;background:#ffffff08 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a5a0ae' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='M16 16l4 4'/%3E%3C/svg%3E") 13px center/17px no-repeat}
+.log-filter input::placeholder{color:#8d8794}
+.log-filter select{flex:0 0 auto;max-width:44%;padding:0 30px 0 14px;-webkit-appearance:none;appearance:none;background:#ffffff08 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a5a0ae' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E") right 10px center/15px no-repeat}
+.log-filter select option{color:#111}
+.log-filter :is(input,select):focus-visible{border-color:#ff9a9166}
