@@ -138,6 +138,7 @@
     // Statistics for the chosen period: this week (days), this month (days) or this year (months).
     const now=Date.now(),st=M.stats(records(),kind,now),bars=M.period(records(),kind,now,statsRange),total=bars.reduce((n,d)=>n+d.minutes,0);
     const periodWord={week:'denna vecka',month:'denna månad',year:'i år'}[statsRange];
+    $('period-scope').textContent={week:'Denna vecka',month:'Denna månad',year:'I år'}[statsRange];$('muscle-groups-title').textContent='Mest stretchat '+periodWord;
     $('weekly-minutes').innerHTML=escape(Number(total.toFixed(1)).toLocaleString('sv-SE'))+'<small>minuter</small>';$('weekly-copy').textContent=total?'Sammanlagd tid '+periodWord+'.':'Inga pass sparade '+periodWord+'.';
     $('total-minutes').textContent=st.minutes;$('total-sessions').textContent=st.count;$('streak-days').textContent=st.streak;
     document.querySelectorAll('[data-stats-range]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.statsRange===statsRange)));

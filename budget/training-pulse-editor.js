@@ -24,7 +24,7 @@ function makeDialog(){
  dialog.id='field-workspace';dialog.className='field-workspace';
  // Its motion is driven here (pulse-motion.js): opt out of the generic dialog fade,
  // whose late exit transition made the page flicker after closing.
- dialog.dataset.menuMotion='';dialog.dataset.surfaceDialog='';dialog.setAttribute('aria-label','Passverktyg');
+ dialog.dataset.menuMotion='';dialog.dataset.surfaceDialog='';dialog.dataset.ownScrollLock='';dialog.setAttribute('aria-label','Passverktyg');
  dialog.innerHTML='<section class="field-workspace-shell"><header class="field-workspace-header"><div><strong id="field-workspace-title">Passverktyg</strong><small>Pulse Field · träning</small></div><button type="button" class="field-workspace-close" id="field-workspace-close" aria-label="Stäng passverktyget"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></header><p class="field-workspace-status" id="field-workspace-status" role="status">Öppnar passverktyg…</p><div id="field-workspace-container" class="field-workspace-shell" style="flex:1;min-height:0;height:auto"></div></section>';
  document.body.appendChild(dialog);
  $('field-workspace-close').addEventListener('click',requestClose);
@@ -169,6 +169,8 @@ function closeWorkspace(){
  function after(){
   if(token!==closeToken){if(held)held.removeAttribute('data-pm-hold');return;}
   delete dialog.dataset.closing;dialog.inert=false;if(dialog.open)dialog.close();
+  // Focus returns to the control the tool grew out of (or the menu button).
+  if(target&&target.getClientRects().length)target.focus({preventScroll:true});
   if(held)held.removeAttribute('data-pm-hold');
   requestAnimationFrame(function(){dialog.style.clipPath='';dialog.style.opacity='';});
  }

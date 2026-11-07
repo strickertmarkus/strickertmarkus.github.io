@@ -25,12 +25,49 @@ function remove(element){
 
 const dialogMotions=new WeakMap(),closingDialogs=new WeakSet(),disclosures=new WeakMap();
 const ease='cubic-bezier(.22,1,.36,1)';
+// One behaviour for every dialog opened here: background scroll is locked while
+// one is open, and focus returns to the control that opened it, even when that
+// control was re-rendered in the meantime (found again by id or data attribute).
+const openers=new WeakMap();
+function syncScrollLock(){
+ if(!document.getElementById('surface-dialog-lock-style')){
+  const style=document.createElement('style');style.id='surface-dialog-lock-style';
+  style.textContent='html.surface-dialog-lock{overflow:hidden;overscroll-behavior:none}';
+  document.head.appendChild(style);
+ }
+ document.documentElement.classList.toggle('surface-dialog-lock',!!document.querySelector('dialog[data-surface-dialog][open]:not([data-own-scroll-lock])'));
+}
+function anotherModalOpen(){
+ try{return !!document.querySelector('dialog[open]:modal');}catch(_){return !!document.querySelector('dialog[open]');}
+}
+document.addEventListener('close',e=>{if(e.target.matches?.('dialog[data-surface-dialog]'))syncScrollLock();},true);
+function openerKey(el){
+ if(el.id)return '#'+CSS.escape(el.id);
+ const attr=[...el.attributes].find(a=>a.name.startsWith('data-')&&a.value);
+ return attr?el.tagName.toLowerCase()+'['+attr.name+'="'+CSS.escape(attr.value)+'"]':'';
+}
+function rememberOpener(dialog){
+ const el=document.activeElement;
+ if(!el||el===document.body||dialog.contains(el))return;
+ openers.set(dialog,{el,key:openerKey(el)});
+ dialog.addEventListener('close',()=>{
+  const from=openers.get(dialog);openers.delete(dialog);
+  const now=document.activeElement;
+  // Leave focus alone when the page already moved it somewhere on purpose.
+  if(!from||(now&&now!==document.body&&!dialog.contains(now))||anotherModalOpen())return;
+  let target=from.el.isConnected?from.el:null;
+  if(!target&&from.key)try{target=document.querySelector(from.key);}catch(_){}
+  if(target&&target.getClientRects().length)target.focus({preventScroll:true});
+ },{once:true});
+}
 function showDialog(dialog){
+ if(!dialog.open)rememberOpener(dialog);
  closingDialogs.delete(dialog);
  const previous=dialogMotions.get(dialog),opacity=previous?getComputedStyle(dialog).opacity:0,translate=previous?getComputedStyle(dialog).translate:'0 -6px';
  previous?.cancel();dialogMotions.delete(dialog);
  dialog.dataset.menuMotion='';dialog.dataset.surfaceDialog='';dialog.inert=false;
  if(!dialog.open)dialog.showModal();
+ syncScrollLock();
  if(reduced())return;
  const motion=dialog.animate([{opacity,translate},{opacity:1,translate:'none'}],{duration:190,easing:ease});
  dialogMotions.set(dialog,motion);
