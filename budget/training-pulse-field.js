@@ -495,7 +495,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       counts[e.kind]++;
     }
     if(cloudZenEntries)Object.keys(cloudZenEntries).forEach(function(id){add(cloudZenEntries[id]);});
-    if(window.ZenStore&&ZenStore.ready)ZenStore.entries.forEach(add);
+    // ZenStore (loaded on this page) already merges this device's and the account's Zen sessions.
+    if(window.ZenStore&&ZenStore.ready){ZenStore.entries.forEach(add);return out;}
     try{
       var uid=window.firebase&&firebase.auth().currentUser&&firebase.auth().currentUser.uid;
       for(var i=0;i<localStorage.length;i++){
@@ -523,9 +524,14 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     renderRhythm();renderWeek();renderActivity();
   }
   function listenCloudZen(){
-    // The dashboard otherwise only sees Zen sessions that this device has
-    // previously opened. This read-only Firebase subscription brings the
-    // latest completed sessions onto another device as well.
+    // P03: ZenStore owns the Zen subscription. Follow it instead of a second listener on the same data;
+    // its updates arrive in bursts (status, sync), so they are folded into one repaint per frame.
+    if(window.ZenStore&&ZenStore.subscribe){
+      var zenFrame=0;
+      ZenStore.subscribe(function(){if(!zenFrame)zenFrame=requestAnimationFrame(function(){zenFrame=0;repaintZen();});});
+      return;
+    }
+    // Fallback without ZenStore: a read-only subscription so sessions from other devices show up too.
     if(!window.firebase||!firebase.auth||!firebase.database)return;
     try{firebase.auth().onAuthStateChanged(function(user){
       if(cloudZenRef){cloudZenRef.off();cloudZenRef=null;}

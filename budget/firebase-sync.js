@@ -3,11 +3,11 @@
  * 
  * Syncs localStorage keys to Firebase Realtime Database for multi-device updates.
  * Self-contained: does NOT depend on indexeddb-fallback.js.
- * Uses polling for BOTH directions:
- *   - Reads from Firebase every 3s (remote → local)
+ * Realtime listeners for the keys this page uses, plus polling as a fallback:
+ *   - Reads from Firebase every 3s while the WebSocket is down, every 30s while it is up
  *   - Checks localStorage every 1s for changes to push (local → remote)
- * This avoids depending on monkey-patching localStorage.setItem,
- * which fails silently on iOS Safari with tracking prevention.
+ * Nothing polls while the page is hidden. The polling avoids depending on
+ * monkey-patching localStorage.setItem, which fails silently on iOS Safari.
  */
 
 let firebaseInitialized = false;
@@ -16,15 +16,17 @@ let authUser = null;
 let db = null;
 let syncEnabled = true;
 const syncQueue = {};
-let remotePollInterval = null;
+let remotePollTimer = null;
 let localPollInterval = null;
+let remotePolling = null;
+let lastRemotePollAt = 0;
+// True while the realtime WebSocket is up (Firebase '.info/connected'). Polling is then only a slow safety net.
+let realtimeConnected = false;
 const lastKnownValues = {};
 // Keys whose server value was actually read this session. A key the first load never
 // reached (e.g. the request failed) is not pushed from the local copy, which may be old.
 const remoteCheckedKeys = new Set();
 const isShoppingPage = /\/(?:budget\/)?shopping\.html$/i.test(window.location.pathname);
-let shoppingRefreshPromise = null;
-let lastShoppingRefreshAt = 0;
 console.log('[Firebase] firebase-sync.js v9 loaded');
 
 // Save REAL localStorage methods before any monkey-patching.
@@ -99,6 +101,19 @@ const SYNC_KEYS = [
   ...EXERCISE_KEYS.map(key => `${key}_maja`)
 ];
 
+/*
+ * Keys this page actually shows and edits. Realtime listeners and polling only cover these;
+ * the one-time load at start still reads every key, so other pages open with fresh data.
+ * Training pages: the active profile's training keys. Shopping: the list keys. Others: all.
+ */
+const LIVE_KEYS = isExercisePage
+  ? EXERCISE_KEYS.map(key => exerciseUser === 'maja' ? `${key}_maja` : key).concat('darkMode')
+  : isShoppingPage
+    ? SYNC_KEYS.filter(key => key.startsWith('sh_')).concat('darkMode')
+    : SYNC_KEYS.slice();
+const REMOTE_POLL_OFFLINE_MS = 3000;   // WebSocket down (seen on iOS): poll as before
+const REMOTE_POLL_ONLINE_MS = 30000;   // WebSocket up: listeners deliver, poll only as a safety net
+
 /** Safe write to localStorage (won't throw even if blocked on iOS) */
 function safeSetLocal(key, value) {
   try { _realSetItem(key, value); return true; }
@@ -169,7 +184,7 @@ async function bootstrapFirebaseSync(app) {
   await loadAllFromFirebase();
   await runBodyweight78Migration();
   setupRealtimeListeners();
-  startRemotePolling();
+  scheduleRemotePoll();
   startLocalPolling();
 }
 
@@ -394,12 +409,12 @@ async function loadAllFromFirebase() {
 }
 
 /**
- * Real-time listeners (WebSocket-based).
+ * Real-time listeners (WebSocket-based) for this page's keys.
  * May not work on iOS Safari — polling acts as fallback.
  */
 function setupRealtimeListeners() {
   if (!db) return;
-  for (const key of SYNC_KEYS) {
+  for (const key of LIVE_KEYS) {
     db.ref(key).on('value', (snapshot) => {
       if (!snapshot.exists()) return;
       handleRemoteUpdate(key, snapshot.val());
@@ -407,70 +422,123 @@ function setupRealtimeListeners() {
       console.warn(`[Firebase] Listener error '${key}':`, error.message);
     });
   }
-  console.log('[Firebase] Real-time listeners active');
+  try {
+    db.ref('.info/connected').on('value', (snapshot) => {
+      const connected = snapshot.val() === true;
+      if (connected === realtimeConnected) return;
+      realtimeConnected = connected;
+      scheduleRemotePoll();
+    });
+  } catch (_) { realtimeConnected = false; }
+  console.log(`[Firebase] Real-time listeners active (${LIVE_KEYS.length} keys)`);
 }
 
 /**
- * Poll Firebase every 3s for remote changes (fallback for broken WebSocket on iOS).
+ * Read this page's keys once from Firebase. A key with a local edit waiting to be pushed,
+ * or edited while the read ran, keeps the local value.
  */
-function startRemotePolling() {
-  if (remotePollInterval) return;
-  remotePollInterval = setInterval(async () => {
-    if (!db) return;
-    try {
-      for (const key of SYNC_KEYS) {
+async function pollRemoteOnce() {
+  if (!db) return;
+  if (remotePolling) return remotePolling;
+  lastRemotePollAt = Date.now();
+  remotePolling = (async () => {
+    for (const key of LIVE_KEYS) {
+      if (syncQueue[key]) continue;
+      const before = lastKnownValues[key];
+      try {
         const snapshot = await db.ref(key).get();
-        if (snapshot.exists()) {
+        if (snapshot.exists() && !syncQueue[key] && lastKnownValues[key] === before) {
           handleRemoteUpdate(key, snapshot.val());
         }
-      }
-    } catch (e) { /* retry next interval */ }
-  }, 3000);
-  console.log('[Firebase] Remote polling active (3s)');
+      } catch (error) { break; /* offline: retry next round */ }
+    }
+  })();
+  try { await remotePolling; } finally { remotePolling = null; }
 }
 
 /**
- * Poll localStorage (and IndexedDB on mobile) every 1s for local changes
- * to push to Firebase. This is the PRIMARY mechanism for detecting user edits,
- * because monkey-patching localStorage.setItem fails silently on iOS Safari.
- *
- * On Safari, localStorage writes may be blocked entirely, so user edits
- * go to IndexedDB instead (via indexeddb-fallback.js). We check both.
+ * Remote polling (fallback for a broken WebSocket on iOS). Every 3 s while the realtime
+ * connection is down, every 30 s while it is up, and not at all while the page is hidden.
  */
+function scheduleRemotePoll() {
+  clearTimeout(remotePollTimer);
+  remotePollTimer = null;
+  if (!db || document.hidden) return;
+  const delay = realtimeConnected ? REMOTE_POLL_ONLINE_MS : REMOTE_POLL_OFFLINE_MS;
+  remotePollTimer = setTimeout(async () => {
+    await pollRemoteOnce();
+    scheduleRemotePoll();
+  }, delay);
+}
+
+/**
+ * Push local changes that the setItem patch could not catch (iOS tracking prevention
+ * can make it fail silently; edits may then sit in IndexedDB via indexeddb-fallback.js).
+ */
+async function flushLocalChanges() {
+  if (!db || !syncEnabled) return;
+  for (const key of LIVE_KEYS) {
+    let currentValue = null;
+    try {
+      currentValue = _realGetItem(key);
+    } catch (e) { /* blocked */ }
+
+    if ((currentValue === null || currentValue === lastKnownValues[key])
+         && typeof fallbackGetItem !== 'undefined') {
+      try {
+        const idbValue = await fallbackGetItem(key);
+        if (idbValue !== null && idbValue !== lastKnownValues[key]) {
+          currentValue = idbValue;
+        }
+      } catch (e) { /* IndexedDB read failed */ }
+    }
+
+    if (currentValue !== null && currentValue !== lastKnownValues[key]) {
+      console.log(`[Firebase] Local change detected: '${key}'`);
+      lastKnownValues[key] = currentValue;
+      syncToFirebase(key, currentValue);
+    }
+  }
+}
+
+/** Check for local changes every second while the page is visible. */
 function startLocalPolling() {
-  if (localPollInterval) return;
-  for (const key of SYNC_KEYS) {
+  if (localPollInterval || document.hidden) return;
+  for (const key of LIVE_KEYS) {
     if (lastKnownValues[key] === undefined && !remoteCheckedKeys.has(key)) {
       try { lastKnownValues[key] = _realGetItem(key); } catch (_) {}
     }
   }
-  localPollInterval = setInterval(async () => {
-    if (!db || !syncEnabled) return;
-    for (const key of SYNC_KEYS) {
-      let currentValue = null;
-      try {
-        currentValue = _realGetItem(key);
-      } catch (e) { /* blocked */ }
-
-      if ((currentValue === null || currentValue === lastKnownValues[key])
-           && typeof fallbackGetItem !== 'undefined') {
-        try {
-          const idbValue = await fallbackGetItem(key);
-          if (idbValue !== null && idbValue !== lastKnownValues[key]) {
-            currentValue = idbValue;
-          }
-        } catch (e) { /* IndexedDB read failed */ }
-      }
-
-      if (currentValue !== null && currentValue !== lastKnownValues[key]) {
-        console.log(`[Firebase] Local change detected: '${key}'`);
-        lastKnownValues[key] = currentValue;
-        syncToFirebase(key, currentValue);
-      }
-    }
-  }, 1000);
-  console.log('[Firebase] Local polling active (1s)');
+  localPollInterval = setInterval(flushLocalChanges, 1000);
 }
+
+function stopLocalPolling() {
+  clearInterval(localPollInterval);
+  localPollInterval = null;
+}
+
+/*
+ * Hidden page (another tab, locked phone, Home Screen app in the background): push what is
+ * waiting and stop all polling. Back in view: read the latest once, then resume.
+ * This also covers the old shopping-only refresh on resume.
+ */
+function onPageHidden() {
+  if (!db) return;
+  flushLocalChanges();
+  stopLocalPolling();
+  clearTimeout(remotePollTimer);
+  remotePollTimer = null;
+}
+async function onPageShown() {
+  if (!db || document.hidden) return;
+  startLocalPolling();
+  if (Date.now() - lastRemotePollAt > 2000) await pollRemoteOnce();
+  scheduleRemotePoll();
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) onPageHidden(); else onPageShown(); });
+window.addEventListener('pagehide', onPageHidden);
+window.addEventListener('pageshow', onPageShown);
+window.addEventListener('focus', onPageShown);
 
 /**
  * Handle a remote update from Firebase (via listener OR polling).
@@ -522,39 +590,6 @@ Storage.prototype.setItem = function(key, value) {
     syncToFirebase(mappedKey, value);
   }
 };
-
-/** Refresh shopping data when an iOS Home Screen app returns from suspension. */
-async function refreshShoppingOnResume() {
-  if (!isShoppingPage || !db || !authUser || shoppingRefreshPromise) return;
-  const now = Date.now();
-  if (now - lastShoppingRefreshAt < 2000) return;
-  lastShoppingRefreshAt = now;
-
-  shoppingRefreshPromise = (async () => {
-    for (const key of SYNC_KEYS.filter(key => key.startsWith('sh_'))) {
-      if (syncQueue[key]) continue;
-      const before = lastKnownValues[key];
-      try {
-        const snapshot = await db.ref(key).get();
-        // A local edit made during the fetch takes precedence over this snapshot.
-        if (snapshot.exists() && !syncQueue[key] && lastKnownValues[key] === before) {
-          handleRemoteUpdate(key, snapshot.val());
-        }
-      } catch (error) {
-        console.warn(`[Firebase] Resume refresh failed '${key}':`, error.message);
-        break;
-      }
-    }
-  })();
-  try { await shoppingRefreshPromise; }
-  finally { shoppingRefreshPromise = null; }
-}
-
-window.addEventListener('pageshow', refreshShoppingOnResume);
-window.addEventListener('focus', refreshShoppingOnResume);
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) refreshShoppingOnResume();
-});
 
 /** Force reload all data from Firebase */
 async function forceSyncFromFirebase() {

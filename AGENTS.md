@@ -28,6 +28,20 @@
 - Exception: a really large task may run the relevant tests.
 - A quick syntax check of changed JavaScript and one preview screenshot of the changed UI are still fine.
 
+## Who owns which behaviour (change it there, do not patch over it)
+
+| Behaviour | Owner |
+| --- | --- |
+| Firebase sync, polling, which keys a page listens to | `budget/firebase-sync.js` (`LIVE_KEYS`, `scheduleRemotePoll`, `onPageHidden`/`onPageShown`) |
+| Zen data (sessions, own routines, cloud) | `budget/zen-store.js` — other pages read `ZenStore`, never their own Firebase listener |
+| Zen session clock and step time | `budget/zen-model.js` |
+| Zen session view and its 200 ms tick | `budget/zen.js` (`tick`) |
+| Training overview (hero, week, log, charts) | `budget/training-pulse-field.js` |
+| Pass builder layout and main button | `budget/pulse-builder-ui.js` + `.css` |
+| Running pass, summary and save | `budget/archive/exercise.html` (`sessionDoneWork`, `saveSessionWorkout`) |
+| Explorer figure draw loop | `budget/pulse-exercise-guide.html` (`animate`) |
+| Performance measuring | `budget/perf-hud.js` (`?perf=1` / `?perf=0`) |
+
 ## Design iteration mode
 
 When the user is still choosing or refining the visual style, prioritize short design iterations. This mode takes precedence over the full verification requirements below until the user says the style is settled or requests full verification.

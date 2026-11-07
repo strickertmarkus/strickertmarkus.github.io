@@ -176,17 +176,21 @@
   function showView(next){view=next;setTimeout(updateWakeLock,0);if(next!=='session')stopAmbient();if(next!=='session'){$('session-preparation').hidden=true;$('session-view').classList.remove('is-stretch-preparing');}syncViewTheme();for(const name of ['home','session','complete'])$(name+'-view').hidden=name!==next;document.body.classList.toggle('in-session',next!=='home');document.body.dataset.sessionView=next;document.dispatchEvent(new CustomEvent('zen:session-view',{detail:{view:next,kind}}));if(next==='home'){document.body.classList.remove('is-paused');document.title='Zen · Stretch och meditation';}window.scrollTo(0,0);}
   function confirm(title,message,yes,action){$('confirm-title').textContent=title;$('confirm-copy').textContent=message;$('confirm-yes').textContent=yes;$('confirm-no').textContent='Tillbaka';confirmAction=action;SurfaceMotion.showDialog($('confirm-dialog'));}
   $('confirm-yes').onclick=()=>{const action=confirmAction;confirmAction=null;SurfaceMotion.closeDialog($('confirm-dialog'));if(action)action();};$('confirm-no').onclick=()=>SurfaceMotion.closeDialog($('confirm-dialog'));$('confirm-dialog').addEventListener('close',()=>confirmAction=null);
-  function openSession(s){ending=false;document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=false);$('session-ending').hidden=true;$('session-view').classList.remove('clock-hidden','session-finished');$('clock-toggle').textContent='Dölj tiden';$('clock-toggle').setAttribute('aria-pressed','true');session=s;breathOffset=M.position(s,Date.now()).spent;setKind(s.routine.kind);lastStep=-1;lastPhase='';showView('session');$('session-routine-name').textContent=session.routine.name;updateSound();tick();$('session-title').focus();}
+  function openSession(s){ending=false;document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=false);$('session-ending').hidden=true;$('session-view').classList.remove('clock-hidden','session-finished');$('clock-toggle').textContent='Dölj tiden';$('clock-toggle').setAttribute('aria-pressed','true');session=s;pausedFrame='';breathOffset=M.position(s,Date.now()).spent;setKind(s.routine.kind);lastStep=-1;lastPhase='';showView('session');$('session-routine-name').textContent=session.routine.name;updateSound();tick();$('session-title').focus();}
   function startSession(force){
     force=force===true;
     if(!S.ready)return;
     if(S.active){confirm('Du har ett pågående pass','Fortsätt passet från startsidan eller avbryt det och starta ett nytt.','Starta nytt pass',()=>{S.setActive(null);startSession(force);});return;}
     const base=chosen(),routine=tempMinutes&&base.kind==='meditation'?{...base,seconds:tempMinutes*60}:base;session=M.start(routine,Date.now()+(routine.kind==='stretch'||prepare||force?5000:0),id());S.setActive(session);openSession(session);playDing();
   }
+  let pausedFrame='';
   function tick(){
     if(view!=='session'||!session||ending)return;
     const now=Date.now(),p=M.position(session,now);
     if(p.done){if(!ending){ending=true;stopAmbient();session=M.pause(session,now);S.setActive(session);$('session-ending').hidden=false;$('session-view').classList.add('session-finished');document.querySelectorAll('.session-top,.session-layout,.session-bottom').forEach(el=>el.inert=true);$('session-ending-title').focus();updateBreathAudio(false);document.dispatchEvent(new CustomEvent('zen:session-frame',{detail:{kind,paused:true,done:true,progress:1}}));playDing();}return;}
+    // P02: a paused session does not change between ticks. Repaint only when something
+    // does (resume, step change, seek, guidance switch) instead of five full frames a second.
+    if(session.paused){const sig=[session.elapsedMs,p.index,session.routine.guidance,breathOffset,$('session-view').className].join('|');if(sig===pausedFrame)return;pausedFrame=sig;}else pausedFrame='';
     const isStretch=session.routine.kind==='stretch',preparing=!session.paused&&now<session.anchor;
     // Keep the authoritative start anchor in the session model. This is only
     // the visual five-second countdown; no second clock or work time is added.

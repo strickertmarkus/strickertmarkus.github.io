@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="sv">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b12">
+<meta charset="utf-8">
+  <script>/* ?perf=1 shows the performance overlay, ?perf=0 hides it */try{var q=location.search;if(/[?&]perf=1/.test(q))localStorage.setItem("perfHud","1");if(/[?&]perf=0/.test(q))localStorage.removeItem("perfHud");if(localStorage.getItem("perfHud"))document.write('<script src="perf-hud.js?v=20261107-p02-1"><\/script>')}catch(e){}</script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#080b12">
 <title>Utforska träning · Pulse Field</title>
 <style>
 :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,sans-serif;--bg:#080b12;--surface:#0f141e;--line:#ffffff1c;--text:#f2eded;--muted:#a5a0ae;--plum:#dc958f;--cyan:#91e4ec;--orange:#f3b07b;--muscle:#ff806f}
@@ -908,13 +909,18 @@ function draw(t,cycle=phase){
  
 }
 let lastPaint=0;
+/* P02: the figure draws at most every 32 ms while the stage is open and playing. When nothing
+   can move (paused, list or body map in view, hidden tab) the loop drops to four checks a second
+   instead of keeping a 60 fps frame loop alive. */
 function animate(now){
  if(!last)last=now;const dt=Math.min(80,now-last);last=now;
  if(!paused&&studioOpen&&!listOpen&&document.visibilityState==='visible'&&!document.documentElement.classList.contains('pm-idle')&&!$('detail').hidden&&!$('guide-page').hidden){
   phase=(phase+dt/(['treadmill','bike','elliptical','stepper','farmerCarry'].includes(guideScenes[active].kind)?2200:['deadBug','birdDog'].includes(guideScenes[active].kind)?8000:4400))%1;
   if(now-lastPaint>=32){const tempo=window.PulseGuideStage?.tempo;draw(tempo?tempo(phase,guideScenes[active].kind):(1-Math.cos(phase*TAU))/2,phase);lastPaint=now;}
+  requestAnimationFrame(animate);
+ }else{
+  last=0;setTimeout(()=>requestAnimationFrame(animate),250);
  }
- requestAnimationFrame(animate);
 }
 
 function select(id,scroll){active=id;try{localStorage.setItem('pulse-last-exercise',String(id));}catch(e){}phase=0;cameraIndex=0;$('view-toggle').setAttribute('aria-pressed','false');$('view-toggle').textContent='Byt vy ↻';renderDetail();renderList();if(scroll&&matchMedia('(max-width:740px)').matches)$('detail').scrollIntoView({behavior:'smooth',block:'start'});}
