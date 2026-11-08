@@ -108,14 +108,23 @@
       return '<button type="button" data-dock="' + t[0] + '">' + ICONS[t[0]] + '<span>' + t[1] + '</span>' + (t[0] === 'pass' ? '<em class="gm-dock-badge" hidden></em>' : '') + '</button>';
     }).join('');
     document.body.appendChild(bar);
+    // Writes only what changed and never measures during a transition: the bar repaints on every
+    // class change of the page, including those the expand/collapse motion makes while it runs.
+    var dockState = '', dockHeight = 0;
+    function measureDock() { var h = bar.offsetHeight; if (h && h !== dockHeight) { dockHeight = h; document.documentElement.style.setProperty('--gm-dock-h', h + 'px'); } }
     function paintDock() {
-      var on = find.hidden ? 'body' : browse.mode === 'plan' ? 'prog' : browse.mode;
+      var on = find.hidden ? 'body' : browse.mode === 'plan' ? 'prog' : browse.mode, n = ui.selection().length, hide = !!(scene.overlayOpen && scene.overlayOpen());
+      var next = on + '|' + n + '|' + hide;
+      if (next === dockState) return;
+      dockState = next;
       bar.querySelectorAll('[data-dock]').forEach(function (b) { var active = b.dataset.dock === on; b.classList.toggle('is-active', active); if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-      var n = ui.selection().length, badge = bar.querySelector('.gm-dock-badge');
+      var badge = bar.querySelector('.gm-dock-badge');
       badge.hidden = !n; badge.textContent = n || '';
-      bar.hidden = !!(scene.overlayOpen && scene.overlayOpen());
-      if (!bar.hidden) document.documentElement.style.setProperty('--gm-dock-h', bar.offsetHeight + 'px');
+      bar.hidden = hide;
+      if (!hide && !dockHeight) requestAnimationFrame(measureDock);
     }
+    requestAnimationFrame(measureDock);
+    window.addEventListener('resize', measureDock);
 
     /* ---- Search panel ---- */
     var find = document.createElement('div');

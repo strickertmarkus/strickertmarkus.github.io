@@ -67,7 +67,8 @@ html.gm-scene-open main{visibility:hidden}
 .gm-plan-apply-note{margin:8px 2px 0;color:#77727f;font:400 11px/1.45 Inter,system-ui,sans-serif;text-align:center}
 
 /* ---- Explorer navigation: bottom bar, search panel, filter sheet, Mina gym ---- */
-.gm-dock{position:fixed;left:0;right:0;bottom:0;z-index:85;display:grid;grid-template-columns:repeat(5,1fr);padding:4px max(10px,calc((100vw - 520px)/2)) max(6px,calc(env(safe-area-inset-bottom,0px) - 14px));border-top:1px solid #ffffff0d;background:#090d14f2;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+/* Like the training page's bar: opaque, no backdrop blur, so expand/collapse stays smooth over it. */
+.gm-dock{position:fixed;left:0;right:0;bottom:0;z-index:85;display:grid;grid-template-columns:repeat(5,1fr);padding:4px max(10px,calc((100vw - 520px)/2)) max(6px,calc(env(safe-area-inset-bottom,0px) - 14px));border-top:1px solid #ffffff0d;background:#090d14f0}
 .gm-dock[hidden]{display:none}
 .gm-dock button{position:relative;display:grid;justify-items:center;gap:3px;min-width:0;padding:5px 0 6px;border:0;background:none;color:#7f8892;font:600 10px Inter,system-ui,sans-serif;letter-spacing:.02em;-webkit-tap-highlight-color:transparent;cursor:pointer}
 .gm-dock button svg{width:21px;height:21px}
