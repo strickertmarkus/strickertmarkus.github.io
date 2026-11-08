@@ -76,15 +76,19 @@
     find.className = 'gm-find'; find.hidden = true; find.setAttribute('role', 'dialog'); find.setAttribute('aria-modal', 'true'); find.setAttribute('aria-label', 'Bläddra bland övningar och program');
     find.innerHTML = '<div class="gm-find-head"><button type="button" class="gm-find-close" aria-label="Stäng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '<span class="eyebrow">Utforska</span><h2>Alla övningar</h2>' +
-      '<div class="gm-find-tabs" role="tablist"><button type="button" role="tab" data-find-mode="ex" aria-selected="true">Övningar</button><button type="button" role="tab" data-find-mode="prog" aria-selected="false">Program</button><button type="button" role="tab" data-find-mode="plan" aria-selected="false">Planer</button></div>' +
+      '<div class="gm-find-tabs" role="tablist"><button type="button" role="tab" data-find-mode="ex" aria-selected="true">Övningar</button><button type="button" role="tab" data-find-mode="prog" aria-selected="false">Program</button><button type="button" role="tab" data-find-mode="plan" aria-selected="false">Planer</button><button type="button" role="tab" data-find-mode="pass" aria-selected="false">Mitt pass <em class="gm-pass-count"></em></button></div>' +
       '<label class="gm-find-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/></svg><input type="search" placeholder="Övning, muskel eller redskap" autocomplete="off" enterkeyhint="search" aria-label="Sök"></label>' +
       '<div class="gm-find-chips gm-find-gyms" role="group" aria-label="Ditt gym" hidden></div>' +
+      '<div class="gm-find-chips gm-find-time" role="group" aria-label="Tid" hidden></div>' +
       '<div class="gm-find-chips" role="group" aria-label="Filtrera"></div>' +
       '<p class="gm-find-count" aria-live="polite"></p></div><div class="gm-find-list" role="list"></div>';
     document.body.appendChild(find);
-    var field = find.querySelector('input'), list = find.querySelector('.gm-find-list'), count = find.querySelector('.gm-find-count'), chips = find.querySelector('.gm-find-chips:not(.gm-find-gyms)'), gymChips = find.querySelector('.gm-find-gyms');
+    var field = find.querySelector('input'), list = find.querySelector('.gm-find-list'), count = find.querySelector('.gm-find-count'), chips = find.querySelector('.gm-find-chips:not(.gm-find-gyms):not(.gm-find-time)'), gymChips = find.querySelector('.gm-find-gyms'), timeChips = find.querySelector('.gm-find-time');
     var MUSCLES = ['Alla', 'Bröst', 'Axlar', 'Rygg', 'Biceps', 'Triceps', 'Mage', 'Framsida lår', 'Säte', 'Baksida lår', 'Vader', 'Kondition'];
-    var browse = { mode: 'ex', muscle: 'Alla', group: 'Alla', planGroup: 'Alla', plan: null, gymEdit: null };
+    var browse = { mode: 'ex', muscle: 'Alla', group: 'Alla', planGroup: 'Alla', plan: null, gymEdit: null, time: '', forMuscle: '' };
+    var TIMES = [['', 'Alla längder'], ['20', 'Upp till 20 min'], ['30', 'Upp till 30 min'], ['45', 'Upp till 45 min'], ['60', 'Upp till 60 min']];
+    // The chosen gym also limits exercises: body-weight exercises always fit.
+    function exerciseFits(e, gym) { return !gym || e.equipment === 'Kroppsvikt' || gym.equipment.indexOf(e.equipment) >= 0; }
     var EQUIP_LABEL = { Maskin: 'Maskiner', Kabel: 'Kabel', Hantlar: 'Hantlar', 'Skivstång': 'Skivstång', Konditionsmaskin: 'Konditionsmaskiner' };
     var low = function (t) { return String(t || '').toLocaleLowerCase('sv-SE'); };
     var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
@@ -97,26 +101,37 @@
       var source = browse.mode === 'plan' ? (window.PulsePlans ? window.PulsePlans.plans : []) : window.PulseExplore.programs;
       var values = browse.mode === 'ex' ? MUSCLES : ['Alla'].concat(source.map(function (p) { return p.group; }).filter(function (g, i, a) { return a.indexOf(g) === i; }));
       var current = browse.mode === 'ex' ? browse.muscle : browse.mode === 'plan' ? browse.planGroup : browse.group;
-      chips.hidden = browse.mode === 'plan' && !!browse.plan;
-      field.closest('.gm-find-field').hidden = browse.mode === 'plan' && !!browse.plan;
+      chips.hidden = browse.mode === 'pass' || (browse.mode === 'plan' && !!browse.plan);
+      field.closest('.gm-find-field').hidden = browse.mode === 'pass' || (browse.mode === 'plan' && !!browse.plan);
+      timeChips.hidden = browse.mode !== 'prog';
+      timeChips.innerHTML = TIMES.map(function (t) { return '<button type="button" data-find-time="' + t[0] + '" aria-pressed="' + (browse.time === t[0]) + '">' + t[1] + '</button>'; }).join('');
+      find.querySelector('.gm-pass-count').textContent = ui.selection().length || '';
       chips.innerHTML = values.map(function (v) { return '<button type="button" data-find-chip="' + esc(v) + '" aria-pressed="' + (v === current) + '">' + esc(v) + '</button>'; }).join('');
       find.querySelectorAll('[data-find-mode]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.findMode === browse.mode)); });
       // Gym profiles (PulseExplore.readGyms): "Alla förslag" or a gym whose equipment filters the programmes.
       var X = window.PulseExplore, gyms = X.readGyms ? X.readGyms() : { gyms: [], active: '' };
-      gymChips.hidden = browse.mode !== 'prog' || !X.readGyms;
+      gymChips.hidden = (browse.mode !== 'prog' && browse.mode !== 'ex') || !X.readGyms;
       gymChips.innerHTML = '<button type="button" data-find-gym="" aria-pressed="' + !gyms.active + '">Alla förslag</button>' +
         gyms.gyms.map(function (g) { return '<button type="button" data-find-gym="' + esc(g.id) + '" aria-pressed="' + (gyms.active === g.id) + '">' + esc(g.name) + '</button>'; }).join('') +
         (gyms.active ? '<button type="button" class="is-dashed" data-find-gym-edit="' + esc(gyms.active) + '">Ändra utrustning</button>' : '') +
         (gyms.gyms.length < 8 ? '<button type="button" class="is-dashed" data-find-gym-new="1">+ Nytt gym</button>' : '');
       field.placeholder = browse.mode === 'ex' ? 'Övning, muskel eller redskap' : browse.mode === 'plan' ? 'Plan, övning eller redskap' : 'Program eller övning';
     }
+    /* One line that says what is filtered, with a way to clear it all. */
+    function summary(n, noun) {
+      var X = window.PulseExplore, gym = X.activeGym ? X.activeGym() : null, parts = [];
+      if (gym) parts.push(gym.name);
+      if (browse.mode === 'prog' && browse.time) parts.push('upp till ' + browse.time + ' min');
+      if (browse.mode === 'prog' && browse.forMuscle) parts.push('tränar ' + browse.forMuscle.toLowerCase());
+      count.innerHTML = esc(n + ' ' + noun) + (parts.length ? ' · ' + esc(parts.join(' · ')) + ' <button type="button" class="gm-find-clear" data-find-clear>Rensa</button>' : '');
+    }
     function exerciseRows(q) {
-      var X = window.PulseExplore, m = browse.muscle;
-      var all = X.exercises.filter(function (e) { return m === 'Alla' || (m === 'Kondition' ? e.group === 'Kondition' : e.muscles.indexOf(m) >= 0); })
+      var X = window.PulseExplore, m = browse.muscle, gym = X.activeGym ? X.activeGym() : null;
+      var all = X.exercises.filter(function (e) { return (m === 'Alla' || (m === 'Kondition' ? e.group === 'Kondition' : e.muscles.indexOf(m) >= 0)) && exerciseFits(e, gym); })
         .filter(function (e) { return matches(e, q); })
         // With a muscle chosen: exercises where it is the main muscle first.
         .sort(function (a, b) { return (m !== 'Alla' && m !== 'Kondition' ? a.muscles.indexOf(m) - b.muscles.indexOf(m) : 0) || a.name.localeCompare(b.name, 'sv'); });
-      count.textContent = all.length + (all.length === 1 ? ' övning' : ' övningar');
+      summary(all.length, all.length === 1 ? 'övning' : 'övningar');
       var lastLead = null;
       return all.map(function (e) {
         var name = esc(e.name), at = q ? low(e.name).indexOf(q) : -1;
@@ -135,17 +150,36 @@
     function programRows(q) {
       var X = window.PulseExplore;
       var gym = X.activeGym ? X.activeGym() : null;
-      var hits = X.programs.filter(function (p) { return (browse.group === 'Alla' || p.group === browse.group) && (!X.fitsGym || X.fitsGym(p, gym)); }).filter(function (p) {
+      var hits = X.programs.filter(function (p) {
+        return (browse.group === 'Alla' || p.group === browse.group) && (!X.fitsGym || X.fitsGym(p, gym)) &&
+          (!browse.time || p.durationMinutes[1] <= Number(browse.time)) &&
+          (!browse.forMuscle || p.ids.some(function (id) { return X.exercises[id].muscles.indexOf(browse.forMuscle) >= 0; }));
+      }).filter(function (p) {
         return !q || [p.name, p.group, p.equipment, p.tag].concat(p.ids.map(function (id) { return X.exercises[id].name; })).some(function (t) { return low(t).indexOf(q) >= 0; });
       });
-      count.textContent = gym ? hits.length + ' program passar ' + gym.name : hits.length + ' program';
+      summary(hits.length, 'program');
       var lastGroup = null;
       return hits.map(function (p) {
         var head = browse.group === 'Alla' && p.group !== lastGroup ? '<p class="gm-find-section">' + esc(p.group) + '</p>' : '';
         lastGroup = p.group;
         return head + '<button type="button" class="gm-find-row" role="listitem" data-find-program="' + esc(p.id) + '"><span class="pk-thumb is-pose"><img alt="" loading="lazy" src="assets/exercise-poses-v2/' + String(p.ids[0]).padStart(2, '0') + '-end.webp"></span>' +
           '<span class="gm-find-copy"><b>' + esc(p.name) + '</b><small>' + p.ids.length + ' övningar · ' + esc(X.durationLabel(p)) + ' · ' + esc(X.programEquipment ? (X.programEquipment(p).join(', ') || 'Bara kroppsvikt') : p.equipment) + '</small></span></button>';
-      }).join('') || '<p class="gm-find-empty">' + (gym ? 'Inget program passar utrustningen i ' + esc(gym.name) + '. Välj Alla förslag för att se alla.' : 'Inget program matchar.') + '</p>';
+      }).join('') || '<p class="gm-find-empty">' + 'Inget program matchar dina val. <button type="button" class="gm-find-clear" data-find-clear>Visa alla program</button></p>';
+    }
+    /* Mitt pass: the chosen exercises, removable, and the way into today's pass. */
+    function passRows() {
+      var X = window.PulseExplore, ids = ui.selection();
+      count.textContent = ids.length ? ids.length + (ids.length === 1 ? ' övning vald' : ' övningar valda') : '';
+      if (!ids.length) return '<p class="gm-find-empty">Inga övningar valda ännu. Tryck Välj på en övning, eller dubbeltryck på figuren, så samlas de här.</p>';
+      var ingemar = X.profile === 'ingemar';
+      return ids.map(function (id) {
+        var e = X.exercises[id];
+        return '<div class="gm-find-row gm-pass-row" role="listitem"><span class="pk-thumb is-pose"><img alt="" loading="lazy" src="assets/exercise-poses-v2/' + String(id).padStart(2, '0') + '-end.webp"></span>' +
+          '<span class="gm-find-copy"><b>' + esc(e.name) + '</b><small>' + esc(X.prescription(id).label) + ' · ' + esc(e.equipment) + '</small></span>' +
+          '<button type="button" class="gm-pass-remove" data-find-remove="' + id + '" aria-label="Ta bort ' + esc(e.name) + '">×</button></div>';
+      }).join('') + '<div class="gm-pass-actions">' + (ingemar ? '' : '<button type="button" class="gm-pass-today" data-find-today>Lägg till i dagens pass ↗</button>') +
+        '<button type="button" class="gm-pass-copy" data-find-copy>' + (ingemar ? 'Öppna i passbyggaren ↗' : 'Kopiera passförslag') + '</button></div>' +
+        (ingemar ? '' : '<p class="gm-pass-note">Dagens passbyggare öppnas med övningarna ifyllda, så du kan justera set, reps och vikter.</p>');
     }
     function gymEditor() {
       var X = window.PulseExplore, gym = browse.gymEdit ? X.readGyms().gyms.find(function (g) { return g.id === browse.gymEdit; }) : null;
@@ -202,14 +236,21 @@
     function renderFind() {
       var q = low(field.value).trim();
       if (browse.mode === 'plan' && browse.plan) { list.innerHTML = planDetail(browse.plan); return; }
-      if (browse.mode === 'prog' && browse.gymEdit !== null) { list.innerHTML = gymEditor(); var input = list.querySelector('input[name=name]'); if (input) input.focus(); return; }
-      list.innerHTML = browse.mode === 'ex' ? exerciseRows(q) : browse.mode === 'plan' ? planRows(q) : programRows(q);
+      if ((browse.mode === 'prog' || browse.mode === 'ex') && browse.gymEdit !== null) { list.innerHTML = gymEditor(); var input = list.querySelector('input[name=name]'); if (input) input.focus(); return; }
+      list.innerHTML = browse.mode === 'ex' ? exerciseRows(q) : browse.mode === 'plan' ? planRows(q) : browse.mode === 'pass' ? passRows() : programRows(q);
     }
     // Grows out of the magnifier and shrinks back into it (pulse-motion.js), like the training tools.
     var motion = window.PulseMotion;
-    function openFind() {
-      field.value = ''; renderChips(); renderFind(); find.hidden = false; find.classList.add('is-open');
-      if (motion) motion.reveal(find, findBtn); else find.style.opacity = 1;
+    var findOrigin = findBtn;
+    function openFind(mode, options) {
+      options = options || {};
+      if (typeof mode === 'string') { browse.mode = mode; browse.plan = null; browse.gymEdit = null; }
+      browse.forMuscle = options.muscle || '';
+      if (options.muscle) browse.group = 'Alla';
+      findOrigin = options.origin || findBtn;
+      find.classList.toggle('is-over-scene', scene.isOpen());
+      field.value = ''; renderChips(); renderFind(); find.hidden = false; find.classList.add('is-open'); list.scrollTop = 0;
+      if (motion) motion.reveal(find, findOrigin); else find.style.opacity = 1;
     }
     function reopenFind(scroll) {
       renderChips(); renderFind(); find.hidden = false; find.classList.add('is-open'); find.style.opacity = 1;
@@ -218,9 +259,18 @@
     function closeFind(quiet) {
       if (find.hidden) return;
       var done = function () { find.hidden = true; find.classList.remove('is-open'); find.style.clipPath = ''; find.style.opacity = ''; };
-      if (motion && !quiet) motion.conceal(find, findBtn).then(done); else done();
+      if (motion && !quiet && findOrigin && findOrigin.getClientRects().length) motion.conceal(find, findOrigin).then(done); else done();
     }
-    findBtn.addEventListener('click', openFind);
+    findBtn.addEventListener('click', function () { openFind('ex'); });
+    /* Mitt pass straight from the body, with the number chosen. */
+    var passBtn = document.createElement('button');
+    passBtn.type = 'button'; passBtn.className = 'gm-pass-btn';
+    map.appendChild(passBtn);
+    function paintPassBtn() { var n = ui.selection().length; passBtn.dataset.empty = n ? '' : '1'; passBtn.hidden = !n || scene.isOpen(); passBtn.innerHTML = 'Mitt pass' + (n ? ' <em>' + n + '</em>' : ''); passBtn.setAttribute('aria-label', 'Mitt pass, ' + n + (n === 1 ? ' övning' : ' övningar')); }
+    paintPassBtn();
+    var passCount = $('living-pass-count');
+    if (passCount) new MutationObserver(function () { paintPassBtn(); if (!find.hidden && browse.mode === 'pass') { renderChips(); renderFind(); } else if (!find.hidden) renderChips(); }).observe(passCount, { childList: true, characterData: true, subtree: true });
+    passBtn.addEventListener('click', function () { openFind('pass', { origin: passBtn }); });
     field.addEventListener('input', renderFind);
     find.addEventListener('submit', function (event) {
       var form = event.target.closest('[data-gym-form]'); if (!form) return;
@@ -245,6 +295,16 @@
       var planRow = event.target.closest('[data-find-plan]');
       if (planRow && window.PulsePlans) { browse.plan = window.PulsePlans.find(planRow.dataset.findPlan); renderChips(); renderFind(); list.scrollTop = 0; return; }
       if (event.target.closest('[data-plan-back]')) { browse.plan = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
+      var timePick = event.target.closest('[data-find-time]');
+      if (timePick) { browse.time = timePick.dataset.findTime; renderChips(); renderFind(); list.scrollTop = 0; return; }
+      if (event.target.closest('[data-find-clear]')) {
+        var GC = window.PulseExplore, dc = GC.readGyms(); dc.active = ''; GC.saveGyms(dc);
+        browse.time = ''; browse.forMuscle = ''; browse.group = 'Alla'; browse.muscle = 'Alla'; field.value = ''; renderChips(); renderFind(); list.scrollTop = 0; return;
+      }
+      var removeChoice = event.target.closest('[data-find-remove]');
+      if (removeChoice) { ui.toggle(Number(removeChoice.dataset.findRemove)); return; }
+      if (event.target.closest('[data-find-today]')) { ui.addSelectionToToday(); return; }
+      if (event.target.closest('[data-find-copy]')) { ui.copySelection(); return; }
       var gymPick = event.target.closest('[data-find-gym]');
       if (gymPick) { var G = window.PulseExplore, d = G.readGyms(); d.active = gymPick.dataset.findGym; G.saveGyms(d); browse.gymEdit = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
       var gymNew = event.target.closest('[data-find-gym-new],[data-find-gym-edit]');
@@ -271,6 +331,8 @@
     });
     document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !find.hidden) closeFind(); });
     window.PulseExploreSearch = { open: openFind, close: closeFind };
+    // A programme or exercise opened from the search keeps the pass button out of the scene.
+    new MutationObserver(function () { passBtn.hidden = scene.isOpen() || !ui.selection().length; }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     // Opened again from the training page: start on the body, without reloading anything.
     window.PulseGymReset = function () {
       returnToFind = null; closeFind(true);

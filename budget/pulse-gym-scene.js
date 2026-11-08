@@ -91,8 +91,9 @@
     railButton('info', 'Teknik', function () { openSheet('technique'); });
     railButton('turn', 'Vinkel', function () { ui.view(); });
     var addBtn = railButton('add', 'Välj', function () { choose(); });
-    var passBtn = railButton('pass', 'Mitt pass', function () { openSheet('pass'); });
-    railButton('play', 'Program', function () { openSheet('programs'); });
+    // Mitt pass and Program open the one search panel (pulse-gym.js), with its filters and gym.
+    var passBtn = railButton('pass', 'Mitt pass', function () { var S = window.PulseExploreSearch; if (S) S.open('pass', { origin: passBtn }); else openSheet('pass'); });
+    var programBtn = railButton('play', 'Program', function () { var S = window.PulseExploreSearch; if (S) S.open('prog', { muscle: state.group, origin: programBtn }); else openSheet('programs'); });
 
     /* ---- What plays: a muscle's exercises, or a programme ---- */
     var state = { group: 'Bröst', program: null, list: [], index: 0 };

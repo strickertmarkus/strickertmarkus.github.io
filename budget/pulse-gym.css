@@ -42,8 +42,8 @@ html.gm-scene-open main{visibility:hidden}
 .gm-find-empty{padding:24px 8px;color:#a5a0ae;font-size:13px;line-height:1.5}
 @media(prefers-reduced-motion:reduce){.gm-find{transition:none}.gm-find-btn .gm-find-spark{animation:none}}
 
-.gm-find-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:14px;padding:4px;border-radius:14px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff10}
-.gm-find-tabs button{height:38px;border:0;border-radius:10px;background:none;color:#a5a0ae;font:650 13px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-find-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:14px;padding:4px;border-radius:14px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff10}
+.gm-find-tabs button{min-width:0;padding:0 2px;white-space:nowrap;height:38px;border:0;border-radius:10px;background:none;color:#a5a0ae;font:650 13px Inter,system-ui,sans-serif;cursor:pointer}
 .gm-find-tabs button[aria-selected="true"]{background:#ff806f22;color:#ffd4cc;box-shadow:inset 0 0 0 1px #ff806f44}
 .gm-find-head .gm-find-field{margin-top:10px}
 .gm-find-chips{display:flex;gap:6px;margin:10px -20px 0;padding:0 20px 2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -95,3 +95,18 @@ html.gm-scene-open main{visibility:hidden}
 .gm-gym-actions{display:flex;flex-wrap:wrap;gap:8px}
 .gm-gym-actions button{min-height:42px;padding:0 14px;border:1px solid #ffffff1c;border-radius:12px;background:none;color:#d9d3dd;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
 .gm-gym-actions .gm-gym-save{flex:1 1 140px;border-color:#ff806f66;background:#ff806f2a;color:#ffe1db}
+/* One search panel: also over the exercise scene; time chips, filter summary, Mitt pass tab. */
+.gm-find.is-over-scene{z-index:80}
+.gm-find-tabs em{font-style:normal;color:#ff9a91;margin-left:2px}
+.gm-find-time{margin-top:8px}
+.gm-find-clear{margin-left:6px;padding:0;border:0;background:none;color:#ff9a91;font:inherit;text-decoration:underline;cursor:pointer}
+.gm-find-empty .gm-find-clear{font-size:13px}
+.gm-pass-row{cursor:default}
+.gm-pass-remove{flex:none;width:40px;height:40px;margin-left:auto;border:1px solid #ffffff1c;border-radius:50%;background:none;color:#d9d3dd;font-size:18px;cursor:pointer}
+.gm-pass-actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 4px 6px}
+.gm-pass-actions button{min-height:46px;padding:0 16px;border:1px solid #ffffff1c;border-radius:14px;background:none;color:#e4dee8;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-pass-actions .gm-pass-today{flex:1 1 180px;border-color:#ff806f66;background:#ff806f2a;color:#ffe1db}
+.gm-pass-note{margin:4px 6px 20px;color:#8f8a98;font-size:12px;line-height:1.45}
+.gm-pass-btn{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;height:44px;padding:0 18px;box-shadow:0 10px 30px #0008;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);background:#1a1418e6!important;border:1px solid #ff806f55;border-radius:999px;color:#ffd4cc;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-pass-btn em{font-style:normal;margin-left:4px;padding:0 6px;border-radius:99px;background:#ff806f33}
+.gm-pass-btn[hidden]{display:none}

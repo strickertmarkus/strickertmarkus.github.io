@@ -280,7 +280,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261108-gym-1"><script src="pulse-gym-scene.js?v=20261108-gym-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261108-gym-2"><script src="pulse-gym.js?v=20261108-gym-2"></script>
+<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261108-gym-1"><script src="pulse-gym-scene.js?v=20261108-nav-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261108-nav-1"><script src="pulse-gym.js?v=20261108-nav-1"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261029-ring-4">
 </head>
 <body>
@@ -1205,7 +1205,7 @@ $('clear-selection').addEventListener('click',()=>{selection=[];saveSelection();
 $('open-selection').addEventListener('click',()=>transfer({version:1,ids:selection}));
 /* The chosen exercises go into today's pass on the training page: the same hand-off as the
    programme road (pulse-explore-handoff.js) opens today's pass builder with them filled in. */
-$('add-selection-today').addEventListener('click',()=>{
+function sendSelectionToToday(){
  const request={version:1,ids:selection.slice()};
  if(!explorer.workout(request)){announce('Välj minst en övning först.');return;}
  const url=new URL($('explore-back').getAttribute('href'),location.href);url.searchParams.set('explore','1');
@@ -1213,7 +1213,8 @@ $('add-selection-today').addEventListener('click',()=>{
  try{sessionStorage.setItem(explorer.transferKey,JSON.stringify(request));if(host!==window)host.sessionStorage.setItem(explorer.transferKey,JSON.stringify(request));}
  catch(e){announce('Övningarna kunde inte föras över. Kopiera förslaget i stället.');return;}
  host.location.href=url.href;
-});
+}
+$('add-selection-today').addEventListener('click',sendSelectionToToday);
 document.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.page)route(()=>{showPage(b.dataset.page,false);if(b.dataset.page==='guide'){setList(true);renderList();}window.scrollTo(0,0);});
@@ -1240,6 +1241,7 @@ window.PulseGuideUI={
  selection:()=>selection.slice(),
  toggle:id=>toggleChoice(id),
  copySelection:()=>transfer({version:1,ids:selection}),
+ addSelectionToToday:()=>sendSelectionToToday(),
  copyProgram:id=>transfer({version:1,programId:id}),
  muscle:()=>group,
  openMuscleExercise:(name,id=null)=>route(()=>{showPage('guide');openStudio(name,id,true);setList(false);window.scrollTo(0,0);}),
