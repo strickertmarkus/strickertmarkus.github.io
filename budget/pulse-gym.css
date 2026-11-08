@@ -5,7 +5,7 @@ body{background:var(--pk-sky),#090d13;background-attachment:fixed}
 /* While the scene is open the exercise view behind it stays out of sight,
    so its fade-in reveals only the dark backdrop. */
 html.gm-scene-open main{visibility:hidden}
-#muscle-map-page{position:relative;padding-top:calc(14px + env(safe-area-inset-top));padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+#muscle-map-page{position:relative}
 .gm-exit{position:absolute;right:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ffffff12;color:#f6ece9}
 .gm-exit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .gm-exit:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
@@ -16,6 +16,7 @@ html.gm-scene-open main{visibility:hidden}
    body's layers so "Alla övningar" is never clipped. */
 .muscle-map-options{position:relative;z-index:4}
 /* Search: a glowing magnifier opposite the close button, opening a full-screen list. */
+.gm-find-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
 .gm-find svg,.gm-sheet svg,.gm-gyms svg,.gm-dock svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .gm-find{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:var(--pk-sky),radial-gradient(120% 70% at 50% 40%,#0f1622,transparent 80%),#080b12;color:#f2eded}
 .gm-find-head{position:relative;padding:calc(16px + env(safe-area-inset-top)) 20px 4px}
@@ -145,3 +146,10 @@ html.gm-scene-open main{visibility:hidden}
 .gm-switch-row input:checked+i::after{transform:translateX(20px)}
 .gm-switch-row input:focus-visible+i{outline:2px solid #ffb9ad;outline-offset:2px}
 .gm-gym-error{margin:0;color:#ffaaa0;font-size:13px}.gm-gym-error:empty{display:none}
+.gm-find-btn{position:absolute;left:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#ffffff12;color:#f6ece9;cursor:pointer}
+.gm-find-btn:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+/* Program and Planer in one tab: a segmented switch like Framsida/Baksida. */
+.gm-seg{display:flex;width:max-content;margin:12px 0 0;padding:3px;border:1px solid #ffffff16;border-radius:30px;background:#10151e}
+.gm-seg[hidden]{display:none}
+.gm-seg button{min-height:38px;padding:0 20px;border:0;border-radius:24px;background:none;color:#a7b1c0;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-seg button[aria-pressed=true]{background:#ff302018;color:#ffb3a8;box-shadow:inset 0 0 0 1px #ff493d44}

@@ -1,6 +1,7 @@
 /* Static artwork, hit areas and leader lines scale together. */
 body.muscle-map-active main{padding-top:8px}
-#muscle-map-page{max-width:860px;margin:0 auto;padding:18px 0 80px;color:#edf0f5}
+/* Top: clear of the Dynamic Island, level with the search and close buttons. Bottom: room for the explorer's bar. */
+#muscle-map-page{max-width:860px;margin:0 auto;padding:calc(8px + env(safe-area-inset-top)) 0 calc(80px + env(safe-area-inset-bottom));color:#edf0f5}
 #muscle-map-page[hidden]{display:none}
 .muscle-map-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,1fr);align-items:center;gap:24px}
 .muscle-map-visual{min-width:0}

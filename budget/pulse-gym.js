@@ -74,7 +74,8 @@
     var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
     var X = window.PulseExplore;
     var ICONS = {
-      body: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.6" r="2.1"/><path d="M6 8.6c2 .8 4 1.2 6 1.2s4-.4 6-1.2M12 9.8v5.2M9.4 21l1.4-6h2.4l1.4 6"/></svg>',
+      body: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7.5v9M17 7.5v9M4.2 10v4M19.8 10v4M7 12h10"/><rect x="5.2" y="6.5" width="3.6" height="11" rx="1.2"/><rect x="15.2" y="6.5" width="3.6" height="11" rx="1.2"/></svg>',
+      gym: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5L12 4l8.5 6.5"/><path d="M5.5 9v10.5h13V9"/><path d="M9 15h6M9.8 13v4M14.2 13v4"/></svg>',
       ex: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/></svg>',
       prog: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4.5" width="16" height="15" rx="3"/><path d="M8 9.5h8M8 13h8M8 16.5h5"/></svg>',
       plan: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
@@ -93,15 +94,22 @@
     // The chosen gym also limits exercises: body-weight exercises always fit.
     function exerciseFits(e, g) { return !g || e.equipment === 'Kroppsvikt' || g.equipment.indexOf(e.equipment) >= 0; }
 
+    /* Search from the body, top left: opens Övningar with the keyboard ready. */
+    var findBtn = document.createElement('button');
+    findBtn.type = 'button'; findBtn.className = 'gm-find-btn'; findBtn.setAttribute('aria-label', 'Sök övningar');
+    findBtn.innerHTML = ICONS.ex;
+    map.appendChild(findBtn);
+    findBtn.addEventListener('click', function () { openFind('ex', { origin: findBtn }); setTimeout(function () { field.focus(); }, 320); });
+
     /* ---- Bottom bar ---- */
     var dock = document.createElement('nav');
     dock.className = 'gm-dock'; dock.setAttribute('aria-label', 'Utforska');
-    dock.innerHTML = [['body', 'Kropp'], ['ex', 'Övningar'], ['prog', 'Program'], ['plan', 'Planer'], ['pass', 'Mitt pass']].map(function (t) {
+    dock.innerHTML = [['body', 'Kropp'], ['ex', 'Övningar'], ['prog', 'Program'], ['gym', 'Gym'], ['pass', 'Mitt pass']].map(function (t) {
       return '<button type="button" data-dock="' + t[0] + '">' + ICONS[t[0]] + '<span>' + t[1] + '</span>' + (t[0] === 'pass' ? '<em class="gm-dock-badge" hidden></em>' : '') + '</button>';
     }).join('');
     document.body.appendChild(dock);
     function paintDock() {
-      var on = find.hidden ? 'body' : browse.mode;
+      var on = find.hidden ? 'body' : browse.mode === 'plan' ? 'prog' : browse.mode;
       dock.querySelectorAll('[data-dock]').forEach(function (b) { var active = b.dataset.dock === on; b.classList.toggle('is-active', active); if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
       var n = ui.selection().length, badge = dock.querySelector('.gm-dock-badge');
       badge.hidden = !n; badge.textContent = n || '';
@@ -112,6 +120,7 @@
     var find = document.createElement('div');
     find.className = 'gm-find'; find.hidden = true; find.setAttribute('role', 'region'); find.setAttribute('aria-label', 'Sök');
     find.innerHTML = '<div class="gm-find-head"><button type="button" class="gm-find-back" data-find-back hidden>' + ICONS.back + '<span>Tillbaka</span></button><h2 class="gm-find-title">Övningar</h2>' +
+      '<div class="gm-seg" role="group" aria-label="Visa" hidden><button type="button" data-seg="prog" aria-pressed="true">Program</button><button type="button" data-seg="plan" aria-pressed="false">Planer</button></div>' +
       '<div class="gm-find-tools"><label class="gm-find-field">' + ICONS.ex + '<input type="search" autocomplete="off" enterkeyhint="search" aria-label="Sök"></label>' +
       '<button type="button" class="gm-filter-btn" data-filter-open aria-label="Filter">' + ICONS.filter + '<span>Filter</span><em hidden></em></button></div>' +
       '<p class="gm-find-count" aria-live="polite"></p></div><div class="gm-find-list" role="list"></div>';
@@ -127,7 +136,10 @@
     }
     function paintHead() {
       var detail = browse.mode === 'plan' && browse.plan;
-      title.textContent = detail ? browse.plan.name : TITLES[browse.mode];
+      title.textContent = detail ? browse.plan.name : browse.mode === 'plan' ? 'Program' : TITLES[browse.mode];
+      var seg = find.querySelector('.gm-seg');
+      seg.hidden = !(browse.mode === 'prog' || browse.mode === 'plan') || !!detail;
+      seg.querySelectorAll('[data-seg]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.seg === browse.mode)); });
       backBtn.hidden = !(detail || scene.isOpen());
       find.querySelector('.gm-find-tools').hidden = browse.mode === 'pass' || !!detail;
       filterBtn.hidden = browse.mode === 'pass';
@@ -188,7 +200,7 @@
         var head = browse.group === 'Alla' && p.group !== lastGroup ? '<p class="gm-find-section">' + esc(p.group) + '</p>' : '';
         lastGroup = p.group;
         return head + '<button type="button" class="gm-find-row" role="listitem" data-find-program="' + esc(p.id) + '"><span class="pk-thumb is-pose"><img alt="" loading="lazy" src="assets/exercise-poses-v2/' + String(p.ids[0]).padStart(2, '0') + '-end.webp"></span>' +
-          '<span class="gm-find-copy"><b>' + esc(p.name) + '</b><small>' + p.ids.length + ' övningar · ' + esc(X.durationLabel(p)) + ' · ' + esc(X.programEquipment(p).join(', ') || 'Bara kroppsvikt') + '</small></span>' + ICONS.chevron + '</button>';
+          '<span class="gm-find-copy"><b>' + esc(p.name) + '</b><small>' + p.ids.length + (p.ids.length === 1 ? ' övning · ' : ' övningar · ') + esc(X.durationLabel(p)) + ' · ' + esc(X.programEquipment(p).join(', ') || 'Bara kroppsvikt') + '</small></span>' + ICONS.chevron + '</button>';
       }).join('') || '<p class="gm-find-empty">Inget program matchar dina val. <button type="button" class="gm-find-clear" data-find-clear>Visa alla program</button></p>';
     }
     /* Mitt pass: the chosen exercises, removable, and the way into today's pass. */
@@ -284,6 +296,9 @@
     dock.addEventListener('click', function (event) {
       var b = event.target.closest('[data-dock]'); if (!b) return;
       if (b.dataset.dock === 'body') { closeFind(true); return; }
+      if (b.dataset.dock === 'gym') { openGyms('Tillbaka'); return; }
+      // Program remembers whether Planer was showing.
+      if (b.dataset.dock === 'prog' && browse.mode === 'plan' && !find.hidden) return;
       openFind(b.dataset.dock);
     });
     field.addEventListener('input', renderFind);
@@ -346,12 +361,12 @@
     var gyms = document.createElement('div');
     gyms.className = 'gm-gyms'; gyms.hidden = true; gyms.setAttribute('role', 'dialog'); gyms.setAttribute('aria-modal', 'true'); gyms.setAttribute('aria-label', 'Mina gym');
     document.body.appendChild(gyms);
-    var gymEdit = null; // null = the list, '' = a new gym, id = editing that gym
+    var gymEdit = null, gymsBack = 'Filter'; // gymEdit: null = the list, '' = a new gym, id = editing that gym
     function renderGyms() {
       var d = X.readGyms();
       if (gymEdit === null) {
-        gyms.innerHTML = '<div class="gm-page-head"><button type="button" class="gm-find-back" data-gyms-close>' + ICONS.back + '<span>Filter</span></button><h2>Mina gym</h2>' +
-          '<p>Ställ in vilken utrustning som finns på varje ställe. Välj sedan gym under Filter, så visas bara det du kan köra där.</p></div>' +
+        gyms.innerHTML = '<div class="gm-page-head"><button type="button" class="gm-find-back" data-gyms-close>' + ICONS.back + '<span>' + gymsBack + '</span></button><h2>Mina gym</h2>' +
+          '<p>Ställ in vilken utrustning som finns på varje ställe. Välj sedan gym under Filter i Övningar eller Program, så visas bara det du kan köra där.</p></div>' +
           '<div class="gm-page-body"><div class="gm-group">' + (d.gyms.length ? d.gyms.map(function (g) {
             return '<button type="button" class="gm-option" data-gym-edit="' + esc(g.id) + '"><span>' + esc(g.name) + '<small>' + esc(g.equipment.map(function (e) { return EQUIP_LABEL[e] || e; }).join(', ') || 'Bara kroppsvikt') + '</small></span>' + ICONS.chevron + '</button>';
           }).join('') : '<p class="gm-group-empty">Inga gym ännu.</p>') + '</div>' +
@@ -367,7 +382,7 @@
         '<button type="submit" class="gm-primary">Spara</button>' + (g ? '<button type="button" class="gm-danger" data-gym-delete>Ta bort gymmet</button>' : '') + '</div></form>';
       if (!g) gyms.querySelector('.gm-input').focus();
     }
-    function openGyms() { gymEdit = null; renderGyms(); gyms.hidden = false; requestAnimationFrame(function () { gyms.classList.add('is-open'); }); }
+    function openGyms(back) { gymsBack = typeof back === 'string' ? back : 'Filter'; gymEdit = null; renderGyms(); gyms.hidden = false; requestAnimationFrame(function () { gyms.classList.add('is-open'); }); }
     function closeGyms() { gyms.classList.remove('is-open'); setTimeout(function () { if (!gyms.classList.contains('is-open')) gyms.hidden = true; }, 240); if (!sheet.hidden) renderSheet(); }
     gyms.addEventListener('click', function (event) {
       if (event.target.closest('[data-gyms-close]')) { closeGyms(); return; }
@@ -398,6 +413,8 @@
         closeFind(); return;
       }
       if (event.target.closest('[data-filter-open]')) { openSheet(); return; }
+      var seg = event.target.closest('[data-seg]');
+      if (seg) { browse.mode = seg.dataset.seg; browse.plan = null; field.value = ''; renderFind(); list.scrollTop = 0; return; }
       var planRow = event.target.closest('[data-find-plan]');
       if (planRow && window.PulsePlans) { browse.plan = window.PulsePlans.find(planRow.dataset.findPlan); renderFind(); list.scrollTop = 0; return; }
       if (event.target.closest('[data-find-clear]')) { clearFilters(); field.value = ''; renderFind(); list.scrollTop = 0; return; }
