@@ -22,7 +22,6 @@
     added: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></svg>',
     turn: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg>',
-    pass: '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>',
     play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
     back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
     fwd: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
@@ -91,9 +90,7 @@
     railButton('info', 'Teknik', function () { openSheet('technique'); });
     railButton('turn', 'Vinkel', function () { ui.view(); });
     var addBtn = railButton('add', 'Välj', function () { choose(); });
-    // Mitt pass and Program open the one search panel (pulse-gym.js), with its filters and gym.
-    var passBtn = railButton('pass', 'Mitt pass', function () { var S = window.PulseExploreSearch; if (S) S.open('pass', { origin: passBtn }); else openSheet('pass'); });
-    var programBtn = railButton('play', 'Program', function () { var S = window.PulseExploreSearch; if (S) S.open('prog', { muscle: state.group, origin: programBtn }); else openSheet('programs'); });
+    // Mitt pass and Program are in the explorer's bottom bar (pulse-gym.js), which stays over this view.
 
     /* ---- What plays: a muscle's exercises, or a programme ---- */
     var state = { group: 'Bröst', program: null, list: [], index: 0 };
@@ -134,7 +131,6 @@
       var id = state.list[state.index], on = ui.selection().indexOf(id) >= 0;
       addBtn.classList.toggle('is-on', on);
       addBtn.querySelector('small').textContent = on ? 'Vald' : 'Välj';
-      passBtn.dataset.count = ui.selection().length || '';
     }
     /* Changing exercise: the figure and its text slide out a little, swap
        while hidden, then settle in from the other side. */
@@ -193,7 +189,7 @@
     });
     function syncPause() { root.classList.toggle('is-paused', ui.paused() && end.hidden); }
     new MutationObserver(syncPause).observe($('pause'), { attributes: true, attributeFilter: ['aria-pressed'] });
-    new MutationObserver(function () { syncChosen(); renderPassSheet(); }).observe($('living-pass-count'), { childList: true, characterData: true, subtree: true });
+    new MutationObserver(function () { syncChosen(); }).observe($('living-pass-count'), { childList: true, characterData: true, subtree: true });
 
     function choose() {
       var id = state.list[state.index], had = ui.selection().indexOf(id) >= 0;
@@ -278,23 +274,11 @@
         event.stopImmediatePropagation();
       }
     },true);
-    function renderPassSheet() {
-      if (sheetKind !== 'pass') return;
-      var ids = ui.selection();
-      sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Ditt urval</span><h3>Mitt pass <em>' + ids.length + '</em></h3>' +
-        (ids.length ? '<ul class="st-pass">' + ids.map(function (id) {
-          var d = splitDose(explore.prescription(id).label);
-          return '<li><img src="' + (pose(id, true) || 'assets/atlas-art-v1/chest.webp') + '" alt=""><span><b>' + all[id].name + '</b><small>' + d.big + ' ' + d.unit + '</small></span><button type="button" data-remove="' + id + '" aria-label="Ta bort ' + all[id].name + '">×</button></li>';
-        }).join('') + '</ul><button type="button" class="st-cta" data-copy-pass>' + (explore.profile === 'ingemar' ? 'Öppna i passbyggaren ↗' : 'Kopiera passförslag ↗') + '</button>'
-          : '<p class="st-muted">Dubbeltryck på en övning för att lägga till den.</p>');
-    }
     function openSheet(kind) {
       sheetKind = kind; sheetOpen = true; viewing = null; sheet.classList.remove('is-program','is-mm-program');
       if (kind === 'technique') {
         sheet.setAttribute('aria-label', 'Teknik');
         sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Teknik</span><h3>' + all[state.list[state.index]].name + '</h3><ol class="st-steps">' + $('steps').innerHTML + '</ol><div class="st-tip">' + $('tip').innerHTML + '</div>';
-      } else if (kind === 'pass') {
-        sheet.setAttribute('aria-label', 'Mitt pass'); renderPassSheet();
       } else if (kind === 'list') {
         // Every exercise in what is playing: tap one to go straight to it.
         var title = state.program ? state.program.name : state.group;
@@ -526,8 +510,6 @@
     sheet.addEventListener('click', function (event) {
       var t = event.target;
       if (t.closest('.st-grip')) { closeSheet(); return; }
-      var remove = t.closest('[data-remove]'); if (remove) { ui.toggle(Number(remove.dataset.remove)); return; }
-      if (t.closest('[data-copy-pass]')) { ui.copySelection(); return; }
       if (t.closest('[data-programs]')) { returnFromProgram(); return; }
       var detail=t.closest('[data-detail-step]');
       if(detail&&viewing){openZoom(viewing,Number(detail.dataset.detailStep),detail);return;}
@@ -646,6 +628,8 @@
     }
     window.PulseGymScene = {
       enter:enter,leave:leave,isOpen:function(){return !root.hidden;},onLeave:function(fn){onLeave=fn;},
+      // A sheet, zoomed step or the end card covers the bottom: the explorer's bar steps aside for it.
+      root:root,overlayOpen:function(){return !root.hidden&&(sheetOpen||!zoom.hidden||!end.hidden);},
       // Opens one programme's overview over the scene (used by the explorer's browse list).
       openProgram:function(id){var p=explore.programs.find(function(x){return x.id===id;});if(!p||root.hidden)return;openSheet('programs');showProgram(p);},
       backWithinProgram:function(){

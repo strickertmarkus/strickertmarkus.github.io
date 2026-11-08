@@ -45,7 +45,7 @@
 | Zen saved-session fields (feelings, breathing snapshot, plan, manual log) and "Gör samma pass igen" | `budget/zen-model.js` (`entryValid`, `redoRoutine`) |
 | Zen time to switch position between movements | `budget/zen-model.js` (`switchSeconds`, `stepStarts`) |
 | Gym profiles and programme filter by equipment | `budget/pulse-explore.js` (`readGyms`, `fitsGym`, `matchingPrograms`; stored in `ex_gyms`) |
-| Explorer navigation: bottom bar, search panel per tab, Filter sheet, Mina gym page | `budget/pulse-gym.js` (`gm-dock`, `openFind`, `renderSheet`, `renderGyms`, `PulseExploreSearch.open(mode,{muscle,origin})`); the scene rail opens it |
+| Explorer navigation: bottom bar, search panel per tab, Filter sheet, Mina gym page | `budget/pulse-gym.js` (`gm-dock`, `openFind`, `renderSheet`, `renderGyms`, `PulseExploreSearch.open(mode,{muscle,origin})`). The bar stays over the exercise scene and steps aside only for its sheets (`PulseGymScene.overlayOpen`). Every window expands from the tapped button with `PulseMotion.reveal`/`conceal` |
 | Explorer selection into today's pass | `budget/pulse-explore-handoff.js` (request `{version:1,ids}`) |
 
 ## Design iteration mode

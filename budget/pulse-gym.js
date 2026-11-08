@@ -102,18 +102,19 @@
     findBtn.addEventListener('click', function () { openFind('ex', { origin: findBtn }); setTimeout(function () { field.focus(); }, 320); });
 
     /* ---- Bottom bar ---- */
-    var dock = document.createElement('nav');
-    dock.className = 'gm-dock'; dock.setAttribute('aria-label', 'Utforska');
-    dock.innerHTML = [['body', 'Kropp'], ['ex', 'Övningar'], ['prog', 'Program'], ['gym', 'Gym'], ['pass', 'Mitt pass']].map(function (t) {
+    var bar = document.createElement('nav'); // `dock` above is the page's own hidden route menu
+    bar.className = 'gm-dock'; bar.setAttribute('aria-label', 'Utforska');
+    bar.innerHTML = [['body', 'Kropp'], ['ex', 'Övningar'], ['prog', 'Program'], ['gym', 'Gym'], ['pass', 'Mitt pass']].map(function (t) {
       return '<button type="button" data-dock="' + t[0] + '">' + ICONS[t[0]] + '<span>' + t[1] + '</span>' + (t[0] === 'pass' ? '<em class="gm-dock-badge" hidden></em>' : '') + '</button>';
     }).join('');
-    document.body.appendChild(dock);
+    document.body.appendChild(bar);
     function paintDock() {
       var on = find.hidden ? 'body' : browse.mode === 'plan' ? 'prog' : browse.mode;
-      dock.querySelectorAll('[data-dock]').forEach(function (b) { var active = b.dataset.dock === on; b.classList.toggle('is-active', active); if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
-      var n = ui.selection().length, badge = dock.querySelector('.gm-dock-badge');
+      bar.querySelectorAll('[data-dock]').forEach(function (b) { var active = b.dataset.dock === on; b.classList.toggle('is-active', active); if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+      var n = ui.selection().length, badge = bar.querySelector('.gm-dock-badge');
       badge.hidden = !n; badge.textContent = n || '';
-      dock.hidden = scene.isOpen();
+      bar.hidden = !!(scene.overlayOpen && scene.overlayOpen());
+      if (!bar.hidden) document.documentElement.style.setProperty('--gm-dock-h', bar.offsetHeight + 'px');
     }
 
     /* ---- Search panel ---- */
@@ -278,28 +279,34 @@
       var wasOpen = !find.hidden;
       findOrigin = options.origin || null;
       find.classList.toggle('is-over-scene', scene.isOpen());
-      field.value = ''; renderFind(); find.hidden = false; find.classList.add('is-open'); list.scrollTop = 0;
+      field.value = ''; renderFind(); find.hidden = false; list.scrollTop = 0;
       // From the bottom bar it simply switches; from the exercise view it grows out of the tapped button.
       if (!wasOpen && motion && findOrigin) motion.reveal(find, findOrigin); else find.style.opacity = 1;
       paintDock();
     }
     function reopenFind(scroll) {
-      renderFind(); find.hidden = false; find.classList.add('is-open'); find.style.opacity = 1;
+      renderFind(); find.hidden = false; find.style.opacity = 1;
       list.scrollTop = scroll || 0; paintDock();
     }
-    function closeFind(quiet) {
+    // Closing shrinks back into the button it came from, or into the tapped one (Kropp).
+    function closeFind(quiet, into) {
       if (find.hidden) return;
-      var done = function () { find.hidden = true; find.classList.remove('is-open', 'is-over-scene'); find.style.clipPath = ''; find.style.opacity = ''; paintDock(); };
-      if (motion && !quiet && findOrigin && findOrigin.getClientRects().length) motion.conceal(find, findOrigin).then(done); else done();
+      var target = into || findOrigin;
+      var done = function () { find.hidden = true; find.classList.remove('is-over-scene'); find.style.clipPath = ''; find.style.opacity = ''; paintDock(); };
+      if (motion && !quiet && target && target.getClientRects().length) motion.conceal(find, target).then(done); else done();
       findOrigin = null;
     }
-    dock.addEventListener('click', function (event) {
+    bar.addEventListener('click', function (event) {
       var b = event.target.closest('[data-dock]'); if (!b) return;
-      if (b.dataset.dock === 'body') { closeFind(true); return; }
-      if (b.dataset.dock === 'gym') { openGyms('Tillbaka'); return; }
+      if (b.dataset.dock === 'body') {
+        if (!find.hidden) { closeFind(false, b); return; }
+        if (scene.isOpen()) { returnToFind = null; scene.leave(); }
+        return;
+      }
+      if (b.dataset.dock === 'gym') { openGyms('Tillbaka', b); return; }
       // Program remembers whether Planer was showing.
       if (b.dataset.dock === 'prog' && browse.mode === 'plan' && !find.hidden) return;
-      openFind(b.dataset.dock);
+      openFind(b.dataset.dock, { origin: b });
     });
     field.addEventListener('input', renderFind);
     var passCount = $('living-pass-count');
@@ -336,8 +343,17 @@
         '<div class="gm-sheet-foot"><button type="button" class="gm-primary" data-sheet-done>' + (n === null ? 'Visa' : 'Visa ' + n + ' program') + '</button></div></div>';
       void g;
     }
-    function openSheet() { renderSheet(); sheet.hidden = false; requestAnimationFrame(function () { sheet.classList.add('is-open'); }); var first = sheet.querySelector('[data-sheet-done]'); if (first) first.focus({ preventScroll: true }); }
-    function closeSheet() { sheet.classList.remove('is-open'); setTimeout(function () { if (!sheet.classList.contains('is-open')) sheet.hidden = true; }, 220); renderFind(); filterBtn.focus({ preventScroll: true }); }
+    // Expands from the Filter button and collapses back into it, like every window here.
+    function openSheet() {
+      renderSheet(); sheet.hidden = false;
+      if (motion) motion.reveal(sheet, filterBtn);
+      var first = sheet.querySelector('[data-sheet-done]'); if (first) first.focus({ preventScroll: true });
+    }
+    function closeSheet() {
+      var done = function () { sheet.hidden = true; sheet.style.clipPath = ''; sheet.style.opacity = ''; };
+      if (motion) motion.conceal(sheet, filterBtn).then(done); else done();
+      renderFind(); filterBtn.focus({ preventScroll: true });
+    }
     function clearFilters() {
       var d = X.readGyms(); d.active = ''; X.saveGyms(d);
       browse.time = ''; browse.forMuscle = ''; browse.group = 'Alla'; browse.muscle = 'Alla'; browse.planGroup = 'Alla';
@@ -345,7 +361,8 @@
     sheet.addEventListener('click', function (event) {
       if (event.target === sheet || event.target.closest('[data-sheet-done]')) { closeSheet(); return; }
       if (event.target.closest('[data-sheet-clear]')) { clearFilters(); renderSheet(); return; }
-      if (event.target.closest('[data-gyms-open]')) { openGyms(); return; }
+      var gymsLink = event.target.closest('[data-gyms-open]');
+      if (gymsLink) { openGyms('Filter', gymsLink); return; }
       var o = event.target.closest('[data-opt]'); if (!o) return;
       var v = o.dataset.value, kind = o.dataset.opt;
       if (kind === 'gym') { var d = X.readGyms(); d.active = v; X.saveGyms(d); }
@@ -382,8 +399,16 @@
         '<button type="submit" class="gm-primary">Spara</button>' + (g ? '<button type="button" class="gm-danger" data-gym-delete>Ta bort gymmet</button>' : '') + '</div></form>';
       if (!g) gyms.querySelector('.gm-input').focus();
     }
-    function openGyms(back) { gymsBack = typeof back === 'string' ? back : 'Filter'; gymEdit = null; renderGyms(); gyms.hidden = false; requestAnimationFrame(function () { gyms.classList.add('is-open'); }); }
-    function closeGyms() { gyms.classList.remove('is-open'); setTimeout(function () { if (!gyms.classList.contains('is-open')) gyms.hidden = true; }, 240); if (!sheet.hidden) renderSheet(); }
+    var gymsOrigin = null;
+    function openGyms(back, origin) {
+      gymsBack = back || 'Filter'; gymsOrigin = origin || null; gymEdit = null; renderGyms(); gyms.hidden = false; gyms.scrollTop = 0;
+      if (motion) motion.reveal(gyms, gymsOrigin);
+    }
+    function closeGyms() {
+      var done = function () { gyms.hidden = true; gyms.style.clipPath = ''; gyms.style.opacity = ''; };
+      if (motion && gymsOrigin && gymsOrigin.getClientRects().length) motion.conceal(gyms, gymsOrigin).then(done); else done();
+      if (!sheet.hidden) renderSheet();
+    }
     gyms.addEventListener('click', function (event) {
       if (event.target.closest('[data-gyms-close]')) { closeGyms(); return; }
       if (event.target.closest('[data-gym-list]')) { gymEdit = null; renderGyms(); return; }
@@ -443,8 +468,10 @@
       if (!gyms.hidden) closeGyms(); else if (!sheet.hidden) closeSheet(); else if (!find.hidden) closeFind();
     });
     window.PulseExploreSearch = { open: openFind, close: closeFind };
+    if (window.PULSE_EXPLORE_START === 'programs') openFind('prog');
     // The bar steps aside while the exercise view is open.
     new MutationObserver(paintDock).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    if (scene.root) new MutationObserver(paintDock).observe(scene.root, { attributes: true, attributeFilter: ['hidden'], subtree: true });
     paintDock();
     // Opened again from the training page: start on the body, without reloading anything.
     window.PulseGymReset = function () {

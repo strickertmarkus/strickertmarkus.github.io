@@ -30,11 +30,11 @@
 /* The figure leads: its stage runs from under the wall down behind the exercise copy. */
 .st-stage{position:absolute;inset:0;background:var(--pk-sky),radial-gradient(ellipse 70% 30% at 50% 78%,#35130f 0%,#140b0d 45%,#05070b 80%)}
 .st-root #studio-stage{position:absolute!important;left:0!important;right:0!important;top:calc(var(--gy-hero) - 40px)!important;bottom:auto!important;width:100%!important;
-  height:calc(100svh - var(--gy-hero) + 40px - 120px - env(safe-area-inset-bottom))!important;margin:0!important;max-width:none!important;
+  height:calc(100svh - var(--gy-hero) + 40px - 120px - var(--gm-dock-h,64px))!important;margin:0!important;max-width:none!important;
   border:0!important;border-radius:0!important;background:none!important;aspect-ratio:auto!important;min-height:0!important;
   transition:opacity .17s ease-in,transform .17s ease-in}
 .st-root #studio-stage .stage-label,.st-root #stage-technique,.st-root #model-status{display:none!important}
-.st-poster{position:absolute;left:0;right:0;top:calc(var(--gy-hero) - 40px);width:100%;height:calc(100svh - var(--gy-hero) + 40px - 120px - env(safe-area-inset-bottom));object-fit:contain;pointer-events:none;transition:opacity .17s ease-in}
+.st-poster{position:absolute;left:0;right:0;top:calc(var(--gy-hero) - 40px);width:100%;height:calc(100svh - var(--gy-hero) + 40px - 120px - var(--gm-dock-h,64px));object-fit:contain;pointer-events:none;transition:opacity .17s ease-in}
 .st-root.is-swap-out .st-poster{opacity:0}
 .st-stage:has(#studio-stage.silver-press-ready) .st-poster{display:none}
 .st-touch{position:absolute;inset:var(--gy-hero) 0 170px 0;z-index:3;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
@@ -45,7 +45,7 @@
 .st-nav svg{width:24px;height:24px;stroke-width:1.6}
 
 /* Exercise copy. */
-.st-info{position:absolute;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;padding:60px 20px 6px;
+.st-info{position:absolute;left:0;right:0;bottom:calc(var(--gm-dock-h,64px) + 74px);z-index:4;padding:60px 20px 6px;
   background:linear-gradient(to top,#05070b 25%,#05070bb3 60%,transparent);pointer-events:none;transition:opacity .17s ease-in,transform .17s ease-in}
 .st-eyebrow{display:block;color:#ff8a78;font-size:10px;letter-spacing:.18em;text-transform:uppercase}
 .st-info h2{margin:6px 0 0;font-size:28px;line-height:1.02;letter-spacing:-.04em;font-weight:600}
@@ -69,7 +69,7 @@
 @keyframes stInfoIn{from{opacity:0;transform:translateY(6px)}}
 
 /* Action row: Välj as the primary pill, the rest as round icons. */
-.st-rail{position:absolute;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:5;display:flex;align-items:center;gap:8px}
+.st-rail{position:absolute;left:16px;right:16px;bottom:calc(var(--gm-dock-h,64px) + 10px);z-index:5;display:flex;align-items:center;gap:8px}
 .st-rail-btn{position:relative;flex:0 0 auto;display:grid;padding:0;border:0;background:none;color:#f6ece9;font:inherit;cursor:pointer}
 .st-rail-btn small{display:none}
 .st-ico{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#ffffff0d;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -78,7 +78,6 @@
 .st-rail-btn[data-action="add"] .st-ico{display:none}
 .st-rail-btn[data-action="add"] small{display:block;height:48px;line-height:48px;border-radius:24px;background:var(--st-accent);color:#fff;font-size:15px;font-weight:600;letter-spacing:-.01em;text-align:center;box-shadow:0 8px 26px #ff4a3a55}
 .st-rail-btn[data-action="add"].is-on small{background:#ffffff14;color:#ffd7cf;box-shadow:inset 0 0 0 1px #ff8a7a66}
-.st-rail-btn[data-count]:not([data-count=""])::after{content:attr(data-count);position:absolute;top:-2px;right:-2px;min-width:17px;height:17px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:var(--st-accent);color:#fff;font-size:10px;font-weight:700;line-height:17px;text-align:center}
 .st-rail-btn:focus-visible .st-ico,.st-rail-btn:focus-visible small,.st-close:focus-visible,.st-program-exit:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
 
 /* Pause, choose, hint and end states. */
@@ -107,7 +106,7 @@
 
 /* Sheets: technique, Mitt pass, programmes. */
 .st-scrim{position:absolute;inset:0;z-index:8;background:#020409a6;opacity:0;transition:opacity .26s}
-.st-sheet{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:78%;overflow:auto;overscroll-behavior:contain;padding:0 18px calc(20px + env(safe-area-inset-bottom));
+.st-sheet{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:78%;overflow:auto;overscroll-behavior:contain;padding:0 18px calc(var(--gm-dock-h,64px) + 16px);
   border-radius:24px 24px 0 0;background:#0f1118;box-shadow:0 -1px 0 #ff6a5a30,0 -20px 50px #000a;transform:translateY(104%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
 .st-root.sheet-open .st-scrim{opacity:1}
 .st-root.sheet-open .st-sheet{transform:none}
@@ -119,11 +118,6 @@
 .st-steps li{margin-bottom:8px}
 .st-tip{margin-top:12px;color:var(--st-muted);font-size:13px;line-height:1.55}
 .st-muted{color:var(--st-muted);font-size:13px}
-.st-pass{list-style:none;margin:0 0 6px;padding:0}
-.st-pass li{display:flex;align-items:center;gap:12px;padding:8px 0}
-.st-pass img{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#1a1b24}
-.st-pass span{flex:1;min-width:0}.st-pass b{display:block;font-size:14px}.st-pass small{color:#ffb9ad;font-size:12px}
-.st-pass button{width:40px;height:40px;border:0;border-radius:50%;background:none;color:#8f929d;font-size:20px;cursor:pointer}
 .st-list{list-style:none;margin:0;padding:0}
 .st-list button{display:flex;align-items:center;gap:12px;width:100%;padding:6px 8px;margin:0 -8px;border:0;border-radius:16px;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;box-sizing:content-box}
 .st-list button[aria-current="true"]{background:#ff5a481a;box-shadow:inset 0 0 0 1px #ff6a5a55}

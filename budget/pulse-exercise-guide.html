@@ -8,27 +8,11 @@
 :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,sans-serif;--bg:#080b12;--surface:#0f141e;--line:#ffffff1c;--text:#f2eded;--muted:#a5a0ae;--plum:#dc958f;--cyan:#91e4ec;--orange:#f3b07b;--muscle:#ff806f}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);min-height:100dvh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}a{color:inherit;text-decoration:none}button{color:inherit}header{position:sticky;top:0;z-index:10;background:#0a0d14ed;backdrop-filter:blur(14px);border-bottom:1px solid #b8665f25}.top{max-width:1140px;margin:auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-size:15px;letter-spacing:.17em;font-weight:800}.brand span{color:#c6675e;font-weight:500}.brand small{display:block;font-size:10px;color:#a19baa;letter-spacing:.08em;margin-top:4px}.back{border:1px solid #ffffff27;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:650;background:#ffffff06}main{max-width:1140px;margin:auto;padding:28px 20px 70px}.eyebrow{font-size:10px;letter-spacing:.18em;font-weight:800;color:#ba7a74}.intro h1{font-size:clamp(27px,4vw,40px);letter-spacing:-.045em;margin:9px 0 7px;font-weight:650}.intro p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.filters{margin:25px 0 18px;display:grid;gap:10px}.search{width:100%;background:#10151f;color:var(--text);border:1px solid #ffffff26;border-radius:12px;padding:13px 15px;font-size:16px}.filter-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}.filter-row::-webkit-scrollbar{display:none}.filter-row button{flex:0 0 auto;min-height:37px;border:1px solid #ffffff21;background:#ffffff05;border-radius:10px;padding:8px 13px;font-size:12px;font-weight:650;color:#bdb7c3}.filter-row button[aria-pressed=true]{border-color:#c1726ba0;background:#bd665e1c;color:#f3bab5}.filter-row.equipment button[aria-pressed=true]{border-color:#ffffff65;background:#ffffff11;color:white}.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}.catalog{background:#0d111a;border:1px solid var(--line);border-radius:16px;overflow:hidden}.catalog-head{padding:15px 15px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12}.catalog-head strong{font-size:13px}.catalog-head small{color:var(--muted);font-size:11px}.exercise-list{max-height:690px;overflow-y:auto;padding:7px}.exercise-option{display:flex;align-items:center;gap:10px;width:100%;padding:11px 10px;border:1px solid transparent;border-radius:10px;background:transparent;text-align:left;min-width:0}.exercise-option:hover{background:#ffffff08}.exercise-option[aria-current=true]{border-color:#bf77705b;background:#bd615915}.exercise-option .option-symbol{flex:0 0 36px;height:36px;display:grid;place-items:center;border:1px solid #ffffff1b;background:#ffffff05;border-radius:9px;color:#e5aaa5;font-size:17px}.exercise-option .option-copy{min-width:0}.exercise-option strong{display:block;font-size:12px;font-weight:650;white-space:normal;line-height:1.35}.exercise-option small{display:block;margin-top:4px;color:#928d9a;font-size:10px}.empty{padding:15px;color:var(--muted);font-size:12px}.detail{border:1px solid #ffffff1d;background:#0d111a;border-radius:17px;min-width:0;overflow:hidden}.detail-head{display:flex;justify-content:space-between;align-items:start;gap:10px;padding:20px 22px 13px}.detail-head h2{font-size:clamp(21px,3vw,28px);letter-spacing:-.04em;margin:5px 0 7px}.detail-head p{margin:0;color:#b7aeb8;font-size:11px}.kind-tag{border:1px solid #b4635c54;border-radius:100px;padding:6px 10px;font-size:10px;color:#e7a8a2;white-space:nowrap}.kind-tag.pull{border-color:#7cd4de52;color:var(--cyan)}.kind-tag.ben{border-color:#e8b57b52;color:var(--orange)}.kind-tag.kondition{border-color:#95b7d252;color:#a7d5f4}.stage{position:relative;margin:0 22px;border:1px solid #ffffff13;border-radius:13px;background:radial-gradient(ellipse 58% 64% at 50% 45%,#18202c,#0a0e15 80%);overflow:hidden}.stage svg{display:block;width:100%;height:auto;max-height:380px;aspect-ratio:420/340}.stage-label{position:absolute;top:12px;left:14px;right:14px;text-transform:uppercase;color:#9c9da9;font-size:9px;letter-spacing:.14em;font-weight:750}.stage-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 22px 0}.stage-controls{display:flex;gap:6px;flex-shrink:0}.stage-bottom small{color:#a9a2ae;font-size:11px}.stage-bottom button{border:1px solid #ffffff2a;background:#ffffff08;border-radius:9px;padding:8px 12px;font-size:11px;font-weight:650;min-width:80px}.muscle-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:15px 22px 4px}.muscle-row b{font-size:10px;color:#b6aab5;font-weight:650;margin-right:4px}.muscle-pill{font-size:11px;border:1px solid #ff806f56;background:#ff806f12;color:#ffad9f;padding:6px 9px;border-radius:100px}.muscle-pill:before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muscle);margin-right:6px;box-shadow:0 0 8px #ff806f90}.instructions{padding:13px 22px 23px}.instructions h3{font-size:13px;margin:9px 0 10px}.instructions ol{margin:0;padding-left:20px;display:grid;gap:9px}.instructions li{font-size:12px;line-height:1.6;color:#d2cbd4;padding-left:3px}.tech-tip{margin-top:15px;border-top:1px solid #ffffff14;padding-top:13px;font-size:11px;color:#b6abb4;line-height:1.6}.tech-tip strong{color:#e3bab6}.footnote{margin-top:16px;font-size:11px;line-height:1.6;color:#898592}#detail[hidden]{display:none}
 @media(max-width:740px){.top{padding:12px 14px}main{padding:22px 12px 56px}.filters{margin:18px 0 14px}.layout{display:flex;flex-direction:column}.detail{order:0;width:100%}.catalog{order:1;width:100%}.exercise-list{max-height:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}.exercise-option{padding:9px 6px;gap:7px}.exercise-option .option-symbol{flex-basis:28px;height:32px;font-size:14px}.exercise-option strong{font-size:11px}.exercise-option small{font-size:9px}.detail-head{padding:15px 14px 11px}.stage{margin:0 12px}.stage svg{max-height:310px}.stage-bottom{margin:8px 13px 0}.muscle-row{padding:13px 13px 3px}.instructions{padding:12px 15px 20px}.detail-head h2{font-size:22px}}@media(max-width:350px){.exercise-list{grid-template-columns:1fr}.stage svg{max-height:275px}.stage-label{font-size:8px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-[hidden]{display:none!important}select{font:inherit;color:inherit}select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}button:disabled{opacity:.45;cursor:default}.explore-star{color:#f0cb8d;font-size:.8em}.section-intro h2{font-size:24px;font-weight:600;letter-spacing:-.035em;margin:0 0 8px}.section-intro p,.selection p{color:var(--muted);font-size:13px;line-height:1.65;margin:0}.explore-quiet{color:#d0b8b6;border:1px solid #ffffff24;background:#ffffff04;border-radius:10px;min-height:42px;padding:10px 12px;font-size:12px;font-weight:600}.explore-quiet:hover{background:#ffffff0e}.explore-primary{border:1px solid #dc958f5c;border-radius:10px;min-height:44px;padding:12px 15px;background:#c7847e;color:#18100f;font-size:12px;font-weight:800}.explore-primary:hover{background:#e3a9a4}.explore-primary[aria-pressed=true]{background:#91e4ec14;border-color:#91e4ec50;color:#b3e8ed}.program-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.program-card{min-width:0;border:1px solid var(--line);border-radius:15px;padding:19px;background:linear-gradient(140deg,#191a27,#0e131c);display:flex;flex-direction:column;align-items:start}.program-card h3{font-size:18px;font-weight:600;letter-spacing:-.02em;line-height:1.35;margin:12px 0 8px}.program-card p{font-size:12px;line-height:1.65;color:var(--muted);margin:0 0 12px}.guide-add-row{border-top:1px solid var(--line);padding-top:16px;margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.guide-add-row span{font-size:11px;color:var(--muted)}.program-grid{margin-top:19px}.program-card .program-meta{color:#dec0bd;font-size:11px;margin:6px 0 17px}.program-card button{width:100%;margin-top:auto}.program-card[data-group=Pull]{background:linear-gradient(140deg,#12252b,#0e131c)}.program-card[data-group=Ben],.program-card[data-group=Kondition]{background:linear-gradient(140deg,#29231f,#0e131c)}#program-filters{margin-top:20px}.program-detail{margin-top:20px;padding:25px;background:#0e141f;border:1px solid #c7847e66;border-radius:16px;scroll-margin-top:100px}.program-detail h2{font-size:26px;font-weight:600;letter-spacing:-.035em;margin:12px 0}.program-detail p{font-size:13px;line-height:1.7;color:#b9afbe}.program-detail .program-schedule{border-left:2px solid #b77f7a;padding-left:12px}.program-detail ol{list-style:none;padding:0;margin:20px 0}.program-detail li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:13px 0;border-top:1px solid var(--line)}.program-detail li>span{color:#886c7d;font-size:11px}.program-detail li strong{display:block;font-size:13px;font-weight:600}.program-detail li small{display:block;color:#bdacbb;font-size:11px;margin-top:5px}.program-detail footer{border-top:1px solid var(--line);padding-top:14px}.selection{margin:32px 0 20px;padding:20px;border:1px solid #c9918c3c;border-radius:16px;background:#161520}.selection-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.selection h2{font-size:21px;margin:7px 0 12px;font-weight:550;letter-spacing:-.025em}.selection h2 span{color:#e7bbb7;font-size:12px;margin-left:8px;border:1px solid #ffffff26;border-radius:999px;padding:3px 8px}.selection ul{padding:0;list-style:none;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px}.selection li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line);min-width:0}.selection li strong{display:block;font-size:12px}.selection li small{display:block;font-size:11px;color:#b9a7a5;margin-top:5px}.selection li button{flex-shrink:0;font-size:18px;min-width:42px;min-height:42px;border:1px solid #ffffff20;border-radius:8px;background:transparent;color:#c99a96}#selection-actions{margin-top:12px}#selection-actions button{margin-top:14px}.explore-status{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#232031f5;box-shadow:0 8px 40px #0008;border:1px solid #b77f7a66;border-radius:12px;padding:12px 16px;z-index:25;font-size:12px;max-width:calc(100% - 24px);width:max-content;pointer-events:none}.explore-status:empty{display:none}.footnote a{text-decoration:underline;text-underline-offset:3px}.empty-result{grid-column:1/-1;border:1px dashed var(--line);border-radius:12px;padding:24px;color:var(--muted);font-size:13px;line-height:1.7}.detail{scroll-margin-top:90px}.stage-bottom{flex-wrap:wrap}
-@media(max-width:740px){.program-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.program-card{padding:14px}.program-card h3{font-size:16px}.section-intro h2{font-size:23px}.selection{padding:16px}.selection ul{grid-template-columns:1fr}.program-detail{padding:16px}.program-detail h2{font-size:24px}.program-detail li{grid-template-columns:22px minmax(0,1fr) auto;gap:5px}.program-detail li button{font-size:10px;padding:9px 8px}.program-detail footer>.explore-primary{width:100%}}
-@media(max-width:370px){.program-grid{grid-template-columns:1fr}.intro h1{font-size:26px}.back{font-size:10px;padding:9px}.brand{font-size:12px}.brand small{font-size:8px}.program-detail li{grid-template-columns:20px minmax(0,1fr)}.program-detail li button{grid-column:2;justify-self:start}.stage-controls{width:100%}.stage-controls button{flex:1}.selection-top{align-items:start}}
+[hidden]{display:none!important}select{font:inherit;color:inherit}select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}button:disabled{opacity:.45;cursor:default}.explore-star{color:#f0cb8d;font-size:.8em}.section-intro h2{font-size:24px;font-weight:600;letter-spacing:-.035em;margin:0 0 8px}.section-intro p,.explore-quiet{color:#d0b8b6;border:1px solid #ffffff24;background:#ffffff04;border-radius:10px;min-height:42px;padding:10px 12px;font-size:12px;font-weight:600}.explore-quiet:hover{background:#ffffff0e}.explore-primary{border:1px solid #dc958f5c;border-radius:10px;min-height:44px;padding:12px 15px;background:#c7847e;color:#18100f;font-size:12px;font-weight:800}.explore-primary:hover{background:#e3a9a4}.explore-primary[aria-pressed=true]{background:#91e4ec14;border-color:#91e4ec50;color:#b3e8ed}.guide-add-row{border-top:1px solid var(--line);padding-top:16px;margin-top:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.guide-add-row span{font-size:11px;color:var(--muted)}#selection-actions{margin-top:12px}#selection-actions button{margin-top:14px}.explore-status{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#232031f5;box-shadow:0 8px 40px #0008;border:1px solid #b77f7a66;border-radius:12px;padding:12px 16px;z-index:25;font-size:12px;max-width:calc(100% - 24px);width:max-content;pointer-events:none}.explore-status:empty{display:none}.footnote a{text-decoration:underline;text-underline-offset:3px}.empty-result{grid-column:1/-1;border:1px dashed var(--line);border-radius:12px;padding:24px;color:var(--muted);font-size:13px;line-height:1.7}.detail{scroll-margin-top:90px}.stage-bottom{flex-wrap:wrap}
+@media(max-width:740px){.section-intro h2{font-size:23px}}
+@media(max-width:370px){.intro h1{font-size:26px}.back{font-size:10px;padding:9px}.brand{font-size:12px}.brand small{font-size:8px}.stage-controls{width:100%}.stage-controls button{flex:1}}
 
-.gym-row{display:grid;gap:8px;margin:18px 0 14px}.gym-label{font-size:12px;color:var(--muted)}
-.gym-row [data-gym-new],.gym-row [data-gym-edit]{border-style:dashed}
-.gym-editor{display:grid;gap:10px;margin:0 0 16px;padding:16px;border:1px solid #ffffff1f;border-radius:14px;background:#ffffff06}
-.gym-editor label[for=gym-name]{font-size:12px;color:var(--muted)}
-.gym-editor input#gym-name{min-height:46px;border:1px solid #ffffff26;border-radius:12px;background:#10151f;color:var(--text);padding:12px;font:inherit;font-size:16px}
-.gym-editor fieldset{border:0;margin:0;padding:0}.gym-editor legend{font-size:12px;color:var(--muted);margin-bottom:8px}
-.gym-equipment{display:flex;flex-wrap:wrap;gap:7px}
-.gym-equipment label{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid #ffffff21;border-radius:10px;font-size:13px;color:#d9d4dc;cursor:pointer}
-.gym-equipment input{width:18px;height:18px;accent-color:#c7847e}
-.gym-editor fieldset p{margin:8px 0 0;font-size:12px;color:var(--muted)}
-.gym-error{margin:0;font-size:12px;color:#f3a69f}.gym-error:empty{display:none}
-.gym-actions{display:flex;flex-wrap:wrap;gap:8px}.gym-actions .explore-primary{flex:1 1 140px;width:auto}
-.program-time-row{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:18px 0}
-.program-time-row label{display:grid;gap:8px;font-size:12px;color:var(--muted);flex:1;min-width:200px;max-width:300px}
-.program-time-row select{width:100%;min-height:46px;border:1px solid #ffffff26;border-radius:12px;background:#10151f;color:var(--text);padding:12px;font:inherit;font-size:16px}
-.program-time-row select:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
-.program-time-row p{margin:0 0 12px;color:var(--muted);font-size:12px}#inspiration-toggle{color:#e4c99d}#inspiration-toggle[aria-pressed=true]{background:#cba36524;border-color:#cfb0757d}
+#inspiration-toggle{color:#e4c99d}#inspiration-toggle[aria-pressed=true]{background:#cba36524;border-color:#cfb0757d}
 
 
 body{background:radial-gradient(ellipse 90% 33% at 55% 13%,#17233255,transparent 88%),#080b12}
@@ -261,10 +245,6 @@ body:has(.studio-technique[open]){overflow:hidden}
 .studio-top-meta{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0;font-size:10px;white-space:nowrap;color:#aaabb9}
 #studio-route{font-size:10px;max-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #studio-index{white-space:nowrap;color:#dfbebb;font-size:11px}
-#selection{margin:29px 0 5px;padding:21px 2px 15px;border:0;border-top:1px solid #ffffff1d;border-radius:0;background:transparent}
-#selection .selection-top{margin:0 0 9px}
-#selection h2{font-weight:580;font-size:23px;letter-spacing:-.035em}
-#selection #selection-empty{font-size:11px;line-height:1.6;color:#7e8693}
 .guide-about{border-top:1px solid #ffffff15;margin:0 0 22px;padding:9px 2px 0;color:#777e89}
 .guide-about summary{display:list-item;cursor:pointer;font-size:10px;letter-spacing:.015em}
 .guide-about p{font-size:10px;line-height:1.65;max-width:620px}
@@ -276,11 +256,10 @@ body:has(.studio-technique[open]){overflow:hidden}
  #studio-route{max-width:87px;font-size:9px}
  #studio-index{font-size:10px}
  #studio-filter-toggle{padding:8px 10px;font-size:10px}
- #selection{margin-top:20px}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261108-gym-1"><script src="pulse-gym-scene.js?v=20261108-nav-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261108-dock-3"><script src="pulse-gym.js?v=20261108-dock-3"></script>
+<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261108-dock-4"><script src="pulse-gym-scene.js?v=20261108-dock-4"></script><link rel="stylesheet" href="pulse-gym.css?v=20261108-dock-4"><script src="pulse-gym.js?v=20261108-dock-4"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261108-dock-3">
 </head>
 <body>
@@ -313,16 +292,13 @@ body:has(.studio-technique[open]){overflow:hidden}
   <div class="muscle-map-options"><div class="muscle-map-result"><div aria-live="polite" aria-atomic="true"><span class="eyebrow">Ditt fokus</span><h3 id="muscle-map-name">Bröst</h3><p id="muscle-map-count"></p></div><button type="button" id="muscle-map-open">Alla övningar <span aria-hidden="true">↗</span></button></div><div id="muscle-map-exercises" aria-label="Övningsalternativ"></div></div>
  </div>
 </section>
-<section id="programs-page" hidden aria-labelledby="programs-title"><div class="section-intro"><div><h2 id="programs-title">Hitta ditt nästa pass</h2><p>Färdiga pass med set och repetitionsintervall. Välj ett, se innehållet och kopiera förslaget till din egen passbyggare.</p></div></div><div id="program-controls"><div class="gym-row"><span class="gym-label" id="gym-label">Ditt gym</span><div class="filter-row" id="gym-filters" role="group" aria-labelledby="gym-label"></div></div>
-<form id="gym-editor" class="gym-editor" hidden><label for="gym-name">Namn på gymmet</label><input id="gym-name" maxlength="30" autocomplete="off" placeholder="Till exempel Hemma eller Jobbet" required><fieldset><legend>Utrustning som finns där</legend><div id="gym-equipment" class="gym-equipment"></div><p>Övningar med kroppsvikt räknas alltid med.</p></fieldset><p id="gym-error" class="gym-error" role="alert"></p><div class="gym-actions"><button type="submit" class="explore-primary">Spara gym</button><button type="button" class="explore-quiet" id="gym-cancel">Avbryt</button><button type="button" class="explore-quiet" id="gym-delete" hidden>Ta bort gymmet</button></div></form>
-<div class="filter-row" id="program-filters" aria-label="Filtrera träningsprogram"></div><div class="program-time-row"><label for="program-time">Hur mycket tid har du?<select id="program-time"><option value="">Alla längder</option><option value="20">Upp till 20 min</option><option value="30">Upp till 30 min</option><option value="45">Upp till 45 min</option><option value="60">Upp till 60 min</option></select></label><p id="program-count" role="status"></p></div></div><div id="program-cards" class="program-grid"></div><section id="program-detail" class="program-detail" hidden aria-labelledby="program-title" tabindex="-1"></section><p class="footnote">Programmen är generella startförslag. Vikter väljer du själv. Tiderna är ungefärliga och inkluderar uppvärmning och setvila, men inte väntan på utrustning. Filtret utgår från den övre tidsuppskattningen.</p></section>
-<section id="selection" class="selection" aria-labelledby="selection-title"><div class="selection-top"><div><div class="eyebrow">DITT URVAL</div><h2 id="selection-title">Mitt pass <span id="selection-count">0</span></h2></div><button type="button" class="explore-quiet" id="clear-selection" hidden>Rensa urval</button></div><p id="selection-empty">Välj övningar i Utforska. De samlas här.</p><ul id="selection-items"></ul><div id="selection-actions" hidden><p id="selection-help">Lägg övningarna i dagens pass och justera set, reps och vikter där, eller kopiera förslaget.</p><button type="button" class="explore-primary" id="add-selection-today">Lägg till i dagens pass ↗</button> <button type="button" class="explore-quiet" id="open-selection">Kopiera passförslag</button></div></section>
+
+
 <p id="explore-status" class="explore-status" role="status" aria-live="polite"></p>
 <details class="guide-about"><summary>Om träningsguiden</summary><p>Övningar och urval är separata från din sparade träningslogg. Illustrationerna är förenklade teknikguider. Anpassa belastning och rörelseomfång efter din förmåga.</p></details><nav id="living-dock" class="living-dock" aria-label="Pulse Flow huvudnavigation">
  <button type="button" data-page="guide" aria-label="Utforska"><span class="living-dock-icon">⌂</span><span>Utforska</span></button>
  <button type="button" data-page="muscle-map" aria-label="Muskelkarta"><span class="living-dock-icon">◎</span><span>Muskelkarta</span></button>
- <button type="button" data-page="programs" aria-label="Program"><span class="living-dock-icon">▥</span><span>Program</span></button>
- <button type="button" id="living-pass-btn" data-page="selection" aria-label="Mitt pass"><span class="living-dock-icon">▤</span><span>Mitt pass <small id="living-pass-count">0</small></span></button>
+ <small id="living-pass-count" hidden>0</small>
 </nav>
 </main>
 <script>
@@ -984,7 +960,7 @@ $('pause').addEventListener('click',()=>{paused=!paused;$('pause').textContent=p
 // The merged explorer shares one catalogue, prescription source and selection.
 const explorer=window.PulseExplore;
 let inspirationOnly=false;
-let page='guide',programFilter='Alla',chosenProgram=null,selection=[],statusTimer;
+let page='guide',selection=[],statusTimer;
 try{const saved=JSON.parse(sessionStorage.getItem(explorer.selectionKey)||'[]');if(explorer.workout({version:1,ids:saved}))selection=saved;}catch(error){}
 function announce(message){clearTimeout(statusTimer);$('explore-status').textContent=message;statusTimer=setTimeout(()=>$('explore-status').textContent='',5000);}
 function updateGuideChoice(){
@@ -993,10 +969,9 @@ function updateGuideChoice(){
  $('guide-prescription').textContent='Förslag: '+explorer.prescription(active).label;
 }
 function saveSelection(){try{sessionStorage.setItem(explorer.selectionKey,JSON.stringify(selection));}catch(error){announce('Urvalet finns kvar här, men webbläsaren tillåter inte att det sparas mellan sidor.');}}
+// Mitt pass is shown by the explorer's search panel (pulse-gym.js); this count is what it and the scene watch.
 function renderSelection(){
- $('selection-count').textContent=selection.length;
- $('living-pass-count').textContent=String(selection.length);$('selection-empty').hidden=selection.length>0;$('selection-actions').hidden=!selection.length;$('clear-selection').hidden=!selection.length;
- $('selection-items').innerHTML=selection.map(id=>`<li><div><strong>${safe(exercises[id].name)}</strong><small>Förslag: ${safe(explorer.prescription(id).label)}</small></div><button type="button" data-remove-choice="${id}" aria-label="Ta bort ${safe(exercises[id].name)}">×</button></li>`).join('');
+ $('living-pass-count').textContent=String(selection.length);
  updateGuideChoice();
  document.querySelectorAll('[data-add-choice]').forEach(button=>{const added=selection.includes(Number(button.dataset.addChoice));button.setAttribute('aria-pressed',String(added));button.textContent=added?'✓ Vald':'＋ Välj';});
 }
@@ -1008,138 +983,18 @@ function toggleChoice(id){
 }
 function showPage(value,remember=true){
  setList(false);
- page=['guide','muscle-map','programs','selection'].includes(value)?value:'guide';
+ page=value==='muscle-map'?'muscle-map':'guide';
  document.body.classList.toggle('living-guide-active',page==='guide');
  document.body.classList.toggle('muscle-map-active',page==='muscle-map');
  if(page!=='guide'&&studioOpen)toggleStudio(false);
- for(const name of ['guide','muscle-map','programs'])$(name+'-page').hidden=name!==page;
+ for(const name of ['guide','muscle-map'])$(name+'-page').hidden=name!==page;
  document.querySelectorAll('[data-page]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.page===page)));
  $('living-dock').hidden=false;
 
- $('selection').hidden=page!=='selection';
  if(page==='guide'&&!studioOpen)openStudio(group,active,false);
- if(page==='programs')renderPrograms();
  if(value==='suggestions')setList(true);
 }
 function showTechnique(id){route(()=>{setList(false);showPage('guide',false);openStudio('Alla',id,true);});}
-function renderPrograms(){
- const available=explorer.profile==='ingemar'?groups:['Alla',...new Set(explorer.programs.map(p=>p.group))];
- $('program-filters').innerHTML=available.map(value=>`<button type="button" data-program-filter="${value}" aria-pressed="${programFilter===value}">${value}</button>`).join('');
- renderGyms();
- const gym=explorer.activeGym(),total=explorer.matchingPrograms('Alla',$('program-time').value,null).filter(p=>programFilter==='Alla'||(explorer.profile==='ingemar'?p.ids.some(id=>exercises[id].muscles.includes(programFilter)):p.group===programFilter)).length;
- const matches=explorer.matchingPrograms('Alla',$('program-time').value).filter(p=>programFilter==='Alla'||(explorer.profile==='ingemar'?p.ids.some(id=>exercises[id].muscles.includes(programFilter)):p.group===programFilter));
- $('program-count').textContent=gym?matches.length+' av '+total+' program passar '+gym.name:matches.length+' program';
- $('program-cards').innerHTML=matches.map(p=>`<article class="program-card" data-group="${p.group}"><span class="eyebrow">${safe(p.tag)}</span><h3>${safe(p.name)}</h3><p>${safe(p.description)}</p><div class="program-meta">${p.ids.length} övningar · ${safe(explorer.durationLabel(p))}<br>${safe(explorer.programEquipment(p).join(', ')||'Bara kroppsvikt')}</div><button type="button" class="explore-quiet" data-program="${p.id}">Visa program →</button></article>`).join('')||'<div class="empty-result">'+(gym?'Inga program passar utrustningen i '+safe(gym.name)+' med dina övriga val.':'Inga program ryms inom dina val. Välj mer tid eller en annan inriktning.')+' <button type="button" class="explore-quiet" id="reset-program-filters">Visa alla program</button></div>';
-}
-/* Gym profiles: "Alla förslag" shows everything; a chosen gym only shows programmes it has the equipment for. */
-let gymEditing=null;
-function renderGyms(){
- const d=explorer.readGyms();
- $('gym-filters').innerHTML=`<button type="button" data-gym="" aria-pressed="${!d.active}">Alla förslag</button>`+
-  d.gyms.map(g=>`<button type="button" data-gym="${safe(g.id)}" aria-pressed="${d.active===g.id}">${safe(g.name)}</button>`).join('')+
-  (d.active?`<button type="button" data-gym-edit="${safe(d.active)}">Ändra utrustning</button>`:'')+
-  (d.gyms.length<8?'<button type="button" data-gym-new="1">＋ Nytt gym</button>':'');
-}
-function openGymEditor(gym){
- gymEditing=gym?gym.id:'';
- $('gym-name').value=gym?gym.name:'';$('gym-error').textContent='';$('gym-delete').hidden=!gym;
- $('gym-equipment').innerHTML=explorer.EQUIPMENT.map(e=>`<label><input type="checkbox" value="${e}"${!gym||gym.equipment.includes(e)?' checked':''}> ${e==='Konditionsmaskin'?'Konditionsmaskiner':e==='Maskin'?'Maskiner':e}</label>`).join('');
- $('gym-editor').hidden=false;$('gym-name').focus();
-}
-function closeGymEditor(){gymEditing=null;$('gym-editor').hidden=true;}
-$('gym-filters').addEventListener('click',e=>{
- const b=e.target.closest('button');if(!b)return;const d=explorer.readGyms();
- if(b.dataset.gymNew){openGymEditor(null);return;}
- if(b.dataset.gymEdit){openGymEditor(d.gyms.find(g=>g.id===b.dataset.gymEdit));return;}
- if(b.dataset.gym!==undefined){d.active=b.dataset.gym;explorer.saveGyms(d);closeGymEditor();closeProgram();renderPrograms();}
-});
-$('gym-editor').addEventListener('submit',e=>{
- e.preventDefault();const name=$('gym-name').value.trim(),equipment=[...$('gym-equipment').querySelectorAll('input:checked')].map(x=>x.value),d=explorer.readGyms();
- if(!name){$('gym-error').textContent='Ge gymmet ett namn.';return;}
- if(d.gyms.some(g=>g.id!==gymEditing&&g.name.toLocaleLowerCase('sv')===name.toLocaleLowerCase('sv'))){$('gym-error').textContent='Det finns redan ett gym med det namnet.';return;}
- const id=gymEditing||'gym-'+Date.now().toString(36),gym={id,name,equipment};
- d.gyms=gymEditing?d.gyms.map(g=>g.id===id?gym:g):d.gyms.concat(gym);d.active=id;
- if(!explorer.saveGyms(d)){$('gym-error').textContent='Gymmet kunde inte sparas. Tillåt webbplatslagring och försök igen.';return;}
- closeGymEditor();closeProgram();renderPrograms();announce(name+' är sparat. Programmen visar det som passar där.');
-});
-$('gym-cancel').addEventListener('click',closeGymEditor);
-$('gym-delete').addEventListener('click',()=>{const d=explorer.readGyms(),gym=d.gyms.find(g=>g.id===gymEditing);if(!gym)return;d.gyms=d.gyms.filter(g=>g.id!==gym.id);if(d.active===gym.id)d.active='';explorer.saveGyms(d);closeGymEditor();renderPrograms();announce(gym.name+' är borttaget.');});
-// Another device (or the training page's sync) changed the gyms.
-window.addEventListener('storage',e=>{if(e.key===explorer.gymKey)renderPrograms();});
-function renderProgramTimeline(program){
- const steps=explorer.programSequence(program);
- return '<ol class="program-timeline">'+steps.map((segment)=>{
-  if(segment.kind!=='exercise'){
-   const rope=segment.kind==='rope',label=rope?'Hopprep':'Vila';
-   return '<li class="timeline-recovery"><span class="timeline-recovery-mark" aria-hidden="true"></span><div><strong>'+label+'</strong><small>'+(rope?segment.seconds+' sek hopprep · '+segment.restSeconds+' sek lugn återhämtning':segment.seconds+' sek mellan övningarna')+'</small></div></li>';
-  }
-  const id=segment.id,i=segment.index,ex=exercises[id];
-  return `<li><button class="timeline-preview" type="button" data-technique="${id}" aria-label="Se teknik för ${safe(ex.name)}"><span class="timeline-poses">${[0,1].map(pose=>`<span class="timeline-pose"><span class="pose-image"><img src="assets/exercise-poses-v2/${String(id).padStart(2,'0')}-${pose?'end':'start'}.webp" loading="lazy" decoding="async" alt="${safe(ex.name)} · ${pose?'slutläge':'startläge'}"></span></span>`).join('')}</span></button><div class="timeline-copy"><span class="timeline-number">${String(i+1).padStart(2,'0')}</span><strong>${safe(ex.name)}</strong><small>Förslag: ${safe(explorer.prescription(id,program).label)}</small><small>${safe(exerciseEstimate(id,program))}</small></div><button type="button" class="explore-quiet" data-technique="${id}" aria-label="Se teknik för ${safe(ex.name)}">Se teknik ↗</button></li>`;
- }).join('')+'</ol>';
-}
-// The standalone Program tab uses the same overview/detail hierarchy as the
-// full-screen exercise road. Ingemar keeps the original full timeline.
-function mmProgramme(){return true;} // Same presentation, different profile-specific programme catalogue.
-function mmAfter(program,index){
- const kind=program.between&&program.between[index];
- if(index>=program.ids.length-1||!kind)return null;
- return kind==='rope'?{label:'Hopprep 45 s',extra:'Återhämtning 30 s',rope:true}:{label:'Vila 90 s',extra:'',rope:false};
-}
-function mmOverviewHtml(program){
- return '<ol class="mm-program-list">'+program.ids.map((id,index)=>{
-  const e=exercises[id],dose=explorer.prescription(id,program),after=mmAfter(program,index);
-  return `<li><button type="button" class="mm-program-row" data-mm-step="${index}" aria-label="Detaljer för ${safe(e.name)}"><span class="mm-program-index">${index+1}</span><img src="assets/exercise-poses-v2/${String(id).padStart(2,'0')}-start.webp" alt="" loading="lazy" decoding="async"><span class="mm-program-row-copy"><strong>${safe(e.name)}</strong><small>${safe(e.muscles[0])} · ${safe(dose.label)}</small></span><span aria-hidden="true" class="mm-program-next">›</span></button>${after?'<div class="mm-program-between'+(after.rope?' is-rope':'')+'"><span>'+safe(after.label)+'</span>'+(after.extra?'<small>'+safe(after.extra)+'</small>':'')+'</div>':''}</li>`;
- }).join('')+'</ol>';
-}
-function mmDetailHtml(program,index){
- const id=program.ids[index],e=exercises[id],dose=explorer.prescription(id,program),after=mmAfter(program,index),file=String(id).padStart(2,'0');
- return `<div class="mm-program-detail-head"><span class="eyebrow">STEG ${index+1} AV ${program.ids.length} · ${safe(e.muscles.join(' · '))}</span><h3>${safe(e.name)}</h3><p>${safe(dose.label)} · ${safe(e.equipment)}</p></div><div class="mm-program-large-poses"><img src="assets/exercise-poses-v2/${file}-start.webp" alt="Startläge för ${safe(e.name)}" loading="lazy"><img src="assets/exercise-poses-v2/${file}-end.webp" alt="Slutläge för ${safe(e.name)}" loading="lazy"></div><div class="mm-program-after">${after?'Efter övningen: <strong>'+safe(after.label)+'</strong> '+safe(after.extra):'Sista övningen – återhämtning efter passet'}</div><div class="mm-program-technique"><span class="eyebrow">TEKNIK</span><ol>${e.steps.map(step=>'<li>'+safe(step)+'</li>').join('')}</ol><p>${safe(e.tip)}</p></div><div class="mm-program-detail-nav"><button type="button" data-mm-step="${index-1}" ${index===0?'disabled':''}>← Föregående</button><button type="button" data-mm-step="${index+1}" ${index===program.ids.length-1?'disabled':''}>Nästa →</button></div><button type="button" class="explore-quiet mm-program-live" data-technique="${id}">Se animerad teknik ↗</button>`;
-}
-function mmShowDetail(index){
- const p=explorer.programs.find(program=>program.id===chosenProgram);
- if(!p||!mmProgramme()||index<0||index>=p.ids.length)return;
- const overview=$('mm-program-overview'),detail=$('mm-program-detail-body');
- if(!overview||!detail)return;
- overview.hidden=true;detail.innerHTML=mmDetailHtml(p,index);detail.hidden=false;
- $('mm-program-view-overview').setAttribute('aria-pressed','false');
- $('mm-program-view-detail').setAttribute('aria-pressed','true');
- detail.scrollIntoView({block:'start',behavior:'smooth'});
-}
-function mmShowOverview(){
- const overview=$('mm-program-overview'),detail=$('mm-program-detail-body');
- if(!overview||!detail)return;
- detail.hidden=true;overview.hidden=false;
- $('mm-program-view-overview').setAttribute('aria-pressed','true');
- $('mm-program-view-detail').setAttribute('aria-pressed','false');
- $('mm-program-controls').scrollIntoView({block:'start',behavior:'smooth'});
-}
-function showProgram(id){
- const p=explorer.programs.find(program=>program.id===id);if(!p)return;chosenProgram=p.id;
- $('program-detail').hidden=false;
- if(mmProgramme()){
-  const rope=(p.between||[]).filter(x=>x==='rope').length,rest=(p.between||[]).length-rope;
-  $('program-detail').classList.add('mm-program-simplified');
-  $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="mm-program-heading"><span class="eyebrow">DITT TRÄNINGSPASS</span><h2 id="program-title">${safe(p.name)}</h2><p>${safe(p.description)}</p></div><div id="mm-program-controls" class="mm-program-controls"><div class="mm-program-summary"><strong>${p.ids.length} övningar</strong><span>${safe(explorer.durationLabel(p))}</span><small>${p.between&&p.between.length?rope+' hopprep · '+rest+' vilor':safe(p.group||p.type||'Styrka')}</small></div><div class="mm-program-switch"><button type="button" id="mm-program-view-overview" data-mm-overview aria-pressed="true">Översikt</button><button type="button" id="mm-program-view-detail" data-mm-step="0" aria-pressed="false">Detalj</button></div></div><div id="mm-program-overview">${mmOverviewHtml(p)}</div><section id="mm-program-detail-body" hidden aria-label="Övningens detaljer"></section><p class="mm-program-footer-note">${safe(p.schedule)}</p><button type="button" class="explore-primary mm-program-start" id="open-program">${explorer.profile==='ingemar'?'Öppna i passbyggaren ↗':'Kopiera programförslag ↗'}</button>`;
-  $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
-  $('program-detail').focus({preventScroll:true});
-  $('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
-  return;
- }
- $('program-detail').classList.remove('mm-program-simplified');
- $('program-detail').innerHTML=`<button type="button" class="explore-quiet" id="close-program">← Till programmen</button><div class="eyebrow" style="margin-top:22px">${safe([...new Set(p.ids.flatMap(id=>exercises[id].muscles))].slice(0,3).join(' · '))} · ${safe(p.equipment)}</div><h2 id="program-title">${safe(p.name)}</h2><p class="dose">Tidsestimat: ca ${safe(explorer.durationLabel(p))} · ${p.ids.length} övningar</p><p>${safe(p.description)}</p><p class="program-schedule">${safe(p.schedule)}</p><div class="timeline-start"><span>◌</span> Uppvärmning <small>Innan första arbetssetet</small></div>${renderProgramTimeline(p)}<footer><p>${p.type==='Kondition'?'Tid fylls i. Anpassa fart och motstånd efter dig.':'Börja med uppvärmning och lätta provset. Börja gärna med 8 reps som startvärde inom intervallet 8–12 och ungefär 90 sekunders setvila. Anpassa vikter och vila efter dig.'}</p><button type="button" class="explore-primary" id="open-program">${explorer.profile==='ingemar'?'Öppna i passbyggaren ↗':'Kopiera programförslag ↗'}</button></footer>`;
- $('program-cards').hidden=true;$('program-controls').hidden=true;$('programs-title').closest('.section-intro').hidden=true;
- $('program-detail').focus({preventScroll:true});$('program-detail').scrollIntoView({block:'start',behavior:'smooth'});
-}
-function exerciseEstimate(id,program){
- const dose=explorer.prescription(id,program);
- if(dose.mode==='min')return dose.sets>1?'Tidsestimat: ca '+Math.ceil(dose.sets*dose.minutes+(dose.sets-1))+' min inkl. vila':'Tidsestimat: ca '+dose.minutes+' min';
- const perSide=dose.label.includes('/ sida')?2:1;
- const range=dose.range.split('–').map(Number);
- const estimate=reps=>Math.max(1,Math.ceil((dose.sets*reps*3*perSide+(dose.sets-1)*90)/60));
- const min=estimate(range[0]),max=estimate(range[1]||range[0]);
- return 'Tidsestimat: ca '+min+(max>min?'–'+max:'')+' min inkl. vila';
-}
-function closeProgram(){$('programs-title').closest('.section-intro').hidden=false;chosenProgram=null;$('program-detail').hidden=true;$('program-detail').classList.remove('mm-program-simplified');$('program-cards').hidden=false;$('program-controls').hidden=false;}
 function transfer(request){
  const plan=explorer.workout(request);
  if(!plan)return;
@@ -1180,7 +1035,7 @@ function transfer(request){
 }
 let routeDepth=0,listOpen=false;
 function setList(open){listOpen=open;document.body.classList.toggle('exercise-list-open',open);$('studio-filters').hidden=!open;$('studio-filter-toggle').setAttribute('aria-expanded',String(open));}
-function routeState(){return {pulse:true,depth:routeDepth,page,active,group,equip,query:$('search').value,chosenProgram,listOpen,inspirationOnly,filters:!$('studio-filters').hidden,scroll:scrollY};}
+function routeState(){return {pulse:true,depth:routeDepth,page,active,group,equip,query:$('search').value,listOpen,inspirationOnly,filters:!$('studio-filters').hidden,scroll:scrollY};}
 function route(action){history.replaceState(routeState(),'');action();routeDepth++;history.pushState(routeState(),'','#'+page);}
 function goBack(){if(routeDepth>0){history.back();return;}route(()=>setList(true));}
 window.addEventListener('popstate',event=>{
@@ -1188,7 +1043,6 @@ window.addEventListener('popstate',event=>{
  routeDepth=state.depth;group=state.group;equip=state.equip;active=state.active;inspirationOnly=!!state.inspirationOnly;$('inspiration-toggle').setAttribute('aria-pressed',String(inspirationOnly));
  showPage(state.page,false);
  if(state.page==='guide'){openStudio(group,active,false);$('search').value=state.query;renderList();}
- if(state.page==='programs'){if(state.chosenProgram)showProgram(state.chosenProgram);else closeProgram();}
  setList(state.listOpen);$('studio-filters').hidden=!state.filters;
  $('studio-filter-toggle').setAttribute('aria-expanded',String(state.filters));
  requestAnimationFrame(()=>window.scrollTo({top:state.scroll,behavior:'instant'}));
@@ -1198,10 +1052,7 @@ document.querySelectorAll('[data-studio-muscle]').forEach(b=>b.addEventListener(
 try{const saved=Number(localStorage.getItem('pulse-last-exercise'));if(exercises[saved])active=saved;}catch(e){}
 $('inspiration-toggle').addEventListener('click',()=>{inspirationOnly=!inspirationOnly;$('inspiration-toggle').setAttribute('aria-pressed',String(inspirationOnly));renderList();});
 $('clear-exercise-filters').addEventListener('click',()=>{group='Alla';equip='All utrustning';inspirationOnly=false;$('search').value='';$('inspiration-toggle').setAttribute('aria-pressed','false');renderFilters();renderList();});
-$('program-time').addEventListener('change',()=>{closeProgram();renderPrograms();});
 $('guide-add').addEventListener('click',()=>toggleChoice(active));
-$('clear-selection').addEventListener('click',()=>{selection=[];saveSelection();renderSelection();announce('Urvalet är rensat.');});
-$('open-selection').addEventListener('click',()=>transfer({version:1,ids:selection}));
 /* The chosen exercises go into today's pass on the training page: the same hand-off as the
    programme road (pulse-explore-handoff.js) opens today's pass builder with them filled in. */
 function sendSelectionToToday(){
@@ -1213,20 +1064,11 @@ function sendSelectionToToday(){
  catch(e){announce('Övningarna kunde inte föras över. Kopiera förslaget i stället.');return;}
  host.location.href=url.href;
 }
-$('add-selection-today').addEventListener('click',sendSelectionToToday);
 document.addEventListener('click',event=>{
  const b=event.target.closest('button');if(!b)return;
  if(b.dataset.page)route(()=>{showPage(b.dataset.page,false);if(b.dataset.page==='guide'){setList(true);renderList();}window.scrollTo(0,0);});
- if(b.dataset.mmStep!=null&&chosenProgram&&!b.disabled){mmShowDetail(Number(b.dataset.mmStep));return;}
- if(b.dataset.mmOverview!=null&&chosenProgram){mmShowOverview();return;}
  if(b.dataset.technique!=null)showTechnique(Number(b.dataset.technique));
  if(b.dataset.addChoice!=null)toggleChoice(Number(b.dataset.addChoice));
- if(b.dataset.removeChoice!=null)toggleChoice(Number(b.dataset.removeChoice));
- if(b.dataset.programFilter){programFilter=b.dataset.programFilter;closeProgram();renderPrograms();}
- if(b.dataset.program)route(()=>showProgram(b.dataset.program));
- if(b.id==='reset-program-filters'){programFilter='Alla';$('program-time').value='';const d=explorer.readGyms();d.active='';explorer.saveGyms(d);closeProgram();renderPrograms();}
- if(b.id==='close-program')goBack();
- if(b.id==='open-program'&&chosenProgram)transfer({version:1,programId:chosenProgram});
 });
 window.addEventListener('pageshow',()=>{try{const saved=JSON.parse(sessionStorage.getItem(explorer.selectionKey)||'[]');selection=explorer.workout({version:1,ids:saved})?saved:[];renderSelection();}catch(error){}});
 
@@ -1247,11 +1089,10 @@ window.PulseGuideUI={
  browseMuscle:name=>route(()=>{showPage('guide');openStudio(name,null,true);setList(true);window.scrollTo(0,0);}),
  openMuscle:name=>route(()=>{const browsing=listOpen;openStudio(name,null,true);setList(browsing);}),
  countFor:name=>exercises.filter(e=>name==='Alla'||e.muscles.includes(name)).length,
- programFilter:()=>programFilter,
- program:id=>explorer.programs.find(p=>p.id===id),
- programCount:(name,time)=>explorer.matchingPrograms('Alla',time==null?$('program-time').value:time).filter(p=>name==='Alla'||(explorer.profile==='ingemar'?p.ids.some(id=>exercises[id].muscles.includes(name)):p.group===name)).length
 };
-renderSelection();renderPrograms();showPage(location.hash.slice(1)||'guide',false);
+// Links such as #programs open that tab of the explorer's search panel (pulse-gym.js).
+window.PULSE_EXPLORE_START=location.hash.slice(1);
+renderSelection();showPage(location.hash.slice(1)||'guide',false);
  history.replaceState(routeState(),'', '#'+page);
 
 window.addEventListener('load',()=>{if(studioOpen)draw((1-Math.cos(phase*Math.PI*2))/2,phase);});
