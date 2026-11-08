@@ -16,7 +16,6 @@ html.gm-scene-open main{visibility:hidden}
    body's layers so "Alla övningar" is never clipped. */
 .muscle-map-options{position:relative;z-index:4}
 /* Search: a glowing magnifier opposite the close button, opening a full-screen list. */
-.gm-find-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
 .gm-find svg,.gm-sheet svg,.gm-gyms svg,.gm-dock svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .gm-find{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:var(--pk-sky),radial-gradient(120% 70% at 50% 40%,#0f1622,transparent 80%),#080b12;color:#f2eded}
 .gm-find-head{position:relative;padding:calc(16px + env(safe-area-inset-top)) 20px 4px}
@@ -33,7 +32,7 @@ html.gm-scene-open main{visibility:hidden}
 .gm-find-copy b mark{background:none;color:#ff9a91}
 .gm-find-copy small{color:#a5a0ae;font:500 12px Inter,system-ui,sans-serif}
 .gm-find-empty{padding:24px 8px;color:#a5a0ae;font-size:13px;line-height:1.5}
-@media(prefers-reduced-motion:reduce){.gm-find,.gm-sheet,.gm-sheet-card,.gm-gyms{transition:none}}
+@media(prefers-reduced-motion:reduce){.gm-find,.gm-sheet,.gm-sheet-card,.gm-gyms{transition:none}.gm-find-btn .gm-find-spark{animation:none}}
 
 .gm-find-section{margin:14px 6px 4px;color:#ff9a91;font:700 9.5px Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
 .gm-find-row .pk-thumb.is-pose img{object-fit:contain;transform:none;padding:4px;box-sizing:border-box}
@@ -146,7 +145,10 @@ html.gm-scene-open main{visibility:hidden}
 .gm-switch-row input:checked+i::after{transform:translateX(20px)}
 .gm-switch-row input:focus-visible+i{outline:2px solid #ffb9ad;outline-offset:2px}
 .gm-gym-error{margin:0;color:#ffaaa0;font-size:13px}.gm-gym-error:empty{display:none}
-.gm-find-btn{position:absolute;left:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#ffffff12;color:#f6ece9;cursor:pointer}
+.gm-find-btn{position:absolute;left:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:#ffd4cc;box-shadow:none;filter:drop-shadow(0 0 6px #ff657a88);cursor:pointer}
+.gm-find-btn svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.gm-find-btn .gm-find-spark{fill:#ff9a91;stroke:none;transform-origin:10.5px 10.5px;animation:gmSpark 2.8s ease-in-out infinite}
+@keyframes gmSpark{0%,100%{opacity:.55;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
 .gm-find-btn:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
 /* Program and Planer in one tab: a segmented switch like Framsida/Baksida. */
 .gm-seg{display:flex;width:max-content;margin:12px 0 0;padding:3px;border:1px solid #ffffff16;border-radius:30px;background:#10151e}

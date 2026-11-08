@@ -97,7 +97,7 @@
     /* Search from the body, top left: opens Övningar with the keyboard ready. */
     var findBtn = document.createElement('button');
     findBtn.type = 'button'; findBtn.className = 'gm-find-btn'; findBtn.setAttribute('aria-label', 'Sök övningar');
-    findBtn.innerHTML = ICONS.ex;
+    findBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/><path class="gm-find-spark" d="M10.5 7.4c.25 1.9.9 2.6 2.8 2.8-1.9.25-2.6.9-2.8 2.8-.25-1.9-.9-2.6-2.8-2.8 1.9-.25 2.6-.9 2.8-2.8z"/></svg>';
     map.appendChild(findBtn);
     findBtn.addEventListener('click', function () { openFind('ex', { origin: findBtn }); setTimeout(function () { field.focus(); }, 320); });
 
