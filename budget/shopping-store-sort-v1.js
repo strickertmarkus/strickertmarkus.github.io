@@ -44,6 +44,13 @@
   var SHOPS = {
     maxi: { name: 'Maxi', order: ['bars', 'hygien', 'blommor', 'barn', 'frukt', 'kott', 'kryddor', 'deli', 'mejeri', 'brod', 'skafferi', 'bak', 'glutenfritt', 'kaffe', 'dricka', 'godis', 'fryst', 'frystGluten', 'glass', 'naturgodis', 'chips', 'toapapper', 'stad', 'folie'] }
   };
+  var NAMES = { bars: 'Bars', hygien: 'Hygien', blommor: 'Blommor', barn: 'Barn', frukt: 'Frukt och grönt', kott: 'Kött och korv', kryddor: 'Kryddor och olja', deli: 'Delidisken', mejeri: 'Mejeri och pålägg', brod: 'Bröd', skafferi: 'Skafferiet', bak: 'Bak', glutenfritt: 'Glutenfritt', kaffe: 'Kaffe och te', dricka: 'Dricka', godis: 'Godis', fryst: 'Fryst mat', frystGluten: 'Fryst glutenfritt', glass: 'Glass och bär', naturgodis: 'Naturgodis', chips: 'Chips', toapapper: 'Toalettpapper', stad: 'Städ', folie: 'Fryspåsar och folie' };
+  /* Learned places, per shop: when you drag an item, it takes the department of the item
+     it now sits under (or above, at the top), and the next sort puts it there. Synced as
+     sh_store_places so both phones learn together. */
+  var PLACES_KEY = 'sh_store_places';
+  function places() { try { var v = JSON.parse(localStorage.getItem(PLACES_KEY) || '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch (_) { return {}; } }
+  function savePlaces(v) { try { localStorage.setItem(PLACES_KEY, JSON.stringify(v)); } catch (_) {} }
   function shopFor(heading) {
     var name = String(heading || '').toLocaleLowerCase('sv-SE').trim();
     return Object.keys(SHOPS).find(function (key) { return name === key || name.indexOf(key) === 0; }) || null;
@@ -55,10 +62,16 @@
       .replace(/\b\d+([.,]\d+)?\s*(st|kg|g|hg|l|dl|cl|ml|förp|paket|pkt|burk|burkar|flaskor|flaska|påse|påsar|x)?\b/g, ' ')
       .replace(/[^\p{L}\s-]/gu, ' ').replace(/\s+/g, ' ').trim();
   }
-  // Best department for an item: the longest matching word, with a bonus when it ends a word.
-  function departmentOf(text) {
+  // A learned place in this shop first, otherwise the word list.
+  function departmentOf(text, shop) {
     var t = clean(text);
     if (!t) return null;
+    var learned = shop && places()[shop];
+    if (learned && learned[t] && SHOPS[shop].order.indexOf(learned[t]) >= 0) return learned[t];
+    return guess(t);
+  }
+  // Best department from the words: the longest match, with a bonus when it ends a word.
+  function guess(t) {
     var words = t.split(' '), best = null, bestScore = 0;
     Object.keys(DEPARTMENTS).forEach(function (dept) {
       DEPARTMENTS[dept].forEach(function (kw) {
@@ -91,7 +104,7 @@
       if (shop) {
         var order = SHOPS[shop].order;
         var ranked = section.map(function (item, i) {
-          var dept = departmentOf(item.text), at = dept ? order.indexOf(dept) : -1;
+          var dept = departmentOf(item.text, shop), at = dept ? order.indexOf(dept) : -1;
           return { item: item, i: i, rank: (item.checked ? 1000 : 0) + (at < 0 ? order.length : at) };
         }).sort(function (a, b) { return a.rank - b.rank || a.i - b.i; });
         ranked.forEach(function (r, i) { if (r.i !== i) changed = true; out.push(r.item); });
@@ -127,6 +140,27 @@
     toast('Sorterad i butikens ordning.', true);
   }
 
+  function learnMove(event) {
+    var d = event.detail || {}, items = d.items || [], at = items.findIndex(function (i) { return i && String(i.id) === String(d.id); });
+    if (at < 0 || items[at].type === 'category') return;
+    var shop = null, start = 0, end = items.length;
+    for (var i = at - 1; i >= 0; i--) if (items[i] && items[i].type === 'category') { shop = shopFor(items[i].text); start = i + 1; break; }
+    for (var j = at + 1; j < items.length; j++) if (items[j] && items[j].type === 'category') { end = j; break; }
+    if (!shop) return;
+    // The neighbour it was dropped under decides; at the top of the shop, the one below.
+    var dept = null;
+    for (var k = at - 1; k >= start && !dept; k--) if (!items[k].checked) dept = departmentOf(items[k].text, shop);
+    for (var m = at + 1; m < end && !dept; m++) if (!items[m].checked) dept = departmentOf(items[m].text, shop);
+    if (!dept) return;
+    var key = clean(items[at].text); if (!key) return;
+    var all = places(), mine = all[shop] || {}, before = mine[key] || guess(key);
+    if (before === dept) return;
+    if (guess(key) === dept) delete mine[key]; else mine[key] = dept;
+    all[shop] = mine; savePlaces(all);
+    toast(items[at].text + ' hamnar vid ' + NAMES[dept] + ' i ' + SHOPS[shop].name + ' från nu.');
+  }
+  window.addEventListener('shopping:item-moved', learnMove);
+
   var toastNode = null, toastTimer = 0;
   function toast(text, undoable) {
     if (!toastNode) {
@@ -139,7 +173,7 @@
         hide();
       });
     }
-    toastNode.innerHTML = '<span>' + text + '</span>' + (undoable ? '<button type="button" data-store-sort-undo>Ångra</button>' : '');
+    toastNode.innerHTML = '<span>' + String(text).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }) + '</span>' + (undoable ? '<button type="button" data-store-sort-undo>Ångra</button>' : '');
     toastNode.classList.add('is-visible');
     clearTimeout(toastTimer); toastTimer = setTimeout(hide, undoable ? 6000 : 2800);
   }
@@ -149,7 +183,7 @@
     var button = document.getElementById('store-sort-btn');
     if (button) button.addEventListener('click', sortList);
   }
-  window.ShoppingStoreSort = { departmentOf: departmentOf, sortItems: sortItems, shops: SHOPS };
+  window.ShoppingStoreSort = { departmentOf: departmentOf, sortItems: sortItems, shops: SHOPS, places: places };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();

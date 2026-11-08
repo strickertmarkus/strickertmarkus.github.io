@@ -153,6 +153,8 @@
         win.localStorage.setItem('sh_lists',JSON.stringify(lists));
       }catch(_){return false;}
       win.renderItems();
+      // A moved item tells the shop sorting where it belongs (shopping-store-sort-v1.js learns from it).
+      if(kind==='item')try{win.dispatchEvent(new CustomEvent('shopping:item-moved',{detail:{id:id,items:ordered}}));}catch(_){}
       return true;
     }
     function dropNodeAt(x,y,sourceKind,sourceId){
