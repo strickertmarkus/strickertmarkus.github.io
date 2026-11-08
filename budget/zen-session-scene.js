@@ -178,6 +178,16 @@
   }
   p.restore();
  }
+ // S03: a still of one movement for the pass builder. Draws once on demand, stores nothing
+ // and never touches the running session's canvases.
+ window.ZenPoseStill={draw(target,key){
+  const ratio=Math.min(2,window.devicePixelRatio||1),size=target.clientWidth||120;
+  if(target.width!==Math.round(size*ratio)){target.width=Math.round(size*ratio);target.height=Math.round(size*ratio);}
+  const ctx=target.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,target.width,target.height);
+  if(!key||!window.ZenStretch.frame(key,0,true))return false;
+  ctx.scale(target.width/300,target.height/300);ctx.translate(150,148);ctx.scale(1.3,1.3);ctx.translate(-150,-148);
+  drawFigure(ctx,key,3,0);return true;
+ }};
  function updateNextPreview(){
   const following=snapshot.steps?.[snapshot.index+1];
   const remaining=(1-(snapshot.stepProgress||0))*(snapshot.step?.seconds||0);

@@ -10,7 +10,7 @@
     {id:'forest',kind:'stretch',name:'Helkropp',description:'8 övningar för axlar, rygg och ben.',steps:makeSteps(['arrive','neck','side-left','side-right','cat','child','fold','rest'],60)},
     {id:'shoulders',kind:'stretch',name:'Axlar & överkropp',description:'5 övningar med fokus på överkroppen.',steps:makeSteps(['arrive','neck','side-left','side-right','child'],60)},
     {id:'roots',kind:'stretch',name:'Höfter & rygg',description:'6 övningar, 2 minuter per övning.',steps:makeSteps(['cat','child','hip-left','hip-right','fold','rest'],120)},
-    {id:'water',kind:'meditation',name:'Guidad andning',description:'10 minuter med andningsguide.',seconds:600,guidance:'breath'},
+    {id:'water',kind:'meditation',name:'Andningsguide',description:'10 minuter med visuell andningsguide.',seconds:600,guidance:'breath'},
     {id:'light',kind:'meditation',name:'Kort meditation',description:'5 minuter med andningsguide.',seconds:300,guidance:'breath'},
     {id:'silence',kind:'meditation',name:'Utan guide',description:'15 minuter med timer och egen andning.',seconds:900,guidance:'silent'},
     stretchTemplate("chest-short","Bröst & triceps · Kort","chest","6 minuter med bröstöppning, axlar och triceps.",["neck", "chest-open", "triceps-left", "triceps-right", "goalpost", "rest"]),
@@ -26,7 +26,12 @@
     stretchTemplate("cardio-cross","Efter crosstrainer","cardio","8 minuter med höfter, säte, bröst och rygg.",["hip-left", "hip-right", "figure-four-left", "figure-four-right", "chest-open", "cat", "side-left", "side-right"]),
     stretchTemplate("cardio-long","Kondition · Lugn avslutning","cardio","12 minuter med extra fokus på vader och säte.",["standing-quad-left", "standing-quad-right", "calf-left", "calf-right", "hip-left", "hip-right", "fold", "soleus-left", "soleus-right", "figure-four-left", "figure-four-right", "rest"]),
   ];
-  const duration=r=>r.kind==='stretch'?r.steps.reduce((sum,s)=>sum+s.seconds,0):r.seconds;
+  // S05: a stretch session may carry switchSeconds, time to change position between movements.
+  // It lengthens the session but is never credited to a movement or to the minute statistics.
+  const switchOf=r=>r.kind==='stretch'&&Number.isInteger(r.switchSeconds)?r.switchSeconds:0;
+  const duration=r=>r.kind==='stretch'?r.steps.reduce((sum,s)=>sum+s.seconds,0)+switchOf(r)*Math.max(0,r.steps.length-1):r.seconds;
+  // Start of each movement on the session timeline, in seconds.
+  const stepStarts=r=>{let t=0;return r.steps.map(step=>{const at=t;t+=step.seconds+switchOf(r);return at;});};
   const clone=o=>JSON.parse(JSON.stringify(o));
   const defaultBreathing={inhale:4,holdIn:0,exhale:6,holdOut:0};
   const breathingSettings=r=>({...defaultBreathing,...r.breathing});
@@ -36,7 +41,7 @@
     return Object.keys(defaultBreathing).every(k=>Number.isInteger(b[k])&&b[k]>=(k==='inhale'||k==='exhale'?1:0)&&b[k]<=30);
   }
   function breathState(r,elapsed){
-    const b=breathingSettings(r),phases=[['inhale','Andas in',b.inhale],['holdIn','Andningspaus',b.holdIn],['exhale','Andas ut',b.exhale],['holdOut','Andningspaus',b.holdOut]].filter(p=>p[2]>0);
+    const b=breathingSettings(r),phases=[['inhale','Andas in',b.inhale],['holdIn','Håll',b.holdIn],['exhale','Andas ut',b.exhale],['holdOut','Håll',b.holdOut]].filter(p=>p[2]>0);
     const total=phases.reduce((n,p)=>n+p[2],0),cycle=Math.max(0,elapsed)%total;
     let offset=0;
     for(const [id,label,seconds] of phases){
@@ -49,11 +54,12 @@
   function breathingSummary(r){
     if(r.guidance==='silent')return 'Egen andning · utan guide';
     const b=breathingSettings(r);
-    return [b.inhale+' s in',b.holdIn?b.holdIn+' s paus':null,b.exhale+' s ut',b.holdOut?b.holdOut+' s paus':null].filter(Boolean).join(' · ');
+    // M02: the phases in the order they happen, each named.
+    return ['In '+b.inhale+' s',b.holdIn?'håll '+b.holdIn+' s':null,'ut '+b.exhale+' s',b.holdOut?'håll '+b.holdOut+' s':null].filter(Boolean).join(' → ');
   }
   function routineValid(r){
     return !!r&&typeof r.id==='string'&&r.id.length<100&&typeof r.name==='string'&&r.name.trim().length>0&&r.name.length<=80&&
-      ((r.kind==='stretch'&&Array.isArray(r.steps)&&r.steps.length>0&&r.steps.length<=20&&r.steps.every(s=>s&&typeof s.name==='string'&&s.name.length<=100&&typeof s.cue==='string'&&s.cue.length<=500&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600))||
+      ((r.kind==='stretch'&&(r.switchSeconds===undefined||[0,3,5,10].includes(r.switchSeconds))&&Array.isArray(r.steps)&&r.steps.length>0&&r.steps.length<=20&&r.steps.every(s=>s&&typeof s.name==='string'&&s.name.length<=100&&typeof s.cue==='string'&&s.cue.length<=500&&Number.isInteger(s.seconds)&&s.seconds>=15&&s.seconds<=600))||
       (r.kind==='meditation'&&Number.isInteger(r.seconds)&&r.seconds>=60&&r.seconds<=3600&&['breath','silent'].includes(r.guidance)&&breathingValid(r)));
   }
   function start(r,now,id){if(!routineValid(r))throw Error('Ogiltig rutin');return {id,routine:clone(r),startedAt:now,anchor:now,elapsedMs:0,workMs:0,workAnchor:now,paused:false,stepMs:r.kind==='stretch'?r.steps.map(()=>0):undefined,creditFrom:0};}
@@ -62,8 +68,8 @@
   function credit(s,now){
     if(s.routine.kind!=='stretch')return s;
     const to=elapsed(s,now),from=Math.min(to,Number.isFinite(s.creditFrom)?s.creditFrom:0),steps=s.routine.steps;
-    const stepMs=steps.map((_,i)=>Number(s.stepMs&&s.stepMs[i])||0);let cursor=0;
-    for(let i=0;i<steps.length;i++){const end=cursor+steps[i].seconds*1000,overlap=Math.min(end,to)-Math.max(cursor,from);if(overlap>0)stepMs[i]+=overlap;cursor=end;}
+    const stepMs=steps.map((_,i)=>Number(s.stepMs&&s.stepMs[i])||0),starts=stepStarts(s.routine);
+    for(let i=0;i<steps.length;i++){const begin=starts[i]*1000,end=begin+steps[i].seconds*1000,overlap=Math.min(end,to)-Math.max(begin,from);if(overlap>0)stepMs[i]+=overlap;}
     return {...s,stepMs,creditFrom:to};
   }
   function actualSteps(s,now){
@@ -81,16 +87,20 @@
   function seek(s,index,now){
     if(s.routine.kind!=='stretch')return s;
     const target=Math.max(0,Math.min(s.routine.steps.length-1,index));
-    const offset=s.routine.steps.slice(0,target).reduce((n,step)=>n+step.seconds*1000,0);
+    const offset=stepStarts(s.routine)[target]*1000;
     s=credit(s,now);
     return {...s,workMs:practiced(s,now),workAnchor:now,elapsedMs:offset,anchor:now,creditFrom:offset};
   }
   function position(s,now){
     const spent=elapsed(s,now)/1000,total=duration(s.routine);
     if(s.routine.kind==='meditation')return {index:0,spent,total,remaining:Math.max(0,total-spent),done:spent>=total};
-    let cursor=0;
-    for(let i=0;i<s.routine.steps.length;i++){const step=s.routine.steps[i];if(spent<cursor+step.seconds)return {index:i,spent,total,remaining:cursor+step.seconds-spent,done:false};cursor+=step.seconds;}
-    return {index:s.routine.steps.length-1,spent,total,remaining:0,done:true};
+    const steps=s.routine.steps,starts=stepStarts(s.routine),sw=switchOf(s.routine);
+    for(let i=0;i<steps.length;i++){
+      const end=starts[i]+steps[i].seconds;
+      if(spent<starts[i])return {index:i,spent,total,remaining:starts[i]-spent,done:false,switching:true};
+      if(spent<end)return {index:i,spent,total,remaining:end-spent,done:false,switching:false};
+    }
+    return {index:steps.length-1,spent,total,remaining:0,done:true,switching:false};
   }
   function activeValid(s){return !!s&&typeof s.id==='string'&&/^[A-Za-z0-9_-]{1,100}$/.test(s.id)&&routineValid(s.routine)&&Number.isFinite(s.startedAt)&&Number.isFinite(s.anchor)&&Number.isFinite(s.elapsedMs)&&s.elapsedMs>=0&&typeof s.paused==='boolean';}
   function localDate(ms){const d=new Date(ms);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -133,11 +143,33 @@
     if(e.deleted===true)return true;
     if(e.type==='milestone')return milestoneValid(e.milestone)&&e.id==='milestone_'+e.milestone.kind+'_'+e.milestone.slot;
     if(e.type==='routine')return routineValid(e.routine)&&e.routine.id===e.id;
-    if(e.type!=='session'||!['stretch','meditation'].includes(e.kind)||typeof e.name!=='string'||e.name.length>80||!Number.isFinite(e.completedAt)||e.completedAt<=0||e.completedAt>8640000000000000||!Number.isFinite(e.seconds)||e.seconds<1||e.seconds>12000||typeof e.note!=='string'||e.note.length>500||!['','lighter','calm','present'].includes(e.feeling))return false;
+    if(e.type!=='session'||!['stretch','meditation'].includes(e.kind)||typeof e.name!=='string'||e.name.length>80||!Number.isFinite(e.completedAt)||e.completedAt<=0||e.completedAt>8640000000000000||!Number.isFinite(e.seconds)||e.seconds<1||e.seconds>12000||typeof e.note!=='string'||e.note.length>500||!feelings.includes(e.feeling))return false;
+    if(e.manual!==undefined&&typeof e.manual!=='boolean')return false;
+    // M05: a meditation keeps the guidance and rhythm it actually used.
+    if(e.guidance!==undefined&&(e.kind!=='meditation'||!['breath','silent'].includes(e.guidance)||!breathingValid({breathing:e.breathing})||(e.guidanceChanged!==undefined&&typeof e.guidanceChanged!=='boolean')))return false;
+    if(e.plannedSeconds!==undefined&&(!Number.isInteger(e.plannedSeconds)||e.plannedSeconds<1||e.plannedSeconds>12000))return false;
+    // The planned movements, so "Gör samma pass igen" does not depend on the template still existing.
+    if(e.plan!==undefined&&(e.kind!=='stretch'||!Array.isArray(e.plan)||!e.plan.length||e.plan.length>20||!e.plan.every(x=>x&&typeof x.id==='string'&&x.id.length<=100&&Number.isInteger(x.seconds)&&x.seconds>=15&&x.seconds<=600)))return false;
     // Historical sessions have no steps. New stretch sessions retain a snapshot
     // so later changes to a routine do not rewrite the exercise history.
     return e.steps===undefined||(e.kind==='stretch'&&Array.isArray(e.steps)&&e.steps.length<=20&&e.steps.every(s=>s&&typeof s.name==='string'&&s.name.length>0&&s.name.length<=100&&typeof s.id==='string'&&s.id.length<=100&&Number.isInteger(s.seconds)&&s.seconds>=1&&s.seconds<=600));
   }
+  const feelings=['','lighter','calm','present','same','unfocused'];
+  const feelingLabels={lighter:'Lite lättare',calm:'Lugnare',present:'Mer närvarande',same:'Som innan',unfocused:'Svårt att fokusera'};
+  // A routine to run again from a saved session: its own snapshot, never the current template.
+  function redoRoutine(e){
+    if(!e||e.type!=='session')return null;
+    const id='again_'+e.id.slice(0,90);
+    if(e.kind==='meditation'){
+      const seconds=Math.min(3600,Math.max(60,Math.round((e.plannedSeconds||e.seconds)/60)*60));
+      const r={id,kind:'meditation',name:e.name,seconds,guidance:e.guidance||'breath',...(e.breathing?{breathing:{...e.breathing}}:{})};
+      return routineValid(r)?r:null;
+    }
+    const source=e.plan||(Array.isArray(e.steps)?e.steps.map(x=>({id:x.id,seconds:x.planned||x.seconds})):[]);
+    const steps=source.map(x=>{const pose=poses.find(p=>p.id===x.id);return pose?{...pose,seconds:Math.min(600,Math.max(15,Math.round(x.seconds/15)*15||60))}:null;}).filter(Boolean);
+    const r={id,kind:'stretch',name:e.name,steps};
+    return steps.length&&routineValid(r)?r:null;
+  }
   function merge(a,b){const result={};for(const source of [a,b])for(const [id,e]of Object.entries(source||{})){if(e&&e.id===id&&entryValid(e)&&(!result[id]||e.updatedAt>result[id].updatedAt))result[id]=e;}return result;}
-  return {credit,actualSteps,period,groups,milestoneMetrics,milestoneValid,milestones,poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
+  return {feelings,feelingLabels,redoRoutine,stepStarts,credit,actualSteps,period,groups,milestoneMetrics,milestoneValid,milestones,poses,routines,breathingSettings,breathingValid,breathState,breathingSummary,duration,start,elapsed,practiced,pause,resume,seek,position,activeValid,routineValid,localDate,week,stats,entryValid,merge};
 });

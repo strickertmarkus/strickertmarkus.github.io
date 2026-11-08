@@ -1604,6 +1604,32 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     zenKindsCache=null;zenDoneCache=null;
     loadData();renderHero();renderRhythm();renderWeek();renderActivity();renderInsight();renderVolume();renderLog();renderRecords();
   }
+  /* Export of the chosen profile's training data: the log as CSV for a spreadsheet,
+     or every training key as a JSON backup. localStorage reads are already scoped
+     to the profile by firebase-sync.js, so Maja's export only holds Maja's data. */
+  var TRAINING_KEYS=['ex_wk','ex_goals','ex_templates','ex_weekTemplates','ex_plannedSessions','ex_weekPlans','ex_prs','ex_plan','ex_vo2','ex_hiddenExerciseNamesV1'];
+  function downloadFile(name,type,text){
+    var url=URL.createObjectURL(new Blob([text],{type:type})),link=document.createElement('a');
+    link.href=url;link.download=name;document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url);},5000);
+  }
+  function exportTraining(format){
+    var who=profile==='maja'?'maja':'markus',today=new Date().toISOString().slice(0,10);
+    if(format==='json'){
+      var data={};TRAINING_KEYS.forEach(function(key){var raw=localStorage.getItem(key);if(raw==null)return;try{data[key]=JSON.parse(raw);}catch(_){data[key]=raw;}});
+      downloadFile('traning-'+who+'-'+today+'.json','application/json',JSON.stringify({app:'training',profile:who,exportedAt:new Date().toISOString(),data:data},null,2));
+      showToast('Säkerhetskopian är hämtad.');return;
+    }
+    var list=[];try{list=JSON.parse(localStorage.getItem('ex_wk')||'[]');}catch(_){}
+    if(!Array.isArray(list)||!list.length){showToast('Det finns inga loggade pass att exportera.');return;}
+    var cell=function(v){v=v==null?'':String(v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+    var rows=[['Datum','Pass','Träningsform','Minuter','Distans km','Snittpuls','Övningar','Anteckning']];
+    list.slice().sort(function(a,b){return String(a.date).localeCompare(String(b.date));}).forEach(function(w){
+      var ex=(w.exercises||[]).map(function(e){var parts=[e.name];if(e.sets)parts.push(e.sets+'x'+(e.reps||''));if(e.weight)parts.push(e.weight+' kg');return parts.filter(Boolean).join(' ');}).join(', ');
+      rows.push([w.date,w.name||w.title||w.type,w.type,w.duration,w.runDistance||'',w.hrAvg||'',ex,w.notes||'']);
+    });
+    downloadFile('traningslogg-'+who+'-'+today+'.csv','text/csv;charset=utf-8','\ufeff'+rows.map(function(r){return r.map(cell).join(';');}).join('\r\n'));
+    showToast(list.length+' pass exporterade.');
+  }
   function showToast(message) {
     var toast=byId('field-toast');toast.textContent=message;toast.classList.add('is-visible');clearTimeout(showToast.timer);showToast.timer=setTimeout(function(){toast.classList.remove('is-visible');},2600);
   }
@@ -1614,6 +1640,8 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     window.addEventListener('pulse-field:close-menu',function(){setMenu(false);});
     document.addEventListener('keydown',function(event){if(event.key==='Escape'&&menu.classList.contains('is-open')){setMenu(false);toggle.focus({preventScroll:true});}});
     menu.addEventListener('click',function(event){if(event.target.closest('a,#training-overview-toggle'))setMenu(false);});
+    byId('field-export-csv').addEventListener('click',function(){setMenu(false);exportTraining('csv');});
+    byId('field-export-json').addEventListener('click',function(){setMenu(false);exportTraining('json');});
     var compactToggle=byId('training-overview-toggle');
     if(compactToggle)compactToggle.addEventListener('click',openOriginalCompact);
     byId('record-groups').addEventListener('click',function(event){

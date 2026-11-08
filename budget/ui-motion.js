@@ -30,12 +30,15 @@ const ease='cubic-bezier(.22,1,.36,1)';
 // control was re-rendered in the meantime (found again by id or data attribute).
 const openers=new WeakMap();
 function syncScrollLock(){
+ const locked=!!document.querySelector('dialog[data-surface-dialog][open]:not([data-own-scroll-lock])');
+ // Pages with the shared scroll owner (training, Zen, lists) lock through it, so nested popups agree.
+ if(window.TrainingOverlay){if(locked)TrainingOverlay.acquire('surface-dialog');else TrainingOverlay.release('surface-dialog');return;}
  if(!document.getElementById('surface-dialog-lock-style')){
   const style=document.createElement('style');style.id='surface-dialog-lock-style';
   style.textContent='html.surface-dialog-lock{overflow:hidden;overscroll-behavior:none}';
   document.head.appendChild(style);
  }
- document.documentElement.classList.toggle('surface-dialog-lock',!!document.querySelector('dialog[data-surface-dialog][open]:not([data-own-scroll-lock])'));
+ document.documentElement.classList.toggle('surface-dialog-lock',locked);
 }
 function anotherModalOpen(){
  try{return !!document.querySelector('dialog[open]:modal');}catch(_){return !!document.querySelector('dialog[open]');}

@@ -146,7 +146,7 @@ h2 {
 
 .eyebrow {
   font-family: Manrope,var(--sans);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 2.5px;
   color: var(--muted);
@@ -255,7 +255,7 @@ body[data-kind=meditation] .landscape-forest {
 .zen-brand small {
   display: block;
   margin-top: 7px;
-  font: 8px Manrope,var(--sans);
+  font: 10px Manrope,var(--sans);
   letter-spacing: 2px;
   color: var(--muted);
 }
@@ -420,7 +420,7 @@ body[data-kind=meditation] .landscape-forest {
 }
 
 .quiet-line {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   text-align: center;
   margin-top: 12px;
@@ -448,7 +448,7 @@ body[data-kind=meditation] .primary-button {
   bottom: 133px;
   align-items: center;
   gap: 13px;
-  font-size: 9px;
+  font-size: 10.5px;
   letter-spacing: 2px;
   color: var(--muted);
 }
@@ -565,7 +565,7 @@ body[data-kind=meditation] .primary-button {
 }
 
 .ritual-time {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: .5px;
   color: var(--muted);
 }
@@ -590,7 +590,7 @@ body[data-kind=meditation] .primary-button {
 }
 
 .ritual-tools button {
-  font-size: 10px;
+  font-size: 11px;
   min-height: 44px;
   padding: 6px;
 }
@@ -650,7 +650,7 @@ body[data-kind=meditation] .primary-button {
 }
 
 .day-minutes {
-  font-size: 9px;
+  font-size: 10.5px;
   color: var(--muted);
 }
 
@@ -687,7 +687,7 @@ body[data-kind=meditation] .primary-button {
 }
 
 .day-label {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--faint);
 }
 
@@ -734,7 +734,7 @@ body[data-kind=meditation] .primary-button {
 }
 
 .growth-stats div>span:last-child {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   margin-top: 8px;
 }
@@ -779,13 +779,13 @@ body[data-kind=meditation] .primary-button {
 }
 
 .keepsake p {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   margin-top: 5px;
 }
 
 .keepsake small {
-  font-size: 9px;
+  font-size: 10.5px;
   display: block;
   color: var(--faint);
   margin-top: 6px;
@@ -829,7 +829,7 @@ body[data-kind=meditation] .primary-button {
 }
 
 .history-row time {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
 }
 
@@ -866,7 +866,7 @@ body[data-kind=meditation] .primary-button {
 .zen-footer button {
   display: block;
   margin: 12px auto 0;
-  font-size: 9px;
+  font-size: 10.5px;
 }
 
 .page-section,
@@ -946,7 +946,7 @@ body[data-kind=meditation] .day-fill {
 
 .note-label span {
   float: right;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--faint);
 }
 
@@ -1080,7 +1080,7 @@ body[data-kind=meditation] #builder-dialog{background:#b9cec5}
 .builder-step-name small {
   display: block;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .builder-step input {
@@ -1303,7 +1303,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .zen-header .wellness-nav a {
-    font-size: 10px;
+    font-size: 11px;
     min-height: 34px;
     padding: 0 10px;
     gap: 7px;
@@ -1319,7 +1319,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .hero-copy .eyebrow {
-    font-size: 8px;
+    font-size: 10px;
     letter-spacing: 2px;
   }
 
@@ -1340,7 +1340,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .quiet-line {
-    font-size: 9px;
+    font-size: 10.5px;
   }
 
   .fireflies {
@@ -1359,7 +1359,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .section-heading .eyebrow {
-    font-size: 8px;
+    font-size: 10px;
     letter-spacing: 1.8px;
   }
 
@@ -1368,7 +1368,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .section-heading>.text-button {
-    font-size: 10px;
+    font-size: 11px;
     white-space: nowrap;
   }
 
@@ -1400,7 +1400,7 @@ body[data-kind=meditation] .form-error {
   .ritual-time {
     grid-column: 2;
     grid-row: 1;
-    font-size: 9px;
+    font-size: 10.5px;
     margin-bottom: 4px;
   }
 
@@ -1413,7 +1413,7 @@ body[data-kind=meditation] .form-error {
   .ritual-description {
     grid-column: 2;
     grid-row: 3;
-    font-size: 10px;
+    font-size: 11px;
     margin-top: 3px;
   }
 
@@ -1437,7 +1437,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .week-label {
-    font-size: 9px;
+    font-size: 10.5px;
     white-space: nowrap;
   }
 
@@ -1488,15 +1488,15 @@ body[data-kind=meditation] .form-error {
   }
 
   .history-row p {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .history-row time {
-    font-size: 9px;
+    font-size: 10.5px;
   }
 
   .history-row>.history-length {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .history-row .small-symbol {
@@ -1537,7 +1537,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .complete-view .feelings button {
-    font-size: 10px;
+    font-size: 11px;
     padding: 10px 12px;
   }
 
@@ -1560,7 +1560,7 @@ body[data-kind=meditation] .form-error {
   }
 
   .builder-step-name {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .builder-step input {
@@ -2670,8 +2670,8 @@ body[data-kind=meditation] .growth-stats>div>span:last-child {
 }
 
 body[data-kind=meditation] .hero-copy h1::after {
-  color: #f5d98e !important;
-  text-shadow: 0 1px 2px rgba(82,89,52,.50),0 0 12px rgba(255,226,139,.36),0 0 25px rgba(255,231,164,.20) !important;
+  color: #f3d27a !important;
+  text-shadow: 0 1px 2px rgba(38,56,34,.85),0 0 3px rgba(38,56,34,.55),0 0 14px rgba(255,226,139,.30) !important;
 }
 
 /* Shared UI typography; scene titles retain their own serif character. */
@@ -2699,8 +2699,9 @@ body[data-kind=meditation] .hero-copy h1::after {
 #home-view .start-ring-meta{display:block;max-width:126px;font:500 11px/1.4 var(--wellness-ui-font,Inter,sans-serif);color:var(--start-muted)}
 #home-view #start-button>span:last-child{position:absolute;right:19px;top:17px;font-size:12px;color:var(--start-muted)}
 #home-view .start-area .quiet-line{width:168px;margin-top:14px;font-size:12px;line-height:1.5;color:var(--muted)}
-body[data-kind=meditation] #home-view #start-button{--start-light:245,223,160;--start-text:#234b3e;--start-muted:#426558;background:radial-gradient(circle at 43% 34%,#fff9d92e,transparent 40%),radial-gradient(circle at 50% 55%,#4c796426,#3760521a 65%,#2a50450d);box-shadow:0 0 22px rgba(var(--start-light),.25),0 0 48px rgba(var(--start-light),.15),inset 0 0 26px #fff1b81f}
-body[data-kind=meditation] #home-view #start-label{color:#f7e3a5;text-shadow:0 1px 2px #33534170,0 0 12px #ffe89f88}
+body[data-kind=meditation] #home-view .start-area .quiet-line{color:#1f4336;text-shadow:0 0 6px #e9f1e2,0 0 12px #e9f1e2}
+body[data-kind=meditation] #home-view #start-button{--start-light:245,223,160;--start-text:#1d4234;--start-muted:#2f5647;background:radial-gradient(circle at 43% 34%,#fffbe6a8,transparent 46%),radial-gradient(circle at 50% 55%,#f3f1dcb8,#e4ead6a0 62%,#cfdccb70);box-shadow:0 0 22px rgba(var(--start-light),.25),0 0 48px rgba(var(--start-light),.15),inset 0 0 26px #fff1b81f}
+body[data-kind=meditation] #home-view #start-label{color:#7a5a12;text-shadow:0 0 10px #fff6d6}
 @keyframes zenStartRingBreath{0%,100%{transform:scale(.985);opacity:.48}50%{transform:scale(1.025);opacity:.82}}
 @media(max-width:700px){
  .sanctuary{min-height:clamp(400px,calc(100svh - 164px),620px);padding:30px 0 30px;gap:24px}
@@ -2742,7 +2743,7 @@ body[data-kind=meditation] .pose-library select{background:#dbe8df;color:#173b34
 .history-row .history-trigger .small-symbol{font-size:27px}
 .history-row .history-info{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
 .history-row .history-info strong{font-size:13px;font-weight:500;line-height:1.5;overflow-wrap:anywhere}
-.history-row .history-info time{font-size:10px}
+.history-row .history-info time{font-size:11px}
 .history-row .history-info .history-feeling,.history-row .history-info .history-note{font-size:11px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
 .history-row .history-info .history-note{font-style:italic;margin-top:4px}
 .history-row .history-length{text-align:right;white-space:nowrap;font-size:12px;font-weight:500}
@@ -2750,11 +2751,11 @@ body[data-kind=meditation] .pose-library select{background:#dbe8df;color:#173b34
 .history-row .history-trigger[aria-expanded=true] .history-chevron{transform:rotate(180deg)}
 .history-row .history-delete{width:40px;min-width:40px;align-self:center}
 .history-row .history-expanded{grid-column:1/-1;min-width:0;margin:8px 0 0 56px;padding:9px 12px 12px;border-left:1px solid var(--line)}
-.history-row .history-expanded .history-detail-label{font-size:10px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);margin-bottom:8px}
+.history-row .history-expanded .history-detail-label{font-size:11px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);margin-bottom:8px}
 .history-row .history-expanded .history-legacy{font-size:11px;line-height:1.6;color:var(--muted)}
 .history-steps{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:3px}
 .history-steps li{display:flex;justify-content:space-between;gap:12px;font-size:11px;line-height:1.65;color:var(--text)}
-.history-steps li small{color:var(--muted);white-space:nowrap;font-size:10px}
+.history-steps li small{color:var(--muted);white-space:nowrap;font-size:11px}
 .history-row .history-edit-link{display:block;min-height:32px;min-width:0;padding:4px 0;font-size:12px;text-align:left;color:var(--accent)}
 #history-edit-date,#history-edit-note{display:block;width:100%}
 .history-edit-duration{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -2764,8 +2765,8 @@ body[data-kind=meditation] .pose-library select{background:#dbe8df;color:#173b34
  .history-row .history-trigger{grid-template-columns:29px minmax(0,1fr) auto 12px;gap:9px}
  .history-row .history-trigger .small-symbol{font-size:24px}
  .history-row .history-info strong{font-size:12px}
- .history-row .history-info time{font-size:10px}
- .history-row .history-length{font-size:10px}
+ .history-row .history-info time{font-size:11px}
+ .history-row .history-length{font-size:11px}
  .history-row .history-delete{width:32px;min-width:32px}
  .history-row .history-expanded{margin-left:38px}
 }
@@ -2823,9 +2824,9 @@ body[data-kind=meditation] .pose-library select{background:#dbe8df;color:#173b34
 .stats-range button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .week-chart.is-month{gap:2px}
 .week-chart.is-month .day-minutes{visibility:hidden}
-.week-chart.is-month .day-label,.week-chart.is-year .day-label{font-size:10px}
+.week-chart.is-month .day-label,.week-chart.is-year .day-label{font-size:11px}
 .week-chart.is-year{gap:6px}
-.week-chart.is-year .day-minutes{font-size:10px}
+.week-chart.is-year .day-minutes{font-size:11px}
 .muscle-groups{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
 /* D05: what follows the period buttons is labelled with the period; the totals say they cover everything. */
 .stats-scope{margin:0 0 12px;color:var(--faint);font:600 11px var(--sans);letter-spacing:1.4px;text-transform:uppercase}
@@ -2873,7 +2874,7 @@ html body .zen-header{z-index:40}
 .zen-menu[hidden]{display:none}
 .zen-menu a,.zen-menu-settings{display:flex;align-items:center;min-height:42px;padding:0 12px;border:0;border-radius:10px;background:none;color:#dfe9dc;font:500 14px var(--sans);text-align:left;text-decoration:none;cursor:pointer}
 .zen-menu a:hover,.zen-menu-settings:hover{background:rgba(var(--accent-rgb),.1);color:#fff}
-.zen-menu-label{margin:10px 12px 2px;color:#8ea596;font:700 10px var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.zen-menu-label{margin:10px 12px 2px;color:#8ea596;font:700 11px var(--sans);letter-spacing:.14em;text-transform:uppercase}
 .zen-menu-settings{margin-top:6px;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
 body[data-kind=meditation] .zen-menu{background:rgba(232,242,236,.97)}
 body[data-kind=meditation] .zen-menu a,body[data-kind=meditation] .zen-menu-settings{color:#1f3a30}
@@ -2887,3 +2888,30 @@ body[data-kind=meditation] .medi-length button[aria-pressed=true]{color:#1f3a30;
 /* Explicit choice of start pass in the pass list. */
 .pass-chosen{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border-radius:999px;background:rgba(var(--accent-rgb),.14);color:var(--accent);font:600 11.5px var(--sans)}
 .pass-tools .pass-choose{color:var(--accent)}
+
+/* S02 length chips sit under the category chips. */
+.library-length{margin-top:0}
+.library-list .history-empty .text-button{display:inline;min-height:0;padding:0;color:var(--accent);font-size:inherit}
+/* S06 + M05: history heading actions and the actions inside an opened pass. */
+.history-heading-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px 16px}
+.history-row .history-actions{display:flex;flex-wrap:wrap;gap:0 18px}
+.history-row .history-again{display:block;min-height:32px;padding:4px 0;font-size:12px;text-align:left;color:var(--accent)}
+#history-edit-routine-row select{width:100%}
+#history-edit-routine-row .subtle-text{margin:6px 0 2px}
+/* S05 switch time. */
+.switch-setting{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 12px;margin:14px 0 4px}
+.switch-setting select{min-width:96px}
+.switch-setting .subtle-text{grid-column:1/-1;margin:0}
+/* M02: the four rhythm fields fold away behind presets. */
+.breath-custom{margin-top:12px}
+.breath-custom summary{min-height:40px;display:flex;align-items:center;color:var(--accent);font:500 13px var(--sans);cursor:pointer;list-style:none}
+.breath-custom summary::-webkit-details-marker{display:none}
+.breath-custom summary::after{content:"⌄";margin-left:8px;transition:transform .2s}
+.breath-custom[open] summary::after{transform:rotate(180deg)}
+.history-row .history-expanded .history-detail-label.is-plain{text-transform:none;letter-spacing:0;font-size:12px}
+/* S03: still of the marked movement in the builder. */
+.pose-preview{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:start;margin-top:10px}
+.pose-preview canvas{width:96px;height:96px;border-radius:14px;background:radial-gradient(circle at 50% 45%,rgba(var(--accent-rgb),.12),transparent 70%);border:1px solid var(--line)}
+.pose-preview canvas[hidden]{display:none}
+.pose-preview .pose-preview-note{margin:0 0 4px;color:var(--accent);font:600 11px var(--sans);letter-spacing:.08em;text-transform:uppercase}
+.pose-preview .subtle-text{margin:0}

@@ -565,9 +565,9 @@ if(!window.__FIELD_EMBEDDED__){
 <script defer src="pulse-explore.js?v=20261106-plans-1"></script>
 <script defer src="pulse-builder-ui.js?v=20261107-t-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
-<script defer src="ui-motion.js?v=20261107-d08-1"></script>
+<script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-drag-2">
-<script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261106-actual-steps-1"></script><script defer src="training-zen-plans.js?v=20261106-step3-1"></script>
+<script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261108-rest-1"></script><script defer src="training-zen-plans.js?v=20261106-step3-1"></script>
 </head>
 <body id="pulse-page" class="pulse-observatory">
 <a class="archive-return" id="archive-return" href="exercise.html">← Pulse Field</a>
@@ -3704,7 +3704,16 @@ function saveSingleExerciseEdit(){
 }
 
 
-function deleteWorkout(id){var wks=getWorkouts().filter(function(w){return w.id!==id;});saveWorkouts(wks);refreshAll();showToast('Pass borttaget');}
+// Deleting a logged pass can be undone for a few seconds (toast on the training page when embedded).
+function removeWorkoutWithUndo(id){
+  var list=getWorkouts(),workout=list.find(function(w){return String(w.id)===String(id);});if(!workout)return;
+  saveWorkouts(list.filter(function(w){return w!==workout;}));refreshAll();
+  var undo=function(){var now=getWorkouts();if(!now.some(function(w){return String(w.id)===String(id);})){now.push(workout);saveWorkouts(now);}refreshAll();};
+  var host=null;try{if(window.parent!==window&&typeof window.parent.fieldUndoToast==='function')host=window.parent;}catch(_){}
+  if(host)host.fieldUndoToast('Pass borttaget',undo);
+  else showToast('Pass borttaget');
+}
+function deleteWorkout(id){removeWorkoutWithUndo(id);}
 
 function editWorkout(id){
   var wks=getWorkouts();
@@ -4025,9 +4034,8 @@ function deleteEditedWorkout(button){
   }
   clearTimeout(button._disarm);button.classList.remove('is-armed');button.textContent='Ta bort pass';
   var id=String(editingWorkoutId);
-  saveWorkouts(getWorkouts().filter(function(w){return String(w.id)!==id;}));
   editingWorkoutId=null;
-  closeModal('wk-modal');refreshAll();showToast('Pass borttaget.');
+  closeModal('wk-modal');removeWorkoutWithUndo(id);
 }
 /* "Spara som mall" in the log form: the pass's exercises become a template
    named after the pass (an existing template with that name is updated). */

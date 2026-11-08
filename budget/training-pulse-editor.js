@@ -140,7 +140,7 @@ function loadLegacy(){
   frame.addEventListener('error',function(){clearTimeout(expired);reject(new Error('Kunde inte ladda passverktyget.'));},{once:true});
   var url=new URL('archive/exercise.html',location.href);
   url.searchParams.set('embedded','1');
-  url.searchParams.set('v','20261107-t-1');
+  url.searchParams.set('v','20261108-rest-1');
   if(new URLSearchParams(location.search).get('user')==='maja')url.searchParams.set('user','maja');
   frame.src=url.href;
  }).catch(function(e){if(frame===loadingFrame){frame.remove();frame=null;legacyReady=null;}throw e;});
@@ -376,6 +376,8 @@ function undoToast(text,undo){
  node.append(label,button);node.classList.add('has-action','is-visible');
  clearTimeout(notice.timer);notice.timer=setTimeout(hide,6000);
 }
+// The tools in the frame use the same undo toast after deleting a logged pass.
+window.fieldUndoToast=function(text,undo){undoToast(text,function(){undo();changed();});};
 function clone(value){return value===undefined?undefined:JSON.parse(JSON.stringify(value));}
 function removePass(button){
  if(new URLSearchParams(location.search).get('demo')==='1'){notice('Exempelvyn kan inte ändras.');return Promise.resolve(false);}
