@@ -5,7 +5,7 @@ body{background:var(--pk-sky),#090d13;background-attachment:fixed}
 /* While the scene is open the exercise view behind it stays out of sight,
    so its fade-in reveals only the dark backdrop. */
 html.gm-scene-open main{visibility:hidden}
-#muscle-map-page{position:relative;padding-top:calc(14px + env(safe-area-inset-top))}
+#muscle-map-page{position:relative;padding-top:calc(14px + env(safe-area-inset-top));padding-bottom:calc(76px + env(safe-area-inset-bottom))}
 .gm-exit{position:absolute;right:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#ffffff12;color:#f6ece9}
 .gm-exit svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .gm-exit:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
@@ -16,19 +16,11 @@ html.gm-scene-open main{visibility:hidden}
    body's layers so "Alla övningar" is never clipped. */
 .muscle-map-options{position:relative;z-index:4}
 /* Search: a glowing magnifier opposite the close button, opening a full-screen list. */
-.gm-find-btn{position:absolute;left:0;top:calc(10px + env(safe-area-inset-top));z-index:5;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:none;color:#ffd4cc;box-shadow:none;filter:drop-shadow(0 0 6px #ff657a88);cursor:pointer}
-.gm-find-btn svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
-.gm-find svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
-.gm-find-btn .gm-find-spark{fill:#ff9a91;stroke:none;transform-origin:10.5px 10.5px;animation:gmSpark 2.8s ease-in-out infinite}
-@keyframes gmSpark{0%,100%{opacity:.55;transform:scale(.75)}50%{opacity:1;transform:scale(1)}}
-.gm-find-btn:focus-visible{outline:2px solid #ffb9ad;outline-offset:3px}
+.gm-find svg,.gm-sheet svg,.gm-gyms svg,.gm-dock svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .gm-find{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:var(--pk-sky),radial-gradient(120% 70% at 50% 40%,#0f1622,transparent 80%),#080b12;color:#f2eded}
-.gm-find-head{position:relative;padding:calc(18px + env(safe-area-inset-top)) 20px 6px}
-.gm-find-head .eyebrow{color:#ff9a91;font:700 9.5px Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
-.gm-find-head h2{margin:6px 0 0;font:400 34px/1.05 "Cormorant Garamond",Georgia,serif;letter-spacing:-.5px}
-.gm-find-close{position:absolute;right:16px;top:calc(14px + env(safe-area-inset-top));display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;background:#ffffff12;color:#f6ece9;cursor:pointer}
-.gm-find-field{display:flex;align-items:center;gap:10px;height:48px;margin-top:14px;padding:0 16px;border-radius:999px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff14;color:#a5a0ae}
-.gm-find-field:focus-within{box-shadow:inset 0 0 0 1px #ff806f66,0 0 24px -10px #ff6a5a}
+.gm-find-head{position:relative;padding:calc(16px + env(safe-area-inset-top)) 20px 4px}
+.gm-find-field{flex:1;min-width:0;display:flex;align-items:center;gap:10px;height:44px;margin:0;padding:0 14px;border-radius:12px;background:#ffffff0d;color:#a5a0ae}
+.gm-find-field:focus-within{box-shadow:inset 0 0 0 1px #ff806f66}
 .gm-find-field input{flex:1;min-width:0;height:100%;padding:0;border:0;background:none;color:#fff;font:500 16px Inter,system-ui,sans-serif;outline:none;-webkit-appearance:none}
 .gm-find-field input::placeholder{color:#ffffff40}
 .gm-find-count{margin:10px 2px 0;color:#77727f;font:600 11px Inter,system-ui,sans-serif;letter-spacing:.04em}
@@ -40,22 +32,13 @@ html.gm-scene-open main{visibility:hidden}
 .gm-find-copy b mark{background:none;color:#ff9a91}
 .gm-find-copy small{color:#a5a0ae;font:500 12px Inter,system-ui,sans-serif}
 .gm-find-empty{padding:24px 8px;color:#a5a0ae;font-size:13px;line-height:1.5}
-@media(prefers-reduced-motion:reduce){.gm-find{transition:none}.gm-find-btn .gm-find-spark{animation:none}}
+@media(prefers-reduced-motion:reduce){.gm-find,.gm-sheet,.gm-sheet-card,.gm-gyms{transition:none}}
 
-.gm-find-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:14px;padding:4px;border-radius:14px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff10}
-.gm-find-tabs button{min-width:0;padding:0 2px;white-space:nowrap;height:38px;border:0;border-radius:10px;background:none;color:#a5a0ae;font:650 13px Inter,system-ui,sans-serif;cursor:pointer}
-.gm-find-tabs button[aria-selected="true"]{background:#ff806f22;color:#ffd4cc;box-shadow:inset 0 0 0 1px #ff806f44}
-.gm-find-head .gm-find-field{margin-top:10px}
-.gm-find-chips{display:flex;gap:6px;margin:10px -20px 0;padding:0 20px 2px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.gm-find-chips::-webkit-scrollbar{display:none}
-.gm-find-chips button{flex:none;height:32px;padding:0 12px;border:1px solid #ffffff16;border-radius:999px;background:#ffffff06;color:#c9c3cf;font:600 12px Inter,system-ui,sans-serif;cursor:pointer;white-space:nowrap}
-.gm-find-chips button[aria-pressed="true"]{border-color:#ff806f66;background:#ff806f1f;color:#ffd4cc}
 .gm-find-section{margin:14px 6px 4px;color:#ff9a91;font:700 9.5px Inter,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
 .gm-find-row .pk-thumb.is-pose img{object-fit:contain;transform:none;padding:4px;box-sizing:border-box}
 
 .gm-find-head [hidden]{display:none!important}
 .gm-plan{padding:6px 6px 10px}
-.gm-plan-back{margin:4px 0 8px;padding:6px 0;border:0;background:none;color:#ff9a91;font:650 12.5px Inter,system-ui,sans-serif;cursor:pointer}
 .gm-plan h3{margin:0;font:400 30px/1.08 "Cormorant Garamond",Georgia,serif;color:#fff1ee}
 .gm-plan-meta{margin:6px 0 0;color:#a5a0ae;font:600 11.5px Inter,system-ui,sans-serif}
 .gm-plan-summary,.gm-plan-how{margin:10px 0 0;color:#d9d2d6;font:400 13px/1.55 Inter,system-ui,sans-serif}
@@ -82,31 +65,83 @@ html.gm-scene-open main{visibility:hidden}
 .gm-plan-source a{color:#ff9a91}
 .gm-plan-apply{display:flex;align-items:center;justify-content:center;height:48px;margin-top:14px;border-radius:14px;background:#e5584a;color:#fff1ee;font:700 14px Inter,system-ui,sans-serif;text-decoration:none}
 .gm-plan-apply-note{margin:8px 2px 0;color:#77727f;font:400 11px/1.45 Inter,system-ui,sans-serif;text-align:center}
-.gm-find-gyms{margin-top:10px}
-.gm-find-chips button.is-dashed{border-style:dashed;color:#b3adb9}
-.gm-gym-editor{display:grid;gap:10px;margin:8px 4px 20px;padding:16px;border:1px solid #ffffff16;border-radius:16px;background:#ffffff06;color:#c9c3cf;font:500 13px Inter,system-ui,sans-serif}
-.gm-gym-editor>label{display:grid;gap:6px;color:#a5a0ae;font-size:12px}
-.gm-gym-editor input[name=name]{min-height:46px;padding:0 12px;border:1px solid #ffffff22;border-radius:12px;background:#0d1018;color:#f3eff5;font:500 16px Inter,system-ui,sans-serif}
-.gm-gym-legend,.gm-gym-note{margin:0;color:#a5a0ae;font-size:12px}
-.gm-gym-equipment{display:flex;flex-wrap:wrap;gap:7px}
-.gm-gym-equipment label{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid #ffffff1c;border-radius:999px;cursor:pointer}
-.gm-gym-equipment input{width:18px;height:18px;accent-color:#ff806f}
-.gm-gym-error{margin:0;color:#ffaaa0;font-size:12px}.gm-gym-error:empty{display:none}
-.gm-gym-actions{display:flex;flex-wrap:wrap;gap:8px}
-.gm-gym-actions button{min-height:42px;padding:0 14px;border:1px solid #ffffff1c;border-radius:12px;background:none;color:#d9d3dd;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
-.gm-gym-actions .gm-gym-save{flex:1 1 140px;border-color:#ff806f66;background:#ff806f2a;color:#ffe1db}
-/* One search panel: also over the exercise scene; time chips, filter summary, Mitt pass tab. */
-.gm-find.is-over-scene{z-index:80}
-.gm-find-tabs em{font-style:normal;color:#ff9a91;margin-left:2px}
-.gm-find-time{margin-top:8px}
-.gm-find-clear{margin-left:6px;padding:0;border:0;background:none;color:#ff9a91;font:inherit;text-decoration:underline;cursor:pointer}
-.gm-find-empty .gm-find-clear{font-size:13px}
+
+/* ---- Explorer navigation: bottom bar, search panel, filter sheet, Mina gym ---- */
+.gm-dock{position:fixed;left:0;right:0;bottom:0;z-index:65;display:grid;grid-template-columns:repeat(5,1fr);padding:4px max(10px,calc((100vw - 520px)/2)) max(6px,calc(env(safe-area-inset-bottom,0px) - 14px));border-top:1px solid #ffffff0d;background:#090d14f2;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.gm-dock[hidden]{display:none}
+.gm-dock button{position:relative;display:grid;justify-items:center;gap:3px;min-width:0;padding:5px 0 6px;border:0;background:none;color:#7f8892;font:600 10px Inter,system-ui,sans-serif;letter-spacing:.02em;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.gm-dock button svg{width:21px;height:21px}
+.gm-dock button.is-active{color:#ffd8c8}
+.gm-dock button.is-active svg{filter:drop-shadow(0 0 5px #ff9a9188)}
+.gm-dock button.is-active::after{content:"";position:absolute;bottom:0;width:4px;height:4px;border-radius:50%;background:#ff9a91;box-shadow:0 0 6px #ff657a}
+.gm-dock-badge{position:absolute;top:1px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ff6a5a;color:#1a0d0b;font:700 10px/16px Inter,system-ui,sans-serif;font-style:normal}
+.gm-dock-badge[hidden]{display:none}
+.gm-find{bottom:calc(58px + max(6px,calc(env(safe-area-inset-bottom,0px) - 14px)))}
+.gm-find.is-over-scene{z-index:80;bottom:0}
+.gm-find-back{display:inline-flex;align-items:center;gap:2px;min-height:36px;margin:0 0 2px -8px;padding:0 8px 0 2px;border:0;background:none;color:#ff9a91;font:600 15px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-find-back svg{width:22px;height:22px}
+.gm-find-back[hidden]{display:none}
+.gm-find-title{margin:2px 0 0;font:400 36px/1.05 "Cormorant Garamond",Georgia,serif;letter-spacing:-.5px;color:#fff}
+.gm-find-tools{display:flex;gap:8px;margin-top:12px}
+.gm-find-tools[hidden]{display:none}
+.gm-filter-btn{flex:none;position:relative;display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 14px;border:0;border-radius:12px;background:#ffffff0d;color:#e4dee8;font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-filter-btn.is-on{background:#ff806f24;color:#ffd4cc}
+.gm-filter-btn em{min-width:18px;height:18px;border-radius:9px;background:#ff6a5a;color:#1a0d0b;font:700 11px/18px Inter,system-ui,sans-serif;font-style:normal;text-align:center}
+.gm-filter-btn[hidden],.gm-filter-btn em[hidden]{display:none}
+.gm-find-count{margin:12px 2px 0;color:#8f8a98;font:500 13px Inter,system-ui,sans-serif;letter-spacing:0}
+.gm-find-count:empty{display:none}
+.gm-find-clear{margin-left:4px;padding:0;border:0;background:none;color:#ff9a91;font:inherit;font-weight:600;cursor:pointer}
+.gm-find-row>svg{flex:none;width:18px;height:18px;margin-left:auto;color:#5d5866}
+.gm-find-section{font-size:11px;letter-spacing:.12em}
 .gm-pass-row{cursor:default}
-.gm-pass-remove{flex:none;width:40px;height:40px;margin-left:auto;border:1px solid #ffffff1c;border-radius:50%;background:none;color:#d9d3dd;font-size:18px;cursor:pointer}
-.gm-pass-actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 4px 6px}
-.gm-pass-actions button{min-height:46px;padding:0 16px;border:1px solid #ffffff1c;border-radius:14px;background:none;color:#e4dee8;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
-.gm-pass-actions .gm-pass-today{flex:1 1 180px;border-color:#ff806f66;background:#ff806f2a;color:#ffe1db}
-.gm-pass-note{margin:4px 6px 20px;color:#8f8a98;font-size:12px;line-height:1.45}
-.gm-pass-btn{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;height:44px;padding:0 18px;box-shadow:0 10px 30px #0008;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);background:#1a1418e6!important;border:1px solid #ff806f55;border-radius:999px;color:#ffd4cc;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
-.gm-pass-btn em{font-style:normal;margin-left:4px;padding:0 6px;border-radius:99px;background:#ff806f33}
-.gm-pass-btn[hidden]{display:none}
+.gm-pass-remove{flex:none;width:36px;height:36px;margin-left:auto;border:0;border-radius:50%;background:#ffffff0d;color:#d9d3dd;font-size:18px;cursor:pointer}
+.gm-pass-actions{display:grid;gap:10px;margin:18px 4px 6px}
+.gm-pass-note{margin:6px 6px 20px;color:#8f8a98;font-size:13px;line-height:1.45}
+.gm-primary{width:100%;min-height:50px;border:0;border-radius:14px;background:linear-gradient(135deg,#ff8a78,#e25b52);color:#1a0d0b;font:700 16px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-secondary{width:100%;min-height:48px;border:0;border-radius:14px;background:#ffffff0d;color:#e4dee8;font:600 15px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-danger{width:100%;min-height:48px;margin-top:10px;border:0;border-radius:14px;background:none;color:#ff7a6e;font:600 15px Inter,system-ui,sans-serif;cursor:pointer}
+/* Filter: a sheet from the bottom with plain lists and checkmarks. */
+.gm-sheet{position:fixed;inset:0;z-index:90;display:flex;align-items:flex-end;background:#0000;transition:background .22s}
+.gm-sheet.is-open{background:#0008}
+.gm-sheet[hidden]{display:none}
+.gm-sheet-card{display:flex;flex-direction:column;width:100%;max-height:88vh;max-height:88dvh;border-radius:20px 20px 0 0;background:#12151d;box-shadow:0 -20px 60px #0009;transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1)}
+.gm-sheet.is-open .gm-sheet-card{transform:none}
+.gm-sheet-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:10px 12px;border-bottom:1px solid #ffffff0f}
+.gm-sheet-head h3{margin:0;color:#fff;font:700 17px Inter,system-ui,sans-serif}
+.gm-text-btn{justify-self:start;min-height:40px;padding:0 8px;border:0;background:none;color:#ff9a91;font:500 16px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-text-btn.is-strong{justify-self:end;font-weight:700}
+.gm-sheet-body{flex:1;overflow-y:auto;padding:4px 16px 8px;-webkit-overflow-scrolling:touch}
+.gm-sheet-body h4,.gm-page-body h4{margin:18px 4px 8px;color:#8f8a98;font:600 12px Inter,system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.gm-sheet-body section{border-radius:14px;background:#ffffff08;overflow:hidden}
+.gm-sheet-body section h4{margin:0;padding:14px 16px 6px;background:#12151d}
+.gm-sheet-body section+section{margin-top:12px}
+.gm-sheet-foot{padding:10px 16px calc(12px + env(safe-area-inset-bottom))}
+.gm-option{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:8px 16px;border:0;border-top:1px solid #ffffff0b;background:none;color:#f0ecf3;font:500 16px Inter,system-ui,sans-serif;text-align:left;cursor:pointer}
+.gm-option span{display:grid;gap:2px;min-width:0}
+.gm-option small{color:#8f8a98;font:500 13px Inter,system-ui,sans-serif}
+.gm-option svg{flex:none;margin-left:auto;color:#ff9a91}
+.gm-option.is-link{color:#ff9a91;font-weight:600}
+.gm-option.is-link svg{color:#5d5866}
+.gm-option:active{background:#ffffff08}
+/* Mina gym: a full-screen page. */
+.gm-gyms{position:fixed;inset:0;z-index:95;overflow-y:auto;background:#0b0e15;transform:translateX(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);-webkit-overflow-scrolling:touch}
+.gm-gyms.is-open{transform:none}
+.gm-gyms[hidden]{display:none}
+.gm-page-head{padding:calc(16px + env(safe-area-inset-top)) 20px 4px}
+.gm-page-head h2{margin:2px 0 0;color:#fff;font:400 36px/1.05 "Cormorant Garamond",Georgia,serif;letter-spacing:-.5px}
+.gm-page-head p{margin:10px 0 0;color:#8f8a98;font:500 14px/1.45 Inter,system-ui,sans-serif}
+.gm-page-body{display:grid;gap:12px;padding:8px 16px calc(28px + env(safe-area-inset-bottom))}
+.gm-page-body h4{margin-bottom:0}
+.gm-group{border-radius:14px;background:#ffffff08;overflow:hidden}
+.gm-group .gm-option:first-child,.gm-group .gm-switch-row:first-child{border-top:0}
+.gm-group-empty{margin:0;padding:16px;color:#8f8a98;font-size:15px}
+.gm-group-note{margin:-4px 4px 0;color:#8f8a98;font-size:13px}
+.gm-input{width:100%;min-height:50px;padding:0 16px;border:0;background:none;color:#fff;font:500 16px Inter,system-ui,sans-serif;outline:none}
+.gm-switch-row{position:relative;display:flex;align-items:center;min-height:50px;padding:0 16px;border-top:1px solid #ffffff0b;color:#f0ecf3;font:500 16px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-switch-row input{position:absolute;opacity:0;pointer-events:none}
+.gm-switch-row i{position:relative;width:50px;height:30px;margin-left:auto;border-radius:15px;background:#ffffff22;transition:background .2s}
+.gm-switch-row i::after{content:"";position:absolute;left:2px;top:2px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 2px 6px #0006;transition:transform .2s}
+.gm-switch-row input:checked+i{background:#ff7a68}
+.gm-switch-row input:checked+i::after{transform:translateX(20px)}
+.gm-switch-row input:focus-visible+i{outline:2px solid #ffb9ad;outline-offset:2px}
+.gm-gym-error{margin:0;color:#ffaaa0;font-size:13px}.gm-gym-error:empty{display:none}

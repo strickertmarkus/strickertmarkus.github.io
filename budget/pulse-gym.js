@@ -67,69 +67,87 @@
       if (returnToFind) { var back = returnToFind; returnToFind = null; reopenFind(back.scroll); }
     });
 
-    /* Search every exercise: name, muscle, equipment or category ("bröst", "kabel", "pull"). */
-    var findBtn = document.createElement('button');
-    findBtn.type = 'button'; findBtn.className = 'gm-find-btn'; findBtn.setAttribute('aria-label', 'Bläddra bland alla övningar och program');
-    findBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/><path class="gm-find-spark" d="M10.5 7.4c.25 1.9.9 2.6 2.8 2.8-1.9.25-2.6.9-2.8 2.8-.25-1.9-.9-2.6-2.8-2.8 1.9-.25 2.6-.9 2.8-2.8z"/></svg>';
-    map.appendChild(findBtn);
-    var find = document.createElement('div');
-    find.className = 'gm-find'; find.hidden = true; find.setAttribute('role', 'dialog'); find.setAttribute('aria-modal', 'true'); find.setAttribute('aria-label', 'Bläddra bland övningar och program');
-    find.innerHTML = '<div class="gm-find-head"><button type="button" class="gm-find-close" aria-label="Stäng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
-      '<span class="eyebrow">Utforska</span><h2>Alla övningar</h2>' +
-      '<div class="gm-find-tabs" role="tablist"><button type="button" role="tab" data-find-mode="ex" aria-selected="true">Övningar</button><button type="button" role="tab" data-find-mode="prog" aria-selected="false">Program</button><button type="button" role="tab" data-find-mode="plan" aria-selected="false">Planer</button><button type="button" role="tab" data-find-mode="pass" aria-selected="false">Mitt pass <em class="gm-pass-count"></em></button></div>' +
-      '<label class="gm-find-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/></svg><input type="search" placeholder="Övning, muskel eller redskap" autocomplete="off" enterkeyhint="search" aria-label="Sök"></label>' +
-      '<div class="gm-find-chips gm-find-gyms" role="group" aria-label="Ditt gym" hidden></div>' +
-      '<div class="gm-find-chips gm-find-time" role="group" aria-label="Tid" hidden></div>' +
-      '<div class="gm-find-chips" role="group" aria-label="Filtrera"></div>' +
-      '<p class="gm-find-count" aria-live="polite"></p></div><div class="gm-find-list" role="list"></div>';
-    document.body.appendChild(find);
-    var field = find.querySelector('input'), list = find.querySelector('.gm-find-list'), count = find.querySelector('.gm-find-count'), chips = find.querySelector('.gm-find-chips:not(.gm-find-gyms):not(.gm-find-time)'), gymChips = find.querySelector('.gm-find-gyms'), timeChips = find.querySelector('.gm-find-time');
-    var MUSCLES = ['Alla', 'Bröst', 'Axlar', 'Rygg', 'Biceps', 'Triceps', 'Mage', 'Framsida lår', 'Säte', 'Baksida lår', 'Vader', 'Kondition'];
-    var browse = { mode: 'ex', muscle: 'Alla', group: 'Alla', planGroup: 'Alla', plan: null, gymEdit: null, time: '', forMuscle: '' };
-    var TIMES = [['', 'Alla längder'], ['20', 'Upp till 20 min'], ['30', 'Upp till 30 min'], ['45', 'Upp till 45 min'], ['60', 'Upp till 60 min']];
-    // The chosen gym also limits exercises: body-weight exercises always fit.
-    function exerciseFits(e, gym) { return !gym || e.equipment === 'Kroppsvikt' || gym.equipment.indexOf(e.equipment) >= 0; }
-    var EQUIP_LABEL = { Maskin: 'Maskiner', Kabel: 'Kabel', Hantlar: 'Hantlar', 'Skivstång': 'Skivstång', Konditionsmaskin: 'Konditionsmaskiner' };
+    /* The explorer's way around, like the training page: a bottom bar (Kropp, Övningar,
+       Program, Planer, Mitt pass), one search panel per tab with a single Filter button,
+       a filter sheet, and Mina gym as its own full-screen page. */
     var low = function (t) { return String(t || '').toLocaleLowerCase('sv-SE'); };
     var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
-    function matches(e, q) {
-      if (!q) return true;
-      if (low(e.name).indexOf(q) >= 0) return true;
-      return e.muscles.concat([e.equipment, e.group]).some(function (w) { return low(w).split(/[\s,·]+/).some(function (part) { return part.indexOf(q) === 0; }) || low(w).indexOf(q) === 0; });
+    var X = window.PulseExplore;
+    var ICONS = {
+      body: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.6" r="2.1"/><path d="M6 8.6c2 .8 4 1.2 6 1.2s4-.4 6-1.2M12 9.8v5.2M9.4 21l1.4-6h2.4l1.4 6"/></svg>',
+      ex: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.2"/><path d="M15.2 15.2L20 20"/></svg>',
+      prog: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4.5" width="16" height="15" rx="3"/><path d="M8 9.5h8M8 13h8M8 16.5h5"/></svg>',
+      plan: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+      pass: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r="1"/><circle cx="4.8" cy="12" r="1"/><circle cx="4.8" cy="17.5" r="1"/></svg>',
+      filter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+      back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>',
+      check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>',
+      chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5L16 12l-6.5 6.5"/></svg>'
+    };
+    var TITLES = { ex: 'Övningar', prog: 'Program', plan: 'Planer', pass: 'Mitt pass' };
+    var MUSCLES = ['Alla', 'Bröst', 'Axlar', 'Rygg', 'Biceps', 'Triceps', 'Mage', 'Framsida lår', 'Säte', 'Baksida lår', 'Vader', 'Kondition'];
+    var TIMES = [['', 'Alla längder'], ['20', 'Upp till 20 min'], ['30', 'Upp till 30 min'], ['45', 'Upp till 45 min'], ['60', 'Upp till 60 min']];
+    var EQUIP_LABEL = { Maskin: 'Maskiner', Kabel: 'Kabel', Hantlar: 'Hantlar', 'Skivstång': 'Skivstång', Konditionsmaskin: 'Konditionsmaskiner' };
+    var browse = { mode: 'ex', muscle: 'Alla', group: 'Alla', planGroup: 'Alla', plan: null, time: '', forMuscle: '' };
+    function gym() { return X.activeGym ? X.activeGym() : null; }
+    // The chosen gym also limits exercises: body-weight exercises always fit.
+    function exerciseFits(e, g) { return !g || e.equipment === 'Kroppsvikt' || g.equipment.indexOf(e.equipment) >= 0; }
+
+    /* ---- Bottom bar ---- */
+    var dock = document.createElement('nav');
+    dock.className = 'gm-dock'; dock.setAttribute('aria-label', 'Utforska');
+    dock.innerHTML = [['body', 'Kropp'], ['ex', 'Övningar'], ['prog', 'Program'], ['plan', 'Planer'], ['pass', 'Mitt pass']].map(function (t) {
+      return '<button type="button" data-dock="' + t[0] + '">' + ICONS[t[0]] + '<span>' + t[1] + '</span>' + (t[0] === 'pass' ? '<em class="gm-dock-badge" hidden></em>' : '') + '</button>';
+    }).join('');
+    document.body.appendChild(dock);
+    function paintDock() {
+      var on = find.hidden ? 'body' : browse.mode;
+      dock.querySelectorAll('[data-dock]').forEach(function (b) { var active = b.dataset.dock === on; b.classList.toggle('is-active', active); if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+      var n = ui.selection().length, badge = dock.querySelector('.gm-dock-badge');
+      badge.hidden = !n; badge.textContent = n || '';
+      dock.hidden = scene.isOpen();
     }
-    function renderChips() {
-      var source = browse.mode === 'plan' ? (window.PulsePlans ? window.PulsePlans.plans : []) : window.PulseExplore.programs;
-      var values = browse.mode === 'ex' ? MUSCLES : ['Alla'].concat(source.map(function (p) { return p.group; }).filter(function (g, i, a) { return a.indexOf(g) === i; }));
-      var current = browse.mode === 'ex' ? browse.muscle : browse.mode === 'plan' ? browse.planGroup : browse.group;
-      chips.hidden = browse.mode === 'pass' || (browse.mode === 'plan' && !!browse.plan);
-      field.closest('.gm-find-field').hidden = browse.mode === 'pass' || (browse.mode === 'plan' && !!browse.plan);
-      timeChips.hidden = browse.mode !== 'prog';
-      timeChips.innerHTML = TIMES.map(function (t) { return '<button type="button" data-find-time="' + t[0] + '" aria-pressed="' + (browse.time === t[0]) + '">' + t[1] + '</button>'; }).join('');
-      find.querySelector('.gm-pass-count').textContent = ui.selection().length || '';
-      chips.innerHTML = values.map(function (v) { return '<button type="button" data-find-chip="' + esc(v) + '" aria-pressed="' + (v === current) + '">' + esc(v) + '</button>'; }).join('');
-      find.querySelectorAll('[data-find-mode]').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.findMode === browse.mode)); });
-      // Gym profiles (PulseExplore.readGyms): "Alla förslag" or a gym whose equipment filters the programmes.
-      var X = window.PulseExplore, gyms = X.readGyms ? X.readGyms() : { gyms: [], active: '' };
-      gymChips.hidden = (browse.mode !== 'prog' && browse.mode !== 'ex') || !X.readGyms;
-      gymChips.innerHTML = '<button type="button" data-find-gym="" aria-pressed="' + !gyms.active + '">Alla förslag</button>' +
-        gyms.gyms.map(function (g) { return '<button type="button" data-find-gym="' + esc(g.id) + '" aria-pressed="' + (gyms.active === g.id) + '">' + esc(g.name) + '</button>'; }).join('') +
-        (gyms.active ? '<button type="button" class="is-dashed" data-find-gym-edit="' + esc(gyms.active) + '">Ändra utrustning</button>' : '') +
-        (gyms.gyms.length < 8 ? '<button type="button" class="is-dashed" data-find-gym-new="1">+ Nytt gym</button>' : '');
-      field.placeholder = browse.mode === 'ex' ? 'Övning, muskel eller redskap' : browse.mode === 'plan' ? 'Plan, övning eller redskap' : 'Program eller övning';
+
+    /* ---- Search panel ---- */
+    var find = document.createElement('div');
+    find.className = 'gm-find'; find.hidden = true; find.setAttribute('role', 'region'); find.setAttribute('aria-label', 'Sök');
+    find.innerHTML = '<div class="gm-find-head"><button type="button" class="gm-find-back" data-find-back hidden>' + ICONS.back + '<span>Tillbaka</span></button><h2 class="gm-find-title">Övningar</h2>' +
+      '<div class="gm-find-tools"><label class="gm-find-field">' + ICONS.ex + '<input type="search" autocomplete="off" enterkeyhint="search" aria-label="Sök"></label>' +
+      '<button type="button" class="gm-filter-btn" data-filter-open aria-label="Filter">' + ICONS.filter + '<span>Filter</span><em hidden></em></button></div>' +
+      '<p class="gm-find-count" aria-live="polite"></p></div><div class="gm-find-list" role="list"></div>';
+    document.body.appendChild(find);
+    var field = find.querySelector('input'), list = find.querySelector('.gm-find-list'), count = find.querySelector('.gm-find-count'), title = find.querySelector('.gm-find-title'), backBtn = find.querySelector('[data-find-back]'), filterBtn = find.querySelector('[data-filter-open]');
+    function activeFilters() {
+      var n = 0, g = gym();
+      if (g && (browse.mode === 'ex' || browse.mode === 'prog')) n++;
+      if (browse.mode === 'ex' && browse.muscle !== 'Alla') n++;
+      if (browse.mode === 'prog') { if (browse.time) n++; if (browse.group !== 'Alla') n++; if (browse.forMuscle) n++; }
+      if (browse.mode === 'plan' && browse.planGroup !== 'Alla') n++;
+      return n;
     }
-    /* One line that says what is filtered, with a way to clear it all. */
+    function paintHead() {
+      var detail = browse.mode === 'plan' && browse.plan;
+      title.textContent = detail ? browse.plan.name : TITLES[browse.mode];
+      backBtn.hidden = !(detail || scene.isOpen());
+      find.querySelector('.gm-find-tools').hidden = browse.mode === 'pass' || !!detail;
+      filterBtn.hidden = browse.mode === 'pass';
+      var n = activeFilters(), badge = filterBtn.querySelector('em');
+      badge.hidden = !n; badge.textContent = n || ''; filterBtn.classList.toggle('is-on', !!n);
+      field.placeholder = browse.mode === 'ex' ? 'Sök övning, muskel eller redskap' : browse.mode === 'plan' ? 'Sök plan eller övning' : 'Sök program eller övning';
+    }
+    /* What is filtered, in words, with one way to clear it. */
     function summary(n, noun) {
-      var X = window.PulseExplore, gym = X.activeGym ? X.activeGym() : null, parts = [];
-      if (gym) parts.push(gym.name);
-      if (browse.mode === 'prog' && browse.time) parts.push('upp till ' + browse.time + ' min');
-      if (browse.mode === 'prog' && browse.forMuscle) parts.push('tränar ' + browse.forMuscle.toLowerCase());
+      var g = gym(), parts = [];
+      if (g && (browse.mode === 'ex' || browse.mode === 'prog')) parts.push(g.name);
+      if (browse.mode === 'ex' && browse.muscle !== 'Alla') parts.push(browse.muscle);
+      if (browse.mode === 'prog') { if (browse.group !== 'Alla') parts.push(browse.group); if (browse.time) parts.push('upp till ' + browse.time + ' min'); if (browse.forMuscle) parts.push('tränar ' + browse.forMuscle.toLowerCase()); }
+      if (browse.mode === 'plan' && browse.planGroup !== 'Alla') parts.push(browse.planGroup);
       count.innerHTML = esc(n + ' ' + noun) + (parts.length ? ' · ' + esc(parts.join(' · ')) + ' <button type="button" class="gm-find-clear" data-find-clear>Rensa</button>' : '');
     }
     function exerciseRows(q) {
-      var X = window.PulseExplore, m = browse.muscle, gym = X.activeGym ? X.activeGym() : null;
-      var all = X.exercises.filter(function (e) { return (m === 'Alla' || (m === 'Kondition' ? e.group === 'Kondition' : e.muscles.indexOf(m) >= 0)) && exerciseFits(e, gym); })
+      var m = browse.muscle, g = gym();
+      var all = X.exercises.filter(function (e) { return (m === 'Alla' || (m === 'Kondition' ? e.group === 'Kondition' : e.muscles.indexOf(m) >= 0)) && exerciseFits(e, g); })
         .filter(function (e) { return matches(e, q); })
-        // With a muscle chosen: exercises where it is the main muscle first.
         .sort(function (a, b) { return (m !== 'Alla' && m !== 'Kondition' ? a.muscles.indexOf(m) - b.muscles.indexOf(m) : 0) || a.name.localeCompare(b.name, 'sv'); });
       summary(all.length, all.length === 1 ? 'övning' : 'övningar');
       var lastLead = null;
@@ -144,49 +162,49 @@
         }
         var art = ART[e.muscles[0]];
         return head + '<button type="button" class="gm-find-row" role="listitem" data-find-id="' + e.id + '"><span class="pk-thumb' + (e.group === 'Kondition' ? ' is-cardio' : '') + '">' + (art ? '<img alt="" loading="lazy" src="assets/atlas-art-v1/' + art + '.webp">' : '') + '</span>' +
-          '<span class="gm-find-copy"><b>' + name + '</b><small>' + esc(e.muscles.slice(0, 3).join(' · ')) + ' · ' + esc(e.equipment) + '</small></span></button>';
-      }).join('') || '<p class="gm-find-empty">Ingen övning matchar. Prova en annan muskel eller ett redskap, som <b>skivstång</b>.</p>';
+          '<span class="gm-find-copy"><b>' + name + '</b><small>' + esc(e.muscles.slice(0, 3).join(' · ')) + ' · ' + esc(e.equipment) + '</small></span>' + ICONS.chevron + '</button>';
+      }).join('') || '<p class="gm-find-empty">Ingen övning matchar. <button type="button" class="gm-find-clear" data-find-clear>Visa alla övningar</button></p>';
     }
-    function programRows(q) {
-      var X = window.PulseExplore;
-      var gym = X.activeGym ? X.activeGym() : null;
-      var hits = X.programs.filter(function (p) {
-        return (browse.group === 'Alla' || p.group === browse.group) && (!X.fitsGym || X.fitsGym(p, gym)) &&
-          (!browse.time || p.durationMinutes[1] <= Number(browse.time)) &&
+    function matches(e, q) {
+      if (!q) return true;
+      if (low(e.name).indexOf(q) >= 0) return true;
+      return e.muscles.concat([e.equipment, e.group]).some(function (w) { return low(w).split(/[\s,·]+/).some(function (part) { return part.indexOf(q) === 0; }) || low(w).indexOf(q) === 0; });
+    }
+    function programHits(q, ignore) {
+      var g = gym();
+      return X.programs.filter(function (p) {
+        return (ignore === 'group' || browse.group === 'Alla' || p.group === browse.group) && (ignore === 'gym' || !X.fitsGym || X.fitsGym(p, g)) &&
+          (ignore === 'time' || !browse.time || p.durationMinutes[1] <= Number(browse.time)) &&
           (!browse.forMuscle || p.ids.some(function (id) { return X.exercises[id].muscles.indexOf(browse.forMuscle) >= 0; }));
       }).filter(function (p) {
         return !q || [p.name, p.group, p.equipment, p.tag].concat(p.ids.map(function (id) { return X.exercises[id].name; })).some(function (t) { return low(t).indexOf(q) >= 0; });
       });
+    }
+    function programRows(q) {
+      var hits = programHits(q);
       summary(hits.length, 'program');
       var lastGroup = null;
       return hits.map(function (p) {
         var head = browse.group === 'Alla' && p.group !== lastGroup ? '<p class="gm-find-section">' + esc(p.group) + '</p>' : '';
         lastGroup = p.group;
         return head + '<button type="button" class="gm-find-row" role="listitem" data-find-program="' + esc(p.id) + '"><span class="pk-thumb is-pose"><img alt="" loading="lazy" src="assets/exercise-poses-v2/' + String(p.ids[0]).padStart(2, '0') + '-end.webp"></span>' +
-          '<span class="gm-find-copy"><b>' + esc(p.name) + '</b><small>' + p.ids.length + ' övningar · ' + esc(X.durationLabel(p)) + ' · ' + esc(X.programEquipment ? (X.programEquipment(p).join(', ') || 'Bara kroppsvikt') : p.equipment) + '</small></span></button>';
-      }).join('') || '<p class="gm-find-empty">' + 'Inget program matchar dina val. <button type="button" class="gm-find-clear" data-find-clear>Visa alla program</button></p>';
+          '<span class="gm-find-copy"><b>' + esc(p.name) + '</b><small>' + p.ids.length + ' övningar · ' + esc(X.durationLabel(p)) + ' · ' + esc(X.programEquipment(p).join(', ') || 'Bara kroppsvikt') + '</small></span>' + ICONS.chevron + '</button>';
+      }).join('') || '<p class="gm-find-empty">Inget program matchar dina val. <button type="button" class="gm-find-clear" data-find-clear>Visa alla program</button></p>';
     }
     /* Mitt pass: the chosen exercises, removable, and the way into today's pass. */
     function passRows() {
-      var X = window.PulseExplore, ids = ui.selection();
+      var ids = ui.selection();
       count.textContent = ids.length ? ids.length + (ids.length === 1 ? ' övning vald' : ' övningar valda') : '';
-      if (!ids.length) return '<p class="gm-find-empty">Inga övningar valda ännu. Tryck Välj på en övning, eller dubbeltryck på figuren, så samlas de här.</p>';
+      if (!ids.length) return '<p class="gm-find-empty">Inga övningar valda ännu. Öppna en övning och tryck Välj, så samlas de här.</p>';
       var ingemar = X.profile === 'ingemar';
       return ids.map(function (id) {
         var e = X.exercises[id];
         return '<div class="gm-find-row gm-pass-row" role="listitem"><span class="pk-thumb is-pose"><img alt="" loading="lazy" src="assets/exercise-poses-v2/' + String(id).padStart(2, '0') + '-end.webp"></span>' +
           '<span class="gm-find-copy"><b>' + esc(e.name) + '</b><small>' + esc(X.prescription(id).label) + ' · ' + esc(e.equipment) + '</small></span>' +
           '<button type="button" class="gm-pass-remove" data-find-remove="' + id + '" aria-label="Ta bort ' + esc(e.name) + '">×</button></div>';
-      }).join('') + '<div class="gm-pass-actions">' + (ingemar ? '' : '<button type="button" class="gm-pass-today" data-find-today>Lägg till i dagens pass ↗</button>') +
-        '<button type="button" class="gm-pass-copy" data-find-copy>' + (ingemar ? 'Öppna i passbyggaren ↗' : 'Kopiera passförslag') + '</button></div>' +
+      }).join('') + '<div class="gm-pass-actions">' + (ingemar ? '' : '<button type="button" class="gm-primary" data-find-today>Lägg till i dagens pass</button>') +
+        '<button type="button" class="gm-secondary" data-find-copy>' + (ingemar ? 'Öppna i passbyggaren' : 'Kopiera passförslag') + '</button></div>' +
         (ingemar ? '' : '<p class="gm-pass-note">Dagens passbyggare öppnas med övningarna ifyllda, så du kan justera set, reps och vikter.</p>');
-    }
-    function gymEditor() {
-      var X = window.PulseExplore, gym = browse.gymEdit ? X.readGyms().gyms.find(function (g) { return g.id === browse.gymEdit; }) : null;
-      return '<form class="gm-gym-editor" data-gym-form="1"><label>Namn på gymmet<input name="name" maxlength="30" autocomplete="off" placeholder="Till exempel Hemma eller Jobbet" value="' + esc(gym ? gym.name : '') + '" required></label>' +
-        '<p class="gm-gym-legend">Utrustning som finns där</p><div class="gm-gym-equipment">' + X.EQUIPMENT.map(function (e) { return '<label><input type="checkbox" value="' + esc(e) + '"' + (!gym || gym.equipment.indexOf(e) >= 0 ? ' checked' : '') + '> ' + esc(EQUIP_LABEL[e] || e) + '</label>'; }).join('') + '</div>' +
-        '<p class="gm-gym-note">Övningar med kroppsvikt räknas alltid med.</p><p class="gm-gym-error" role="alert"></p>' +
-        '<div class="gm-gym-actions"><button type="submit" class="gm-gym-save">Spara gym</button><button type="button" data-gym-cancel="1">Avbryt</button>' + (gym ? '<button type="button" data-gym-delete="1">Ta bort gymmet</button>' : '') + '</div></form>';
     }
     function planRows(q) {
       var P = window.PulsePlans, X = window.PulseExplore;
@@ -196,7 +214,7 @@
         var names = []; Object.keys(p.sessions).forEach(function (k) { P.sessionIds(p, k).forEach(function (id) { names.push(X.exercises[id].name); }); });
         return [p.name, p.group, p.equipment, p.level].concat(names).some(function (t) { return low(t).indexOf(q) >= 0; });
       });
-      count.textContent = hits.length + (hits.length === 1 ? ' plan' : ' planer') + ' · fyra veckor';
+      summary(hits.length, hits.length === 1 ? 'plan · fyra veckor' : 'planer · fyra veckor');
       return hits.map(function (p) {
         var lead = P.sessionIds(p, Object.keys(p.sessions)[0])[0];
         return '<button type="button" class="gm-find-row" role="listitem" data-find-plan="' + esc(p.id) + '"><span class="pk-thumb is-pose">' + (lead != null ? '<img alt="" loading="lazy" src="assets/exercise-poses-v2/' + String(lead).padStart(2, '0') + '-end.webp">' : '') + '</span>' +
@@ -226,7 +244,7 @@
       }).join('');
       var user = new URLSearchParams(location.search).get('user');
       var href = 'exercise.html?tool=week&plan=' + encodeURIComponent(p.id) + (user ? '&user=' + encodeURIComponent(user) : '');
-      return '<div class="gm-plan"><button type="button" class="gm-plan-back" data-plan-back>‹ Alla planer</button>' +
+      return '<div class="gm-plan">' +
         '<h3>' + esc(p.name) + '</h3><p class="gm-plan-meta">' + p.perWeek + ' pass i veckan · ' + esc(p.level) + ' · ' + esc(p.equipment) + '</p>' +
         '<p class="gm-plan-summary">' + esc(p.summary) + '</p>' + grid +
         '<p class="gm-plan-how">' + esc(p.how) + '</p>' + notes + sessions +
@@ -235,87 +253,161 @@
     }
     function renderFind() {
       var q = low(field.value).trim();
+      paintHead(); paintDock();
       if (browse.mode === 'plan' && browse.plan) { list.innerHTML = planDetail(browse.plan); return; }
-      if ((browse.mode === 'prog' || browse.mode === 'ex') && browse.gymEdit !== null) { list.innerHTML = gymEditor(); var input = list.querySelector('input[name=name]'); if (input) input.focus(); return; }
       list.innerHTML = browse.mode === 'ex' ? exerciseRows(q) : browse.mode === 'plan' ? planRows(q) : browse.mode === 'pass' ? passRows() : programRows(q);
     }
-    // Grows out of the magnifier and shrinks back into it (pulse-motion.js), like the training tools.
-    var motion = window.PulseMotion;
-    var findOrigin = findBtn;
+    var motion = window.PulseMotion, findOrigin = null;
     function openFind(mode, options) {
       options = options || {};
-      if (typeof mode === 'string') { browse.mode = mode; browse.plan = null; browse.gymEdit = null; }
+      if (typeof mode === 'string' && TITLES[mode]) { browse.mode = mode; browse.plan = null; }
       browse.forMuscle = options.muscle || '';
       if (options.muscle) browse.group = 'Alla';
-      findOrigin = options.origin || findBtn;
+      var wasOpen = !find.hidden;
+      findOrigin = options.origin || null;
       find.classList.toggle('is-over-scene', scene.isOpen());
-      field.value = ''; renderChips(); renderFind(); find.hidden = false; find.classList.add('is-open'); list.scrollTop = 0;
-      if (motion) motion.reveal(find, findOrigin); else find.style.opacity = 1;
+      field.value = ''; renderFind(); find.hidden = false; find.classList.add('is-open'); list.scrollTop = 0;
+      // From the bottom bar it simply switches; from the exercise view it grows out of the tapped button.
+      if (!wasOpen && motion && findOrigin) motion.reveal(find, findOrigin); else find.style.opacity = 1;
+      paintDock();
     }
     function reopenFind(scroll) {
-      renderChips(); renderFind(); find.hidden = false; find.classList.add('is-open'); find.style.opacity = 1;
-      list.scrollTop = scroll || 0;
+      renderFind(); find.hidden = false; find.classList.add('is-open'); find.style.opacity = 1;
+      list.scrollTop = scroll || 0; paintDock();
     }
     function closeFind(quiet) {
       if (find.hidden) return;
-      var done = function () { find.hidden = true; find.classList.remove('is-open'); find.style.clipPath = ''; find.style.opacity = ''; };
+      var done = function () { find.hidden = true; find.classList.remove('is-open', 'is-over-scene'); find.style.clipPath = ''; find.style.opacity = ''; paintDock(); };
       if (motion && !quiet && findOrigin && findOrigin.getClientRects().length) motion.conceal(find, findOrigin).then(done); else done();
+      findOrigin = null;
     }
-    findBtn.addEventListener('click', function () { openFind('ex'); });
-    /* Mitt pass straight from the body, with the number chosen. */
-    var passBtn = document.createElement('button');
-    passBtn.type = 'button'; passBtn.className = 'gm-pass-btn';
-    map.appendChild(passBtn);
-    function paintPassBtn() { var n = ui.selection().length; passBtn.dataset.empty = n ? '' : '1'; passBtn.hidden = !n || scene.isOpen(); passBtn.innerHTML = 'Mitt pass' + (n ? ' <em>' + n + '</em>' : ''); passBtn.setAttribute('aria-label', 'Mitt pass, ' + n + (n === 1 ? ' övning' : ' övningar')); }
-    paintPassBtn();
-    var passCount = $('living-pass-count');
-    if (passCount) new MutationObserver(function () { paintPassBtn(); if (!find.hidden && browse.mode === 'pass') { renderChips(); renderFind(); } else if (!find.hidden) renderChips(); }).observe(passCount, { childList: true, characterData: true, subtree: true });
-    passBtn.addEventListener('click', function () { openFind('pass', { origin: passBtn }); });
-    field.addEventListener('input', renderFind);
-    find.addEventListener('submit', function (event) {
-      var form = event.target.closest('[data-gym-form]'); if (!form) return;
-      event.preventDefault();
-      var X = window.PulseExplore, d = X.readGyms(), name = form.querySelector('input[name=name]').value.trim(), error = form.querySelector('.gm-gym-error');
-      var equipment = Array.prototype.map.call(form.querySelectorAll('.gm-gym-equipment input:checked'), function (i) { return i.value; });
-      if (!name) { error.textContent = 'Ge gymmet ett namn.'; return; }
-      if (d.gyms.some(function (g) { return g.id !== browse.gymEdit && low(g.name) === low(name); })) { error.textContent = 'Det finns redan ett gym med det namnet.'; return; }
-      var id = browse.gymEdit || 'gym-' + Date.now().toString(36), gym = { id: id, name: name, equipment: equipment };
-      d.gyms = browse.gymEdit ? d.gyms.map(function (g) { return g.id === id ? gym : g; }) : d.gyms.concat(gym); d.active = id;
-      if (!X.saveGyms(d)) { error.textContent = 'Gymmet kunde inte sparas. Tillåt webbplatslagring och försök igen.'; return; }
-      browse.gymEdit = null; renderChips(); renderFind(); list.scrollTop = 0;
+    dock.addEventListener('click', function (event) {
+      var b = event.target.closest('[data-dock]'); if (!b) return;
+      if (b.dataset.dock === 'body') { closeFind(true); return; }
+      openFind(b.dataset.dock);
     });
+    field.addEventListener('input', renderFind);
+    var passCount = $('living-pass-count');
+    if (passCount) new MutationObserver(function () { if (!find.hidden && browse.mode === 'pass') renderFind(); else paintDock(); }).observe(passCount, { childList: true, characterData: true, subtree: true });
+
+    /* ---- Filter sheet ---- */
+    var sheet = document.createElement('div');
+    sheet.className = 'gm-sheet'; sheet.hidden = true; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true'); sheet.setAttribute('aria-label', 'Filter');
+    document.body.appendChild(sheet);
+    function option(kind, value, label, on, meta) {
+      return '<button type="button" class="gm-option" data-opt="' + kind + '" data-value="' + esc(value) + '" aria-pressed="' + on + '"><span>' + esc(label) + (meta ? '<small>' + esc(meta) + '</small>' : '') + '</span>' + (on ? ICONS.check : '') + '</button>';
+    }
+    function renderSheet() {
+      var d = X.readGyms(), html = '', g = gym();
+      if (browse.mode === 'ex' || browse.mode === 'prog') {
+        html += '<section><h4>Gym</h4>' + option('gym', '', 'Alla förslag', !d.active, 'All utrustning') +
+          d.gyms.map(function (x) { return option('gym', x.id, x.name, d.active === x.id, x.equipment.map(function (e) { return EQUIP_LABEL[e] || e; }).join(', ') || 'Bara kroppsvikt'); }).join('') +
+          '<button type="button" class="gm-option is-link" data-gyms-open><span>Mina gym</span>' + ICONS.chevron + '</button></section>';
+      }
+      if (browse.mode === 'prog') {
+        html += '<section><h4>Tid</h4>' + TIMES.map(function (t) { return option('time', t[0], t[1], browse.time === t[0]); }).join('') + '</section>';
+        var groups = ['Alla'].concat(X.programs.map(function (p) { return p.group; }).filter(function (x, i, a) { return a.indexOf(x) === i; }));
+        html += '<section><h4>Inriktning</h4>' + groups.map(function (x) { return option('group', x, x === 'Alla' ? 'Alla inriktningar' : x, browse.group === x); }).join('') + '</section>';
+        if (browse.forMuscle) html += '<section><h4>Muskel</h4>' + option('muscleoff', '', 'Tränar ' + browse.forMuscle.toLowerCase(), true, 'Tryck för att visa alla muskler') + '</section>';
+      }
+      if (browse.mode === 'ex') html += '<section><h4>Muskel</h4>' + MUSCLES.map(function (x) { return option('muscle', x, x === 'Alla' ? 'Alla muskler' : x, browse.muscle === x); }).join('') + '</section>';
+      if (browse.mode === 'plan') {
+        var pg = ['Alla'].concat((window.PulsePlans ? window.PulsePlans.plans : []).map(function (p) { return p.group; }).filter(function (x, i, a) { return a.indexOf(x) === i; }));
+        html += '<section><h4>Inriktning</h4>' + pg.map(function (x) { return option('plangroup', x, x === 'Alla' ? 'Alla planer' : x, browse.planGroup === x); }).join('') + '</section>';
+      }
+      var n = browse.mode === 'prog' ? programHits(low(field.value).trim()).length : null;
+      sheet.innerHTML = '<div class="gm-sheet-card"><div class="gm-sheet-head"><button type="button" class="gm-text-btn" data-sheet-clear>Rensa</button><h3>Filter</h3><button type="button" class="gm-text-btn is-strong" data-sheet-done>Klar</button></div>' +
+        '<div class="gm-sheet-body">' + html + '</div>' +
+        '<div class="gm-sheet-foot"><button type="button" class="gm-primary" data-sheet-done>' + (n === null ? 'Visa' : 'Visa ' + n + ' program') + '</button></div></div>';
+      void g;
+    }
+    function openSheet() { renderSheet(); sheet.hidden = false; requestAnimationFrame(function () { sheet.classList.add('is-open'); }); var first = sheet.querySelector('[data-sheet-done]'); if (first) first.focus({ preventScroll: true }); }
+    function closeSheet() { sheet.classList.remove('is-open'); setTimeout(function () { if (!sheet.classList.contains('is-open')) sheet.hidden = true; }, 220); renderFind(); filterBtn.focus({ preventScroll: true }); }
+    function clearFilters() {
+      var d = X.readGyms(); d.active = ''; X.saveGyms(d);
+      browse.time = ''; browse.forMuscle = ''; browse.group = 'Alla'; browse.muscle = 'Alla'; browse.planGroup = 'Alla';
+    }
+    sheet.addEventListener('click', function (event) {
+      if (event.target === sheet || event.target.closest('[data-sheet-done]')) { closeSheet(); return; }
+      if (event.target.closest('[data-sheet-clear]')) { clearFilters(); renderSheet(); return; }
+      if (event.target.closest('[data-gyms-open]')) { openGyms(); return; }
+      var o = event.target.closest('[data-opt]'); if (!o) return;
+      var v = o.dataset.value, kind = o.dataset.opt;
+      if (kind === 'gym') { var d = X.readGyms(); d.active = v; X.saveGyms(d); }
+      else if (kind === 'time') browse.time = v;
+      else if (kind === 'group') browse.group = v;
+      else if (kind === 'muscle') browse.muscle = v;
+      else if (kind === 'plangroup') browse.planGroup = v;
+      else if (kind === 'muscleoff') browse.forMuscle = '';
+      var top = sheet.querySelector('.gm-sheet-body').scrollTop; renderSheet(); sheet.querySelector('.gm-sheet-body').scrollTop = top;
+    });
+
+    /* ---- Mina gym: its own full-screen page ---- */
+    var gyms = document.createElement('div');
+    gyms.className = 'gm-gyms'; gyms.hidden = true; gyms.setAttribute('role', 'dialog'); gyms.setAttribute('aria-modal', 'true'); gyms.setAttribute('aria-label', 'Mina gym');
+    document.body.appendChild(gyms);
+    var gymEdit = null; // null = the list, '' = a new gym, id = editing that gym
+    function renderGyms() {
+      var d = X.readGyms();
+      if (gymEdit === null) {
+        gyms.innerHTML = '<div class="gm-page-head"><button type="button" class="gm-find-back" data-gyms-close>' + ICONS.back + '<span>Filter</span></button><h2>Mina gym</h2>' +
+          '<p>Ställ in vilken utrustning som finns på varje ställe. Välj sedan gym under Filter, så visas bara det du kan köra där.</p></div>' +
+          '<div class="gm-page-body"><div class="gm-group">' + (d.gyms.length ? d.gyms.map(function (g) {
+            return '<button type="button" class="gm-option" data-gym-edit="' + esc(g.id) + '"><span>' + esc(g.name) + '<small>' + esc(g.equipment.map(function (e) { return EQUIP_LABEL[e] || e; }).join(', ') || 'Bara kroppsvikt') + '</small></span>' + ICONS.chevron + '</button>';
+          }).join('') : '<p class="gm-group-empty">Inga gym ännu.</p>') + '</div>' +
+          (d.gyms.length < 8 ? '<button type="button" class="gm-primary" data-gym-edit="">Lägg till gym</button>' : '') + '</div>';
+        return;
+      }
+      var g = gymEdit ? d.gyms.find(function (x) { return x.id === gymEdit; }) : null;
+      gyms.innerHTML = '<form class="gm-gym-form" data-gym-form><div class="gm-page-head"><button type="button" class="gm-find-back" data-gym-list>' + ICONS.back + '<span>Mina gym</span></button><h2>' + (g ? esc(g.name) : 'Nytt gym') + '</h2></div>' +
+        '<div class="gm-page-body"><h4>Namn</h4><div class="gm-group"><input class="gm-input" name="name" maxlength="30" autocomplete="off" placeholder="Till exempel Hemma eller Jobbet" value="' + esc(g ? g.name : '') + '" required></div>' +
+        '<h4>Utrustning</h4><div class="gm-group">' + X.EQUIPMENT.map(function (e) {
+          return '<label class="gm-switch-row"><span>' + esc(EQUIP_LABEL[e] || e) + '</span><input type="checkbox" role="switch" value="' + esc(e) + '"' + (!g || g.equipment.indexOf(e) >= 0 ? ' checked' : '') + '><i aria-hidden="true"></i></label>';
+        }).join('') + '</div><p class="gm-group-note">Övningar med kroppsvikt räknas alltid med.</p><p class="gm-gym-error" role="alert"></p>' +
+        '<button type="submit" class="gm-primary">Spara</button>' + (g ? '<button type="button" class="gm-danger" data-gym-delete>Ta bort gymmet</button>' : '') + '</div></form>';
+      if (!g) gyms.querySelector('.gm-input').focus();
+    }
+    function openGyms() { gymEdit = null; renderGyms(); gyms.hidden = false; requestAnimationFrame(function () { gyms.classList.add('is-open'); }); }
+    function closeGyms() { gyms.classList.remove('is-open'); setTimeout(function () { if (!gyms.classList.contains('is-open')) gyms.hidden = true; }, 240); if (!sheet.hidden) renderSheet(); }
+    gyms.addEventListener('click', function (event) {
+      if (event.target.closest('[data-gyms-close]')) { closeGyms(); return; }
+      if (event.target.closest('[data-gym-list]')) { gymEdit = null; renderGyms(); return; }
+      var edit = event.target.closest('[data-gym-edit]');
+      if (edit) { gymEdit = edit.dataset.gymEdit; renderGyms(); gyms.scrollTop = 0; return; }
+      if (event.target.closest('[data-gym-delete]')) {
+        var d = X.readGyms(); d.gyms = d.gyms.filter(function (g) { return g.id !== gymEdit; }); if (d.active === gymEdit) d.active = ''; X.saveGyms(d);
+        gymEdit = null; renderGyms(); return;
+      }
+    });
+    gyms.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var form = event.target, d = X.readGyms(), name = form.querySelector('[name=name]').value.trim(), error = form.querySelector('.gm-gym-error');
+      var equipment = Array.prototype.map.call(form.querySelectorAll('.gm-switch-row input:checked'), function (i) { return i.value; });
+      if (!name) { error.textContent = 'Ge gymmet ett namn.'; return; }
+      if (d.gyms.some(function (g) { return g.id !== gymEdit && low(g.name) === low(name); })) { error.textContent = 'Det finns redan ett gym med det namnet.'; return; }
+      var id = gymEdit || 'gym-' + Date.now().toString(36), g = { id: id, name: name, equipment: equipment };
+      d.gyms = gymEdit ? d.gyms.map(function (x) { return x.id === id ? g : x; }) : d.gyms.concat(g);
+      if (!gymEdit) d.active = id;
+      if (!X.saveGyms(d)) { error.textContent = 'Gymmet kunde inte sparas. Tillåt webbplatslagring och försök igen.'; return; }
+      gymEdit = null; renderGyms();
+    });
+
     find.addEventListener('click', function (event) {
-      if (event.target.closest('.gm-find-close')) {
-        // Inside a plan the cross steps back to the plan list instead of leaving the explorer.
-        if (browse.mode === 'plan' && browse.plan) { browse.plan = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
+      if (event.target.closest('[data-find-back]')) {
+        if (browse.mode === 'plan' && browse.plan) { browse.plan = null; renderFind(); list.scrollTop = 0; return; }
         closeFind(); return;
       }
-      var mode = event.target.closest('[data-find-mode]');
-      if (mode) { browse.mode = mode.dataset.findMode; browse.plan = null; browse.gymEdit = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
+      if (event.target.closest('[data-filter-open]')) { openSheet(); return; }
       var planRow = event.target.closest('[data-find-plan]');
-      if (planRow && window.PulsePlans) { browse.plan = window.PulsePlans.find(planRow.dataset.findPlan); renderChips(); renderFind(); list.scrollTop = 0; return; }
-      if (event.target.closest('[data-plan-back]')) { browse.plan = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
-      var timePick = event.target.closest('[data-find-time]');
-      if (timePick) { browse.time = timePick.dataset.findTime; renderChips(); renderFind(); list.scrollTop = 0; return; }
-      if (event.target.closest('[data-find-clear]')) {
-        var GC = window.PulseExplore, dc = GC.readGyms(); dc.active = ''; GC.saveGyms(dc);
-        browse.time = ''; browse.forMuscle = ''; browse.group = 'Alla'; browse.muscle = 'Alla'; field.value = ''; renderChips(); renderFind(); list.scrollTop = 0; return;
-      }
+      if (planRow && window.PulsePlans) { browse.plan = window.PulsePlans.find(planRow.dataset.findPlan); renderFind(); list.scrollTop = 0; return; }
+      if (event.target.closest('[data-find-clear]')) { clearFilters(); field.value = ''; renderFind(); list.scrollTop = 0; return; }
       var removeChoice = event.target.closest('[data-find-remove]');
       if (removeChoice) { ui.toggle(Number(removeChoice.dataset.findRemove)); return; }
       if (event.target.closest('[data-find-today]')) { ui.addSelectionToToday(); return; }
       if (event.target.closest('[data-find-copy]')) { ui.copySelection(); return; }
-      var gymPick = event.target.closest('[data-find-gym]');
-      if (gymPick) { var G = window.PulseExplore, d = G.readGyms(); d.active = gymPick.dataset.findGym; G.saveGyms(d); browse.gymEdit = null; renderChips(); renderFind(); list.scrollTop = 0; return; }
-      var gymNew = event.target.closest('[data-find-gym-new],[data-find-gym-edit]');
-      if (gymNew) { browse.gymEdit = gymNew.dataset.findGymEdit || ''; renderFind(); list.scrollTop = 0; return; }
-      if (event.target.closest('[data-gym-cancel]')) { browse.gymEdit = null; renderFind(); return; }
-      if (event.target.closest('[data-gym-delete]')) { var G2 = window.PulseExplore, d2 = G2.readGyms(); d2.gyms = d2.gyms.filter(function (g) { return g.id !== browse.gymEdit; }); if (d2.active === browse.gymEdit) d2.active = ''; G2.saveGyms(d2); browse.gymEdit = null; renderChips(); renderFind(); return; }
-      var chip = event.target.closest('[data-find-chip]');
-      if (chip) { if (browse.mode === 'ex') browse.muscle = chip.dataset.findChip; else if (browse.mode === 'plan') browse.planGroup = chip.dataset.findChip; else browse.group = chip.dataset.findChip; renderChips(); renderFind(); list.scrollTop = 0; return; }
       var prog = event.target.closest('[data-find-program]');
       if (prog) {
-        var X = window.PulseExplore, p = X.programs.find(function (x) { return x.id === prog.dataset.findProgram; });
+        var p = X.programs.find(function (x) { return x.id === prog.dataset.findProgram; });
         if (!p) return;
         returnToFind = { scroll: list.scrollTop };
         closeFind(true); ui.openMuscleExercise(X.exercises[p.ids[0]].muscles[0], p.ids[0]);
@@ -324,15 +416,19 @@
       }
       var row = event.target.closest('[data-find-id]');
       if (row) {
-        var e = window.PulseExplore.exercises[Number(row.dataset.findId)], m = browse.muscle;
+        var e = X.exercises[Number(row.dataset.findId)], m = browse.muscle;
         returnToFind = { scroll: list.scrollTop };
         closeFind(true); ui.openMuscleExercise(m !== 'Alla' && m !== 'Kondition' && e.muscles.indexOf(m) >= 0 ? m : e.muscles[0], e.id);
       }
     });
-    document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !find.hidden) closeFind(); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      if (!gyms.hidden) closeGyms(); else if (!sheet.hidden) closeSheet(); else if (!find.hidden) closeFind();
+    });
     window.PulseExploreSearch = { open: openFind, close: closeFind };
-    // A programme or exercise opened from the search keeps the pass button out of the scene.
-    new MutationObserver(function () { passBtn.hidden = scene.isOpen() || !ui.selection().length; }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    // The bar steps aside while the exercise view is open.
+    new MutationObserver(paintDock).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    paintDock();
     // Opened again from the training page: start on the body, without reloading anything.
     window.PulseGymReset = function () {
       returnToFind = null; closeFind(true);

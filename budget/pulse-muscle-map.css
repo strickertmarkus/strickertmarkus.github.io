@@ -2,9 +2,6 @@
 body.muscle-map-active main{padding-top:8px}
 #muscle-map-page{max-width:860px;margin:0 auto;padding:18px 0 80px;color:#edf0f5}
 #muscle-map-page[hidden]{display:none}
-.muscle-map-heading{text-align:center;margin:0 0 14px}
-.muscle-map-heading h2{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;margin:7px 0}
-.muscle-map-heading p{color:#9ca7b6;font-size:12px;margin:0}
 .muscle-map-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(220px,1fr);align-items:center;gap:24px}
 .muscle-map-visual{min-width:0}
 .muscle-map-sides{display:flex;width:max-content;margin:0 auto 4px;padding:3px;border:1px solid #ffffff16;border-radius:30px;background:#10151e}
@@ -38,8 +35,6 @@ body.muscle-map-active main{padding-top:8px}
 @media(max-width:640px){
  body.muscle-map-active main{padding-left:14px;padding-right:14px}
  #muscle-map-page{padding:6px 0 80px}
- .muscle-map-heading{margin-bottom:12px}
- .muscle-map-heading>.eyebrow{display:none}
  .muscle-map-layout{grid-template-columns:minmax(0,1fr);gap:0}
  .muscle-map-figure{width:100%;max-width:410px}
  .muscle-map-label{font-size:11px}
