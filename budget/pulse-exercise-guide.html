@@ -12,6 +12,18 @@
 @media(max-width:740px){.program-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.program-card{padding:14px}.program-card h3{font-size:16px}.section-intro h2{font-size:23px}.selection{padding:16px}.selection ul{grid-template-columns:1fr}.program-detail{padding:16px}.program-detail h2{font-size:24px}.program-detail li{grid-template-columns:22px minmax(0,1fr) auto;gap:5px}.program-detail li button{font-size:10px;padding:9px 8px}.program-detail footer>.explore-primary{width:100%}}
 @media(max-width:370px){.program-grid{grid-template-columns:1fr}.intro h1{font-size:26px}.back{font-size:10px;padding:9px}.brand{font-size:12px}.brand small{font-size:8px}.program-detail li{grid-template-columns:20px minmax(0,1fr)}.program-detail li button{grid-column:2;justify-self:start}.stage-controls{width:100%}.stage-controls button{flex:1}.selection-top{align-items:start}}
 
+.gym-row{display:grid;gap:8px;margin:18px 0 14px}.gym-label{font-size:12px;color:var(--muted)}
+.gym-row [data-gym-new],.gym-row [data-gym-edit]{border-style:dashed}
+.gym-editor{display:grid;gap:10px;margin:0 0 16px;padding:16px;border:1px solid #ffffff1f;border-radius:14px;background:#ffffff06}
+.gym-editor label[for=gym-name]{font-size:12px;color:var(--muted)}
+.gym-editor input#gym-name{min-height:46px;border:1px solid #ffffff26;border-radius:12px;background:#10151f;color:var(--text);padding:12px;font:inherit;font-size:16px}
+.gym-editor fieldset{border:0;margin:0;padding:0}.gym-editor legend{font-size:12px;color:var(--muted);margin-bottom:8px}
+.gym-equipment{display:flex;flex-wrap:wrap;gap:7px}
+.gym-equipment label{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid #ffffff21;border-radius:10px;font-size:13px;color:#d9d4dc;cursor:pointer}
+.gym-equipment input{width:18px;height:18px;accent-color:#c7847e}
+.gym-editor fieldset p{margin:8px 0 0;font-size:12px;color:var(--muted)}
+.gym-error{margin:0;font-size:12px;color:#f3a69f}.gym-error:empty{display:none}
+.gym-actions{display:flex;flex-wrap:wrap;gap:8px}.gym-actions .explore-primary{flex:1 1 140px;width:auto}
 .program-time-row{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:18px 0}
 .program-time-row label{display:grid;gap:8px;font-size:12px;color:var(--muted);flex:1;min-width:200px;max-width:300px}
 .program-time-row select{width:100%;min-height:46px;border:1px solid #ffffff26;border-radius:12px;background:#10151f;color:var(--text);padding:12px;font:inherit;font-size:16px}
@@ -268,7 +280,7 @@ body:has(.studio-technique[open]){overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="pulse-living-anatomy.css?v=20261024-art-v3">
-<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261106-detail-size-1"><script src="pulse-gym-scene.js?v=20261105-compact-detail-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261106-back-1"><script src="pulse-gym.js?v=20261106-back-1"></script>
+<link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1"><script src="pulse-motion.js?v=20261103-history-back-3"></script><link rel="stylesheet" href="pulse-flow-layout.css?v=20261103-overview-detail-2"><link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3"><link rel="stylesheet" href="pulse-gym-scene.css?v=20261108-gym-1"><script src="pulse-gym-scene.js?v=20261108-gym-1"></script><link rel="stylesheet" href="pulse-gym.css?v=20261106-back-1"><script src="pulse-gym.js?v=20261106-back-1"></script>
 <link rel="stylesheet" href="pulse-muscle-map.css?v=20261029-ring-4">
 </head>
 <body>
@@ -302,7 +314,9 @@ body:has(.studio-technique[open]){overflow:hidden}
   <div class="muscle-map-options"><div class="muscle-map-result"><div aria-live="polite" aria-atomic="true"><span class="eyebrow">Ditt fokus</span><h3 id="muscle-map-name">Bröst</h3><p id="muscle-map-count"></p></div><button type="button" id="muscle-map-open">Alla övningar <span aria-hidden="true">↗</span></button></div><div id="muscle-map-exercises" aria-label="Övningsalternativ"></div></div>
  </div>
 </section>
-<section id="programs-page" hidden aria-labelledby="programs-title"><div class="section-intro"><div><h2 id="programs-title">Hitta ditt nästa pass</h2><p>Färdiga pass med set och repetitionsintervall. Välj ett, se innehållet och kopiera förslaget till din egen passbyggare.</p></div></div><div id="program-controls"><div class="filter-row" id="program-filters" aria-label="Filtrera träningsprogram"></div><div class="program-time-row"><label for="program-time">Hur mycket tid har du?<select id="program-time"><option value="">Alla längder</option><option value="20">Upp till 20 min</option><option value="30">Upp till 30 min</option><option value="45">Upp till 45 min</option><option value="60">Upp till 60 min</option></select></label><p id="program-count" role="status"></p></div></div><div id="program-cards" class="program-grid"></div><section id="program-detail" class="program-detail" hidden aria-labelledby="program-title" tabindex="-1"></section><p class="footnote">Programmen är generella startförslag. Vikter väljer du själv. Tiderna är ungefärliga och inkluderar uppvärmning och setvila, men inte väntan på utrustning. Filtret utgår från den övre tidsuppskattningen.</p></section>
+<section id="programs-page" hidden aria-labelledby="programs-title"><div class="section-intro"><div><h2 id="programs-title">Hitta ditt nästa pass</h2><p>Färdiga pass med set och repetitionsintervall. Välj ett, se innehållet och kopiera förslaget till din egen passbyggare.</p></div></div><div id="program-controls"><div class="gym-row"><span class="gym-label" id="gym-label">Ditt gym</span><div class="filter-row" id="gym-filters" role="group" aria-labelledby="gym-label"></div></div>
+<form id="gym-editor" class="gym-editor" hidden><label for="gym-name">Namn på gymmet</label><input id="gym-name" maxlength="30" autocomplete="off" placeholder="Till exempel Hemma eller Jobbet" required><fieldset><legend>Utrustning som finns där</legend><div id="gym-equipment" class="gym-equipment"></div><p>Övningar med kroppsvikt räknas alltid med.</p></fieldset><p id="gym-error" class="gym-error" role="alert"></p><div class="gym-actions"><button type="submit" class="explore-primary">Spara gym</button><button type="button" class="explore-quiet" id="gym-cancel">Avbryt</button><button type="button" class="explore-quiet" id="gym-delete" hidden>Ta bort gymmet</button></div></form>
+<div class="filter-row" id="program-filters" aria-label="Filtrera träningsprogram"></div><div class="program-time-row"><label for="program-time">Hur mycket tid har du?<select id="program-time"><option value="">Alla längder</option><option value="20">Upp till 20 min</option><option value="30">Upp till 30 min</option><option value="45">Upp till 45 min</option><option value="60">Upp till 60 min</option></select></label><p id="program-count" role="status"></p></div></div><div id="program-cards" class="program-grid"></div><section id="program-detail" class="program-detail" hidden aria-labelledby="program-title" tabindex="-1"></section><p class="footnote">Programmen är generella startförslag. Vikter väljer du själv. Tiderna är ungefärliga och inkluderar uppvärmning och setvila, men inte väntan på utrustning. Filtret utgår från den övre tidsuppskattningen.</p></section>
 <section id="selection" class="selection" aria-labelledby="selection-title"><div class="selection-top"><div><div class="eyebrow">DITT URVAL</div><h2 id="selection-title">Mitt pass <span id="selection-count">0</span></h2></div><button type="button" class="explore-quiet" id="clear-selection" hidden>Rensa urval</button></div><p id="selection-empty">Välj övningar i Utforska. De samlas här.</p><ul id="selection-items"></ul><div id="selection-actions" hidden><p id="selection-help">Lägg övningarna i dagens pass och justera set, reps och vikter där, eller kopiera förslaget.</p><button type="button" class="explore-primary" id="add-selection-today">Lägg till i dagens pass ↗</button> <button type="button" class="explore-quiet" id="open-selection">Kopiera passförslag</button></div></section>
 <p id="explore-status" class="explore-status" role="status" aria-live="polite"></p>
 <details class="guide-about"><summary>Om träningsguiden</summary><p>Övningar och urval är separata från din sparade träningslogg. Illustrationerna är förenklade teknikguider. Anpassa belastning och rörelseomfång efter din förmåga.</p></details><nav id="living-dock" class="living-dock" aria-label="Pulse Flow huvudnavigation">
@@ -323,7 +337,7 @@ body:has(.studio-technique[open]){overflow:hidden}
  if(profile==='ingemar')document.addEventListener('DOMContentLoaded',()=>{const b=document.getElementById('open-selection');if(b){b.textContent='Öppna i passbyggaren ↗';b.className='explore-primary';}const t=document.getElementById('add-selection-today');if(t)t.hidden=true;const h=document.getElementById('selection-help');if(h)h.textContent='Öppna urvalet i passbyggaren och justera set, reps och vikter där.';});
 })();
 </script>
-<script src="pulse-explore.js?v=20261106-plans-1"></script>
+<script src="pulse-explore.js?v=20261108-gym-1"></script>
 <script src="pulse-plans.js?v=20261106-step3-1"></script>
 <script>
 'use strict';
@@ -1012,10 +1026,47 @@ function showTechnique(id){route(()=>{setList(false);showPage('guide',false);ope
 function renderPrograms(){
  const available=explorer.profile==='ingemar'?groups:['Alla',...new Set(explorer.programs.map(p=>p.group))];
  $('program-filters').innerHTML=available.map(value=>`<button type="button" data-program-filter="${value}" aria-pressed="${programFilter===value}">${value}</button>`).join('');
+ renderGyms();
+ const gym=explorer.activeGym(),total=explorer.matchingPrograms('Alla',$('program-time').value,null).filter(p=>programFilter==='Alla'||(explorer.profile==='ingemar'?p.ids.some(id=>exercises[id].muscles.includes(programFilter)):p.group===programFilter)).length;
  const matches=explorer.matchingPrograms('Alla',$('program-time').value).filter(p=>programFilter==='Alla'||(explorer.profile==='ingemar'?p.ids.some(id=>exercises[id].muscles.includes(programFilter)):p.group===programFilter));
- $('program-count').textContent=matches.length+' program';
- $('program-cards').innerHTML=matches.map(p=>`<article class="program-card" data-group="${p.group}"><span class="eyebrow">${safe(p.tag)}</span><h3>${safe(p.name)}</h3><p>${safe(p.description)}</p><div class="program-meta">${p.ids.length} övningar · ${safe(explorer.durationLabel(p))}<br>${safe(p.equipment)}</div><button type="button" class="explore-quiet" data-program="${p.id}">Visa program →</button></article>`).join('')||'<div class="empty-result">Inga program ryms inom dina val. Välj mer tid eller en annan inriktning. <button type="button" class="explore-quiet" id="reset-program-filters">Visa alla program</button></div>';
+ $('program-count').textContent=gym?matches.length+' av '+total+' program passar '+gym.name:matches.length+' program';
+ $('program-cards').innerHTML=matches.map(p=>`<article class="program-card" data-group="${p.group}"><span class="eyebrow">${safe(p.tag)}</span><h3>${safe(p.name)}</h3><p>${safe(p.description)}</p><div class="program-meta">${p.ids.length} övningar · ${safe(explorer.durationLabel(p))}<br>${safe(explorer.programEquipment(p).join(', ')||'Bara kroppsvikt')}</div><button type="button" class="explore-quiet" data-program="${p.id}">Visa program →</button></article>`).join('')||'<div class="empty-result">'+(gym?'Inga program passar utrustningen i '+safe(gym.name)+' med dina övriga val.':'Inga program ryms inom dina val. Välj mer tid eller en annan inriktning.')+' <button type="button" class="explore-quiet" id="reset-program-filters">Visa alla program</button></div>';
 }
+/* Gym profiles: "Alla förslag" shows everything; a chosen gym only shows programmes it has the equipment for. */
+let gymEditing=null;
+function renderGyms(){
+ const d=explorer.readGyms();
+ $('gym-filters').innerHTML=`<button type="button" data-gym="" aria-pressed="${!d.active}">Alla förslag</button>`+
+  d.gyms.map(g=>`<button type="button" data-gym="${safe(g.id)}" aria-pressed="${d.active===g.id}">${safe(g.name)}</button>`).join('')+
+  (d.active?`<button type="button" data-gym-edit="${safe(d.active)}">Ändra utrustning</button>`:'')+
+  (d.gyms.length<8?'<button type="button" data-gym-new="1">＋ Nytt gym</button>':'');
+}
+function openGymEditor(gym){
+ gymEditing=gym?gym.id:'';
+ $('gym-name').value=gym?gym.name:'';$('gym-error').textContent='';$('gym-delete').hidden=!gym;
+ $('gym-equipment').innerHTML=explorer.EQUIPMENT.map(e=>`<label><input type="checkbox" value="${e}"${!gym||gym.equipment.includes(e)?' checked':''}> ${e==='Konditionsmaskin'?'Konditionsmaskiner':e==='Maskin'?'Maskiner':e}</label>`).join('');
+ $('gym-editor').hidden=false;$('gym-name').focus();
+}
+function closeGymEditor(){gymEditing=null;$('gym-editor').hidden=true;}
+$('gym-filters').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;const d=explorer.readGyms();
+ if(b.dataset.gymNew){openGymEditor(null);return;}
+ if(b.dataset.gymEdit){openGymEditor(d.gyms.find(g=>g.id===b.dataset.gymEdit));return;}
+ if(b.dataset.gym!==undefined){d.active=b.dataset.gym;explorer.saveGyms(d);closeGymEditor();closeProgram();renderPrograms();}
+});
+$('gym-editor').addEventListener('submit',e=>{
+ e.preventDefault();const name=$('gym-name').value.trim(),equipment=[...$('gym-equipment').querySelectorAll('input:checked')].map(x=>x.value),d=explorer.readGyms();
+ if(!name){$('gym-error').textContent='Ge gymmet ett namn.';return;}
+ if(d.gyms.some(g=>g.id!==gymEditing&&g.name.toLocaleLowerCase('sv')===name.toLocaleLowerCase('sv'))){$('gym-error').textContent='Det finns redan ett gym med det namnet.';return;}
+ const id=gymEditing||'gym-'+Date.now().toString(36),gym={id,name,equipment};
+ d.gyms=gymEditing?d.gyms.map(g=>g.id===id?gym:g):d.gyms.concat(gym);d.active=id;
+ if(!explorer.saveGyms(d)){$('gym-error').textContent='Gymmet kunde inte sparas. Tillåt webbplatslagring och försök igen.';return;}
+ closeGymEditor();closeProgram();renderPrograms();announce(name+' är sparat. Programmen visar det som passar där.');
+});
+$('gym-cancel').addEventListener('click',closeGymEditor);
+$('gym-delete').addEventListener('click',()=>{const d=explorer.readGyms(),gym=d.gyms.find(g=>g.id===gymEditing);if(!gym)return;d.gyms=d.gyms.filter(g=>g.id!==gym.id);if(d.active===gym.id)d.active='';explorer.saveGyms(d);closeGymEditor();renderPrograms();announce(gym.name+' är borttaget.');});
+// Another device (or the training page's sync) changed the gyms.
+window.addEventListener('storage',e=>{if(e.key===explorer.gymKey)renderPrograms();});
 function renderProgramTimeline(program){
  const steps=explorer.programSequence(program);
  return '<ol class="program-timeline">'+steps.map((segment)=>{
@@ -1173,7 +1224,7 @@ document.addEventListener('click',event=>{
  if(b.dataset.removeChoice!=null)toggleChoice(Number(b.dataset.removeChoice));
  if(b.dataset.programFilter){programFilter=b.dataset.programFilter;closeProgram();renderPrograms();}
  if(b.dataset.program)route(()=>showProgram(b.dataset.program));
- if(b.id==='reset-program-filters'){programFilter='Alla';$('program-time').value='';closeProgram();renderPrograms();}
+ if(b.id==='reset-program-filters'){programFilter='Alla';$('program-time').value='';const d=explorer.readGyms();d.active='';explorer.saveGyms(d);closeProgram();renderPrograms();}
  if(b.id==='close-program')goBack();
  if(b.id==='open-program'&&chosenProgram)transfer({version:1,programId:chosenProgram});
 });

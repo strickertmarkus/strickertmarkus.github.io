@@ -1607,7 +1607,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   /* Export of the chosen profile's training data: the log as CSV for a spreadsheet,
      or every training key as a JSON backup. localStorage reads are already scoped
      to the profile by firebase-sync.js, so Maja's export only holds Maja's data. */
-  var TRAINING_KEYS=['ex_wk','ex_goals','ex_templates','ex_weekTemplates','ex_plannedSessions','ex_weekPlans','ex_prs','ex_plan','ex_vo2','ex_hiddenExerciseNamesV1'];
+  var TRAINING_KEYS=['ex_wk','ex_goals','ex_templates','ex_weekTemplates','ex_plannedSessions','ex_weekPlans','ex_prs','ex_plan','ex_vo2','ex_hiddenExerciseNamesV1','ex_gyms'];
   function downloadFile(name,type,text){
     var url=URL.createObjectURL(new Blob([text],{type:type})),link=document.createElement('a');
     link.href=url;link.download=name;document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url);},5000);

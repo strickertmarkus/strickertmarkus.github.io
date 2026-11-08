@@ -45,7 +45,8 @@ const EXERCISE_KEYS = [
   'ex_prs',
   'ex_plan',
   'ex_vo2',
-  'ex_hiddenExerciseNamesV1'
+  'ex_hiddenExerciseNamesV1',
+  'ex_gyms'          // gym profiles and their equipment (exercise explorer programme filter)
 ];
 const isPulseFieldPage = /\/training-pulse-field\.html$/i.test(window.location.pathname);
 const isExercisePage = /\/(?:exercise|training-pulse-field)\.html$/i.test(window.location.pathname);

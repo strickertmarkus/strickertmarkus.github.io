@@ -145,7 +145,24 @@ function programSequence(program){
 }
 function durationLabel(program){const [min,max]=program.durationMinutes;return (min===max?String(max):min+'–'+max)+' min';}
 // Match the upper estimate so a time budget never includes a longer suggested pass.
-function matchingPrograms(group,maxMinutes){return programs.filter(p=>(!group||group==='Alla'||p.group===group)&&(!maxMinutes||p.durationMinutes[1]<=Number(maxMinutes)));}
+/* Gym profiles ("Hemma", "Jobbet"): which equipment a place has. A programme fits a gym when
+   every exercise in it uses equipment the gym has; body-weight exercises always fit.
+   The requirement comes from the programme's actual exercises, never from its text. */
+const EQUIPMENT=['Maskin','Kabel','Hantlar','Skivstång','Konditionsmaskin'];
+function programEquipment(p){return [...new Set(p.ids.map(id=>exercises[id].equipment))].filter(e=>e!=='Kroppsvikt');}
+function fitsGym(p,gym){return !gym||programEquipment(p).every(e=>gym.equipment.includes(e));}
+function validGym(g){return !!g&&typeof g.id==='string'&&/^[\w-]{1,40}$/.test(g.id)&&typeof g.name==='string'&&g.name.trim().length>0&&g.name.length<=30&&Array.isArray(g.equipment)&&g.equipment.every(e=>EQUIPMENT.includes(e));}
+function readGyms(){
+ try{const d=JSON.parse(root.localStorage.getItem(keys.gymKey)||'null');if(d&&Array.isArray(d.gyms)){const gyms=d.gyms.filter(validGym).slice(0,8);return {gyms,active:gyms.some(g=>g.id===d.active)?d.active:''};}}catch(e){}
+ return {gyms:[],active:''};
+}
+function saveGyms(d){
+ const gyms=(d.gyms||[]).filter(validGym).slice(0,8),clean={gyms,active:gyms.some(g=>g.id===d.active)?d.active:''};
+ try{root.localStorage.setItem(keys.gymKey,JSON.stringify(clean));return true;}catch(e){return false;}
+}
+function activeGym(){const d=readGyms();return d.gyms.find(g=>g.id===d.active)||null;}
+// Without a gym argument the chosen gym applies; pass null for every programme.
+function matchingPrograms(group,maxMinutes,gym){if(gym===undefined)gym=activeGym();return programs.filter(p=>(!group||group==='Alla'||p.group===group)&&(!maxMinutes||p.durationMinutes[1]<=Number(maxMinutes))&&fitsGym(p,gym));}
 function prescription(id,program){
  const e=exercises[id];if(!e)return null;
  if(e.group==='Kondition'){const ix=program?program.ids.indexOf(id):-1;return {mode:'min',sets:1,minutes:program&&program.minutes?program.minutes[ix]:10,label:(program&&program.minutes?program.minutes[ix]:10)+' min',reps:null,range:''};}
@@ -171,8 +188,9 @@ function workout(request){
 const asked=root.PULSE_EXPLORE_PROFILE||(root.location&&new URLSearchParams(root.location.search).get('user'));
 const profile=asked==='maja'||asked==='ingemar'?asked:'markus';
 const programs=profile==='ingemar'?ingemarPrograms:markusMajaPrograms;
-const keys=profile==='ingemar'?{transferKey:'ingemar-explore-transfer-v1',selectionKey:'ingemar-explore-selection-v1'}
- :{transferKey:'pulse-explore-transfer-v1-'+profile,selectionKey:'pulse-explore-selection-v1-'+profile};
-root.PulseExplore={exercises,inspiration,programs,programSequence,durationLabel,matchingPrograms,prescription,workout,profile,...keys};
+// Gym profiles live in a training key, so the training page syncs them with Firebase (Maja: ex_gyms_maja).
+const keys=profile==='ingemar'?{transferKey:'ingemar-explore-transfer-v1',selectionKey:'ingemar-explore-selection-v1',gymKey:'ingemar_gyms'}
+ :{transferKey:'pulse-explore-transfer-v1-'+profile,selectionKey:'pulse-explore-selection-v1-'+profile,gymKey:profile==='maja'?'ex_gyms_maja':'ex_gyms'};
+root.PulseExplore={exercises,inspiration,programs,programSequence,durationLabel,matchingPrograms,EQUIPMENT,programEquipment,fitsGym,readGyms,saveGyms,activeGym,prescription,workout,profile,...keys};
 if(profile==='ingemar')root.IngemarExplore=root.PulseExplore;
 })(typeof window==='undefined'?globalThis:window);

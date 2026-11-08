@@ -308,8 +308,10 @@
           }).join('') + '</ul>';
       } else {
         sheet.setAttribute('aria-label', 'Program');
-        var programs = explore.programs.filter(function (p) { return p.ids.some(function (id) { return all[id].muscles.indexOf(state.group) >= 0; }); });
-        sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Program</span><h3>Program för ' + state.group.toLowerCase() + '</h3><div class="st-programs">' + programs.map(function (p) {
+        // The chosen gym (programme page) applies here too: only programmes its equipment allows.
+        var gym = explore.activeGym ? explore.activeGym() : null;
+        var programs = explore.programs.filter(function (p) { return p.ids.some(function (id) { return all[id].muscles.indexOf(state.group) >= 0; }) && (!explore.fitsGym || explore.fitsGym(p, gym)); });
+        sheet.innerHTML = '<div class="st-grip"></div><span class="st-eyebrow">Program</span><h3>Program för ' + state.group.toLowerCase() + '</h3>' + (gym ? '<p class="st-gym">Passar ' + esc(gym.name) + (programs.length ? '' : ': inga program för den här muskelgruppen med den utrustningen. Välj Alla förslag under Program för att se alla.') + '</p>' : '') + '<div class="st-programs">' + programs.map(function (p) {
           var lead = p.ids[0];
           return '<button type="button" class="st-program" data-program="' + p.id + '"><span class="st-program-art">' + (lead != null ? '<img src="' + pose(lead, true) + '" alt="" loading="lazy">' : '') +
             '</span><span class="st-program-copy"><b>' + p.name + '</b><small>' + p.ids.length + ' övningar · ' + explore.durationLabel(p) + '</small></span><span class="st-program-play">' + ICON.fwd + '</span></button>';

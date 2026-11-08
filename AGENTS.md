@@ -44,6 +44,7 @@
 | Dialog scroll lock and focus return | `budget/ui-motion.js` (`SurfaceMotion.showDialog`, uses `TrainingOverlay` when present) |
 | Zen saved-session fields (feelings, breathing snapshot, plan, manual log) and "Gör samma pass igen" | `budget/zen-model.js` (`entryValid`, `redoRoutine`) |
 | Zen time to switch position between movements | `budget/zen-model.js` (`switchSeconds`, `stepStarts`) |
+| Gym profiles and programme filter by equipment | `budget/pulse-explore.js` (`readGyms`, `fitsGym`, `matchingPrograms`; stored in `ex_gyms`) |
 | Explorer selection into today's pass | `budget/pulse-explore-handoff.js` (request `{version:1,ids}`) |
 
 ## Design iteration mode
