@@ -82,3 +82,16 @@ html.gm-scene-open main{visibility:hidden}
 .gm-plan-source a{color:#ff9a91}
 .gm-plan-apply{display:flex;align-items:center;justify-content:center;height:48px;margin-top:14px;border-radius:14px;background:#e5584a;color:#fff1ee;font:700 14px Inter,system-ui,sans-serif;text-decoration:none}
 .gm-plan-apply-note{margin:8px 2px 0;color:#77727f;font:400 11px/1.45 Inter,system-ui,sans-serif;text-align:center}
+.gm-find-gyms{margin-top:10px}
+.gm-find-chips button.is-dashed{border-style:dashed;color:#b3adb9}
+.gm-gym-editor{display:grid;gap:10px;margin:8px 4px 20px;padding:16px;border:1px solid #ffffff16;border-radius:16px;background:#ffffff06;color:#c9c3cf;font:500 13px Inter,system-ui,sans-serif}
+.gm-gym-editor>label{display:grid;gap:6px;color:#a5a0ae;font-size:12px}
+.gm-gym-editor input[name=name]{min-height:46px;padding:0 12px;border:1px solid #ffffff22;border-radius:12px;background:#0d1018;color:#f3eff5;font:500 16px Inter,system-ui,sans-serif}
+.gm-gym-legend,.gm-gym-note{margin:0;color:#a5a0ae;font-size:12px}
+.gm-gym-equipment{display:flex;flex-wrap:wrap;gap:7px}
+.gm-gym-equipment label{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid #ffffff1c;border-radius:999px;cursor:pointer}
+.gm-gym-equipment input{width:18px;height:18px;accent-color:#ff806f}
+.gm-gym-error{margin:0;color:#ffaaa0;font-size:12px}.gm-gym-error:empty{display:none}
+.gm-gym-actions{display:flex;flex-wrap:wrap;gap:8px}
+.gm-gym-actions button{min-height:42px;padding:0 14px;border:1px solid #ffffff1c;border-radius:12px;background:none;color:#d9d3dd;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+.gm-gym-actions .gm-gym-save{flex:1 1 140px;border-color:#ff806f66;background:#ff806f2a;color:#ffe1db}
