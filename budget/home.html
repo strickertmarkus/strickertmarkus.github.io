@@ -1036,7 +1036,7 @@
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
-<link rel="stylesheet" href="home-listor-v1.css?v=20261109-1">
+<link rel="stylesheet" href="home-listor-v1.css?v=20261109-3">
 <script defer src="pulse-motion.js?v=20261029-home-1" data-surfaces=".modal-overlay,#home-day-popover,#day-panel,.fp-floating-menu"></script>
   <script defer src="app-refresh.js?v=20261103-1"></script>
 </head>
@@ -1525,7 +1525,7 @@ function populateMonthGrid(grid, year, month, interactive) {
     var isSunday = new Date(year, month, d).getDay() === 0;
 
     var cell = document.createElement('div');
-    cell.className = 'cal-cell' + (isToday?' today':'') + (isSel?' selected':'') + (dayEvs.length ? ' has-events' : '') + (isSunday ? ' is-sunday' : '') + (holidayType ? ' swedish-holiday-' + holidayType : '');
+    cell.className = 'cal-cell' + (dateISO < today ? ' is-past' : '') + (isToday?' today':'') + (isSel?' selected':'') + (dayEvs.length ? ' has-events' : '') + (isSunday ? ' is-sunday' : '') + (holidayType ? ' swedish-holiday-' + holidayType : '');
     cell.dataset.date = dateISO;
     if (interactive) cell.setAttribute('role', 'button');
     cell.tabIndex = interactive ? 0 : -1;
@@ -1535,8 +1535,11 @@ function populateMonthGrid(grid, year, month, interactive) {
     // available as lower-priority chips and in the full day popup.
     // They are local calendar metadata, never Firebase event records.
     var items = dayEvs.map(function(ev) {
+      // Multi-day events are drawn as one bar across the days: start / mid / end.
+      var range = '';
+      if (ev.endDate && ev.endDate > (ev.__rangeStart || ev.date)) range = ev.__rangeContinuation ? (ev.date >= ev.endDate ? 'end' : 'mid') : 'start';
       return { label:getCalendarPreviewLabel(ev), title:ev.title || 'Händelse',
-        color:getMemberColor(ev.member), isHoliday:false };
+        color:getMemberColor(ev.member), isHoliday:false, range:range };
     }).concat(holidays.map(function(h) {
       return { label:getHolidayPreviewLabel(h), title:h.name,
         color:h.type === 'official' ? '#F28B90' : '#2DD4BF', isHoliday:true };
@@ -1545,12 +1548,15 @@ function populateMonthGrid(grid, year, month, interactive) {
       (holidays.length ? '<span class="cal-holiday-mark" title="' + escHtml(holidays.map(function(h){return h.name;}).join(', ')) + '" aria-hidden="true"></span>' : '') +
       (items.length > 2 ? '<span class="cal-cell-extra" aria-hidden="true">+' + (items.length - 2) + '</span>' : '') + '</span></div>';
     if (items.length) {
+      var single = items.length === 1;
       var previewRows = items.slice(0, 2).map(function(item) {
-        return '<span class="cal-event-preview-title' + (item.isHoliday ? ' is-holiday' : '') +
+        // One event gets the whole title over two lines; two events share the space with short labels.
+        var text = item.range === 'mid' || item.range === 'end' ? '' : (single && !item.isHoliday ? item.title : item.label);
+        return '<span class="cal-event-preview-title' + (item.isHoliday ? ' is-holiday' : '') + (item.range ? ' range-' + item.range : '') +
           '" style="--preview-color:' + item.color + '" title="' + escHtml(item.title) +
-          '">' + escHtml(item.label) + '</span>';
+          '">' + escHtml(text) + '</span>';
       }).join('');
-      html += '<div class="cal-event-preview" aria-hidden="true">' + previewRows +
+      html += '<div class="cal-event-preview' + (single ? ' is-single' : '') + '" aria-hidden="true">' + previewRows +
         (items.length > 2 ? '<span class="cal-event-preview-more">+' + (items.length - 2) + ' till</span>' : '') +
         '</div>';
       cell.title = items.map(function(item) { return item.title; }).join(', ');
