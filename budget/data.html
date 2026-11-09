@@ -10,8 +10,8 @@
 <script src="indexeddb-fallback.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
-<script src="firebase-sync.js?v=20261109-pay-1"></script>
-<script src="transfer-income.js?v=20261020-netto-v1"></script>
+<script src="firebase-sync.js?v=20261109-months-1"></script>
+<script src="transfer-income.js?v=20261109-excel-1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -188,6 +188,8 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     #dark-mode-btn { position: absolute !important; top: 8px !important; left: 8px !important; right: auto !important; }
     .nav-dropdown-wrapper { position: absolute !important; top: 8px !important; right: 8px !important; left: auto !important; }
 }
+.auto-tag{display:inline-block;margin-right:6px;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;color:var(--lt-a,#FDBA74);background:rgba(253,186,116,.10);vertical-align:middle}
+.formula-row td:first-child{color:var(--lt-a,#FDBA74)}
 </style>
 <script src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -338,11 +340,13 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
             <div class="section-inner">
                 <div class="formula-box">
                     <div class="formula-label">Formler (Överföringar)</div>
-                    <code>Huskonto Maja</code> = Husutgifter × Maja%<br>
-                    <code>ICA Maja</code> = ICA-kort × Maja%<br>
-                    <code>Huskonto Markus</code> = Husutgifter × Markus%<br>
-                    <code>ICA Markus</code> = ICA-kort × Markus%<br>
-                    <em>Markus% = 100% − Maja%</em>
+                    <code>Husutgifter</code> = Totalt hus (ränta + drift + amortering + renovering) + Huskonto-utgifter<br>
+                    <code>Netto total</code> = Markus netto + Maja netto<br>
+                    <code>Maja %</code> = Maja netto / Netto total &nbsp; <code>Markus %</code> = Markus netto / Netto total<br>
+                    <code>Huskonto Maja</code> = INT(Husutgifter × Maja%) &nbsp; <code>ICA Maja</code> = INT(ICA-kort × Maja%)<br>
+                    <code>Huskonto Markus</code> = INT(Husutgifter × Markus%) &nbsp; <code>ICA Markus</code> = INT(ICA-kort × Markus%)<br>
+                    <code>Total huskonto</code> = Huskonto Maja + Huskonto Markus &nbsp; <code>Total ICA</code> = ICA Maja + ICA Markus<br>
+                    <em>Från januari 2027 räknas Husutgifter ut automatiskt (märkt auto) och nästa månad läggs till av sig själv, med ICA-kort och nettolöner från månaden innan. Skriv ett eget belopp i Husutgifter för att ersätta formeln, töm fältet för att gå tillbaka till den.</em>
                 </div>
                 <div class="table-wrapper">
                     <table class="data-table" id="transfers-table">
@@ -352,6 +356,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
                             <th class="num">Maja %</th><th class="num">Markus %</th>
                             <th class="num">Huskonto Maja</th><th class="num">ICA Maja</th>
                             <th class="num">Huskonto Markus</th><th class="num">ICA Markus</th>
+                            <th class="num">Total huskonto</th><th class="num">Total ICA</th>
                             <th style="width:40px"></th>
                         </tr></thead>
                         <tbody></tbody>
@@ -500,6 +505,8 @@ function loadData() {
 
 function saveData() {
     transfers.forEach(TransferIncome.complete);
+    // Formula months follow loan parameters and Huskonto-utgifter (Huskalkyl.xlsx).
+    if (TransferIncome.refreshAuto({ loanParams, huskonto, transfers })) setTimeout(renderTransfers, 0);
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
         loanParams, income, expenses, huskonto, transfers,
         checklistItems, checkedItems, savingsGoals, sectionHeadings
@@ -679,36 +686,70 @@ function deleteHuskonto(i) {
 // ═══════════════════════════════════════════════════════
 // RENDER TRANSFERS
 // ═══════════════════════════════════════════════════════
+function transferKey(t) { return TransferIncome.key(t); }
+function sortTransfers() { transfers.sort((a, b) => transferKey(a) < transferKey(b) ? -1 : transferKey(a) > transferKey(b) ? 1 : 0); }
 function renderTransfers() {
+    sortTransfers();
+    const floor = v => Math.floor(Number(v) || 0);
     document.querySelector("#transfers-table tbody").innerHTML = transfers.map((t, i) => {
         const net = TransferIncome.get(t);
-        const netTotal = net.markus !== null && net.maja !== null ? fmt(net.markus + net.maja) : '—';
-        const huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
-        const icaMaja = Math.round(t.ica * t.majaAndel);
-        const huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
-        const icaMarkus = Math.round(t.ica * t.markusAndel);
-        return `<tr>
-            <td>${t.month} ${t.year}</td>
-            <td class="num"><input class="editable-input" type="number" value="${t.husutgifter}" onchange="updateTransfer(${i},'husutgifter',this.value)"></td>
-            <td class="num"><input class="editable-input" type="number" value="${t.ica}" onchange="updateTransfer(${i},'ica',this.value)"></td>
-            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Markus netto ${t.month} ${t.year}" value="${net.markus === null ? '' : net.markus}" onchange="updateTransfer(${i},'markusNetto',this.value)" style="color:var(--markus-color)"></td>
-            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Maja netto ${t.month} ${t.year}" value="${net.maja === null ? '' : net.maja}" onchange="updateTransfer(${i},'majaNetto',this.value)" style="color:var(--maja-color)"></td>
+        const hasNet = net.markus !== null && net.maja !== null;
+        const netTotal = hasNet ? fmt(net.markus + net.maja) : '—';
+        const hm = t.huskontoMaja != null ? t.huskontoMaja : floor(t.husutgifter * t.majaAndel);
+        const im = t.icaMaja != null ? t.icaMaja : floor(t.ica * t.majaAndel);
+        const hk = t.huskontoMarkus != null ? t.huskontoMarkus : floor(t.husutgifter * t.markusAndel);
+        const ik = t.icaMarkus != null ? t.icaMarkus : floor(t.ica * t.markusAndel);
+        const formulaMonth = transferKey(t) >= TransferIncome.AUTO_FROM;
+        const auto = formulaMonth && t.husAuto ? '<span class="auto-tag" title="Räknas med formeln">auto</span>' : '';
+        const label = `${t.month} ${t.year}`;
+        const andel = hasNet
+            ? `<td class="num" style="color:var(--maja-color)">${(t.majaAndel*100).toFixed(1)}%</td>`
+            : `<td class="num"><input class="editable-input" type="number" step="0.1" aria-label="Maja andel ${label}" value="${(t.majaAndel*100).toFixed(1)}" onchange="updateTransfer(${i},'majaAndel',this.value/100)" style="color:var(--maja-color)"></td>`;
+        return `<tr${formulaMonth ? ' class="formula-row"' : ''}>
+            <td>${label}</td>
+            <td class="num">${auto}<input class="editable-input" type="number" inputmode="numeric" aria-label="Husutgifter ${label}" value="${t.husutgifter}" ${formulaMonth ? 'placeholder="auto"' : ''} onchange="updateTransfer(${i},'husutgifter',this.value)"></td>
+            <td class="num"><input class="editable-input" type="number" inputmode="numeric" aria-label="ICA-kort ${label}" value="${t.ica}" onchange="updateTransfer(${i},'ica',this.value)"></td>
+            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Markus netto ${label}" value="${net.markus === null ? '' : net.markus}" onchange="updateTransfer(${i},'markusNetto',this.value)" style="color:var(--markus-color)"></td>
+            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Maja netto ${label}" value="${net.maja === null ? '' : net.maja}" onchange="updateTransfer(${i},'majaNetto',this.value)" style="color:var(--maja-color)"></td>
             <td class="num">${netTotal}</td>
-            <td class="num"><input class="editable-input" type="number" step="0.1" value="${(t.majaAndel*100).toFixed(1)}" onchange="updateTransfer(${i},'majaAndel',this.value/100)" style="color:var(--maja-color)"></td>
+            ${andel}
             <td class="num" style="color:var(--markus-color)">${(t.markusAndel*100).toFixed(1)}%</td>
-            <td class="num" style="color:var(--maja-color)">${fmt(huskontoMaja)}</td>
-            <td class="num" style="color:var(--maja-color)">${fmt(icaMaja)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmt(huskontoMarkus)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmt(icaMarkus)}</td>
-            <td class="delete-cell" onclick="deleteTransfer(${i})">✕</td>
+            <td class="num" style="color:var(--maja-color)">${fmt(hm)}</td>
+            <td class="num" style="color:var(--maja-color)">${fmt(im)}</td>
+            <td class="num" style="color:var(--markus-color)">${fmt(hk)}</td>
+            <td class="num" style="color:var(--markus-color)">${fmt(ik)}</td>
+            <td class="num">${fmt(hm + hk)}</td>
+            <td class="num">${fmt(im + ik)}</td>
+            <td class="delete-cell" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">✕</td>
         </tr>`;
     }).join("");
+}
+
+function applyShares(t) {
+    if (TransferIncome.recalculate(t)) return;
+    t.huskontoMaja = Math.floor(t.husutgifter * t.majaAndel);
+    t.icaMaja = Math.floor(t.ica * t.majaAndel);
+    t.huskontoMarkus = Math.floor(t.husutgifter * t.markusAndel);
+    t.icaMarkus = Math.floor(t.ica * t.markusAndel);
 }
 
 function updateTransfer(i, field, value) {
     const t = transfers[i];
     if (field === 'markusNetto' || field === 'majaNetto') {
         if (TransferIncome.update(t, field === 'markusNetto' ? 'markus' : 'maja', value)) saveData();
+        renderTransfers();
+        return;
+    }
+    if (field === 'husutgifter' && transferKey(t) >= TransferIncome.AUTO_FROM) {
+        if (String(value).trim() === '') {
+            t.husAuto = true;
+            t.husutgifter = TransferIncome.houseCosts(transferKey(t), { loanParams, huskonto });
+        } else {
+            t.husAuto = false;
+            t.husutgifter = parseFloat(value) || 0;
+        }
+        applyShares(t);
+        saveData();
         renderTransfers();
         return;
     }
@@ -719,31 +760,29 @@ function updateTransfer(i, field, value) {
     } else {
         t[field] = numVal;
     }
-    t.huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
-    t.icaMaja = Math.round(t.ica * t.majaAndel);
-    t.huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
-    t.icaMarkus = Math.round(t.ica * t.markusAndel);
+    applyShares(t);
     saveData();
     renderTransfers();
 }
 
 function addTransfer() {
+    sortTransfers();
     const last = transfers[transfers.length - 1];
-    const monthNames = ["Januari","Februari","Mars","April","Maj","Juni","Juli","Augusti","September","Oktober","November","December"];
-    const idx = monthNames.indexOf(last.month);
-    let newIdx = (idx + 1) % 12;
-    let newYear = last.year + (newIdx < idx ? 1 : 0);
-    transfers.push({
-        year: newYear, month: monthNames[newIdx],
-        husutgifter: last.husutgifter, ica: last.ica,
-        majaAndel: last.majaAndel, markusAndel: last.markusAndel,
-        huskontoMaja: Math.round(last.husutgifter * last.majaAndel),
-        icaMaja: Math.round(last.ica * last.majaAndel),
-        huskontoMarkus: Math.round(last.husutgifter * last.markusAndel),
-        icaMarkus: Math.round(last.ica * last.markusAndel)
-    });
+    const next = TransferIncome.nextKey(transferKey(last));
+    const row = TransferIncome.projectRow(last, next, { loanParams, huskonto });
+    if (next < TransferIncome.AUTO_FROM) { row.husAuto = false; row.husutgifter = last.husutgifter; applyShares(row); }
+    transfers.push(row);
     saveData();
     renderTransfers();
+}
+
+// Months after December 2026 are added automatically up to the current month
+// (from the 25th also the next one), once the first Firebase read has landed.
+function ensureTransferMonths() {
+    const now = new Date();
+    const d = now.getDate() >= 25 ? new Date(now.getFullYear(), now.getMonth() + 1, 1) : now;
+    const upto = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    if (TransferIncome.ensureRows({ loanParams, huskonto, transfers }, upto)) { saveData(); renderTransfers(); }
 }
 
 function deleteTransfer(i) {
@@ -957,7 +996,9 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     loadData();
     renderAll();
+    if (window.__firebaseInitialLoadDone) ensureTransferMonths();
 });
+window.addEventListener('firebase-initial-load', function() { loadData(); renderAll(); ensureTransferMonths(); });
 </script>
 </body>
 </html>

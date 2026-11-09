@@ -98,12 +98,14 @@
   // it is 0 or still equals the old synced value (a hand-typed amount is left alone).
   var person = dataKey === 'budgetTracker' ? 'markus' : 'maja';
   var MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+  // The stored transfer row, or one projected with the Huskalkyl formulas for months after December 2026.
   function transferRow(key) {
     try {
       var data = JSON.parse(localStorage.getItem('familjebudget_data') || 'null');
-      var rows = data && Array.isArray(data.transfers) ? data.transfers : [];
+      if (!data || !Array.isArray(data.transfers)) return null;
+      if (window.TransferIncome && window.TransferIncome.rowFor) return window.TransferIncome.rowFor(data, key);
       var d = dateOf(key);
-      return rows.find(function (r) { return r && Number(r.year) === d.getFullYear() && r.month === MONTHS[d.getMonth()]; }) || null;
+      return data.transfers.find(function (r) { return r && Number(r.year) === d.getFullYear() && r.month === MONTHS[d.getMonth()]; }) || null;
     } catch (_) { return null; }
   }
   function syncFromFamily() {

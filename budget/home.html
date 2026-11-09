@@ -14,7 +14,7 @@
 <script src="auth-config.js"></script>
 <script src="auth-gate.js?v=20261016-svg-shell-1"></script>
   <script src="firebase-sync.js?v=20261109-pay-1"></script>
-<script src="transfer-income.js?v=20261020-netto-v1"></script>
+<script src="transfer-income.js?v=20261109-excel-1"></script>
   <script defer src="family-todos-v1.js?v=20261015-clear-done-v1"></script>
   <script defer src="family-todos-ui-v1.js?v=20261105-all-owners-1"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -2387,9 +2387,12 @@ function getTransferMonth(offset) {
   var data = getFamilyBudgetData();
   var transfers = data && Array.isArray(data.transfers) ? data.transfers : [];
   var month = transferMonthInfo(offset);
-  return transfers.find(function(row) {
+  var found = transfers.find(function(row) {
     return row && row.month === month.month && Number(row.year) === month.year;
-  }) || null;
+  });
+  // Months after December 2026 that are not saved yet are projected with the Huskalkyl formulas.
+  if (!found && data && window.TransferIncome && TransferIncome.rowFor) found = TransferIncome.rowFor(data, month.key);
+  return found || null;
 }
 function getCurrentMonthTransfer() { return getTransferMonth(0); }
 

@@ -11,7 +11,7 @@
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js?v=20261109-months-1"></script>
-<script src="transfer-income.js?v=20261020-netto-v1"></script>
+<script src="transfer-income.js?v=20261109-excel-1"></script>
 <script src="finance-ui.js?v=20261109-icons-1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -563,24 +563,10 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&am
 function keyOfRow(r) { const i = MONTHS.indexOf(r && r.month); return i < 0 ? "" : r.year + "-" + String(i + 1).padStart(2, "0"); }
 function labelOf(key) { const [y, m] = key.split("-").map(Number); return MONTHS[m - 1] + " " + y; }
 function monthDiff(a, b) { const [ay, am] = a.split("-").map(Number), [by, bm] = b.split("-").map(Number); return (by - ay) * 12 + (bm - am); }
-function rowFor(key) { return transfers.find(r => keyOfRow(r) === key) || null; }
+function rowFor(key) { return TransferIncome.rowFor({ transfers, loanParams, huskonto }, key); }
 
-// ── loan model (same formulas as before) ───────────
-function calcMonthlyInterest(loan) { return Math.round(loan * (loanParams.listranta / 100) / 12); }
-function calcDrift() { return Math.round((loanParams.driftkostnad + loanParams.fastighetsavgift) / 12); }
-function calcAmort(loan) {
-    const rate = loan > loanParams.huspris * 0.7 ? loanParams.ammortering : loanParams.ammortering / 2;
-    return Math.round(loanParams.huslan * (rate / 100) / 12);
-}
-function calcReno() { return Math.round(loanParams.huspris * (loanParams.renovering / 100) / 12); }
-function calcTotalHouse(loan) { return calcMonthlyInterest(loan) + calcDrift() + calcAmort(loan) + calcReno(); }
-function loanAt(monthIdx) {
-    let loan = loanParams.huslan;
-    for (let m = 0; m < monthIdx; m++) { loan -= calcAmort(loan); if (loan < 0) { loan = 0; break; } }
-    return loan;
-}
-// Month 0 is the first transfer month (when the loan started).
-function loanMonthIdx(key) { const first = keyOfRow(transfers[0]); return first ? Math.max(0, monthDiff(first, key)) : 0; }
+// ── loan model: the Huskalkyl.xlsx formulas (shared in transfer-income.js) ──
+function houseAt(key) { return TransferIncome.houseMonth(TransferIncome.sheetMonth(key), loanParams); }
 const sum = list => list.reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
 // Net salary: the month's transfer row (shared with Home), else the personal budget's income.
@@ -613,7 +599,7 @@ function renderKpis() {
     const net = (inc.markus || 0) + (inc.maja || 0);
     const row = rowFor(monthKey);
     const shared = row ? (Number(row.husutgifter) || 0) + (Number(row.ica) || 0) : null;
-    const house = calcTotalHouse(loanAt(loanMonthIdx(monthKey)));
+    const house = houseAt(monthKey).total;
     const left = net - (house + sum(expenses) + sum(huskonto));
     document.getElementById("fb-kpis").innerHTML =
         kpi("Nettoinkomst", fmt(net), "Markus + Maja", "plus") +
@@ -665,22 +651,22 @@ function renderSections() {
 }
 
 function renderHouse() {
-    const idx = loanMonthIdx(monthKey);
-    const loan = loanAt(idx);
+    const hm = houseAt(monthKey);
+    const loan = hm.loan, n = hm.month;
     // Loan curve over 25 years with a marker at the chosen month.
-    const pts = []; let l = loanParams.huslan;
-    for (let m = 0; m <= 300; m += 6) { pts.push([m, l]); for (let k = 0; k < 6 && l > 0; k++) { l -= calcAmort(l); if (l < 0) l = 0; } }
-    const W = 320, H = 56, x = m => m / 300 * W, y = v => 4 + (1 - v / loanParams.huslan) * (H - 8);
+    const pts = [];
+    for (let m = 1; m <= 301; m += 6) pts.push([m, TransferIncome.houseMonth(m, loanParams).loan]);
+    const W = 320, H = 56, x = m => (m - 1) / 300 * W, y = v => 4 + (1 - v / loanParams.huslan) * (H - 8);
     const line = pts.map((p, i) => (i ? "L" : "M") + x(p[0]).toFixed(1) + " " + y(p[1]).toFixed(1)).join(" ");
-    const cx = x(Math.min(idx, 300)), cy = y(loan);
+    const cx = x(Math.min(Math.max(n, 1), 301)), cy = y(loan);
     const years = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(yr => {
-        const ln = loanAt((yr - 1) * 12);
-        return `<tr><td>År ${yr}</td><td>${fmt(ln)}</td><td>${fmt(calcMonthlyInterest(ln))}</td><td>${fmt(calcTotalHouse(ln))}</td></tr>`;
+        const h = TransferIncome.houseMonth((yr - 1) * 12 + 1, loanParams);
+        return `<tr><td>År ${yr}</td><td>${fmt(h.loan)}</td><td>${fmt(h.interest)}</td><td>${fmt(h.total)}</td></tr>`;
     }).join("");
     document.getElementById("fb-house").innerHTML = `
         <div class="fb-loan">
             <div><b>${fmt(loan)}</b><em>Kvar av ${fmt(loanParams.huslan)}</em></div>
-            <div class="r"><b class="s">${fmt(calcMonthlyInterest(loan))}</b><em>Ränta / mån, ${String(loanParams.listranta).replace(".", ",")} %</em></div>
+            <div class="r"><b class="s">${fmt(hm.interest)}</b><em>Ränta / mån, ${String(loanParams.listranta).replace(".", ",")} %</em></div>
         </div>
         <div class="fb-sparkwrap">
             <svg class="fb-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
@@ -690,10 +676,10 @@ function renderHouse() {
             <span class="fb-mark" style="left:${(cx / W * 100).toFixed(2)}%;top:${cy.toFixed(1)}px"></span>
         </div>
         <div class="fb-parts">
-            <span>Ränta <b>${fmt(calcMonthlyInterest(loan))}</b></span>
-            <span>Drift <b>${fmt(calcDrift())}</b></span>
-            <span>Amortering <b>${fmt(calcAmort(loan))}</b></span>
-            <span>Renovering <b>${fmt(calcReno())}</b></span>
+            <span>Ränta <b>${fmt(hm.interest)}</b></span>
+            <span>Drift <b>${fmt(hm.drift)}</b></span>
+            <span>Amortering <b>${fmt(hm.amort)}</b></span>
+            <span>Renovering <b>${fmt(hm.reno)}</b></span>
         </div>
         <button type="button" class="fb-link" onclick="expanded.plan=!expanded.plan;renderHouse()" aria-expanded="${expanded.plan}">${expanded.plan ? "Dölj amorteringsplan" : "Amorteringsplan"}</button>
         ${expanded.plan ? `<div class="fb-table"><table><thead><tr><th>År</th><th>Huslån</th><th>Ränta/mån</th><th>Boende/mån</th></tr></thead><tbody>${years}</tbody></table></div>` : ""}`;
