@@ -1001,7 +1001,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261109-6">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261109-toggles-1">
 </head>
 <body>
 
@@ -1095,15 +1095,6 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
         <button onclick="addNewSection()" style="background: rgba(76,175,80,0.2); border: 1px solid rgba(76,175,80,0.4); color: #4CAF50; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.2s;">+ Nytt avsnitt</button>
     </div>
     <div id="sections-container"></div>
-
-    <div class="footer-actions">
-        <button class="btn btn-export" onclick="exportXLSX()">Exportera till .xlsx</button>
-        <button class="btn btn-json-export" onclick="exportJSON()">Exportera JSON</button>
-        <button class="btn btn-json-import" onclick="document.getElementById('import-json-input').click()">Importera JSON</button>
-        <input type="file" id="import-json-input" accept=".json" style="display: none;" onchange="handleJSONImport(event)">
-        <button class="btn btn-secondary" onclick="saveLocalWithFeedback()">Spara i webbläsare</button>
-        <button class="btn btn-danger" onclick="resetAll()">Återställ allt</button>
-    </div>
 </div>
 
 <script>
@@ -2872,7 +2863,8 @@ window.addEventListener('firebase-sync', (event) => {
     try { var saved = localStorage.getItem("budget-chart-view-v1"); if (saved === "bar") show("bar"); } catch (_) {}
 })();
 </script>
-<script src="budget-auto-months-v1.js?v=20261109-1"></script>
+<script src="transfer-income.js?v=20261020-netto-v1"></script>
+<script src="budget-auto-months-v1.js?v=20261109-income-1"></script>
 <script src="budget-pay-inbox-v1.js?v=20261109-months-1"></script>
 </body>
 </html>

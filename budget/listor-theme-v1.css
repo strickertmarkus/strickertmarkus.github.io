@@ -297,3 +297,25 @@ html[data-finance-view]:not(#lt) .pay-inbox[hidden]{display:none}
   color:#f0f6fc;font:500 13px/1.3 Inter,system-ui,sans-serif;transition:opacity .2s,transform .2s}
 .pay-toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .pay-toast button{border:0;background:transparent;color:#FDBA74;font:600 13px/1 Inter,system-ui,sans-serif;padding:6px 4px;cursor:pointer}
+
+/* ── Header toggles: larger, easier to hit (finance-ui.js sizes them for a 9.5px label) ── */
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1,html[data-finance-view]:not(#lt) .finance-view-clean-v1{gap:4px!important;padding:0!important;bottom:10px!important}
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1{left:14px!important}
+html[data-finance-view]:not(#lt) .finance-view-clean-v1{right:12px!important}
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button,html[data-finance-view]:not(#lt) .finance-view-clean-v1 button{height:38px!important;border-radius:19px!important}
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button{min-width:0!important;padding:0 16px!important;font-size:14px!important;letter-spacing:0!important}
+html[data-finance-view]:not(#lt) .finance-view-clean-v1 button{width:46px!important}
+html[data-finance-view]:not(#lt) .finance-view-clean-v1 svg{width:20px!important;height:20px!important}
+html[data-finance-view]:not(#lt) .finance-view-clean-v1 button[data-view].active{color:var(--lt-a)!important}
+@media(max-width:600px){
+  html.finance-ui-clean-v1:not(#lt) body .header{height:166px!important;min-height:166px!important;max-height:166px!important}
+}
+@media(max-width:370px){
+  html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button{padding:0 12px!important;font-size:13px!important}
+  html[data-finance-view]:not(#lt) .finance-view-clean-v1 button{width:40px!important}
+}
+/* Fördelning / Mot budget */
+@media(max-width:759px){
+  html[data-finance-view]:not(#lt) .chart-switch{top:-10px}
+  html[data-finance-view]:not(#lt) .chart-switch button{font-size:13.5px;padding:10px 14px;border-radius:19px}
+}

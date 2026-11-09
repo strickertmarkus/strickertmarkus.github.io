@@ -92,8 +92,55 @@
     window.dispatchEvent(new CustomEvent('firebase-sync', { detail: { key: dataKey, value: localStorage.getItem(dataKey) } }));
   }
 
+  // Net salary and the house/ICA transfers come from familjebudget (the same source as Home).
+  // Only the current and later months are filled, so past months keep their history.
+  // Budget is always kept in step; the received amount is filled for the current month while
+  // it is 0 or still equals the old synced value (a hand-typed amount is left alone).
+  var person = dataKey === 'budgetTracker' ? 'markus' : 'maja';
+  var MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+  function transferRow(key) {
+    try {
+      var data = JSON.parse(localStorage.getItem('familjebudget_data') || 'null');
+      var rows = data && Array.isArray(data.transfers) ? data.transfers : [];
+      var d = dateOf(key);
+      return rows.find(function (r) { return r && Number(r.year) === d.getFullYear() && r.month === MONTHS[d.getMonth()]; }) || null;
+    } catch (_) { return null; }
+  }
+  function syncFromFamily() {
+    var changed = false;
+    var now = todayKey();
+    Object.keys(monthlyData).forEach(function (key) {
+      if (key < now) return;
+      var row = transferRow(key);
+      if (!row) return;
+      var sections = monthlyData[key].sections || [];
+      var find = function (sectionKey, test) {
+        var s = sections.find(function (x) { return x.key === sectionKey; });
+        return s ? (s.items || []).find(test) : null;
+      };
+      var setBudget = function (item, value) {
+        if (!item || value == null || !isFinite(value)) return;
+        value = Math.round(Number(value));
+        if (Number(item.budget) !== value) { item.budget = value; changed = true; }
+      };
+      var net = null;
+      try { if (window.TransferIncome) net = window.TransferIncome.get(row)[person]; } catch (_) {}
+      var salary = find('income', function (i) { return /^lön/i.test(i.name || ''); });
+      if (salary && net != null) {
+        var oldBudget = Number(salary.budget) || 0;
+        setBudget(salary, net);
+        var actual = Number(salary.actual) || 0;
+        if (key === now && (actual === 0 || actual === oldBudget) && actual !== Math.round(net)) { salary.actual = Math.round(net); changed = true; }
+      }
+      setBudget(find('house', function (i) { return i.name === 'Huskonto'; }), row[person === 'markus' ? 'huskontoMarkus' : 'huskontoMaja']);
+      setBudget(find('misc', function (i) { return i.name === 'ICA-konto'; }), row[person === 'markus' ? 'icaMarkus' : 'icaMaja']);
+    });
+    return changed;
+  }
+
   function run(save) {
     var created = ensure();
+    created = syncFromFamily() || created;
     if (created && save) { try { saveLocal(); } catch (_) {} }
     return created;
   }
@@ -128,6 +175,12 @@
     var created = initialDone ? run(true) : false;
     if (hiddenAt && Date.now() - hiddenAt > 30 * 60 * 1000) showCurrentMonth();
     if (created) { render(); announce(); }
+  });
+
+  // A new net salary or transfer saved on Home / Familjebudget.
+  window.addEventListener('firebase-sync', function (e) {
+    if (!initialDone || !e.detail || e.detail.key !== 'familjebudget_data') return;
+    if (run(true)) render();
   });
 
   // The Apple Pay inbox asks for a month that may not exist yet.
