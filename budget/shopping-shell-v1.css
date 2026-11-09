@@ -262,3 +262,10 @@ html:not([data-list-mode="shopping"]) .store-sort-btn{display:none}
 .store-sort-toast.is-visible{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .store-sort-toast span{min-width:180px;line-height:1.35}
 .store-sort-toast button{padding:4px 2px;border:0;background:none;color:var(--accent);font:700 14px Inter,system-ui,sans-serif;cursor:pointer}
+
+/* General list: no list card head; its tools live in the page header beside the title. */
+html[data-list-mode="general"] .shopping-panel-head{display:none}
+html[data-list-mode="general"] .app-header .brand{display:flex;align-items:center;gap:8px}
+html[data-list-mode="general"] .app-header .brand>.shopping-tools-wrap{margin-left:auto}
+html[data-list-mode="general"] #shopping-quick-add{display:none}
+html[data-list-mode="general"] #items-list{margin-top:4px}
