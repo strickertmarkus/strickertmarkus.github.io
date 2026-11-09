@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="pulse-kit.css?v=20261027-kit-3">
-  <link rel="stylesheet" href="training-pulse-field.css?v=20261108-rest-1">
+  <link rel="stylesheet" href="training-pulse-field.css?v=20261109-logtools-1">
   <link rel="stylesheet" href="training-overview-mode.css?v=20260926-pulse-compact-host-3">
   <link rel="stylesheet" href="training-mode-shell.css?v=20260925-shell-unified-5">
   <link rel="stylesheet" href="training-pulse-editor.css?v=20261029-motion-6">
@@ -36,7 +36,7 @@
   <script defer src="firebase-sync.js?v=20261109-pay-1"></script>
 <script defer src="zen-stretch-library.js?v=20261105-more-stretches-1"></script><script defer src="zen-model.js?v=20261108-rest-1"></script><script defer src="zen-store.js?v=20260910-scene-v2"></script><script defer src="training-zen-plans.js?v=20261106-step3-1"></script>
   <script defer src="training-strength-metrics.js?v=20261101-progress-1"></script>
-  <script defer src="training-pulse-field.js?v=20261108-gym-1"></script>
+  <script defer src="training-pulse-field.js?v=20261109-logtools-1"></script>
   <script defer src="training-pulse-editor.js?v=20261109-next-1"></script>
   <script defer src="pulse-explore-handoff.js?v=20261108-dock-2"></script>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
@@ -305,14 +305,18 @@
       <div class="section-head">
         <div><p class="eyebrow">PASS FÖR PASS</p><h2 id="log-title">Träningslogg</h2></div>
         <div class="section-head-actions">
+          <span class="log-tools" id="log-tools" hidden>
+            <button type="button" class="planner-calendar-entry log-tool" id="log-search-toggle" aria-label="Sök i träningsloggen" aria-expanded="false" aria-controls="log-filter" title="Sök"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button>
+            <label class="planner-calendar-entry log-tool log-month-tool" id="log-month-tool" title="Filtrera på månad"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg><select id="log-month" aria-label="Filtrera på månad"><option value="">Alla månader</option></select></label>
+          </span>
           <a class="planner-calendar-entry" id="log-action-link" href="#training-log" data-field-action="log" aria-label="Logga ett nytt pass" title="Logga pass"><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg></a>
           <a class="planner-calendar-entry" id="log-edit-latest" href="#training-log" data-field-action="edit-log" aria-label="Redigera senaste passet" title="Redigera senaste passet" hidden><svg class="pk-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5l1-4L15.8 5.2a2 2 0 0 1 2.9 0l.1.1a2 2 0 0 1 0 2.9L8.5 18.5z"/><path d="M13.5 7.5l3 3"/></svg></a>
         </div>
       </div>
       <div class="log-filter" id="log-filter" role="search" hidden>
         <input type="search" id="log-search" placeholder="Sök pass eller övning" aria-label="Sök i träningsloggen" autocomplete="off" enterkeyhint="search">
-        <select id="log-month" aria-label="Filtrera på månad"><option value="">Alla månader</option></select>
       </div>
+      <p class="log-month-chip" id="log-month-chip" hidden><span></span><button type="button" id="log-month-clear" aria-label="Visa alla månader">×</button></p>
       <div class="log-timeline" id="log-timeline"></div>
     </section>
 

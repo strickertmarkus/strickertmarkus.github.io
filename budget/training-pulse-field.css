@@ -1234,3 +1234,17 @@ html body #field-menu #training-overview-toggle .training-overview-toggle-icon{d
 .log-filter :is(input,select):focus-visible{border-color:#ff9a9166}
 .field-menu-action{display:flex;align-items:center;width:100%;min-height:44px;padding:0 13px;border:0;border-radius:10px;background:none;color:#c8cfd7;font:inherit;font-size:13px;text-align:left;cursor:pointer}
 .field-menu-action:hover{background:#ff657a0b;color:#fff}
+
+/* Log tools: magnifier opens the search field, the filter icon is the month picker (native select laid over the icon). */
+.log-tools{display:flex;align-items:center;gap:2px}
+.log-tools[hidden]{display:none}
+.log-tool{position:relative;cursor:pointer}
+.log-tool[aria-expanded=true]{background:#ff9a9112;border-radius:12px}
+.log-month-tool select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;-webkit-appearance:none;appearance:none;font-size:16px}
+.log-month-tool.is-active::after{content:"";position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--field-coral);box-shadow:0 0 8px #ff9a91aa}
+.log-month-tool:focus-within{outline:1px solid currentColor;outline-offset:3px;border-radius:8px}
+.log-filter input{flex:1 1 auto}
+.log-month-chip{display:inline-flex;align-items:center;gap:6px;margin:0 0 14px;padding:5px 6px 5px 12px;border:1px solid #ff9a9140;border-radius:999px;background:#ff9a910f;color:var(--field-peach,#f6c2a2);font:500 13px/1 Inter,system-ui,sans-serif}
+.log-month-chip[hidden]{display:none}
+.log-month-chip button{width:24px;height:24px;border:0;border-radius:50%;background:transparent;color:inherit;font-size:16px;line-height:1;cursor:pointer}
+.log-month-chip button:hover{background:#ff9a911f}

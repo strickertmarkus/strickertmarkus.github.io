@@ -1433,9 +1433,11 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
   /* T04: search by pass or exercise name and filter by month; the timeline itself stays the same. */
   var MONTH_NAMES=['januari','februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'];
   function filterLog(all){
-    var box=byId('log-filter'),search=byId('log-search'),month=byId('log-month');
+    var box=byId('log-filter'),search=byId('log-search'),month=byId('log-month'),tools=byId('log-tools');
     if(!box||!search||!month)return all;
-    box.hidden=all.length<2;
+    // The search field opens from the magnifier; the month filter is the filter icon (a native select).
+    if(tools)tools.hidden=all.length<2;
+    if(all.length<2)box.hidden=true;
     var months=[];all.forEach(function(w){var m=String(w.date||'').slice(0,7);if(/^\d{4}-\d{2}$/.test(m)&&months.indexOf(m)<0)months.push(m);});
     var chosen=month.value,signature=months.join(',');
     if(month.dataset.months!==signature){
@@ -1444,6 +1446,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       month.value=months.indexOf(chosen)>=0?chosen:'';
     }
     var query=search.value.trim().toLowerCase(),m=month.value;
+    var chip=byId('log-month-chip'),tool=byId('log-month-tool');
+    if(tool)tool.classList.toggle('is-active',!!m);
+    if(chip){chip.hidden=!m;if(m)chip.querySelector('span').textContent=month.options[month.selectedIndex]?month.options[month.selectedIndex].text:'';}
     if(!query&&!m)return all;
     return all.filter(function(w){
       if(m&&String(w.date||'').slice(0,7)!==m)return false;
@@ -1663,6 +1668,25 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       if(edit)setRecordPicker(true,number(edit.dataset.recordEditSlot));
     });
     ['log-search','log-month'].forEach(function(id){var el=byId(id);if(el)el.addEventListener(id==='log-search'?'input':'change',function(){state.logVisibleCount=8;state.openLogId=null;renderLog();});});
+    (function(){
+      var toggleBtn=byId('log-search-toggle'),box=byId('log-filter'),input=byId('log-search'),clear=byId('log-month-clear'),month=byId('log-month');
+      if(!toggleBtn||!box||!input)return;
+      function setSearch(open){
+        toggleBtn.setAttribute('aria-expanded',String(open));
+        if(open){
+          box.hidden=false;
+          if(window.PulseMotion)window.PulseMotion.reveal(box,toggleBtn);
+          setTimeout(function(){try{input.focus({preventScroll:true});}catch(_){input.focus();}},30);
+        }else{
+          var done=function(){box.hidden=true;box.style.clipPath='';box.style.opacity='';};
+          if(input.value){input.value='';state.logVisibleCount=8;state.openLogId=null;renderLog();}
+          if(window.PulseMotion)window.PulseMotion.conceal(box,toggleBtn).then(done);else done();
+        }
+      }
+      toggleBtn.addEventListener('click',function(){setSearch(box.hidden);});
+      input.addEventListener('keydown',function(event){if(event.key==='Escape')setSearch(false);});
+      if(clear&&month)clear.addEventListener('click',function(){month.value='';state.logVisibleCount=8;state.openLogId=null;renderLog();});
+    })();
     document.addEventListener('click',function(event){
       if(!menu.contains(event.target)&&!toggle.contains(event.target))setMenu(false);
       var loadMore=event.target.closest('[data-log-more]');
