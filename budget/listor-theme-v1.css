@@ -262,3 +262,38 @@ html[data-finance-view]:not(#lt) .chart-switch{display:none}
 /* Spacing: "+ Nytt avsnitt" gets room, the income header has no bar row */
 html[data-finance-view]:not(#lt) .new-section-row{margin:30px 0 22px!important}
 html[data-finance-view]:not(#lt) .section-card[data-section-key="income"] .section-header{grid-template-areas:"t s m"!important;row-gap:0!important;padding-bottom:12px!important;border-bottom:1px solid var(--lt-line-soft)!important}
+
+/* ── Apple Pay inbox (budget-pay-inbox-v1.js): purchases waiting to be sorted ── */
+html[data-finance-view]:not(#lt) .pay-inbox{margin:26px 0 8px;padding:16px 12px 6px;margin-inline:-12px;
+  background:radial-gradient(ellipse 62% 150px at 50% 110px,rgba(var(--lt-ar),.09),rgba(var(--lt-ar),.03) 42%,transparent 76%)}
+html[data-finance-view]:not(#lt) .pay-inbox[hidden]{display:none}
+.pay-inbox .pay-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--lt-line)}
+.pay-inbox .pay-title{color:var(--lt-a);font:750 10px/1.4 Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.pay-inbox .pay-count{min-width:20px;padding:1px 7px;border-radius:999px;background:rgba(var(--lt-ar),.12);color:var(--lt-a);font:600 11px/1.5 Inter,system-ui,sans-serif;text-align:center;box-shadow:0 0 12px rgba(var(--lt-ar),.25)}
+.pay-inbox .pay-all{margin-left:auto;border:0;background:transparent;color:var(--lt-a);font:500 12px/1 Inter,system-ui,sans-serif;padding:8px 2px;cursor:pointer}
+.pay-inbox .pay-all:hover{text-decoration:underline;text-underline-offset:3px}
+.pay-inbox .pay-row{display:grid;gap:8px;padding:12px 0;border-bottom:1px solid var(--lt-line-soft)}
+.pay-inbox .pay-row:last-child{border-bottom:0}
+.pay-inbox .pay-main{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:0}
+.pay-inbox .pay-merchant{color:var(--lt-text);font:600 14px/1.3 Inter,system-ui,sans-serif;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pay-inbox .pay-meta{color:var(--lt-sec);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pay-inbox .pay-actions{display:grid;grid-template-columns:minmax(0,1fr) 40px 36px;gap:8px;align-items:center}
+.pay-inbox .pay-select-wrap{position:relative;min-width:0}
+.pay-inbox .pay-select-wrap::after{content:"";position:absolute;right:13px;top:50%;width:7px;height:7px;border-right:1.5px solid var(--lt-dim);border-bottom:1.5px solid var(--lt-dim);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.pay-inbox .pay-select{appearance:none;-webkit-appearance:none;width:100%;min-height:40px;padding:0 32px 0 12px;border-radius:12px;
+  border:1px solid var(--lt-line);background:rgba(255,255,255,.035);color:var(--lt-text);font:500 13px/1 Inter,system-ui,sans-serif;text-overflow:ellipsis}
+.pay-inbox .pay-select:focus{outline:0;border-color:rgba(var(--lt-ar),.55);box-shadow:0 0 0 3px rgba(var(--lt-ar),.12)}
+.pay-inbox .pay-select-wrap.is-suggested .pay-select{border-color:rgba(var(--lt-ar),.32);color:var(--lt-a)}
+.pay-inbox .pay-ok{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;border:1px solid rgba(var(--lt-ar),.42);background:rgba(15,18,25,.6);color:var(--lt-a);box-shadow:0 0 18px rgba(var(--lt-ar),.16);cursor:pointer}
+.pay-inbox .pay-ok:hover:not(:disabled){background:rgba(var(--lt-ar),.10);box-shadow:0 0 22px rgba(var(--lt-ar),.26)}
+.pay-inbox .pay-ok:disabled{opacity:.35;box-shadow:none;cursor:default}
+.pay-inbox .pay-skip{width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:var(--lt-dim);font:400 20px/1 Inter,system-ui,sans-serif;cursor:pointer}
+.pay-inbox .pay-skip:hover{color:var(--lt-minus);background:rgba(248,113,113,.08)}
+.pay-inbox button:focus-visible{outline:2px solid var(--lt-a);outline-offset:2px}
+.pay-inbox .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pay-toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:3000;transform:translate(-50%,16px);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:14px;max-width:calc(100vw - 32px);padding:11px 12px 11px 16px;border-radius:14px;
+  background:#161B22;border:1px solid rgba(253,186,116,.25);box-shadow:0 14px 34px rgba(0,0,0,.5),0 0 24px rgba(253,186,116,.08);
+  color:#f0f6fc;font:500 13px/1.3 Inter,system-ui,sans-serif;transition:opacity .2s,transform .2s}
+.pay-toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.pay-toast button{border:0;background:transparent;color:#FDBA74;font:600 13px/1 Inter,system-ui,sans-serif;padding:6px 4px;cursor:pointer}

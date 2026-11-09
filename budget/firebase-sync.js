@@ -95,6 +95,7 @@ const SYNC_KEYS = [
   "sh_active_template_id",
   "sh_header_title",
   "sh_store_places",      // where items go in each shop, learned from dragging (shopping-store-sort-v1.js)
+  "pay_merchant_rules",   // which budget post each shop goes to, learned in the Apple Pay inbox (budget-pay-inbox-v1.js)
   "cal_events",
   "cal_todos",
   "cal_notif",
