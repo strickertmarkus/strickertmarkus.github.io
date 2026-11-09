@@ -1001,7 +1001,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261109-2">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261109-3">
 </head>
 <body>
 
@@ -1069,17 +1069,22 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
     </div>
 
     <!-- Charts -->
-    <div class="charts-row">
-        <div class="chart-card">
+    <div class="charts-row" id="charts-row" data-view="pie">
+        <div class="chart-switch" role="group" aria-label="Välj diagram">
+            <button type="button" data-chart-view="pie" aria-pressed="true">Fördelning</button>
+            <button type="button" data-chart-view="bar" aria-pressed="false">Mot budget</button>
+        </div>
+        <div class="chart-card chart-card-pie">
             <h3>Utgiftsfördelning</h3>
             <div class="pie-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
                 <div class="chart-wrap" style="aspect-ratio: 1; height: auto; max-height: 294px;">
                     <canvas id="pieChart" style="display: block; max-width: 100%; max-height: 100%;"></canvas>
+                    <div class="donut-center" aria-hidden="true"><b id="donut-total">0</b><span>kr utgifter</span></div>
                 </div>
                 <div id="pie-legend" style="display: flex; flex-direction: column; gap: 12px; padding-top: 20px;"></div>
             </div>
         </div>
-        <div class="chart-card">
+        <div class="chart-card chart-card-bar">
             <h3>Budget kontra utgifter</h3>
             <div class="chart-wrap">
                 <canvas id="barChart" style="display: block; width: 100%; height: 100%;"></canvas>
@@ -1231,6 +1236,16 @@ const hexToRgb = (hex) => {
     const b = parseInt(hex.slice(5,7), 16);
     return `${r},${g},${b}`;
 };
+
+// Calm display colours for charts and section markers (the stored section colour stays as it is).
+const DISPLAY_COLORS = { income: "#7DD3A8", house: "#8EA6F7", insurances: "#F2948B", subscriptions: "#FDBA74", savings: "#6FD6A8", misc: "#E3C77A" };
+function displayColor(section) {
+    if (section && DISPLAY_COLORS[section.key]) return DISPLAY_COLORS[section.key];
+    const hex = String((section && section.color) || "#FDBA74").replace("#", "");
+    if (!/^[0-9a-f]{6}$/i.test(hex)) return "#FDBA74";
+    const mix = (i) => Math.round(parseInt(hex.substr(i, 2), 16) * 0.72 + 0xC4 * 0.28).toString(16).padStart(2, "0");
+    return "#" + mix(0) + mix(2) + mix(4);
+}
 
 function shadeColor(hex, amount) {
     let r = parseInt(hex.slice(1,3), 16);
@@ -1622,7 +1637,7 @@ function renderSections() {
     sections.forEach((section, sIdx) => {
         const card = document.createElement("div");
         card.className = "section-card";
-        card.style.setProperty("--sc", section.color);
+        card.style.setProperty("--sc", displayColor(section));
         card.setAttribute("data-section-key", section.key);
 
         const sectionBudget = section.items.reduce((s, it) => s + it.budget, 0);
@@ -2106,12 +2121,12 @@ function initCharts() {
             labels: expenseSections.map(s => s.name),
             datasets: [{
                 data: expenseSections.map(() => 0),
-                backgroundColor: expenseSections.map(s => s.color + 'A0'),
-                hoverBackgroundColor: expenseSections.map(s => s.color + 'A0'),
-                borderColor: isDarkMode() ? "#1A1F2E" : "#FFFFFF",
-                borderWidth: isDarkMode() ? 3 : 4,
+                backgroundColor: expenseSections.map(s => displayColor(s)),
+                hoverBackgroundColor: expenseSections.map(s => displayColor(s)),
+                borderColor: "#0F1219",
+                borderWidth: 2,
                 borderRadius: 6,
-                spacing: 1,
+                spacing: 2,
                 hoverBorderWidth: 0,
                 hoverBorderColor: 'transparent',
                 hoverOffset: 0,
@@ -2120,7 +2135,7 @@ function initCharts() {
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            cutout: "65%",
+            cutout: "76%",
             animation: {
                 duration: 800,
                 easing: 'easeOutQuart'
@@ -2175,8 +2190,8 @@ function initCharts() {
                 {
                     label: "Budget",
                     data: expenseSections.map(() => 0),
-                    backgroundColor: expenseSections.map(s => isDarkMode() ? s.color + '30' : s.light),
-                    borderColor: expenseSections.map(s => isDarkMode() ? s.color + '60' : s.color),
+                    backgroundColor: expenseSections.map(s => displayColor(s) + '38'),
+                    borderColor: expenseSections.map(s => displayColor(s) + '70'),
                     borderWidth: 1.5,
                     borderRadius: 6,
                     barPercentage: 0.65,
@@ -2184,8 +2199,8 @@ function initCharts() {
                 {
                     label: "Utgifter",
                     data: expenseSections.map(() => 0),
-                    backgroundColor: expenseSections.map(s => s.color),
-                    borderColor: expenseSections.map(s => shadeColor(s.color, -40)),
+                    backgroundColor: expenseSections.map(s => displayColor(s)),
+                    borderColor: expenseSections.map(s => displayColor(s)),
                     borderWidth: 1.5,
                     borderRadius: 6,
                     barPercentage: 0.75,
@@ -2193,8 +2208,8 @@ function initCharts() {
                 ...(previousKey ? [{
                     label: "Föregående månad",
                     data: expenseSections.map(() => 0),
-                    backgroundColor: expenseSections.map(s => shadeColor(s.color, -15)),
-                    borderColor: expenseSections.map(s => shadeColor(s.color, -30)),
+                    backgroundColor: expenseSections.map(s => displayColor(s) + '80'),
+                    borderColor: expenseSections.map(s => displayColor(s) + '90'),
                     borderWidth: 1.5,
                     borderRadius: 6,
                     barPercentage: 0.65,
@@ -2284,20 +2299,19 @@ function renderPieLegend() {
     const expenseSections = sections.filter(s => !s.isIncome);
     const legendContainer = document.getElementById("pie-legend");
     if (!legendContainer) return;
-    
+    const totals = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
+    const total = totals.reduce((a, b) => a + b, 0);
+    const totalEl = document.getElementById("donut-total");
+    if (totalEl) totalEl.textContent = fmt(total);
     legendContainer.innerHTML = "";
     expenseSections.forEach((section, idx) => {
-        const total = expenseSections
-            .reduce((sum, s) => sum + s.items.reduce((sum2, it) => sum2 + it.actual, 0), 0);
-        const sectionTotal = section.items.reduce((sum, it) => sum + it.actual, 0);
-        const pct = total > 0 ? Math.round((sectionTotal / total) * 100) : 0;
-        
+        const pct = total > 0 ? Math.round((totals[idx] / total) * 100) : 0;
         const item = document.createElement("div");
-        item.style.cssText = `display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; color: ${isDarkMode() ? '#E2E8F0' : '#374151'};`;
+        item.className = "pie-legend-item";
         item.innerHTML = `
-            <div style="width: 14px; height: 14px; border-radius: 50%; background: ${section.color}; flex-shrink: 0;"></div>
-            <span style="flex: 1;">${section.name}</span>
-            <span style="color: ${isDarkMode() ? '#94A3B8' : '#6B7280'}; font-size: 12px;">${pct}%</span>
+            <i style="background:${displayColor(section)}"></i>
+            <span class="pie-legend-name">${section.name}<em>${fmt(totals[idx])} kr</em></span>
+            <span class="pie-legend-pct">${pct}%</span>
         `;
         legendContainer.appendChild(item);
     });
@@ -2311,10 +2325,10 @@ function updateCharts() {
     const expenseSections = sections.filter(s => !s.isIncome);
     pieChart.data.labels = expenseSections.map(s => s.name);
     pieChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
-    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => s.color + 'A0');
-    pieChart.data.datasets[0].hoverBackgroundColor = expenseSections.map(s => s.color + 'A0');
-    pieChart.data.datasets[0].borderColor = isDarkMode() ? "#1A1F2E" : "#FFFFFF";
-    pieChart.data.datasets[0].borderWidth = isDarkMode() ? 3 : 4;
+    pieChart.data.datasets[0].backgroundColor = expenseSections.map(s => displayColor(s));
+    pieChart.data.datasets[0].hoverBackgroundColor = expenseSections.map(s => displayColor(s));
+    pieChart.data.datasets[0].borderColor = "#0F1219";
+    pieChart.data.datasets[0].borderWidth = 2;
     pieChart.data.datasets[0].hoverBorderWidth = 0;
     pieChart.data.datasets[0].hoverBorderColor = 'transparent';
     pieChart.update({ animation: false });
@@ -2323,10 +2337,10 @@ function updateCharts() {
     barChart.data.labels = expenseSections.map(s => s.name);
     barChart.data.datasets[0].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.budget, 0));
     barChart.data.datasets[1].data = expenseSections.map(s => s.items.reduce((sum, it) => sum + it.actual, 0));
-    barChart.data.datasets[0].backgroundColor = expenseSections.map(s => isDarkMode() ? s.color + '30' : s.light);
-    barChart.data.datasets[0].borderColor = expenseSections.map(s => isDarkMode() ? s.color + '60' : s.color);
-    barChart.data.datasets[1].backgroundColor = expenseSections.map(s => s.color);
-    barChart.data.datasets[1].borderColor = expenseSections.map(s => shadeColor(s.color, -40));
+    barChart.data.datasets[0].backgroundColor = expenseSections.map(s => displayColor(s) + '38');
+    barChart.data.datasets[0].borderColor = expenseSections.map(s => displayColor(s) + '70');
+    barChart.data.datasets[1].backgroundColor = expenseSections.map(s => displayColor(s));
+    barChart.data.datasets[1].borderColor = expenseSections.map(s => displayColor(s));
     
     // Handle previous month data
     const allKeys = Object.keys(monthlyData).sort();
@@ -2348,8 +2362,8 @@ function updateCharts() {
                     const prevSection = previousExpenseSections.find(ps => ps.name === sName.name);
                     return prevSection ? prevSection.items.reduce((sum, it) => sum + it.actual, 0) : 0;
                 }),
-                backgroundColor: expenseSections.map(s => shadeColor(s.color, -15)),
-                borderColor: expenseSections.map(s => shadeColor(s.color, -30)),
+                backgroundColor: expenseSections.map(s => displayColor(s) + '80'),
+                borderColor: expenseSections.map(s => displayColor(s) + '90'),
             });
         }
     }
@@ -2837,6 +2851,26 @@ window.addEventListener('firebase-sync', (event) => {
     updateCharts();
   }
 });
+</script>
+<script>
+(function () {
+    // Fördelning / Mot budget: on a phone the two charts share one place; wide screens show both.
+    var row = document.getElementById("charts-row");
+    if (!row) return;
+    function show(view) {
+        row.dataset.view = view;
+        row.querySelectorAll("[data-chart-view]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.chartView === view)); });
+        try { localStorage.setItem("budget-chart-view-v1", view); } catch (_) {}
+        requestAnimationFrame(function () {
+            try { if (window.Chart) { var c = Chart.getChart(view === "bar" ? "barChart" : "pieChart"); if (c) c.resize(); } } catch (_) {}
+        });
+    }
+    row.addEventListener("click", function (e) {
+        var b = e.target.closest("[data-chart-view]");
+        if (b) show(b.dataset.chartView);
+    });
+    try { var saved = localStorage.getItem("budget-chart-view-v1"); if (saved === "bar") show("bar"); } catch (_) {}
+})();
 </script>
 </body>
 </html>
