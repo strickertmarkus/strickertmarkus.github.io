@@ -1036,7 +1036,7 @@
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
-<link rel="stylesheet" href="home-listor-v1.css?v=20261109-4">
+<link rel="stylesheet" href="home-listor-v1.css?v=20261109-5">
 <script defer src="pulse-motion.js?v=20261029-home-1" data-surfaces=".modal-overlay,#home-day-popover,#day-panel,.fp-floating-menu"></script>
   <script defer src="app-refresh.js?v=20261103-1"></script>
 </head>
@@ -1848,7 +1848,7 @@ function openDayEventsPopup(dayISO, dayEvents, anchorEl) {
       var memberTxt = ev.member && ev.member !== 'family' ? (ev.member.charAt(0).toUpperCase() + ev.member.slice(1)) : 'Familj';
       var meta = memberTxt + (ev.time ? ' · ' + ev.time : '');
       var extraMeta = getEventAdditionalMeta(ev);
-      return '<div class="home-day-popover-item"><div class="home-day-popover-dot" style="background:' + color + '"></div><div><div class="home-day-popover-item-title">' + escHtml(ev.title || 'Händelse') + '</div><div class="home-day-popover-item-meta">' + escHtml(meta) + '</div>' + (extraMeta ? '<div class="home-day-popover-item-meta home-day-popover-item-extra">' + escHtml(extraMeta) + '</div>' : '') + '</div></div>';
+      return '<div class="home-day-popover-item"><div class="home-day-popover-dot" style="background:' + color + ';color:' + color + '"></div><div><div class="home-day-popover-item-title">' + escHtml(ev.title || 'Händelse') + '</div><div class="home-day-popover-item-meta">' + escHtml(meta) + '</div>' + (extraMeta ? '<div class="home-day-popover-item-meta home-day-popover-item-extra">' + escHtml(extraMeta) + '</div>' : '') + '</div></div>';
     }).join('');
   }
 
