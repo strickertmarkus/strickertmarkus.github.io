@@ -12,7 +12,7 @@
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
 <script src="firebase-sync.js?v=20261109-months-1"></script>
 <script src="transfer-income.js?v=20261020-netto-v1"></script>
-<script src="finance-ui.js?v=20261109-listor-1"></script>
+<script src="finance-ui.js?v=20261109-icons-1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -354,16 +354,16 @@ html.dark-mode{--fb-markus:#60A5FA;--fb-maja:#F472B6}
 .fb-who b{font-weight:600;font-size:15px;color:#f0f6fc}
 .fb-who strong{font-size:16.5px;font-weight:700;color:#f0f6fc;font-variant-numeric:tabular-nums}
 .fb-who em{grid-column:2/4;font-style:normal;color:#929ba9;font-size:12.5px;font-variant-numeric:tabular-nums}
-.fb-hist{margin-top:10px}
-.fb-hist span{display:block;color:#7d8996;font-size:11.5px;margin-bottom:6px}
-.fb-hist svg{width:100%;height:80px;display:block}
-.fb-hist text{fill:#7d8996;font:500 9px Inter,sans-serif}
 .fb-sect{position:relative;padding:18px 2px 8px;isolation:isolate;margin-top:8px}
 .fb-sect::before{content:"";position:absolute;inset:0 -16px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 62% 150px at 50% 120px,color-mix(in srgb,var(--sc) 10%,transparent),color-mix(in srgb,var(--sc) 3.5%,transparent) 42%,transparent 76%)}
 .fb-sh{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);color:var(--sc)}
 .fb-sh h2{flex:1;margin:0;font-size:18px;font-weight:600;color:#f0f6fc}
 .fb-sum{text-align:right;font-size:16px;font-weight:700;color:#f0f6fc;font-variant-numeric:tabular-nums}
 .fb-sum em{display:block;font-style:normal;font-weight:400;color:#929ba9;font-size:12px}
+.fb-sh{border-bottom:0!important;padding-bottom:0!important}
+.fb-sh-line{border-bottom:1px solid rgba(255,255,255,.08)!important;padding-bottom:12px!important}
+.fb-sbar{height:5px;border-radius:3px;background:rgba(255,255,255,.07);margin:12px 0 4px;overflow:hidden}
+.fb-sbar i{display:block;height:100%;width:0;border-radius:3px;background:var(--sc);box-shadow:0 0 10px var(--sc);transition:width .5s cubic-bezier(.22,1,.36,1)}
 .fb-items{padding-top:6px}
 .fb-it{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;color:#d5dbe3;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .fb-it span:last-child{color:#929ba9;font-variant-numeric:tabular-nums}
@@ -445,16 +445,18 @@ html.dark-mode .modal{background:#161B22!important;border:1px solid rgba(255,255
 
     <section class="fb-sect" style="--sc:#E3C77A" aria-labelledby="fb-ica-h">
         <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-ica-h">ICA-kort</h2><span class="fb-sum" id="fb-ica-sum"></span></div>
+        <div class="fb-sbar"><i id="fb-ica-bar"></i></div>
         <div class="fb-items" id="fb-ica"></div>
     </section>
 
     <section class="fb-sect" style="--sc:#8EA6F7" aria-labelledby="fb-hus-h">
         <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-hus-h">Huskonto</h2><span class="fb-sum" id="fb-hus-sum"></span></div>
+        <div class="fb-sbar"><i id="fb-hus-bar"></i></div>
         <div class="fb-items" id="fb-hus"></div>
     </section>
 
     <section class="fb-sect" style="--sc:#F2948B" aria-labelledby="fb-house-h">
-        <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-house-h">Huset</h2></div>
+        <div class="fb-sh fb-sh-line"><span class="fb-dot"></span><h2 id="fb-house-h">Huset</h2></div>
         <div id="fb-house"></div>
     </section>
 
@@ -637,30 +639,9 @@ function renderTransfer() {
         <div class="fb-split" role="img" aria-label="Markus ${pm} procent, Maja ${pj} procent"><i style="width:${mk / total * 100}%;background:var(--fb-markus)"></i><i style="width:${mj / total * 100}%;background:var(--fb-maja)"></i></div>
         <div class="fb-who"><span class="fb-dot" style="color:var(--fb-markus)"></span><b>Markus · ${pm} %</b><strong>${fmt(mk)} kr</strong><em>Huskonto ${fmt(row.huskontoMarkus)} · ICA-kort ${fmt(row.icaMarkus)}${netLine("markus")}</em></div>
         <div class="fb-who"><span class="fb-dot" style="color:var(--fb-maja)"></span><b>Maja · ${pj} %</b><strong>${fmt(mj)} kr</strong><em>Huskonto ${fmt(row.huskontoMaja)} · ICA-kort ${fmt(row.icaMaja)}${netLine("maja")}</em></div>
-        ${historySvg()}`;
+`;
 }
 
-// Last 12 transfer months up to the chosen one, stacked Markus / Maja.
-function historySvg() {
-    const rows = transfers.filter(r => { const k = keyOfRow(r); return k && k <= monthKey; }).slice(-12);
-    if (rows.length < 2) return "";
-    const totals = rows.map(r => ({
-        mk: (Number(r.huskontoMarkus) || 0) + (Number(r.icaMarkus) || 0),
-        mj: (Number(r.huskontoMaja) || 0) + (Number(r.icaMaja) || 0),
-        key: keyOfRow(r)
-    }));
-    const max = Math.max(...totals.map(t => t.mk + t.mj)) || 1;
-    const W = 320, H = 70, gap = 4, bw = (W - gap * (totals.length - 1)) / totals.length;
-    const bars = totals.map((t, i) => {
-        const x = i * (bw + gap);
-        const hk = t.mk / max * (H - 14), hj = t.mj / max * (H - 14);
-        const sel = t.key === monthKey;
-        return `<g opacity="${sel ? 1 : .55}"><rect x="${x.toFixed(1)}" y="${(H - 14 - hk - hj).toFixed(1)}" width="${bw.toFixed(1)}" height="${hj.toFixed(1)}" rx="2" fill="var(--fb-maja)"/>` +
-            `<rect x="${x.toFixed(1)}" y="${(H - 14 - hk).toFixed(1)}" width="${bw.toFixed(1)}" height="${hk.toFixed(1)}" rx="2" fill="var(--fb-markus)"/>` +
-            `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 2}" text-anchor="middle">${MONTHS[Number(t.key.slice(5)) - 1].slice(0, 1)}</text></g>`;
-    }).join("");
-    return `<div class="fb-hist"><span>Senaste ${totals.length} månaderna</span><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Överföringar per månad">${bars}</svg></div>`;
-}
 
 function renderList(id, list, open, keyName) {
     const sorted = list.slice().sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
@@ -671,9 +652,14 @@ function renderList(id, list, open, keyName) {
     document.getElementById(id).innerHTML = html;
 }
 function toggleList(k) { expanded[k] = !expanded[k]; renderSections(); }
+// Each bar shows the section's share of all shared posts (ICA-kort + Huskonto).
 function renderSections() {
-    document.getElementById("fb-ica-sum").innerHTML = `${fmt(sum(expenses))}<em>${expenses.length} poster</em>`;
-    document.getElementById("fb-hus-sum").innerHTML = `${fmt(sum(huskonto))}<em>${huskonto.length} poster</em>`;
+    const ica = sum(expenses), hus = sum(huskonto), all = ica + hus || 1;
+    const pi = Math.round(ica / all * 100), ph = 100 - pi;
+    document.getElementById("fb-ica-sum").innerHTML = `${fmt(ica)}<em>${expenses.length} poster · ${pi} %</em>`;
+    document.getElementById("fb-hus-sum").innerHTML = `${fmt(hus)}<em>${huskonto.length} poster · ${ph} %</em>`;
+    document.getElementById("fb-ica-bar").style.width = (ica / all * 100) + "%";
+    document.getElementById("fb-hus-bar").style.width = (hus / all * 100) + "%";
     renderList("fb-ica", expenses, expanded.ica, "ica");
     renderList("fb-hus", huskonto, expanded.hus, "hus");
 }

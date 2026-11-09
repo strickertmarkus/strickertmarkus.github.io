@@ -223,9 +223,9 @@
     group.setAttribute('role','group');
     group.setAttribute('aria-label','Välj budgetvy');
     group.innerHTML =
-      '<button type="button" data-view="budget" aria-label="Budget" title="Budget"><svg viewBox="0 0 24 24"><path d="M4 7.5h14.5A1.5 1.5 0 0 1 20 9v9a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12a1 1 0 0 1 0 2H5a1 1 0 0 0-1 1v.5Z"/><path d="M15 11h6v5h-6a2.5 2.5 0 0 1 0-5Z"/></svg></button>' +
-      '<button type="button" data-view="analysis" aria-label="Analys" title="Analys"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16m-13-4 4-4 3 2 5-6m-2.5 0H19v2.5"/></svg></button>' +
-      '<button type="button" data-view="family" aria-label="Familjebudget" title="Familjebudget"><svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7M5.5 10.5V20h13v-9.5M9 20v-5h6v5"/><path d="M8.2 10.2c.9-1.7 3.3-1.5 3.8.2.5-1.7 2.9-1.9 3.8-.2.7 1.4-.3 2.9-3.8 5-3.5-2.1-4.5-3.6-3.8-5Z"/></svg></button>';
+      '<button type="button" data-view="budget" aria-label="Budget" title="Budget"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 9V6a3 3 0 0 1 3-3h11M16 13h5"/></svg></button>' +
+      '<button type="button" data-view="analysis" aria-label="Analys" title="Analys"><svg viewBox="0 0 24 24"><path d="M4 20V12M10 20V7M16 20V10M22 20V3"/></svg></button>' +
+      '<button type="button" data-view="family" aria-label="Familjebudget" title="Familjebudget"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10h-6v-7H9v7H3z"/></svg></button>';
     group.addEventListener('click', function (event) {
       var button = event.target.closest && event.target.closest('[data-view]');
       if (!button || button.dataset.view === view) return;
