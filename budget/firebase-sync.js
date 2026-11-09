@@ -185,6 +185,9 @@ async function bootstrapFirebaseSync(app) {
   }
 
   await loadAllFromFirebase();
+  // Pages that must build on fresh remote data (budget auto months) wait for this.
+  window.__firebaseInitialLoadDone = true;
+  window.dispatchEvent(new Event('firebase-initial-load'));
   await runBodyweight78Migration();
   setupRealtimeListeners();
   scheduleRemotePoll();
@@ -549,6 +552,9 @@ window.addEventListener('focus', onPageShown);
  */
 function handleRemoteUpdate(key, value) {
   if (lastKnownValues[key] === value) return;
+  // A local write is about to be pushed: it wins, so an older remote value must not overwrite it
+  // locally in the meantime (the polling path already skips these keys).
+  if (syncQueue[key]) return;
   console.log(`[Firebase] Remote update: '${key}'`);
   lastKnownValues[key] = value;
   safeSetLocal(key, value);

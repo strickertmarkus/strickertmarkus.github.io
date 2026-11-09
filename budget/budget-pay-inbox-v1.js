@@ -90,6 +90,7 @@
   // ── budget data ───────────────────────────────────────────
   function sectionsFor(date) {
     var key = getMonthKey(date);
+    if (!monthlyData[key] && typeof window.budgetEnsureMonths === 'function') window.budgetEnsureMonths();
     if (monthlyData[key] && monthlyData[key].sections) return { sections: monthlyData[key].sections, own: true, date: date };
     return { sections: getCurrentMonthSections(), own: false, date: currentMonth };
   }
