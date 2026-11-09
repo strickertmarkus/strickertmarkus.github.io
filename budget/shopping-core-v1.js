@@ -7,7 +7,9 @@
   var modes = {
     shopping:{title:'Inköpslista',headings:['Maxi','Willys','Hemköp','Lidl','Coop'],id:-101},
     packing:{title:'Packlista',headings:['Melker','Mila','Maja','Markus','Övrigt'],id:-102},
-    todo:{title:'Att göra',headings:[],id:-103}
+    todo:{title:'Att göra',headings:[],id:-103},
+    // A general list: works exactly like the shopping list, but starts empty and has no recipes or store sorting.
+    general:{title:'Lista',headings:[],id:-104}
   };
   var activeMode = 'shopping';
   // Home opens Shopping directly in the Att göra tab.
