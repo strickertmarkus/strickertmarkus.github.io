@@ -130,13 +130,16 @@
     var next = document.getElementById('session-next-ex-inline');
     if (!arrow || !next) return;
 
-    var nextExercise = null;
-    if (state && Array.isArray(state.exercises)) {
+    var name = '';
+    if (typeof window.__sessionUpcomingV1 === 'function') {
+      // Shared with the rest theme and the next-exercise card: a between exercise such as
+      // "Hopprep" comes before the next exercise (exercise-session-next-preview-v1.js).
+      var up = window.__sessionUpcomingV1(state);
+      name = up ? String(up.name || '').trim() : '';
+    } else if (state && Array.isArray(state.exercises)) {
       var idx = Number(state.exerciseIndex || 0) + 1;
-      if (idx >= 0 && idx < state.exercises.length) nextExercise = state.exercises[idx];
+      if (idx >= 0 && idx < state.exercises.length) name = String(state.exercises[idx].name || '').trim();
     }
-
-    var name = nextExercise && String(nextExercise.name || '').trim();
     if (!name) {
       setHidden(arrow, true);
       setHidden(next, true);

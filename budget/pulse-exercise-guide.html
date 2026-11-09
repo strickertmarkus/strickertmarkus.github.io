@@ -1090,6 +1090,33 @@ window.PulseGuideUI={
  openMuscle:name=>route(()=>{const browsing=listOpen;openStudio(name,null,true);setList(browsing);}),
  countFor:name=>exercises.filter(e=>name==='Alla'||e.muscles.includes(name)).length,
 };
+// ?figure=<exercise name> shows only the animated figure, for the "next exercise" card in the
+// training session (exercise-session-next-preview-v1.js embeds this page in a small iframe).
+// The parent can switch exercise with postMessage({type:'pulse-figure-show',name}).
+(function figureOnly(){
+ const asked=new URLSearchParams(location.search).get('figure');
+ if(asked===null)return;
+ document.documentElement.classList.add('pulse-figure-only');
+ const style=document.createElement('style');
+ style.textContent='html.pulse-figure-only,html.pulse-figure-only body{background:transparent!important;overflow:hidden!important}'+
+  'html.pulse-figure-only body>*:not(.st-root){display:none!important}'+
+  'html.pulse-figure-only .st-root>*:not(.st-stage){display:none!important}'+
+  'html.pulse-figure-only .st-root,html.pulse-figure-only .st-stage{background:transparent!important;pointer-events:none!important}';
+ document.head.appendChild(style);
+ // Keep the training page's back button clean: nothing in here may add history entries.
+ history.pushState=function(state,title,url){history.replaceState(state,title,url);};
+ const key=v=>String(v||'').trim().toLocaleLowerCase('sv');
+ function show(name){
+  const n=key(name);
+  const hit=n&&(exercises.find(e=>key(e.name)===n)||exercises.find(e=>key(e.name).startsWith(n))||exercises.find(e=>n.startsWith(key(e.name))));
+  try{parent.postMessage({type:'pulse-figure',found:!!hit,name:String(name||'')},location.origin);}catch(e){}
+  if(hit)window.PulseGuideUI.openMuscleExercise(hit.muscles[0],hit.id);
+ }
+ window.addEventListener('message',event=>{
+  if(event.origin===location.origin&&event.data&&event.data.type==='pulse-figure-show')show(event.data.name);
+ });
+ window.addEventListener('load',()=>setTimeout(()=>show(asked),200));
+})();
 // Links such as #programs open that tab of the explorer's search panel (pulse-gym.js).
 window.PULSE_EXPLORE_START=location.hash.slice(1);
 renderSelection();showPage(location.hash.slice(1)||'guide',false);

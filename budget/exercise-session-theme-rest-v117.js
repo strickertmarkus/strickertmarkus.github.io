@@ -250,12 +250,19 @@
     var arrow = document.getElementById('session-next-ex-arrow');
     if (!state || !next || !arrow || !Array.isArray(state.exercises)) return;
 
-    var nextIndex = (Number(state.exerciseIndex) || 0) + 1;
-    var nextExercise = nextIndex >= 0 && nextIndex < state.exercises.length ? state.exercises[nextIndex] : null;
-    if (!nextExercise) return;
-
-    var config = transitionConfig(state,'finish');
-    var name = config.type === 'rest' ? 'Vila' : String(nextExercise.name || '').trim();
+    var name = '';
+    if (typeof window.__sessionUpcomingV1 === 'function') {
+      // One answer for every "next" label: exercise-session-next-preview-v1.js.
+      var up = window.__sessionUpcomingV1(state);
+      name = up ? String(up.name || '').trim() : '';
+      if (!name) { arrow.hidden = true; next.hidden = true; return; }
+    } else {
+      var nextIndex = (Number(state.exerciseIndex) || 0) + 1;
+      var nextExercise = nextIndex >= 0 && nextIndex < state.exercises.length ? state.exercises[nextIndex] : null;
+      if (!nextExercise) return;
+      var config = transitionConfig(state,'finish');
+      name = config.type === 'rest' ? 'Vila' : String(nextExercise.name || '').trim();
+    }
     if (!name) return;
 
     arrow.hidden = false;

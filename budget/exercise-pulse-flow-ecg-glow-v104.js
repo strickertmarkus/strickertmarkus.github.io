@@ -342,9 +342,17 @@
       document.head.appendChild(units);
     }
 
+    if (!document.querySelector('script[data-exercise-session-next-preview-v1]')) {
+      var preview = document.createElement('script');
+      preview.src = 'exercise-session-next-preview-v1.js?v=20261109-next-1';
+      preview.async = false;
+      preview.setAttribute('data-exercise-session-next-preview-v1','true');
+      document.head.appendChild(preview);
+    }
+
     if (!document.querySelector('script[data-exercise-session-theme-rest-v120]')) {
       var restTheme = document.createElement('script');
-      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20261026-energy-loop-4';
+      restTheme.src = 'exercise-session-theme-rest-v117.js?v=20261109-next-1';
       restTheme.async = false;
       restTheme.setAttribute('data-exercise-session-theme-rest-v120','true');
       document.head.appendChild(restTheme);
