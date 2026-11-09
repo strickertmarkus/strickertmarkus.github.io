@@ -1,30 +1,16 @@
-/* Home in the Listor look: left-aligned title, no coloured header band, open widgets
+/* Home in the Listor look: orange glow down the page, open widgets
    (heading + thin divider) instead of boxed cards. Loaded last; :not(#lt) beats the
    theme rules injected by home-calendar-theme-v12.js. */
 
-html:not(#lt) body.home-calendar-polish-v5 .app-header{
-  text-align:left!important;
-  background:rgba(15,18,25,.94)!important;
-  border-bottom:1px solid rgba(255,255,255,.05)!important;
-  box-shadow:none!important
+/* The centred title bar from home-calendar-theme-v12.js stays as it is. */
+
+/* Listor's orange glow fading down the page, starting under the title bar */
+html:not(#lt) body.home-calendar-polish-v5{position:relative;isolation:isolate}
+html:not(#lt) body.home-calendar-polish-v5::after{
+  content:"";position:absolute;left:0;right:0;top:var(--home-header-height,108px);height:820px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 52% 40% at 84% 12%,rgba(253,186,116,.13),transparent 75%),radial-gradient(ellipse 38% 28% at 10% 34%,rgba(253,186,116,.08),transparent 75%),radial-gradient(ellipse 16% 48% at 94% 66%,rgba(253,186,116,.06),transparent 76%);
+  -webkit-mask-image:linear-gradient(transparent,#000 8%,#000 45%,transparent);mask-image:linear-gradient(transparent,#000 8%,#000 45%,transparent)
 }
-html:not(#lt) body.home-calendar-polish-v5 .app-header .brand{
-  left:16px!important;transform:none!important;justify-content:flex-start!important;max-width:calc(100% - 84px)!important
-}
-html:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text{text-align:left!important}
-html:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text h1{
-  text-align:left!important;font-size:22px!important;font-weight:700!important;letter-spacing:-.4px!important;
-  color:#f0f6fc!important;text-shadow:0 0 22px rgba(253,186,116,.18)!important
-}
-html:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text p{text-align:left!important;color:#929ba9!important;font-size:11px!important}
-html:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10{left:10px!important;right:auto!important;transform:none!important;justify-content:flex-start!important}
-html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-dropdown-wrapper{top:12px!important;right:16px!important}
-html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-btn{
-  width:44px!important;height:44px!important;border-radius:12px!important;
-  border:1px solid rgba(253,186,116,.30)!important;background:rgba(255,255,255,.04)!important;color:#FDBA74!important;box-shadow:none!important
-}
-html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-btn:hover,
-html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-btn[aria-expanded="true"]{background:rgba(253,186,116,.10)!important;box-shadow:0 0 24px rgba(253,186,116,.22)!important}
 
 /* Widgets: open sections like Listor's store groups */
 html:not(#lt) body.home-calendar-polish-v5 .sidebar-section,

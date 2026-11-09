@@ -5,6 +5,7 @@
    html.listor-theme:not(#lt) raises specificity over finance-ui.js's injected rules. */
 
 html[data-finance-view]:not(#lt),html.listor-theme:not(#lt){
+  --lt-glow-top:0px;
   --lt-bg:#0F1219;--lt-bg2:#161B22;--lt-line:rgba(255,255,255,.08);--lt-line-soft:rgba(255,255,255,.055);
   --lt-text:#f0f6fc;--lt-sec:#929ba9;--lt-dim:#7d8996;
   --lt-a:#FDBA74;--lt-ar:253,186,116;--lt-plus:#4ADE80;--lt-minus:#F87171;
@@ -18,42 +19,17 @@ html[data-finance-view]:not(#lt).finance-ui-clean-v1 body,html[data-finance-view
   background:#0F1219!important
 }
 html[data-finance-view]:not(#lt) body::after,html.listor-theme:not(#lt) body::after{
-  content:"";position:absolute;inset:0 0 auto;height:780px;z-index:-1;pointer-events:none;
+  content:"";position:absolute;inset:var(--lt-glow-top,0px) 0 auto;height:780px;z-index:-1;pointer-events:none;
   background:radial-gradient(ellipse 52% 40% at 84% 16%,rgba(var(--lt-ar),.13),transparent 75%),radial-gradient(ellipse 38% 28% at 12% 35%,rgba(var(--lt-ar),.08),transparent 75%),radial-gradient(ellipse 16% 48% at 92% 66%,rgba(var(--lt-ar),.06),transparent 76%);
   -webkit-mask-image:linear-gradient(#000 45%,transparent);mask-image:linear-gradient(#000 45%,transparent)
 }
 
-/* ── Header: left aligned, no band ── */
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header,html[data-finance-view]:not(#lt).finance-ui-preload-v2 body .header{
-  background:transparent!important;border-bottom:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important
-}
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>h1,html[data-finance-view]:not(#lt).finance-ui-preload-v2 body .header>h1{
-  left:16px!important;transform:none!important;top:16px!important;max-width:calc(100% - 84px)!important;
-  font:700 22px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:-.4px!important;text-align:left!important;
-  color:var(--lt-text)!important;-webkit-text-fill-color:var(--lt-text)!important;background:none!important;text-shadow:0 0 22px rgba(var(--lt-ar),.18)!important
-}
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>p,html[data-finance-view]:not(#lt) body .header>p{
-  left:16px!important;transform:none!important;top:45px!important;text-align:left!important;
-  color:var(--lt-sec)!important;font-weight:400!important;font-size:11px!important
-}
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper{top:14px!important;right:16px!important}
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper>button{
-  width:44px!important;height:44px!important;border-radius:12px!important;border:1px solid rgba(var(--lt-ar),.30)!important;
-  background:rgba(255,255,255,.04)!important;color:var(--lt-a)!important;box-shadow:none!important
-}
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper>button:hover,
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper>button[aria-expanded="true"]{background:rgba(var(--lt-ar),.10)!important;box-shadow:0 0 24px rgba(var(--lt-ar),.22)!important}
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>#month-nav{left:10px!important;transform:none!important;top:64px!important;justify-content:flex-start!important}
-html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header #month-dropdown{color:var(--lt-a)!important;text-shadow:none!important;font-weight:600!important}
-html[data-finance-view]:not(#lt) .finance-month-arrow-clean-v1{
-  border:1px solid rgba(var(--lt-ar),.30)!important;background:rgba(255,255,255,.04)!important;color:var(--lt-a)!important;
-  border-radius:10px!important;box-shadow:none!important;text-shadow:none!important
-}
-html[data-finance-view]:not(#lt) .finance-month-arrow-clean-v1:hover:not(:disabled){background:rgba(var(--lt-ar),.10)!important;box-shadow:0 0 18px rgba(var(--lt-ar),.20)!important}
+/* ── Header: finance-ui.js's centred title bar is kept; only the person line goes grey ── */
+html[data-finance-view]:not(#lt) body .header>p{color:var(--lt-sec)!important;font-weight:500!important}
 
-/* ── Pill toggles (Markus/Maja + view switch) ── */
+/* ── Toggles (Markus/Maja + view switch): no frame, only the chosen one is lit ── */
 html[data-finance-view]:not(#lt) .finance-profile-clean-v1,html[data-finance-view]:not(#lt) .finance-view-clean-v1{
-  border:1px solid var(--lt-line)!important;background:rgba(255,255,255,.035)!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-radius:14px!important
+  border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-radius:14px!important
 }
 html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button,html[data-finance-view]:not(#lt) .finance-view-clean-v1 button{
   border-radius:11px!important;color:var(--lt-sec)!important;background:transparent!important;box-shadow:none!important;opacity:1!important;font-weight:500!important
@@ -182,3 +158,5 @@ html[data-finance-view]:not(#lt) body .container,html.listor-theme:not(#lt) body
 html[data-finance-view]:not(#lt) button[onclick="addNewSection()"]{background:rgba(15,18,25,.6)!important;border:1px solid rgba(var(--lt-ar),.40)!important;color:var(--lt-a)!important;border-radius:12px!important;box-shadow:0 0 22px rgba(var(--lt-ar),.16)!important;font-weight:500!important;min-height:44px}
 html.listor-theme:not(#lt),html.listor-theme.dark-mode:not(#lt){--accent:#FDBA74;--accent-light:rgba(253,186,116,.12);--accent-bg:rgba(253,186,116,.06)}
 html.listor-theme:not(#lt) .formula-box code{color:var(--lt-a)!important}
+
+html[data-finance-view]:not(#lt){--lt-glow-top:160px}
