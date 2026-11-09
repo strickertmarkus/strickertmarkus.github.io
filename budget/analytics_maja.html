@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="sv" class="dark-mode">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analys & Statistik — Majas Budgetplanerare</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Analys — Maja</title>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 <script src="indexeddb-fallback.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
-<script src="firebase-sync.js?v=20261109-pay-1"></script>
+<script src="firebase-sync.js?v=20261109-months-1"></script>
 <script src="finance-ui.js?v=20261109-icons-1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -299,6 +298,51 @@ h3.editable-heading:hover { background: rgba(59,109,224,0.08); }
 html.dark-mode h3.editable-heading:hover { background: rgba(96,165,250,0.1); }
 .heading-input { font-size: inherit; font-weight: 700; background: transparent; border: none; border-bottom: 2px solid #3B6DE0; color: var(--text); font-family: inherit; outline: none; padding: 2px 4px; }
 html.dark-mode .heading-input { border-bottom-color: #60A5FA; }
+/* ── Analys (an-*) ── */
+.an{max-width:760px;margin:0 auto;padding:14px max(16px,env(safe-area-inset-left,0px)) 64px;display:block}
+.an-seg{display:flex;gap:4px;margin:4px 0 14px}
+.an-seg button{appearance:none;border:0;background:transparent;color:#929ba9;font:500 14px/1 Inter,sans-serif;padding:10px 15px;border-radius:19px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.an-seg button[aria-pressed="true"]{color:#FDBA74;background:rgba(253,186,116,.08)}
+.an-seg button:focus-visible,.an a:focus-visible{outline:2px solid #FDBA74;outline-offset:2px}
+.an-kpis{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+.an-kpi{padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);min-width:0}
+.an-kpi small{display:block;color:#FDBA74;font:700 10px/1.4 Inter,sans-serif;letter-spacing:.17em;text-transform:uppercase}
+.an-kpi b{display:block;font-size:27px;font-weight:700;letter-spacing:-.4px;margin-top:4px;color:#f0f6fc;font-variant-numeric:tabular-nums}
+.an-kpi b.plus,.an .plus{color:#4ADE80}.an-kpi b.minus,.an .minus{color:#F87171}
+.an-kpi em{display:block;font-style:normal;color:#929ba9;font-size:12.5px;margin-top:2px}
+.an-chip{display:inline-block;padding:2px 9px;border-radius:10px;font-size:12px;font-weight:600;font-style:normal;white-space:nowrap;font-variant-numeric:tabular-nums}
+.an-chip.ok{color:#4ADE80;background:rgba(74,222,128,.10)}.an-chip.bad{color:#F87171;background:rgba(248,113,113,.10)}
+.an-k{display:flex;justify-content:space-between;align-items:center;color:#FDBA74;font:700 11px/1.4 Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);margin:30px 0 12px}
+.an-k small{color:#929ba9;font-weight:500;letter-spacing:0;text-transform:none;font-size:12.5px}
+.an-muted{color:#929ba9;font-size:14px;margin:4px 0}
+.an-chart svg{width:100%;height:auto;display:block;max-height:240px}
+.an-chart text{fill:#7d8996;font:500 9.5px Inter,sans-serif}
+.an-key{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:#929ba9;margin-top:8px}
+.an-key i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.an-key i.dash{height:0;width:12px;border-top:2px dashed rgba(255,255,255,.55);border-radius:0;vertical-align:3px}
+.an-note{color:#7d8996;font-size:12px;margin:6px 0 0}
+.an-cat{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;padding:9px 0}
+.an-dot{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+.an-cat b{font-size:15px;font-weight:600;color:#f0f6fc}
+.an-cat .v{font-size:14px;color:#d5dbe3;text-align:right;font-variant-numeric:tabular-nums}
+.an-track{grid-column:2/4;height:6px;border-radius:3px;background:rgba(255,255,255,.07);position:relative}
+.an-track i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--c);box-shadow:0 0 8px var(--c)}
+.an-track u{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:rgba(255,255,255,.6);border-radius:1px}
+.an-cat em{grid-column:2/4;font-style:normal;font-size:12.5px;color:#929ba9;font-variant-numeric:tabular-nums}
+.an-dev{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14.5px;color:#d5dbe3;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.an-dev small{color:#7d8996;font-size:12.5px}
+.an-big{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:end}
+.an-big b{display:block;font-size:25px;font-weight:700;color:#4ADE80;font-variant-numeric:tabular-nums}
+.an-big b.s{font-size:17px;color:#f0f6fc}
+.an-big em{display:block;font-style:normal;color:#929ba9;font-size:12.5px}
+.an-big .r{text-align:right}
+.an-spark{width:100%;height:52px;display:block;margin:10px 0 4px}
+.an-it{display:flex;justify-content:space-between;font-size:14.5px;color:#d5dbe3;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.an-it span:last-child{color:#929ba9;font-variant-numeric:tabular-nums}
+.an-foot{color:#7d8996;font-size:12.5px;text-align:center;margin-top:30px}
+.an a{color:#FDBA74;text-decoration:none}
+@media(min-width:700px){.an-kpis{grid-template-columns:repeat(4,1fr)}}
+
 </style>
 <script src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -310,7 +354,6 @@ html.dark-mode .heading-input { border-bottom-color: #60A5FA; }
 <div class="header">
     <h1 style="cursor:pointer" onclick="location.href='home.html'">Analys</h1>
     <p>Maja</p>
-    <button onclick="toggleDarkMode()" id="dark-mode-btn" style="position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">🌙</button>
     <div class="nav-dropdown-wrapper" style="position: relative; display: inline-block; position: absolute; top: 14px; right: 62px;">
         <button onclick="toggleNavMenu()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;" title="Navigation">☰</button>
         <div class="nav-dropdown-menu" id="nav-menu">
@@ -332,803 +375,37 @@ html.dark-mode .heading-input { border-bottom-color: #60A5FA; }
     </div>
 </div>
 
-<div class="container">
-<div class="top-bar">
-        <a href="budget_maja.html">← Tillbaka till Majas budgetplanerare</a>
-</div>
-
-    <!-- KPI Overview -->
-    <div class="grid-4" id="kpi-row"></div>
-
-    <!-- Charts Row -->
-    <div class="grid-2">
-        <div class="card">
-            <h3 id="heading-monthly" class="editable-heading" ondblclick="editHeading(event,'monthly')">Utgifter per månad</h3>
-            <div class="chart-wrap">
-                <canvas id="monthlySpendChart"></canvas>
-            </div>
-        </div>
-        <div class="card">
-            <h3 id="heading-budget-vs" class="editable-heading" ondblclick="editHeading(event,'budget-vs')">Budget kontra utgifter — trend</h3>
-            <div class="chart-wrap">
-                <canvas id="budgetVsActualChart"></canvas>
-            </div>
-        </div>
+<div class="container an" id="an">
+    <div class="an-seg" id="an-period" role="group" aria-label="Period">
+        <button type="button" data-period="3">3 mån</button>
+        <button type="button" data-period="6">6 mån</button>
+        <button type="button" data-period="12">12 mån</button>
+        <button type="button" data-period="all">Allt</button>
     </div>
+    <div class="an-kpis" id="an-kpis"></div>
 
-    <div class="grid-2">
-        <div class="card">
-            <h3 id="heading-expenses-avg" class="editable-heading" ondblclick="editHeading(event,'expenses-avg')">Utgiftsfördelning — genomsnitt</h3>
-            <div class="chart-wrap">
-                <canvas id="avgPieChart"></canvas>
-            </div>
-        </div>
-        <div class="card">
-            <h3 id="heading-category" class="editable-heading" ondblclick="editHeading(event,'category')">Kategoriöversikt — alla månader</h3>
-            <div class="chart-wrap" style="height: 360px;">
-                <canvas id="categoryChart"></canvas>
-            </div>
-        </div>
-    </div>
+    <h2 class="an-k">Månad för månad</h2>
+    <div class="an-chart" id="an-chart"></div>
 
-    <!-- Savings by category - full width -->
-    <div class="grid-2">
-        <div class="card full">
-            <h3>Sparande per kategori</h3>
-            <div class="chart-wrap" style="height: 360px;">
-                <canvas id="savingsCategoryChart"></canvas>
-            </div>
-        </div>
-    </div>
+    <h2 class="an-k"><span>Var pengarna går</span><small>snitt / mån</small></h2>
+    <div id="an-cats"></div>
 
-    <!-- Savings Goals -->
-    <div class="savings-goals-section">
-        <h3 id="heading-goals" class="editable-heading" ondblclick="editHeading(event,'goals')">Sparmål</h3>
-        <p>Följ dina sparmål och framsteg. Belopp ackumuleras automatiskt från sparande-sektionen.</p>
-        <div class="goals-grid" id="goals-container"></div>
-        <button class="btn-add-goal" onclick="openGoalModal()">+ Nytt sparmål</button>
-    </div>
-</div>
+    <h2 class="an-k">Går oftast över</h2>
+    <div id="an-over"></div>
 
-<!-- Goal Modal -->
-<div class="modal-overlay" id="goal-modal">
-    <div class="modal">
-        <h3 id="modal-title">Nytt sparmål</h3>
-        <label>Namn</label>
-        <input type="text" id="goal-name" placeholder="t.ex. Semester, Kontantinsats">
-        <label>Målbelopp (kr)</label>
-        <input type="number" id="goal-target" placeholder="50000">
-        <label>Nuvarande sparat (kr)</label>
-        <input type="number" id="goal-current" placeholder="0">
-        <label>Färg</label>
-        <select id="goal-color">
-            <option value="#10B981">Grön</option>
-            <option value="#2563EB">Blå</option>
-            <option value="#8B5CF6">Lila</option>
-            <option value="#F59E0B">Gul</option>
-            <option value="#EF4444">Röd</option>
-            <option value="#EC4899">Rosa</option>
-            <option value="#06B6D4">Turkos</option>
-        </select>
-        <div class="modal-buttons">
-            <button class="modal-btn-cancel" onclick="closeGoalModal()">Avbryt</button>
-            <button class="modal-btn-primary" onclick="saveGoal()">Spara</button>
-        </div>
-    </div>
+    <h2 class="an-k">Sparande</h2>
+    <div id="an-savings"></div>
+
+    <p class="an-foot">Sparmålen finns på <a href="familjebudget.html">Familjebudget</a>.</p>
 </div>
 
 <script>
-// ── DATA ─────────────────────────────────────────────────
-let monthlyData = {};
-let savingsGoals = [];
-let sectionHeadings = {};
-let editingGoalIdx = -1;
-
-const MONTH_NAMES = ["Januari","Februari","Mars","April","Maj","Juni",
-                     "Juli","Augusti","September","Oktober","November","December"];
-
-const SECTION_COLORS = {
-    "Bostadskostnader": "#3B6DE0",
-    "Försäkringar": "#E85D5D",
-    "Prenumerationer": "#ff9d4d",
-    "Sparande": "#005706",
-    "Övrigt": "#FBBF24",
-    "Inkomster": "#10B981",
-};
-const FALLBACK_COLORS = ["#8B5CF6","#DB2777","#059669","#0891B2","#DC2626","#7C3AED"];
-
-const fmt = v => Math.round(v).toLocaleString("sv-SE");
-const isDarkMode = () => document.documentElement.classList.contains("dark-mode");
-
-function loadData() {
-    const raw = localStorage.getItem("budgetTracker_maja");
-    if (!raw) return;
-    try {
-        const data = JSON.parse(raw);
-        if (data.monthlyData) monthlyData = data.monthlyData;
-    } catch(e) {}
-}
-
-function loadGoals() {
-    const raw = localStorage.getItem("savingsGoals_maja");
-    if (raw) {
-        try { savingsGoals = JSON.parse(raw); } catch(e) { savingsGoals = []; }
-    }
-}
-
-function saveGoals() {
-    localStorage.setItem("savingsGoals_maja", JSON.stringify(savingsGoals));
-}
-
-function editHeading(event, id) {
-    event.stopPropagation();
-    const el = document.getElementById("heading-" + id);
-    const current = el.textContent;
-    el.innerHTML = `<input class="heading-input" value="${current}" onblur="saveHeading('${id}', this)" onkeydown="if(event.key==='Enter')this.blur()">`;
-    el.querySelector("input").focus();
-}
-
-function saveHeading(id, input) {
-    const val = input.value.trim() || id;
-    sectionHeadings[id] = val;
-    document.getElementById("heading-" + id).innerHTML = `<span ondblclick="editHeading(event,'${id}')">${val}</span>`;
-    const headingData = JSON.parse(localStorage.getItem("analyticsHeadings_maja") || "{}");
-    headingData[id] = val;
-    localStorage.setItem("analyticsHeadings_maja", JSON.stringify(headingData));
-}
-
-function loadHeadings() {
-    const headingData = JSON.parse(localStorage.getItem("analyticsHeadings_maja") || "{}");
-    sectionHeadings = headingData;
-    for (const [id, heading] of Object.entries(headingData)) {
-        const el = document.getElementById("heading-" + id);
-        if (el) {
-            el.textContent = heading;
-        }
-    }
-}
-
-function getMonthLabel(key) {
-    const [y, m] = key.split("-").map(Number);
-    return `${MONTH_NAMES[m-1]} ${y}`;
-}
-
-function getMonthLabelShort(key) {
-    const [y, m] = key.split("-").map(Number);
-    return `${MONTH_NAMES[m-1].substring(0, 3)} ${String(y).slice(-2)}`;
-}
-
-function getSortedMonths() {
-    const months = Object.keys(monthlyData).sort();
-    const selected = localStorage.getItem("selectedBudgetMonth");
-    if (selected && months.includes(selected)) return months.filter(month => month <= selected);
-    return months;
-}
-
-function getExpenseSections(monthKey) {
-    if (!monthlyData[monthKey]) return [];
-    return monthlyData[monthKey].sections.filter(s => !s.isIncome && s.key !== "income");
-}
-
-function getIncome(monthKey) {
-    if (!monthlyData[monthKey]) return 0;
-    const inc = monthlyData[monthKey].sections.find(s => s.isIncome || s.key === "income");
-    return inc ? inc.items.reduce((sum, it) => sum + (it.actual || it.budget || 0), 0) : 0;
-}
-
-function getTotalBudget(monthKey) {
-    return getExpenseSections(monthKey).reduce((sum, s) =>
-        sum + s.items.reduce((s2, it) => s2 + (it.budget || 0), 0), 0);
-}
-
-function getTotalSpent(monthKey) {
-    return getExpenseSections(monthKey).reduce((sum, s) =>
-        sum + s.items.reduce((s2, it) => s2 + (it.actual || 0), 0), 0);
-}
-
-function getSavingsActual(monthKey) {
-    if (!monthlyData[monthKey]) return 0;
-    const sav = monthlyData[monthKey].sections.find(s => s.key === "savings");
-    return sav ? sav.items.reduce((sum, it) => sum + (it.actual || 0), 0) : 0;
-}
-
-// ── KPI CARDS ────────────────────────────────────────────
-function renderKPIs() {
-    const months = getSortedMonths();
-    const container = document.getElementById("kpi-row");
-    if (months.length === 0) {
-        container.innerHTML = '<div class="stat-card full"><div class="value">Ingen data</div><div class="sub">Gå tillbaka och lägg till månadsdata</div></div>';
-        return;
-    }
-
-    let totalSaved = 0, totalIncome = 0, totalSpent = 0, totalBudget = 0;
-    months.forEach(m => {
-        totalIncome += getIncome(m);
-        totalSpent += getTotalSpent(m);
-        totalBudget += getTotalBudget(m);
-        totalSaved += getSavingsActual(m);
-    });
-
-    const avgSpent = months.length > 0 ? totalSpent / months.length : 0;
-    const budgetAccuracy = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
-    const netSaved = totalIncome - totalSpent;
-
-    container.innerHTML = `
-        <div class="stat-card">
-            <div class="label">Totalt sparat</div>
-            <div class="value" style="color: var(--income)">${fmt(totalSaved)} kr</div>
-            <div class="sub">Ackumulerat sparande</div>
-        </div>
-        <div class="stat-card">
-            <div class="label" style="color: #2563EB">Netto överskott</div>
-            <div class="value" style="color: #2563EB">${fmt(netSaved)} kr</div>
-            <div class="sub">Inkomster minus utgifter</div>
-        </div>
-        <div class="stat-card">
-            <div class="label" style="color: #F59E0B">Genomsnittliga utgifter</div>
-            <div class="value" style="color: #F59E0B">${fmt(avgSpent)} kr</div>
-            <div class="sub">Per månad (${months.length} mån)</div>
-        </div>
-        <div class="stat-card">
-            <div class="label">Budgetprecision</div>
-            <div class="value" style="color: ${budgetAccuracy > 100 ? 'var(--danger)' : budgetAccuracy > 90 ? 'var(--warning)' : 'var(--income)'}">${budgetAccuracy}%</div>
-            <div class="sub">Utgifter / Budget</div>
-        </div>
-    `;
-}
-
-// ── CHARTS ───────────────────────────────────────────────
-let charts = {};
-
-function destroyCharts() {
-    Object.keys(charts).forEach(k => { if (charts[k]) charts[k].destroy(); });
-    charts = {};
-}
-
-function renderCharts() {
-    destroyCharts();
-    const months = getSortedMonths();
-    if (months.length === 0) return;
-
-    const labels = months.map(m => getMonthLabelShort(m));
-    const dm = isDarkMode();
-    const gridColor = dm ? "rgba(255,255,255,0.06)" : "#F3F4F6";
-    const tickColor = dm ? "#94A3B8" : "#9CA3AF";
-
-    // ── Utgifter per månad (stapel) ─────────────────────
-    const spentData = months.map(m => getTotalSpent(m));
-    const incomeData = months.map(m => getIncome(m));
-
-    // Store real data for delayed animation
-    const realMonthlyData = {
-        income: [...incomeData],
-        spent: [...spentData]
-    };
-
-    charts.monthly = new Chart(document.getElementById("monthlySpendChart"), {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [
-                { label: "Inkomster", data: incomeData.map(() => 0), backgroundColor: "#10B98188", borderColor: "#10B981", borderWidth: 1.5, borderRadius: 6, barPercentage: 0.6 },
-                { label: "Utgifter", data: spentData.map(() => 0), backgroundColor: "#3B6DE088", borderColor: "#3B6DE0", borderWidth: 1.5, borderRadius: 6, barPercentage: 0.6 },
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            animation: { duration: 800, easing: 'easeOutQuart' },
-            scales: {
-                x: { grid: { display: false }, ticks: { font: { size: 11, family: "Inter" }, color: tickColor } },
-                y: { grid: { color: gridColor }, ticks: { font: { size: 11, family: "Inter" }, color: tickColor, callback: v => fmt(v) } }
-            },
-            plugins: {
-                legend: { labels: { font: { size: 11, family: "Inter", weight: "500" }, color: dm ? "#E2E8F0" : "#374151", usePointStyle: true, pointStyleWidth: 10, padding: 16 } },
-                tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)} kr` }, bodyFont: { family: "Inter" }, padding: 10, cornerRadius: 8 }
-            }
-        }
-    });
-
-    // ── Budget vs Utgifter — trend (linje) ──────────────
-    const budgetData = months.map(m => getTotalBudget(m));
-
-    // Store real trend data
-    const realTrendData = {
-        budget: [...budgetData],
-        spent: [...spentData]
-    };
-
-    charts.trend = new Chart(document.getElementById("budgetVsActualChart"), {
-        type: "line",
-        data: {
-            labels,
-            datasets: [
-                { label: "Budget", data: budgetData.map(() => 0), borderColor: "#94A3B8", backgroundColor: "rgba(148,163,184,0.1)", borderDash: [5, 5], fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2 },
-                { label: "Utgifter", data: spentData.map(() => 0), borderColor: "#3B6DE0", backgroundColor: "rgba(59,109,224,0.1)", fill: true, tension: 0.3, pointRadius: 4, pointHoverRadius: 6, borderWidth: 2.5 },
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            animation: { duration: 800, easing: 'easeOutQuart' },
-            scales: {
-                x: { grid: { display: false }, ticks: { font: { size: 11, family: "Inter" }, color: tickColor } },
-                y: { grid: { color: gridColor }, ticks: { font: { size: 11, family: "Inter" }, color: tickColor, callback: v => fmt(v) } }
-            },
-            plugins: {
-                legend: { labels: { font: { size: 11, family: "Inter", weight: "500" }, color: dm ? "#E2E8F0" : "#374151", usePointStyle: true, pointStyleWidth: 10, padding: 16 } },
-                tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)} kr` }, bodyFont: { family: "Inter" }, padding: 10, cornerRadius: 8 }
-            }
-        }
-    });
-
-    // ── Genomsnittlig utgiftsfördelning (pie) ────────────
-    // Build color map from raw section data in localStorage
-    const colorMap = {};
-    months.forEach(m => {
-        if (!monthlyData[m] || !monthlyData[m].sections) return;
-        monthlyData[m].sections.forEach(s => {
-            if (s.name && s.color && !colorMap[s.name]) {
-                colorMap[s.name] = s.color;
-            }
-        });
-    });
-
-    const allCategories = {};
-    months.forEach(m => {
-        getExpenseSections(m).filter(s => s.key !== "savings").forEach(s => {
-            const sName = s.name || s.key || 'Okänd';
-            if (!allCategories[sName]) allCategories[sName] = { total: 0, count: 0 };
-            allCategories[sName].total += s.items.reduce((sum, it) => sum + (it.actual || 0), 0);
-            allCategories[sName].count++;
-        });
-    });
-
-    const catNames = Object.keys(allCategories);
-    const catAvgs = catNames.map(n => Math.round(allCategories[n].total / allCategories[n].count));
-    const catColors = catNames.map((n, i) => colorMap[n] || SECTION_COLORS[n] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]);
-
-    const realPieData = [...catAvgs];
-
-    charts.pie = new Chart(document.getElementById("avgPieChart"), {
-        type: "doughnut",
-        data: {
-            labels: catNames,
-            datasets: [{ data: catAvgs.map(() => 0), backgroundColor: catColors.map(c => c + "AA"), borderColor: dm ? "#1A1F2E" : "#FFFFFF", borderWidth: dm ? 2 : 3, hoverBorderWidth: 0, hoverBorderColor: 'transparent', hoverOffset: 0 }]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false, cutout: "60%",
-            animation: { duration: 800, easing: 'easeOutQuart' },
-            plugins: {
-                legend: { position: "right", labels: { font: { size: 11, family: "Inter", weight: "500" }, color: dm ? "#E2E8F0" : "#374151", padding: 12, usePointStyle: true, pointStyleWidth: 10 } },
-                tooltip: { callbacks: { label: ctx => { const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const p = total > 0 ? Math.round(ctx.parsed/total*100) : 0; return ` ${ctx.label}: ${fmt(ctx.parsed)} kr (${p}%)`; } }, bodyFont: { family: "Inter" }, padding: 10, cornerRadius: 8 }
-            }
-        },
-        plugins: [{
-            id: 'segmentGlow',
-            afterDatasetDraw(chart) {
-                if (chart._glowIndex == null || chart._glowIndex < 0) return;
-                const meta = chart.getDatasetMeta(0);
-                const arc = meta.data[chart._glowIndex];
-                if (!arc) return;
-                const ctx = chart.ctx;
-                ctx.save();
-                ctx.globalCompositeOperation = 'destination-over';
-                ctx.shadowColor = chart._glowColor || 'rgba(255,255,255,0.5)';
-                ctx.shadowBlur = 10;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
-                arc.draw(ctx);
-                ctx.restore();
-            }
-        }]
-    });
-
-    // Pie hover glow
-    const pieCanvas = document.getElementById("avgPieChart");
-    let pieHovered = -1;
-    pieCanvas.style.cursor = 'pointer';
-    pieCanvas.onmousemove = (e) => {
-        if (!charts.pie) return;
-        const els = charts.pie.getElementsAtEventForMode(e, "nearest", { intersect: true }, true);
-        const idx = els.length > 0 ? els[0].index : -1;
-        if (idx !== pieHovered) {
-            pieHovered = idx;
-            const colors = catColors.map((c, i) => {
-                if (idx === -1) return c + 'AA';
-                return i === idx ? c + 'CC' : c + '44';
-            });
-            charts.pie.data.datasets[0].backgroundColor = colors;
-            if (idx >= 0) {
-                charts.pie._glowIndex = idx;
-                charts.pie._glowColor = catColors[idx] + '90';
-            } else {
-                charts.pie._glowIndex = -1;
-            }
-            charts.pie.update({ animation: false });
-        }
-    };
-    pieCanvas.onmouseleave = () => {
-        if (!charts.pie) return;
-        pieHovered = -1;
-        charts.pie.data.datasets[0].backgroundColor = catColors.map(c => c + 'AA');
-        charts.pie._glowIndex = -1;
-        charts.pie.update({ animation: false });
-    };
-
-    // ── Kategoriöversikt — stapel per kategori per månad med kumulativ linje ─
-    const uniqueCategories = [...new Set(months.flatMap(m => getExpenseSections(m).filter(s => s.key !== "savings").map(s => s.name || s.key || 'Okänd')))];
-
-    const categoryColors = ["#3B6DE0","#E85D5D","#ff9d4d","#FBBF24","#8B5CF6","#DB2777","#059669","#0891B2","#DC2626","#7C3AED"];
-
-    const catDatasets = uniqueCategories.map((name, idx) => {
-        const color = colorMap[name] || SECTION_COLORS[name] || categoryColors[idx % categoryColors.length];
-        return {
-        label: name,
-        data: months.map(m => {
-            const section = getExpenseSections(m).find(s => (s.name || s.key || 'Okänd') === name);
-            return section ? section.items.reduce((sum, it) => sum + (it.actual || 0), 0) : 0;
-        }),
-        backgroundColor: color + "BB",
-        borderColor: color,
-        borderWidth: 1.5,
-        borderRadius: 4,
-        barPercentage: 0.7,
-        order: 2
-    }});
-
-    // Build cumulative line for kategoriöversikt
-    let catCumulativeData = [];
-    let catRunningTotal = 0;
-    months.forEach(m => {
-        const total = uniqueCategories.reduce((sum, name) => {
-            const section = getExpenseSections(m).find(s => (s.name || s.key || 'Okänd') === name);
-            return sum + (section ? section.items.reduce((s2, it) => s2 + (it.actual || 0), 0) : 0);
-        }, 0);
-        catRunningTotal += total;
-        catCumulativeData.push(catRunningTotal);
-    });
-
-    catDatasets.push({
-        label: 'Kumulativ total',
-        data: catCumulativeData.map(() => 0),
-        type: 'line',
-        borderColor: '#6366F1',
-        backgroundColor: 'rgba(99,102,241,0.08)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        borderWidth: 2.5,
-        order: 1
-    });
-
-    // Store real category data including cumulative
-    const realCatData = uniqueCategories.map((name, idx) => {
-        return months.map(m => {
-            const section = getExpenseSections(m).find(s => (s.name || s.key || 'Okänd') === name);
-            return section ? section.items.reduce((sum, it) => sum + (it.actual || 0), 0) : 0;
-        });
-    });
-    const realCatDataWithCum = [...realCatData, catCumulativeData];
-
-    const zeroCatDatasets = catDatasets.map(ds => ({ ...ds, data: ds.data.map(() => 0) }));
-
-    charts.category = new Chart(document.getElementById("categoryChart"), {
-        type: "bar",
-        data: { labels, datasets: zeroCatDatasets },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            animation: { duration: 800, easing: 'easeOutQuart' },
-            scales: {
-                x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11, family: "Inter" }, color: tickColor } },
-                y: { stacked: true, grid: { color: gridColor }, ticks: { font: { size: 11, family: "Inter" }, color: tickColor, callback: v => fmt(v) } }
-            },
-            plugins: {
-                legend: { labels: { font: { size: 11, family: "Inter", weight: "500" }, color: dm ? "#E2E8F0" : "#374151", usePointStyle: true, pointStyleWidth: 10, padding: 12 } },
-                tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)} kr` }, bodyFont: { family: "Inter" }, padding: 10, cornerRadius: 8 }
-            }
-        }
-    });
-
-    // ── Sparande per kategori med kumulativ linje ──────────
-    const savingsByCategory = {};
-    const savingCatLabels = [];
-    months.forEach(m => {
-        const savSection = monthlyData[m]?.sections?.find(s => s.key === 'savings');
-        if (!savSection) return;
-        savSection.items.forEach(it => {
-            if (!savingsByCategory[it.name]) {
-                savingsByCategory[it.name] = [];
-                savingCatLabels.push(it.name);
-            }
-        });
-    });
-
-    // Build real data per category first (before creating zero datasets)
-    const savCatRealData = savingCatLabels.map((catName, catIdx) => {
-        return months.map(m => {
-            const savSection = monthlyData[m]?.sections?.find(s => s.key === 'savings');
-            const item = savSection?.items?.find(it => it.name === catName);
-            return item ? (item.actual || 0) : 0;
-        });
-    });
-
-    // Build datasets with zero initialization
-    // Create unique color palette for savings categories - matching "utgifter per månad" tones
-    const savingsCategoryColors = ["#8B5CF6", "#22C55E", "#3B6DE0", "#0891B2", "#F59E0B", "#EC4899", "#D946EF", "#8B5CF6", "#22C55E", "#3B6DE0"];
-    
-    const savCatDatasets = savingCatLabels.map((catName, catIdx) => {
-        const categoryColor = savingsCategoryColors[catIdx % savingsCategoryColors.length];
-        return {
-            label: catName,
-            data: savCatRealData[catIdx].map(() => 0),
-            backgroundColor: categoryColor + '66',
-            borderColor: categoryColor,
-            borderWidth: 1.5,
-            borderRadius: 4,
-            barPercentage: 0.7,
-            order: 2
-        };
-    });
-
-    // Add cumulative line
-    let savCumulative = [];
-    let runningTotal = 0;
-    months.forEach(m => {
-        const total = savingCatLabels.reduce((sum, catName) => {
-            const savSection = monthlyData[m]?.sections?.find(s => s.key === 'savings');
-            const item = savSection?.items?.find(it => it.name === catName);
-            return sum + (item ? (item.actual || 0) : 0);
-        }, 0);
-        runningTotal += total;
-        savCumulative.push(runningTotal);
-    });
-
-    // Store all real data including cumulative line
-    const realSavCatData = [...savCatRealData, savCumulative];
-
-    savCatDatasets.push({
-        label: 'Kumulativ total',
-        data: savCumulative.map(() => 0),
-        type: 'line',
-        borderColor: '#6366F1',
-        backgroundColor: 'rgba(99,102,241,0.08)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 4,
-        borderWidth: 2.5,
-        order: 1
-    });
-
-    charts.savingsCat = new Chart(document.getElementById('savingsCategoryChart'), {
-        type: 'bar',
-        data: { labels, datasets: savCatDatasets },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            animation: { duration: 800, easing: 'easeOutQuart' },
-            scales: {
-                x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11, family: 'Inter' }, color: tickColor } },
-                y: { stacked: true, grid: { color: gridColor }, ticks: { font: { size: 11, family: 'Inter' }, color: tickColor, callback: v => fmt(v) } }
-            },
-            plugins: {
-                legend: { labels: { font: { size: 11, family: 'Inter', weight: '500' }, color: dm ? '#E2E8F0' : '#374151', usePointStyle: true, pointStyleWidth: 10, padding: 12 } },
-                tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y || ctx.parsed)} kr` }, bodyFont: { family: 'Inter' }, padding: 10, cornerRadius: 8 }
-            }
-        }
-    });
-
-    // Animate all charts by feeding real data after layout settles
-    setTimeout(() => {
-        if (charts.monthly) {
-            charts.monthly.data.datasets[0].data = realMonthlyData.income;
-            charts.monthly.data.datasets[1].data = realMonthlyData.spent;
-            charts.monthly.update();
-        }
-        if (charts.trend) {
-            charts.trend.data.datasets[0].data = realTrendData.budget;
-            charts.trend.data.datasets[1].data = realTrendData.spent;
-            charts.trend.update();
-        }
-        if (charts.pie) {
-            charts.pie.data.datasets[0].data = realPieData;
-            charts.pie.update();
-        }
-        if (charts.savings) {
-            charts.savings.data.datasets[0].data = realSavingsData;
-            charts.savings.update();
-        }
-        if (charts.category) {
-            charts.category.data.datasets.forEach((ds, i) => {
-                ds.data = realCatDataWithCum[i];
-            });
-            charts.category.update();
-        }
-        if (charts.savingsCat) {
-            charts.savingsCat.data.datasets.forEach((ds, i) => {
-                ds.data = realSavCatData[i];
-            });
-            charts.savingsCat.update();
-        }
-    }, 50);
-}
-
-// ── SAVINGS GOALS ────────────────────────────────────────
-function autoAccumulateSavings() {
-    const months = getSortedMonths();
-    let totalAutoSaved = 0;
-    months.forEach(m => { totalAutoSaved += getSavingsActual(m); });
-    return totalAutoSaved;
-}
-
-function renderGoals() {
-    const container = document.getElementById("goals-container");
-    if (savingsGoals.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-sec); font-size: 13px;">Inga sparmål ännu. Klicka nedan för att skapa ditt första!</p>';
-        return;
-    }
-    
-    // Calculate average monthly savings
-    const months = getSortedMonths();
-    let totalMonthlyAvg = 0;
-    if (months.length > 0) {
-        const totalSavings = months.reduce((sum, m) => sum + getSavingsActual(m), 0);
-        totalMonthlyAvg = Math.round(totalSavings / months.length);
-    }
-    
-    container.innerHTML = savingsGoals.map((g, idx) => {
-        const pct = g.target > 0 ? Math.min(Math.round((g.current / g.target) * 100), 100) : 0;
-        const isComplete = g.current >= g.target;
-        const remaining = Math.max(0, g.target - g.current);
-        const monthsToGoal = totalMonthlyAvg > 0 ? Math.ceil(remaining / totalMonthlyAvg) : 0;
-        
-        // Build monthly breakdown
-        let monthlyBreakdown = '';
-        if (months.length > 0) {
-            monthlyBreakdown = '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-sec);">';
-            months.slice(-3).forEach(m => { // Show last 3 months
-                const savings = getSavingsActual(m);
-                monthlyBreakdown += `<div style="display: flex; justify-content: space-between; padding: 4px 0;"><span>${getMonthLabelShort(m)}</span><span style="color: var(--income); font-weight: 600;">+${fmt(savings)} kr</span></div>`;
-            });
-            monthlyBreakdown += '</div>';
-        }
-        
-        return `
-        <div class="goal-card">
-            <div class="goal-name">${isComplete ? '✅ ' : ''}${g.name}</div>
-            <div class="goal-target">Målbelopp: ${fmt(g.target)} kr</div>
-            ${totalMonthlyAvg > 0 ? `<div class="goal-monthly">Genomsn. ${fmt(totalMonthlyAvg)} kr/månad</div>` : ''}
-            <div class="goal-progress-bar">
-                <div class="goal-progress-fill" style="width: ${pct}%; background: ${g.color || '#10B981'};"></div>
-            </div>
-            <div class="goal-stats">
-                <div><span>Sparat:</span><div class="value">${fmt(g.current)} kr</div></div>
-                <div><span>Kvar:</span><div class="value">${fmt(remaining)} kr</div></div>
-                <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
-                <div><span>${isComplete ? 'Status' : 'Tidshorisont'}:</span><div class="value">${isComplete ? '✅ Klart!' : monthsToGoal + ' mån'}</div></div>
-            </div>
-            ${monthlyBreakdown}
-            <div class="goal-actions">
-                <button class="btn-edit" onclick="editGoal(${idx})">✏️ Redigera</button>
-                <button class="btn-del" onclick="deleteGoal(${idx})">🗑️ Ta bort</button>
-            </div>
-        </div>`;
-    }).join("");
-}
-
-function openGoalModal(idx) {
-    editingGoalIdx = idx !== undefined ? idx : -1;
-    const modal = document.getElementById("goal-modal");
-    document.getElementById("modal-title").textContent = editingGoalIdx >= 0 ? "Redigera sparmål" : "Nytt sparmål";
-
-    if (editingGoalIdx >= 0) {
-        const g = savingsGoals[editingGoalIdx];
-        document.getElementById("goal-name").value = g.name;
-        document.getElementById("goal-target").value = g.target;
-        document.getElementById("goal-current").value = g.current;
-        document.getElementById("goal-color").value = g.color || "#10B981";
-    } else {
-        document.getElementById("goal-name").value = "";
-        document.getElementById("goal-target").value = "";
-        document.getElementById("goal-current").value = 0;
-        document.getElementById("goal-color").value = "#10B981";
-    }
-    modal.classList.add("active");
-}
-
-function closeGoalModal() {
-    document.getElementById("goal-modal").classList.remove("active");
-    editingGoalIdx = -1;
-}
-
-function saveGoal() {
-    const name = document.getElementById("goal-name").value.trim();
-    const target = parseFloat(document.getElementById("goal-target").value) || 0;
-    const current = parseFloat(document.getElementById("goal-current").value) || 0;
-    const color = document.getElementById("goal-color").value;
-
-    if (!name || target <= 0) {
-        alert("Fyll i namn och ett målbelopp större än 0.");
-        return;
-    }
-
-    const goal = { name, target, current, color };
-
-    if (editingGoalIdx >= 0) {
-        savingsGoals[editingGoalIdx] = goal;
-    } else {
-        savingsGoals.push(goal);
-    }
-
-    saveGoals();
-    renderGoals();
-    closeGoalModal();
-}
-
-function editGoal(idx) {
-    openGoalModal(idx);
-}
-
-function deleteGoal(idx) {
-    if (confirm(`Vill du ta bort sparmålet "${savingsGoals[idx].name}"?`)) {
-        savingsGoals.splice(idx, 1);
-        saveGoals();
-        renderGoals();
-    }
-}
-
-// ── NAV MENU ─────────────────────────────────────
-function toggleNavMenu() {
-    document.getElementById('nav-menu').classList.toggle('show');
-}
-document.addEventListener('click', function(e) {
-    const w = document.querySelector('.nav-dropdown-wrapper');
-    if (w && !w.contains(e.target)) document.getElementById('nav-menu').classList.remove('show');
-});
-
-// ── DARK MODE ────────────────────────────────────────────
-function toggleDarkMode() {
-    const html = document.documentElement;
-    const btn = document.getElementById("dark-mode-btn");
-    html.classList.toggle("dark-mode");
-    if (html.classList.contains("dark-mode")) {
-        btn.textContent = "☀️";
-        localStorage.setItem("darkMode", "enabled");
-    } else {
-        btn.textContent = "🌙";
-        localStorage.setItem("darkMode", "disabled");
-    }
-    renderCharts();
-}
-
-function initDarkMode() {
-    if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark-mode");
-        document.getElementById("dark-mode-btn").textContent = "☀️";
-    }
-}
-
-// ── INIT ─────────────────────────────────────────────────
-initDarkMode();
-loadData();
-loadGoals();
-loadHeadings();
-renderKPIs();
-renderGoals();
-setTimeout(renderCharts, 200);
-
-// ═══════════════════════════════════════════════════════
-// FIREBASE REAL-TIME SYNC
-// ═══════════════════════════════════════════════════════
-window.addEventListener('firebase-sync', (event) => {
-  const { key } = event.detail;
-  if (key === 'budgetTracker_maja' || key === 'savingsGoals_maja') {
-    console.log(`📡 Firebase sync received for ${key} — reloading...`);
-    if (key === 'budgetTracker_maja') loadData();
-    if (key === 'savingsGoals_maja') loadGoals();
-    renderKPIs();
-    renderGoals();
-    renderCharts();
-  }
+function toggleNavMenu() { document.getElementById("nav-menu").classList.toggle("show"); }
+document.addEventListener("click", function (e) {
+    var menu = document.getElementById("nav-menu");
+    if (menu && !e.target.closest(".nav-dropdown-wrapper")) menu.classList.remove("show");
 });
 </script>
+<script src="analys-v1.js?v=20261109-1"></script>
 </body>
 </html>
-
