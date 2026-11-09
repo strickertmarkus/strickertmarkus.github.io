@@ -80,3 +80,61 @@ html:not(#lt) body .cal-grid .cal-event-preview-more{display:block;margin:1px 0 
 html:not(#lt) body .cal-grid .cal-cell-extra{display:none!important}
 html:not(#lt) body .cal-grid .cal-num-right{position:static!important;display:flex;align-items:center;gap:3px;margin-right:2px}
 html:not(#lt) body .cal-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important}
+
+/* ── Day popup in the Listor look: calm panel with an orange edge, the same colour bars
+   as the calendar, a plain week label and borderless close/delete buttons ── */
+html:not(#lt) body #home-day-popover{
+  background:#161B22!important;border:1px solid rgba(253,186,116,.22)!important;border-radius:16px!important;
+  box-shadow:0 18px 44px rgba(0,0,0,.52),0 0 32px rgba(253,186,116,.07)!important;padding:14px 14px 8px 16px!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+html:not(#lt) body #home-day-popover .home-day-popover-head{border-bottom:1px solid rgba(255,255,255,.07)!important;padding-bottom:10px!important;margin-bottom:2px!important;align-items:flex-start!important}
+html:not(#lt) body #home-day-popover .home-day-popover-title{color:#FDBA74!important;font:700 10px/1.4 Inter,system-ui,sans-serif!important;letter-spacing:.18em!important;text-transform:uppercase!important}
+html:not(#lt) body #home-day-popover .home-day-popover-date-row{gap:8px!important;margin-top:4px!important;align-items:baseline!important}
+html:not(#lt) body #home-day-popover .home-day-popover-date{color:#f0f6fc!important;font:600 17px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:-.2px}
+html:not(#lt) body #home-day-popover .home-day-popover-week{
+  min-height:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  color:#929ba9!important;font:500 11.5px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important
+}
+html:not(#lt) body #home-day-popover .home-day-popover-close{
+  width:32px!important;height:32px!important;border:0!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;
+  color:#7d8996!important;font-size:13px!important;display:grid!important;place-items:center!important;margin:-6px -6px 0 0
+}
+html:not(#lt) body #home-day-popover .home-day-popover-close:hover,
+html:not(#lt) body #home-day-popover .home-day-popover-close:focus-visible{color:#FDBA74!important;background:rgba(253,186,116,.08)!important;outline:none}
+html:not(#lt) body #home-day-popover .home-day-popover-item,
+html:not(#lt) body #home-day-popover .home-holiday-item{
+  display:grid!important;grid-template-columns:3px minmax(0,1fr)!important;gap:11px!important;align-items:stretch!important;
+  padding:11px 36px 11px 0!important;margin:0!important;border:0!important;border-bottom:1px solid rgba(255,255,255,.06)!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important
+}
+html:not(#lt) body #home-day-popover .home-day-popover-item:last-child,
+html:not(#lt) body #home-day-popover .home-holiday-item:last-child{border-bottom:0!important}
+html:not(#lt) body #home-day-popover .home-day-popover-item:hover{background:transparent!important}
+html:not(#lt) body #home-day-popover .home-day-popover-item:hover .home-day-popover-item-title{color:#FDBA74!important}
+html:not(#lt) body #home-day-popover .home-day-popover-dot,
+html:not(#lt) body #home-day-popover .home-holiday-item-bar{width:3px!important;min-height:30px;border-radius:2px!important;box-shadow:none!important}
+html:not(#lt) body #home-day-popover .home-day-popover-item-title,
+html:not(#lt) body #home-day-popover .home-holiday-item strong{color:#f0f6fc!important;font:600 14px/1.25 Inter,system-ui,sans-serif!important;transition:color .15s}
+html:not(#lt) body #home-day-popover .home-day-popover-item-meta,
+html:not(#lt) body #home-day-popover .home-holiday-item small{color:#929ba9!important;font:400 11.5px/1.35 Inter,system-ui,sans-serif!important;margin-top:2px!important}
+html:not(#lt) body #home-day-popover .home-preview-delete-v2{
+  right:-4px!important;width:32px!important;height:32px!important;border:0!important;border-radius:10px!important;background:transparent!important;
+  box-shadow:none!important;color:#6f7a87!important;opacity:1!important;font:400 18px/1 Inter,system-ui,sans-serif!important
+}
+html:not(#lt) body #home-day-popover .home-preview-delete-v2:hover,
+html:not(#lt) body #home-day-popover .home-preview-delete-v2:focus-visible{color:#F87171!important;background:rgba(248,113,113,.08)!important}
+html:not(#lt) body #home-day-popover .home-day-popover-empty{color:#929ba9!important;font-size:12.5px!important;padding:12px 0 8px!important}
+
+/* Delete confirmation: same panel, outlined red button instead of a filled one */
+html:not(#lt) body .home-delete-confirm-card-v2{background:rgba(22,27,34,.98)!important;border:1px solid rgba(253,186,116,.20)!important;border-radius:18px!important;box-shadow:0 20px 50px rgba(0,0,0,.55),0 0 32px rgba(253,186,116,.06)!important}
+html:not(#lt) body .home-delete-confirm-icon-v2{border:0!important;background:rgba(248,113,113,.10)!important;box-shadow:none!important}
+html:not(#lt) body .home-delete-confirm-close-v2{border:0!important;background:transparent!important;color:#7d8996!important}
+html:not(#lt) body .home-delete-confirm-close-v2:hover{color:#FDBA74!important;background:rgba(253,186,116,.08)!important}
+html:not(#lt) body .home-delete-confirm-cancel-v2{background:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.09)!important;color:#c9d1d9!important;box-shadow:none!important}
+html:not(#lt) body .home-delete-confirm-cancel-v2:hover{border-color:rgba(253,186,116,.30)!important;color:#FDBA74!important}
+html:not(#lt) body .home-delete-confirm-submit-v2{background:rgba(248,113,113,.10)!important;border:1px solid rgba(248,113,113,.42)!important;color:#FCA5A5!important;box-shadow:0 0 22px rgba(248,113,113,.14)!important;text-shadow:none!important}
+html:not(#lt) body .home-delete-confirm-submit-v2:hover{background:rgba(248,113,113,.16)!important;color:#fecaca!important}
+/* Event dialog close button: borderless like the day popup */
+html:not(#lt) body .modal .modal-close{border:0!important;background:transparent!important;box-shadow:none!important;color:#7d8996!important;width:32px!important;height:32px!important;border-radius:10px!important}
+html:not(#lt) body .modal .modal-close:hover,html:not(#lt) body .modal .modal-close:focus-visible{color:#FDBA74!important;background:rgba(253,186,116,.08)!important}
