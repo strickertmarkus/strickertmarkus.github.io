@@ -17,11 +17,8 @@
   var view = (page.analysisMarkus || page.analysisMaja) ? 'analysis' : (page.family ? 'family' : 'budget');
   var user = (page.budgetMaja || page.analysisMaja) ? 'maja' : 'markus';
 
-  var financeTheme = view === 'analysis'
-    ? { accent: '#4ADE80', hover: '#86EFAC', active: '#22C55E', rgb: '74,222,128', month: '#4ADE80', monthHover: '#86EFAC', monthActive: '#22C55E', bgAlpha: '.085', headerAlpha: '.06', borderAlpha: '.20', glowAlpha: '.075' }
-    : (view === 'family'
-      ? { accent: '#FB923C', hover: '#FDBA74', active: '#F97316', rgb: '251,146,60', month: '#FB923C', monthHover: '#FDBA74', monthActive: '#F97316', bgAlpha: '.085', headerAlpha: '.06', borderAlpha: '.20', glowAlpha: '.075' }
-      : { accent: '#2563EB', hover: '#60A5FA', active: '#1D4ED8', rgb: '37,99,235', month: '#7DD3FC', monthHover: '#BAE6FD', monthActive: '#38BDF8', bgAlpha: '.16', headerAlpha: '.11', borderAlpha: '.32', glowAlpha: '.14' });
+  // Listor theme: one orange accent on every finance view (red/green stay for money in/out).
+  var financeTheme = { accent: '#FDBA74', hover: '#FED7AA', active: '#FB923C', rgb: '253,186,116', month: '#FDBA74', monthHover: '#FED7AA', monthActive: '#FB923C', bgAlpha: '.10', headerAlpha: '0', borderAlpha: '.12', glowAlpha: '0' };
   document.documentElement.dataset.financeView = view;
   document.documentElement.style.setProperty('--finance-accent', financeTheme.accent);
   document.documentElement.style.setProperty('--finance-accent-hover', financeTheme.hover);

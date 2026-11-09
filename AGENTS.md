@@ -47,6 +47,8 @@
 | Gym profiles and programme filter by equipment | `budget/pulse-explore.js` (`readGyms`, `fitsGym`, `matchingPrograms`; stored in `ex_gyms`) |
 | Explorer navigation: bottom bar, search panel per tab, Filter sheet, Mina gym page | `budget/pulse-gym.js` (`gm-dock`, `openFind`, `renderSheet`, `renderGyms`, `PulseExploreSearch.open(mode,{muscle,origin})`). The bar stays over the exercise scene and steps aside only for its sheets (`PulseGymScene.overlayOpen`). Every window expands from the tapped button with `PulseMotion.reveal`/`conceal` |
 | Shopping list sorted in the shop's order (departments, keywords, shop orders, learned places, sort button) | `budget/shopping-store-sort-v1.js` (`DEPARTMENTS`, `SHOPS`, `sh_store_places` learned from `shopping:item-moved`); undo goes through the core `saveState`/`undo` |
+| Listor look on the finance pages and Data & Formler (orange accent, open sections instead of cards, red/green only for money in/out) | `budget/listor-theme-v1.css` (loaded last; selectors use `html[data-finance-view]:not(#lt)` / `html.listor-theme:not(#lt)` to beat `finance-ui.js`); single orange theme in `finance-ui.js` `financeTheme`; budget section colour dot via `--sc` set in `budget*.html` |
+| Listor look on home (left title, open widgets) | `budget/home-listor-v1.css`; travel primary buttons are outlined in `budget/travel.css` `.primary`. `calendar.html` is only a redirect to home (the calendar page was removed; don't link it) |
 | Explorer selection into today's pass | `budget/pulse-explore-handoff.js` (request `{version:1,ids}`) |
 
 ## Design iteration mode

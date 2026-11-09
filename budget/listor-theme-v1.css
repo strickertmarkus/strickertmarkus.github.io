@@ -1,0 +1,184 @@
+/* Listor theme v1 — the shopping page's look shared by the finance pages and Data & Formler.
+   One accent (orange), outlined buttons with a soft glow, small orange uppercase headings with a
+   thin divider, left-aligned header, pill toggles and open sections instead of boxed cards.
+   Red/green stay only where they mean money in/out. Loaded last; html[data-finance-view]:not(#lt) /
+   html.listor-theme:not(#lt) raises specificity over finance-ui.js's injected rules. */
+
+html[data-finance-view]:not(#lt),html.listor-theme:not(#lt){
+  --lt-bg:#0F1219;--lt-bg2:#161B22;--lt-line:rgba(255,255,255,.08);--lt-line-soft:rgba(255,255,255,.055);
+  --lt-text:#f0f6fc;--lt-sec:#929ba9;--lt-dim:#7d8996;
+  --lt-a:#FDBA74;--lt-ar:253,186,116;--lt-plus:#4ADE80;--lt-minus:#F87171;
+  --card:transparent;--border:var(--lt-line);--text:var(--lt-text);--text-sec:var(--lt-sec);
+  background:var(--lt-bg)!important
+}
+
+/* ── Background glow like Listor ── */
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body,html[data-finance-view]:not(#lt).finance-ui-preload-v2 body,html.listor-theme:not(#lt) body{
+  position:relative;isolation:isolate;
+  background:#0F1219!important
+}
+html[data-finance-view]:not(#lt) body::after,html.listor-theme:not(#lt) body::after{
+  content:"";position:absolute;inset:0 0 auto;height:780px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 52% 40% at 84% 16%,rgba(var(--lt-ar),.13),transparent 75%),radial-gradient(ellipse 38% 28% at 12% 35%,rgba(var(--lt-ar),.08),transparent 75%),radial-gradient(ellipse 16% 48% at 92% 66%,rgba(var(--lt-ar),.06),transparent 76%);
+  -webkit-mask-image:linear-gradient(#000 45%,transparent);mask-image:linear-gradient(#000 45%,transparent)
+}
+
+/* ── Header: left aligned, no band ── */
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header,html[data-finance-view]:not(#lt).finance-ui-preload-v2 body .header{
+  background:transparent!important;border-bottom:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+}
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>h1,html[data-finance-view]:not(#lt).finance-ui-preload-v2 body .header>h1{
+  left:16px!important;transform:none!important;top:16px!important;max-width:calc(100% - 84px)!important;
+  font:700 22px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:-.4px!important;text-align:left!important;
+  color:var(--lt-text)!important;-webkit-text-fill-color:var(--lt-text)!important;background:none!important;text-shadow:0 0 22px rgba(var(--lt-ar),.18)!important
+}
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>p,html[data-finance-view]:not(#lt) body .header>p{
+  left:16px!important;transform:none!important;top:45px!important;text-align:left!important;
+  color:var(--lt-sec)!important;font-weight:400!important;font-size:11px!important
+}
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper{top:14px!important;right:16px!important}
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper>button{
+  width:44px!important;height:44px!important;border-radius:12px!important;border:1px solid rgba(var(--lt-ar),.30)!important;
+  background:rgba(255,255,255,.04)!important;color:var(--lt-a)!important;box-shadow:none!important
+}
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper>button:hover,
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>.nav-dropdown-wrapper>button[aria-expanded="true"]{background:rgba(var(--lt-ar),.10)!important;box-shadow:0 0 24px rgba(var(--lt-ar),.22)!important}
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header>#month-nav{left:10px!important;transform:none!important;top:64px!important;justify-content:flex-start!important}
+html[data-finance-view]:not(#lt).finance-ui-clean-v1 body .header #month-dropdown{color:var(--lt-a)!important;text-shadow:none!important;font-weight:600!important}
+html[data-finance-view]:not(#lt) .finance-month-arrow-clean-v1{
+  border:1px solid rgba(var(--lt-ar),.30)!important;background:rgba(255,255,255,.04)!important;color:var(--lt-a)!important;
+  border-radius:10px!important;box-shadow:none!important;text-shadow:none!important
+}
+html[data-finance-view]:not(#lt) .finance-month-arrow-clean-v1:hover:not(:disabled){background:rgba(var(--lt-ar),.10)!important;box-shadow:0 0 18px rgba(var(--lt-ar),.20)!important}
+
+/* ── Pill toggles (Markus/Maja + view switch) ── */
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1,html[data-finance-view]:not(#lt) .finance-view-clean-v1{
+  border:1px solid var(--lt-line)!important;background:rgba(255,255,255,.035)!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-radius:14px!important
+}
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button,html[data-finance-view]:not(#lt) .finance-view-clean-v1 button{
+  border-radius:11px!important;color:var(--lt-sec)!important;background:transparent!important;box-shadow:none!important;opacity:1!important;font-weight:500!important
+}
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button[data-user].active,
+html[data-finance-view]:not(#lt) .finance-view-clean-v1 button[data-view].active{color:var(--lt-a)!important;background:rgba(var(--lt-ar),.075)!important;box-shadow:none!important}
+html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button:hover:not(.active),
+html[data-finance-view]:not(#lt) .finance-view-clean-v1 button:hover:not(.active){color:var(--lt-a)!important;background:rgba(var(--lt-ar),.035)!important}
+
+/* ── Kicker headings ── */
+html[data-finance-view]:not(#lt) .chart-card h3,html[data-finance-view]:not(#lt) .card h3,html[data-finance-view]:not(#lt) .card h2,
+html[data-finance-view]:not(#lt) .kpi-label,html[data-finance-view]:not(#lt) .stat-card .label,
+html.listor-theme:not(#lt) .formula-label{
+  color:var(--lt-a)!important;font:750 10px/1.4 Inter,system-ui,sans-serif!important;letter-spacing:.18em!important;text-transform:uppercase!important
+}
+
+/* ── KPI: open grid with hairlines instead of tiles ── */
+html[data-finance-view]:not(#lt) .kpi-row,html[data-finance-view]:not(#lt) .kpi-grid,html[data-finance-view]:not(#lt) .grid-4{gap:0 20px!important;filter:none!important;margin-bottom:24px!important}
+html[data-finance-view]:not(#lt) .kpi-card,html[data-finance-view]:not(#lt) .stat-card{
+  background:transparent!important;border:0!important;border-bottom:1px solid var(--lt-line)!important;border-radius:0!important;
+  box-shadow:none!important;outline:0!important;padding:14px 2px!important;text-align:left!important;transform:none!important
+}
+html[data-finance-view]:not(#lt) .stat-card.full{grid-column:1/-1}
+html[data-finance-view]:not(#lt) .kpi-value,html[data-finance-view]:not(#lt) .stat-card .value{font:600 24px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:-.3px!important;font-variant-numeric:tabular-nums;margin-top:4px}
+html[data-finance-view]:not(#lt) .kpi-sub,html[data-finance-view]:not(#lt) .stat-card .sub{color:var(--lt-sec)!important;font-size:11px!important}
+/* Budget KPI colours: plus green, minus red, the rest white */
+html[data-finance-view]:not(#lt) .kpi-income .kpi-value{color:var(--lt-plus)!important}
+html[data-finance-view]:not(#lt) .kpi-spent .kpi-value{color:var(--lt-minus)!important}
+html[data-finance-view]:not(#lt) .kpi-budget .kpi-value,html[data-finance-view]:not(#lt) .kpi-remain .kpi-value{color:var(--lt-text)!important}
+html[data-finance-view]:not(#lt) .kpi-remain .kpi-value.negative,html[data-finance-view]:not(#lt) .kpi-remain .kpi-value[data-negative]{color:var(--lt-minus)!important}
+/* Familjebudget: only income/kvar keep green/red, the blue/purple/orange go white */
+html[data-finance-view]:not(#lt) .kpi-grid{--house:var(--lt-text);--transfer:var(--lt-text);--expense:var(--lt-text);--danger:var(--lt-minus);--income:var(--lt-plus)}
+
+/* ── Charts: open sections with a divider under the heading ── */
+html[data-finance-view]:not(#lt) .chart-card,html[data-finance-view]:not(#lt) .card,html[data-finance-view]:not(#lt) .savings-goals-section{
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;padding:4px 0 8px!important
+}
+html[data-finance-view]:not(#lt) .chart-card h3,html[data-finance-view]:not(#lt) .card h3,html[data-finance-view]:not(#lt) .card h2{padding-bottom:10px!important;margin-bottom:14px!important;border-bottom:1px solid var(--lt-line)!important}
+
+/* ── Budget sections: heading + thin progress, no coloured slab ── */
+html[data-finance-view]:not(#lt) .section-card{
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;outline:0!important;margin-bottom:28px!important
+}
+html[data-finance-view]:not(#lt) .section-header{
+  background:transparent!important;padding:10px 0 12px 30px!important;border-bottom:1px solid var(--lt-line)!important;filter:none!important;gap:16px!important
+}
+html[data-finance-view]:not(#lt) .section-header>button{left:0!important;color:var(--lt-dim)!important}
+html[data-finance-view]:not(#lt) .section-header>button:hover{color:var(--lt-minus)!important}
+html[data-finance-view]:not(#lt) .section-header .section-title{
+  color:var(--lt-text)!important;font:600 15px/1.3 Inter,system-ui,sans-serif!important;min-width:0!important;gap:8px!important
+}
+html[data-finance-view]:not(#lt) .section-card[style*="--sc"] .section-title::before{
+  content:"";flex:0 0 8px;width:8px;height:8px;border-radius:50%;background:var(--sc);box-shadow:0 0 10px var(--sc)
+}
+html[data-finance-view]:not(#lt) .header-progress{max-width:58%}
+html[data-finance-view]:not(#lt) .progress-info{color:var(--lt-sec)!important;font-size:11px!important}
+html[data-finance-view]:not(#lt) .progress-info span[style]{color:var(--lt-sec)!important}
+html[data-finance-view]:not(#lt) .section-header .progress-bar{
+  height:5px!important;border:0!important;border-radius:3px!important;background:rgba(255,255,255,.07)!important;box-shadow:none!important
+}
+html[data-finance-view]:not(#lt) .section-header .progress-segment{background:var(--sc,var(--lt-a))!important;opacity:1!important;border-radius:3px!important}
+html[data-finance-view]:not(#lt) .section-header .progress-pct{display:none}
+html[data-finance-view]:not(#lt) .section-body{background:transparent!important;padding:0 0 4px!important}
+
+/* Item tables: hairline rows */
+html[data-finance-view]:not(#lt) .items-table thead th,html[data-finance-view]:not(#lt) .data-table th,html.listor-theme:not(#lt) .data-table th{
+  color:var(--lt-dim)!important;font-size:9.5px!important;letter-spacing:.14em!important;font-weight:650!important;background:transparent!important;border-bottom:1px solid var(--lt-line-soft)!important
+}
+html[data-finance-view]:not(#lt) .items-table tbody tr,html[data-finance-view]:not(#lt) .items-table tbody td,html[data-finance-view]:not(#lt) .data-table td,html.listor-theme:not(#lt) .data-table td{border-color:var(--lt-line-soft)!important;background:transparent!important}
+html[data-finance-view]:not(#lt) .item-input,html[data-finance-view]:not(#lt) .editable-input,html.listor-theme:not(#lt) .editable-input{
+  background:rgba(255,255,255,.035)!important;border:1px solid var(--lt-line)!important;border-radius:10px!important;color:var(--lt-text)!important
+}
+html[data-finance-view]:not(#lt) .item-input:focus,html[data-finance-view]:not(#lt) .editable-input:focus,html.listor-theme:not(#lt) .editable-input:focus{border-color:rgba(var(--lt-ar),.55)!important;box-shadow:0 0 0 3px rgba(var(--lt-ar),.12)!important;outline:0!important}
+html[data-finance-view]:not(#lt) .increment-btn{color:var(--lt-dim)!important}
+html[data-finance-view]:not(#lt) .increment-btn:hover{color:var(--lt-a)!important}
+
+/* ── Buttons: outlined, glow on the main one ── */
+html[data-finance-view]:not(#lt) .add-btn,html[data-finance-view]:not(#lt) .btn-add,html[data-finance-view]:not(#lt) .add-row button,html.listor-theme:not(#lt) .btn-add{
+  background:transparent!important;border:1px dashed rgba(var(--lt-ar),.28)!important;color:var(--lt-a)!important;border-radius:10px!important;box-shadow:none!important
+}
+html[data-finance-view]:not(#lt) .add-btn:hover,html[data-finance-view]:not(#lt) .btn-add:hover,html.listor-theme:not(#lt) .btn-add:hover{background:rgba(var(--lt-ar),.07)!important;border-style:solid!important}
+html[data-finance-view]:not(#lt) .footer-actions{gap:8px!important}
+html[data-finance-view]:not(#lt) .footer-actions .btn,html.listor-theme:not(#lt) .actions-bar button{
+  background:rgba(255,255,255,.035)!important;border:1px solid var(--lt-line)!important;color:var(--lt-sec)!important;
+  border-radius:12px!important;box-shadow:none!important;font-weight:500!important;min-height:44px
+}
+html[data-finance-view]:not(#lt) .footer-actions .btn:hover,html.listor-theme:not(#lt) .actions-bar button:hover{color:var(--lt-a)!important;border-color:rgba(var(--lt-ar),.30)!important;background:rgba(var(--lt-ar),.06)!important}
+html[data-finance-view]:not(#lt) .footer-actions .btn-export,html.listor-theme:not(#lt) .actions-bar button:first-child{border-color:rgba(var(--lt-ar),.32)!important;color:var(--lt-a)!important;box-shadow:0 0 22px rgba(var(--lt-ar),.12)!important}
+html[data-finance-view]:not(#lt) .footer-actions .btn-danger,html.listor-theme:not(#lt) .actions-bar .btn-reset{color:#d79b9b!important}
+html[data-finance-view]:not(#lt) .footer-actions .btn-danger:hover,html.listor-theme:not(#lt) .actions-bar .btn-reset:hover{color:var(--lt-minus)!important;border-color:rgba(248,113,113,.35)!important;background:rgba(248,113,113,.06)!important}
+html[data-finance-view]:not(#lt) .modal-btn-primary{background:transparent!important;border:1px solid rgba(var(--lt-ar),.40)!important;color:var(--lt-a)!important;box-shadow:0 0 20px rgba(var(--lt-ar),.14)!important}
+html[data-finance-view]:not(#lt) .table-collapse-btn{background:transparent!important;border:1px solid var(--lt-line)!important;color:var(--lt-sec)!important;box-shadow:none!important}
+html[data-finance-view]:not(#lt) .table-collapse-btn:hover{color:var(--lt-a)!important;border-color:rgba(var(--lt-ar),.30)!important}
+
+/* In-page month selector (Familjebudget) */
+html[data-finance-view]:not(#lt) body .container>.month-selector{background:transparent!important;border:0!important;border-top:1px solid var(--lt-line)!important;border-bottom:1px solid var(--lt-line)!important;border-radius:0!important;box-shadow:none!important}
+html[data-finance-view]:not(#lt) body .container .month-btn{background:rgba(255,255,255,.04)!important;border:1px solid rgba(var(--lt-ar),.30)!important;color:var(--lt-a)!important;box-shadow:none!important;text-shadow:none!important;border-radius:12px!important}
+html[data-finance-view]:not(#lt) body .container .month-display{color:var(--lt-a)!important;text-shadow:none!important}
+
+/* ── Accordion sections (Familjebudget, Data & Formler): list rows, no icons ── */
+html[data-finance-view]:not(#lt) .section-icon,html.listor-theme:not(#lt) .section-icon{display:none!important}
+html[data-finance-view]:not(#lt) body .container>.section-card .section-header,html.listor-theme:not(#lt) .section-card .section-header{padding:16px 2px!important;border-bottom:1px solid var(--lt-line)!important;cursor:pointer}
+html.listor-theme:not(#lt) .section-card{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;margin-bottom:0!important}
+html[data-finance-view]:not(#lt) .section-subtitle,html.listor-theme:not(#lt) .section-subtitle{color:var(--lt-sec)!important;font-size:11px!important}
+html.listor-theme:not(#lt) .section-title{color:var(--lt-text)!important;font:600 16px/1.3 Inter,system-ui,sans-serif!important}
+html[data-finance-view]:not(#lt) .section-chevron,html.listor-theme:not(#lt) .section-chevron{color:var(--lt-dim)!important;font-size:10px!important}
+html[data-finance-view]:not(#lt) .section-inner,html.listor-theme:not(#lt) .section-inner{padding-left:2px!important;padding-right:2px!important}
+html[data-finance-view]:not(#lt) .section-inner h3{color:var(--lt-a)!important;font-size:10px!important;letter-spacing:.18em!important;font-weight:750!important}
+html[data-finance-view]:not(#lt) .param-item,html.listor-theme:not(#lt) .param-item{background:transparent!important;border:0!important;border-bottom:1px solid var(--lt-line-soft)!important;border-radius:0!important}
+
+/* ── Data & Formler ── */
+html.listor-theme:not(#lt) body .header{background:transparent!important;box-shadow:none!important;border:0!important;text-align:left!important;padding:20px 76px 10px 16px!important}
+html.listor-theme:not(#lt) body .header h1{font:700 22px/1.25 Inter,system-ui,sans-serif!important;letter-spacing:-.4px!important;text-transform:none!important;color:var(--lt-text)!important;text-shadow:0 0 22px rgba(var(--lt-ar),.18)!important}
+html.listor-theme:not(#lt) body .header p{color:var(--lt-sec)!important;font-size:11px!important;margin-top:3px!important;opacity:1!important}
+html.listor-theme:not(#lt) body .header .nav-btn{top:auto!important;width:44px!important;height:44px!important;border-radius:12px!important;border:1px solid rgba(var(--lt-ar),.30)!important;background:rgba(255,255,255,.04)!important;color:var(--lt-a)!important}
+html.listor-theme:not(#lt) body .header .nav-dropdown-wrapper{top:18px!important;right:16px!important}
+html.listor-theme:not(#lt) .actions-bar{flex-direction:row!important;flex-wrap:wrap!important;gap:8px!important}
+html.listor-theme:not(#lt) .actions-bar button{flex:1 1 140px!important;font-size:13px!important}
+html.listor-theme:not(#lt) .formula-box{background:rgba(255,255,255,.03)!important;border:1px solid var(--lt-line-soft)!important;border-radius:12px!important;color:#c9d1d9!important}
+html.listor-theme:not(#lt) .formula-box b,html.listor-theme:not(#lt) .formula-box strong,html.listor-theme:not(#lt) .formula-box span{color:#e6edf3!important}
+html.listor-theme:not(#lt) .formula-result,html.listor-theme:not(#lt) .formula-result *{color:var(--lt-a)!important}
+html.listor-theme:not(#lt) .table-wrapper{border:0!important;background:transparent!important}
+
+/* ── Page gutter like Listor ── */
+html[data-finance-view]:not(#lt) body .container,html.listor-theme:not(#lt) body .container{padding-left:max(16px,env(safe-area-inset-left,0px))!important;padding-right:max(16px,env(safe-area-inset-right,0px))!important}
+html[data-finance-view]:not(#lt) button[onclick="addNewSection()"]{background:rgba(15,18,25,.6)!important;border:1px solid rgba(var(--lt-ar),.40)!important;color:var(--lt-a)!important;border-radius:12px!important;box-shadow:0 0 22px rgba(var(--lt-ar),.16)!important;font-weight:500!important;min-height:44px}
+html.listor-theme:not(#lt),html.listor-theme.dark-mode:not(#lt){--accent:#FDBA74;--accent-light:rgba(253,186,116,.12);--accent-bg:rgba(253,186,116,.06)}
+html.listor-theme:not(#lt) .formula-box code{color:var(--lt-a)!important}

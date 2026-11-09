@@ -1,0 +1,44 @@
+/* Home in the Listor look: left-aligned title, no coloured header band, open widgets
+   (heading + thin divider) instead of boxed cards. Loaded last; :not(#lt) beats the
+   theme rules injected by home-calendar-theme-v12.js. */
+
+html:not(#lt) body.home-calendar-polish-v5 .app-header{
+  text-align:left!important;
+  background:rgba(15,18,25,.94)!important;
+  border-bottom:1px solid rgba(255,255,255,.05)!important;
+  box-shadow:none!important
+}
+html:not(#lt) body.home-calendar-polish-v5 .app-header .brand{
+  left:16px!important;transform:none!important;justify-content:flex-start!important;max-width:calc(100% - 84px)!important
+}
+html:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text{text-align:left!important}
+html:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text h1{
+  text-align:left!important;font-size:22px!important;font-weight:700!important;letter-spacing:-.4px!important;
+  color:#f0f6fc!important;text-shadow:0 0 22px rgba(253,186,116,.18)!important
+}
+html:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text p{text-align:left!important;color:#929ba9!important;font-size:11px!important}
+html:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10{left:10px!important;right:auto!important;transform:none!important;justify-content:flex-start!important}
+html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-dropdown-wrapper{top:12px!important;right:16px!important}
+html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-btn{
+  width:44px!important;height:44px!important;border-radius:12px!important;
+  border:1px solid rgba(253,186,116,.30)!important;background:rgba(255,255,255,.04)!important;color:#FDBA74!important;box-shadow:none!important
+}
+html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-btn:hover,
+html:not(#lt) body.home-calendar-polish-v5 .app-header .nav-btn[aria-expanded="true"]{background:rgba(253,186,116,.10)!important;box-shadow:0 0 24px rgba(253,186,116,.22)!important}
+
+/* Widgets: open sections like Listor's store groups */
+html:not(#lt) body.home-calendar-polish-v5 .sidebar-section,
+html:not(#lt) body.home-calendar-polish-v5 .widget{
+  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  padding:6px 4px 10px!important
+}
+html:not(#lt) body.home-calendar-polish-v5 .widget-head,
+html:not(#lt) body.home-calendar-polish-v5 .sidebar-title{
+  padding-bottom:10px!important;margin-bottom:14px!important;border-bottom:1px solid rgba(255,255,255,.08)!important
+}
+html:not(#lt) body.home-calendar-polish-v5 .home-overview-widgets{gap:28px!important}
+html:not(#lt) body.home-calendar-polish-v5 .widget.link-card:hover{transform:none!important;background:transparent!important}
+
+/* Economy tab: the budget links get a chevron like the Listor rows */
+html:not(#lt) .home-economy-links a::after{content:"›";margin-left:auto;color:#7d8996;font-size:16px;line-height:1}
+html:not(#lt) .home-economy-links a:hover::after{color:#FDBA74}

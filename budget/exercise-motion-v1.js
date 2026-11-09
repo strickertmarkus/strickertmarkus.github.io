@@ -99,7 +99,6 @@
         navLink('familjebudget.html','◇','Familjebudget') +
         navLink('data.html','⚙','Data &amp; Formler') +
         '<div class="nav-sep" aria-hidden="true"></div>' +
-        navLink('calendar.html','□','Familjekalender') +
         navLink('exercise.html' + profile,'◆','Träning') +
         navLink('training-pulse-field.html' + profile,'⌁','Pulse Field · ny vy') +
         navLink('shopping.html','＋','Inköpslista') +
