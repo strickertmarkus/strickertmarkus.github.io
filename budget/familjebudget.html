@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="sv" class="dark-mode">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Familjebudget — Huskalkyl</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Familjebudget</title>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 <script src="indexeddb-fallback.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
-<script src="firebase-sync.js?v=20261109-pay-1"></script>
+<script src="firebase-sync.js?v=20261109-months-1"></script>
 <script src="transfer-income.js?v=20261020-netto-v1"></script>
 <script src="finance-ui.js?v=20261109-listor-1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -332,6 +331,77 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(251,146,60,0.11); 
     #dark-mode-btn { position: absolute !important; top: 8px !important; left: 8px !important; right: auto !important; }
     .nav-dropdown-wrapper { position: absolute !important; top: 8px !important; right: 8px !important; left: auto !important; }
 }
+/* ── Familjebudget månadsvy (fb-*) ── */
+html.dark-mode{--fb-markus:#60A5FA;--fb-maja:#F472B6}
+.fb{max-width:760px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-left,0px)) 64px;display:grid;gap:10px}
+.fb-kpis{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px;margin:6px 0 4px}
+.fb-kpi{padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);min-width:0}
+.fb-kpi small{display:block;color:#FDBA74;font:700 10px/1.4 Inter,sans-serif;letter-spacing:.17em;text-transform:uppercase}
+.fb-kpi b{display:block;font-size:27px;font-weight:700;letter-spacing:-.4px;margin-top:4px;color:#f0f6fc;font-variant-numeric:tabular-nums}
+.fb-kpi b.plus{color:#4ADE80}.fb-kpi b.minus{color:#F87171}
+.fb-kpi em{display:block;font-style:normal;color:#929ba9;font-size:12.5px}
+.fb-k{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#FDBA74;font:700 11px/1.4 Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.08);margin:22px 0 12px}
+.fb-k a,.fb-k .fb-link{letter-spacing:0;text-transform:none;font-size:13px;font-weight:500}
+.fb-link{appearance:none;border:0;background:transparent;color:#FDBA74;font:500 13.5px/1 Inter,sans-serif;padding:8px 0;cursor:pointer;text-decoration:none}
+.fb a{color:#FDBA74;text-decoration:none}
+.fb-link:focus-visible,.fb a:focus-visible,.fb-goal:focus-visible{outline:2px solid #FDBA74;outline-offset:3px;border-radius:6px}
+.fb-muted{color:#929ba9;font-size:13.5px;margin:4px 0}
+.fb-split{height:9px;border-radius:5px;display:flex;gap:2px;overflow:hidden;margin:2px 0 10px}
+.fb-split i{display:block;height:100%}
+.fb-dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:currentColor;box-shadow:0 0 10px currentColor;flex:none}
+.fb-who{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:baseline;padding:10px 0}
+.fb-who+.fb-who{border-top:1px solid rgba(255,255,255,.06)}
+.fb-who b{font-weight:600;font-size:15px;color:#f0f6fc}
+.fb-who strong{font-size:16.5px;font-weight:700;color:#f0f6fc;font-variant-numeric:tabular-nums}
+.fb-who em{grid-column:2/4;font-style:normal;color:#929ba9;font-size:12.5px;font-variant-numeric:tabular-nums}
+.fb-hist{margin-top:10px}
+.fb-hist span{display:block;color:#7d8996;font-size:11.5px;margin-bottom:6px}
+.fb-hist svg{width:100%;height:80px;display:block}
+.fb-hist text{fill:#7d8996;font:500 9px Inter,sans-serif}
+.fb-sect{position:relative;padding:18px 2px 8px;isolation:isolate;margin-top:8px}
+.fb-sect::before{content:"";position:absolute;inset:0 -16px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 62% 150px at 50% 120px,color-mix(in srgb,var(--sc) 10%,transparent),color-mix(in srgb,var(--sc) 3.5%,transparent) 42%,transparent 76%)}
+.fb-sh{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);color:var(--sc)}
+.fb-sh h2{flex:1;margin:0;font-size:18px;font-weight:600;color:#f0f6fc}
+.fb-sum{text-align:right;font-size:16px;font-weight:700;color:#f0f6fc;font-variant-numeric:tabular-nums}
+.fb-sum em{display:block;font-style:normal;font-weight:400;color:#929ba9;font-size:12px}
+.fb-items{padding-top:6px}
+.fb-it{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;color:#d5dbe3;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.fb-it span:last-child{color:#929ba9;font-variant-numeric:tabular-nums}
+.fb-loan{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:end;margin-top:14px}
+.fb-loan b{display:block;font-size:24px;font-weight:700;color:#f0f6fc;font-variant-numeric:tabular-nums}
+.fb-loan b.s{font-size:17px}
+.fb-loan em{display:block;font-style:normal;color:#929ba9;font-size:12.5px}
+.fb-loan .r{text-align:right}
+.fb-sparkwrap{position:relative;height:56px;margin-top:12px}
+.fb-spark{width:100%;height:56px;display:block}
+.fb-mark{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--sc);box-shadow:0 0 10px var(--sc)}
+.fb-parts{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin:12px 0 4px;font-size:13px;color:#929ba9}
+.fb-parts b{color:#f0f6fc;font-weight:600;margin-left:4px;font-variant-numeric:tabular-nums}
+.fb-table{overflow-x:auto;margin-top:4px}
+.fb-table table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.fb-table th{text-align:right;color:#FDBA74;font:700 9.5px/1.4 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:8px 0 8px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.fb-table td{text-align:right;padding:8px 0 8px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#d5dbe3}
+.fb-table th:first-child,.fb-table td:first-child{text-align:left;padding-left:0}
+.fb-goal{appearance:none;width:100%;border:0;background:transparent;color:inherit;text-align:left;display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:10px 0;cursor:pointer;font:inherit}
+.fb-goal+.fb-goal{border-top:1px solid rgba(255,255,255,.06)}
+.fb-goal .n{font-size:15px;font-weight:600;color:#f0f6fc}
+.fb-goal .v,.fb-goal .m{color:#929ba9;font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
+.fb-goal .m{grid-column:1/3;text-align:left;font-size:12px}
+.fb-bar{grid-column:1/3;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;display:block}
+.fb-bar i{display:block;height:100%;border-radius:3px;background:var(--gc);box-shadow:0 0 10px var(--gc)}
+.fb-foot{color:#7d8996;font-size:12.5px;text-align:center;margin-top:28px;line-height:1.6}
+/* sheet */
+html.dark-mode .modal{background:#161B22!important;border:1px solid rgba(255,255,255,.08);color:#f0f6fc}
+.modal input,.modal select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#f0f6fc;font:400 15px Inter,sans-serif}
+.modal input:focus,.modal select:focus{outline:0;border-color:rgba(253,186,116,.55);box-shadow:0 0 0 3px rgba(253,186,116,.12)}
+.fb-checks{max-height:160px;overflow-y:auto;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:6px 10px}
+.fb-check{display:flex!important;align-items:center;gap:8px;font-size:14px!important;font-weight:400!important;color:#d5dbe3!important;margin:0!important;padding:7px 0}
+.fb-check input{width:16px;height:16px;padding:0}
+.fb-err{color:#F87171;font-size:13px;margin:10px 0 0}
+.fb-del{appearance:none;border:0;background:transparent;color:#d79b9b;font:500 14px Inter,sans-serif;margin-right:auto;cursor:pointer;padding:8px 0}
+.modal-buttons{display:flex;align-items:center;gap:8px}
+@media(min-width:700px){.fb-kpis{grid-template-columns:repeat(4,1fr)}}
+
 </style>
 <script src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
@@ -342,8 +412,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(251,146,60,0.11); 
 
 <div class="header">
     <h1 style="cursor:pointer" onclick="location.href='home.html'">Familjebudget</h1>
-    <p>Huskalkyl &middot; Överföringar &middot; Utgifter</p>
-    <button onclick="toggleDarkMode()" id="dark-mode-btn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">🌙</button>
+    <p>Hushållets månad</p>
     <div class="nav-dropdown-wrapper" style="position: absolute; top: 16px; right: 62px;">
         <button onclick="toggleNavMenu()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;" title="Navigation">☰</button>
         <div class="nav-dropdown-menu" id="nav-menu">
@@ -365,231 +434,87 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(251,146,60,0.11); 
     </div>
 </div>
 
-<div class="container">
-    <div class="kpi-grid" id="kpi-grid"></div>
 
-    <!-- Month Selector (shared for all sections) -->
-    <div class="month-selector" style="background: var(--card); border-radius: 14px; padding: 16px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; gap: 16px;">
-        <button class="month-btn" onclick="changeLoanMonth(-1)">‹</button>
-        <div class="month-display" id="loan-month-display" style="min-width: 150px; text-align: center; font-weight: 600;">Denna månad</div>
-        <button class="month-btn" onclick="changeLoanMonth(1)">›</button>
-    </div>
+<div class="container fb" id="fb">
+    <div class="fb-kpis" id="fb-kpis"></div>
 
-    <!-- Loan Overview -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('loan')">
-            <div class="section-icon" style="background: var(--house-bg); color: var(--house);">🏠</div>
-            <div style="flex:1"><div class="section-title" id="heading-loan" ondblclick="editHeading(event,'loan')">Lån Översikt</div><div class="section-subtitle">Parametrar, amortering & kostnader</div></div>
-            <span class="section-chevron" id="chevron-loan">▼</span>
-        </div>
-        <div class="section-body" id="section-loan">
-            <div class="section-inner">
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Låneöversikt</h3>
-                <button class="table-collapse-btn" onclick="toggleLoanParamsTable()">▼ Läs mer</button>
-                <div class="table-wrapper collapsible-table" id="static-params-wrapper"><table class="data-table" id="static-params-table"><thead><tr><th>Parameter</th><th class="num">Värde</th></tr></thead><tbody></tbody></table></div>
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Redigerbara parametrar</h3>
-                <div class="param-grid" id="param-grid"></div>
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Amorteringstabell</h3>
-                <div class="table-wrapper"><table class="data-table" id="amort-table"><thead><tr><th>År</th><th class="num">Huslån</th><th class="num">Ränta/mån</th><th class="num">Drift/mån</th><th class="num">Amortering</th><th class="num">Renovering</th><th class="num">Totalt hus</th><th class="num">Kvar/mån</th></tr></thead><tbody></tbody></table></div>
-            </div>
-        </div>
-    </div>
+    <section class="fb-block" aria-labelledby="fb-transfer-h">
+        <h2 class="fb-k" id="fb-transfer-h"><span>Månadens överföring</span><a href="home.html?view=economy">Ändra nettolön</a></h2>
+        <div id="fb-transfer"></div>
+    </section>
 
-    <!-- Charts -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('charts')">
-            <div class="section-icon" style="background: var(--accent-bg); color: var(--accent);">📊</div>
-            <div style="flex:1"><div class="section-title" id="heading-charts" ondblclick="editHeading(event,'charts')">Grafer</div><div class="section-subtitle">Låneutveckling, kostnader & sparande</div></div>
-            <span class="section-chevron" id="chevron-charts">▼</span>
-        </div>
-        <div class="section-body" id="section-charts">
-            <div class="section-inner">
-                <div style="margin-bottom:16px"><div class="chart-title">Huslån över tid</div><div class="chart-container"><canvas id="loanChart"></canvas></div></div>
-                <div style="margin-bottom:16px"><div class="chart-title">Månadskostnader</div><div class="chart-container"><canvas id="costChart"></canvas></div></div>
-                <div style="margin-bottom:16px"><div class="chart-title">Kvar efter utgifter</div><div class="chart-container"><canvas id="leftChart"></canvas></div></div>
-                <div style="margin-bottom:16px"><div class="chart-title">Ackumulerat sparande</div><div class="chart-container"><canvas id="savingsAccChart"></canvas></div></div>
-                <div><div class="chart-title">Utgifter — Maja vs Markus</div><div class="chart-container"><canvas id="expenseCompareChart"></canvas></div></div>
-            </div>
-        </div>
-    </div>
+    <section class="fb-sect" style="--sc:#E3C77A" aria-labelledby="fb-ica-h">
+        <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-ica-h">ICA-kort</h2><span class="fb-sum" id="fb-ica-sum"></span></div>
+        <div class="fb-items" id="fb-ica"></div>
+    </section>
 
-    <!-- Income & Expenses -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('income')">
-            <div class="section-icon" style="background: var(--income-bg); color: var(--income);">💵</div>
-            <div style="flex:1"><div class="section-title" id="heading-income" ondblclick="editHeading(event,'income')">Inkomster & Utgifter</div><div class="section-subtitle">Gemensamma hushållskostnader</div></div>
-            <span class="section-chevron" id="chevron-income">▼</span>
-        </div>
-        <div class="section-body" id="section-income">
-            <div class="section-inner">
-                <div class="param-grid" id="income-grid"></div>
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Gemensamma utgifter Ica Kort</h3>
-                <div class="table-wrapper"><table class="data-table" id="expenses-table"><thead><tr><th>Utgift</th><th class="num">Belopp (kr/mån)</th><th style="width:40px"></th></tr></thead><tbody></tbody></table></div>
-                <button class="btn-add" onclick="addExpense()">+ Lägg till utgift</button>
-                <h3 style="font-size:14px;font-weight:600;color:var(--text-sec);margin:16px 0 10px;text-transform:uppercase;letter-spacing:.5px">Gemensamma Utgifter Huskonto</h3>
-                <div class="table-wrapper"><table class="data-table" id="huskonto-table"><thead><tr><th>Post</th><th class="num">Belopp (kr/mån)</th><th style="width:40px"></th></tr></thead><tbody></tbody></table></div>
-                <button class="btn-add" onclick="addHuskonto()">+ Lägg till post</button>
-            </div>
-        </div>
-    </div>
+    <section class="fb-sect" style="--sc:#8EA6F7" aria-labelledby="fb-hus-h">
+        <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-hus-h">Huskonto</h2><span class="fb-sum" id="fb-hus-sum"></span></div>
+        <div class="fb-items" id="fb-hus"></div>
+    </section>
 
-    <!-- Överföringar -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('transfers')">
-            <div class="section-icon" style="background: var(--transfer-bg); color: var(--transfer);">🔄</div>
-            <div style="flex:1"><div class="section-title" id="heading-transfers" ondblclick="editHeading(event,'transfers')">Överföringar</div><div class="section-subtitle">Månatliga överföringar till huskonto & ICA-kort</div></div>
-            <span class="section-chevron" id="chevron-transfers">▼</span>
-        </div>
-        <div class="section-body" id="section-transfers">
-            <div class="section-inner">
-                <div class="month-selector">
-                    <button class="month-btn" onclick="changeTransferMonth(-1)">‹</button>
-                    <div class="month-display" id="transfer-month-display"></div>
-                    <button class="month-btn" onclick="changeTransferMonth(1)">›</button>
-                </div>
-                <div id="transfer-detail" style="display:none"></div>
-                <button class="btn-add" onclick="addNewTransfer()" style="margin-bottom:12px">+ Lägg till månad</button>
-                <div class="table-wrapper"><table class="data-table" id="transfer-table"><thead><tr>
-                    <th>Månad</th><th class="num">Husutgifter</th><th class="num">ICA-kort</th><th class="num">Markus netto</th><th class="num">Maja netto</th><th class="num">Totalt netto</th><th class="num">Maja %</th><th class="num">Markus %</th><th class="num">Huskonto Maja</th><th class="num">ICA Maja</th><th class="num">Huskonto Markus</th><th class="num">ICA Markus</th><th style="width:30px"></th>
-                </tr></thead><tbody></tbody></table></div>
-            </div>
-        </div>
-    </div>
+    <section class="fb-sect" style="--sc:#F2948B" aria-labelledby="fb-house-h">
+        <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-house-h">Huset</h2></div>
+        <div id="fb-house"></div>
+    </section>
 
-    <!-- Personal Expenses -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('personal')">
-            <div class="section-icon" style="background: var(--expense-bg); color: var(--expense);">👥</div>
-            <div style="flex:1"><div class="section-title" id="heading-personal" ondblclick="editHeading(event,'personal')">Personliga utgifter</div><div class="section-subtitle">Majas & Markus data från budgetplanerarna</div></div>
-            <span class="section-chevron" id="chevron-personal">▼</span>
-        </div>
-        <div class="section-body" id="section-personal">
-            <div class="section-inner">
-                <div class="expense-compare" id="expense-compare"></div>
-            </div>
-        </div>
-    </div>
+    <section class="fb-block" aria-labelledby="fb-goals-h">
+        <h2 class="fb-k" id="fb-goals-h"><span>Sparmål</span><button type="button" class="fb-link" onclick="openGoalModal()">+ Nytt sparmål</button></h2>
+        <div id="fb-goals"></div>
+    </section>
 
-    <!-- Savings Goals -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('goals')">
-            <div class="section-icon" style="background: var(--income-bg); color: var(--income);">🎯</div>
-            <div style="flex:1"><div class="section-title" id="heading-goals" ondblclick="editHeading(event,'goals')">Familjens sparmål</div><div class="section-subtitle">Gemensamma mål och framsteg</div></div>
-            <span class="section-chevron" id="chevron-goals">▼</span>
-        </div>
-        <div class="section-body" id="section-goals">
-            <div class="section-inner">
-                <div class="savings-goals-section" style="margin:0">
-                    <h3>Sparmål</h3>
-                    <p>Följ familjens gemensamma sparmål och framsteg.</p>
-                    <div class="goals-grid" id="goals-container"></div>
-                    <button class="btn-add-goal" onclick="openGoalModal()">+ Nytt sparmål</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Inför flytt -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('checklist')">
-            <div class="section-icon" style="background: var(--savings-bg); color: var(--savings);">📦</div>
-            <div style="flex:1"><div class="section-title" id="heading-checklist" ondblclick="editHeading(event,'checklist')">Inför flytt</div><div class="section-subtitle" id="checklist-subtitle">Att köpa-lista</div></div>
-            <span class="section-chevron" id="chevron-checklist">▼</span>
-        </div>
-        <div class="section-body" id="section-checklist">
-            <div class="section-inner">
-                <div class="checklist-progress" id="checklist-progress"></div>
-                <div class="checklist-grid" id="checklist-grid"></div>
-                <button class="btn-add" onclick="addChecklistItem()" style="margin-top:12px">+ Lägg till sak</button>
-            </div>
-        </div>
-    </div>
-
+    <p class="fb-foot">Lån, gemensamma utgifter och överföringar ändras under <a href="data.html">Data &amp; Formler</a>. Nettolönen ändras på <a href="home.html?view=economy">startsidan</a>.</p>
 </div>
 
-<!-- Goal Modal -->
+<!-- Goal sheet -->
 <div class="modal-overlay" id="goal-modal">
     <div class="modal">
         <h3 id="modal-title">Nytt sparmål</h3>
-        <label>Namn</label>
-        <input type="text" id="goal-name" placeholder="t.ex. Semester, Kontantinsats">
-        <label>Målbelopp (kr)</label>
-        <input type="number" id="goal-target" placeholder="50000">
-        <label>Nuvarande sparat (kr)</label>
-        <input type="number" id="goal-current" placeholder="0">
-        <label>Månatligt sparande (kr)</label>
-        <input type="number" id="goal-monthly" placeholder="0">
-        <label>Tidshorisont (mån, valfritt)</label>
-        <input type="number" id="goal-time-horizon" placeholder="Automatisk">
-        <label>Länkade budgetposter (valfritt)</label>
-        <div id="goal-items-checkboxes" style="background:var(--bg);border-radius:8px;padding:10px;max-height:150px;overflow-y:auto;margin-bottom:10px;border:1px solid var(--border)"></div>
-        <div style="font-size:11px;color:var(--text-sec);margin:4px 0 12px">Välj vilka sparande-utgifter som bidrar till detta mål</div>
-        <label>Färg</label>
+        <label for="goal-name">Namn</label>
+        <input type="text" id="goal-name" placeholder="t.ex. Semester">
+        <label for="goal-target">Målbelopp (kr)</label>
+        <input type="number" id="goal-target" inputmode="numeric" placeholder="50000">
+        <label for="goal-current">Redan sparat (kr)</label>
+        <input type="number" id="goal-current" inputmode="numeric" placeholder="0">
+        <label for="goal-extra">Extra sparat (kr)</label>
+        <input type="number" id="goal-extra" inputmode="numeric" placeholder="0">
+        <label for="goal-monthly">Månatligt sparande (kr)</label>
+        <input type="number" id="goal-monthly" inputmode="numeric" placeholder="0">
+        <label for="goal-time-horizon">Tidshorisont (mån, valfritt)</label>
+        <input type="number" id="goal-time-horizon" inputmode="numeric" placeholder="Automatisk">
+        <label>Länkade sparposter från budgetarna</label>
+        <div id="goal-items-checkboxes" class="fb-checks"></div>
+        <label for="goal-color">Färg</label>
         <select id="goal-color">
-            <option value="#10B981">Grön</option>
-            <option value="#2563EB">Blå</option>
-            <option value="#8B5CF6">Lila</option>
-            <option value="#F59E0B">Gul</option>
-            <option value="#EF4444">Röd</option>
-            <option value="#EC4899">Rosa</option>
-            <option value="#06B6D4">Turkos</option>
+            <option value="#6FD6A8">Grön</option>
+            <option value="#60A5FA">Blå</option>
+            <option value="#C084FC">Lila</option>
+            <option value="#E3C77A">Gul</option>
+            <option value="#F87171">Röd</option>
+            <option value="#F472B6">Rosa</option>
+            <option value="#22D3EE">Turkos</option>
         </select>
+        <p class="fb-err" id="goal-error" hidden></p>
         <div class="modal-buttons">
-            <button class="modal-btn-cancel" onclick="closeGoalModal()">Avbryt</button>
-            <button class="modal-btn-primary" onclick="saveGoal()">Spara</button>
-        </div>
-    </div>
-</div>
-
-<!-- Checklist Add Modal -->
-<div class="modal-overlay" id="checklist-modal">
-    <div class="modal">
-        <h3>Lägg till sak</h3>
-        <label>Namn</label>
-        <input type="text" id="checklist-new-name" placeholder="t.ex. Robotdammsugare">
-        <label>Kategori</label>
-        <div style="display:flex;gap:8px;margin-bottom:12px">
-            <select id="checklist-new-category" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--text)">
-                <option value="">-- Välj kategori --</option>
-                <option value="Kök">Kök</option>
-                <option value="Möbler">Möbler</option>
-                <option value="Förvaring">Förvaring</option>
-                <option value="Belysning">Belysning</option>
-                <option value="Dörrar">Dörrar</option>
-                <option value="Verktygsvara">Verktygsvara</option>
-                <option value="Altan/Trädgård">Altan/Trädgård</option>
-                <option value="Övrigt">Övrigt</option>
-                <option value="custom">-- Anpassad kategori --</option>
-            </select>
-            <input type="text" id="checklist-new-category-custom" placeholder="Egen kategori" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--text);display:none" />
-        </div>
-        <label>Pris (kr)</label>
-        <input type="number" id="checklist-new-price" placeholder="0" min="0" step="50" style="margin-bottom:12px">
-        <label>Länk (valfritt)</label>
-        <input type="url" id="checklist-new-link" placeholder="https://...">
-        <div class="modal-buttons">
-            <button class="modal-btn-cancel" onclick="closeChecklistModal()">Avbryt</button>
-            <button class="modal-btn-primary" onclick="saveChecklistItem()">Lägg till</button>
+            <button type="button" class="fb-del" id="goal-delete" onclick="deleteGoal()" hidden>Ta bort</button>
+            <button type="button" class="modal-btn-cancel" onclick="closeGoalModal()">Avbryt</button>
+            <button type="button" class="modal-btn-primary" onclick="saveGoal()">Spara</button>
         </div>
     </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// DEFAULT DATA
-// ═══════════════════════════════════════════════════════
+/* Familjebudget: one month at a time, same month as the budget pages (finance-ui header).
+   Read-only view of familjebudget_data, except savings goals. Loan, shared expenses and
+   transfers are edited in Data & Formler, net salary on Home. */
+const STORAGE_KEY = "familjebudget_data";
+const MONTHS = ["Januari","Februari","Mars","April","Maj","Juni","Juli","Augusti","September","Oktober","November","December"];
 const DEFAULT_LOAN_PARAMS = {
     huspris: 5000000, huslan: 3750000, kontantinsats: 1250000,
     listranta: 3.067, driftkostnad: 47025, fastighetsavgift: 9525,
     skattereduktion: 100, bolan: 75, lagfart: 75000,
     renovering: 1.0, ammortering: 2, pantbrev: -9160, lantmateriavgift: 825
 };
-
-const DEFAULT_INCOME = {
-    markus: { inkomst: 36800, foraldraledig: false },
-    maja: { inkomst: 13000, foraldraledig: true }
-};
-
 const DEFAULT_EXPENSES = [
     { name: "Mat/hushåll.", amount: 6000 }, { name: "Internet", amount: 399 },
     { name: "Bilförsäkring", amount: 882 }, { name: "Milas försäkring", amount: 231 },
@@ -602,1877 +527,302 @@ const DEFAULT_EXPENSES = [
     { name: "Glasögon", amount: 331 }, { name: "Bankkort", amount: 80 },
     { name: "Försäkring Maja", amount: 229 }, { name: "Försäkring Markus", amount: 126 }
 ];
-
-const DEFAULT_HUSKONTO = [
-    { name: "Dagisavgift", amount: 1847 }, { name: "Bredband/Telefon", amount: 852 }
-];
-
+const DEFAULT_HUSKONTO = [ { name: "Dagisavgift", amount: 1847 }, { name: "Bredband/Telefon", amount: 852 } ];
 const DEFAULT_TRANSFERS = [
-    { year:2025,month:"April",husutgifter:24696,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16042,icaMaja:5415,huskontoMarkus:8638,icaMarkus:2915 },
-    { year:2025,month:"Maj",husutgifter:24680,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16031,icaMaja:5415,huskontoMarkus:8632,icaMarkus:2915 },
-    { year:2025,month:"Juni",husutgifter:24664,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16021,icaMaja:5415,huskontoMarkus:8626,icaMarkus:2915 },
-    { year:2025,month:"Juli",husutgifter:24648,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16010,icaMaja:5415,huskontoMarkus:8621,icaMarkus:2915 },
-    { year:2025,month:"Augusti",husutgifter:24632,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16000,icaMaja:5415,huskontoMarkus:8615,icaMarkus:2915 },
-    { year:2025,month:"September",husutgifter:24616,ica:8331,majaAndel:0.65,markusAndel:0.35,huskontoMaja:16000,icaMaja:5415,huskontoMarkus:8610,icaMarkus:2915 },
-    { year:2025,month:"Oktober",husutgifter:24600,ica:8331,majaAndel:0.416,markusAndel:0.584,huskontoMaja:10233,icaMaja:3465,huskontoMarkus:14366,icaMarkus:4865 },
-    { year:2025,month:"November",husutgifter:24584,ica:8331,majaAndel:0.454,markusAndel:0.546,huskontoMaja:11150,icaMaja:3778,huskontoMarkus:13432,icaMarkus:4552 },
-    { year:2025,month:"December",husutgifter:24568,ica:8331,majaAndel:0.435,markusAndel:0.565,huskontoMaja:10687,icaMaja:3623,huskontoMarkus:13880,icaMarkus:4707 },
-    { year:2026,month:"Januari",husutgifter:24552,ica:8331,majaAndel:0.460,markusAndel:0.540,huskontoMaja:11284,icaMaja:3828,huskontoMarkus:13267,icaMarkus:4502 },
-    { year:2026,month:"Februari",husutgifter:27235,ica:8331,majaAndel:0.246,markusAndel:0.754,huskontoMaja:6707,icaMaja:2051,huskontoMarkus:20527,icaMarkus:6279 },
-    { year:2026,month:"Mars",husutgifter:27219,ica:8331,majaAndel:0.253,markusAndel:0.747,huskontoMaja:6890,icaMaja:2109,huskontoMarkus:20328,icaMarkus:6221 },
-    { year:2026,month:"April",husutgifter:27203,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6953,icaMaja:2129,huskontoMarkus:20249,icaMarkus:6201 },
-    { year:2026,month:"Maj",husutgifter:27187,ica:8331,majaAndel:0.265,markusAndel:0.735,huskontoMaja:7192,icaMaja:2204,huskontoMarkus:19994,icaMarkus:6126 },
-    { year:2026,month:"Juni",husutgifter:27171,ica:8331,majaAndel:0.265,markusAndel:0.735,huskontoMaja:7188,icaMaja:2204,huskontoMarkus:19982,icaMarkus:6126 },
-    { year:2026,month:"Juli",husutgifter:27155,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6941,icaMaja:2129,huskontoMarkus:20213,icaMarkus:6201 },
-    { year:2026,month:"Augusti",husutgifter:27139,ica:8331,majaAndel:0.273,markusAndel:0.727,huskontoMaja:7417,icaMaja:2276,huskontoMarkus:19721,icaMarkus:6054 },
-    { year:2026,month:"September",husutgifter:27123,ica:8331,majaAndel:0.256,markusAndel:0.744,huskontoMaja:6932,icaMaja:2129,huskontoMarkus:20190,icaMarkus:6201 },
-    { year:2026,month:"Oktober",markusNetto:37288,majaNetto:11479,husutgifter:27107,ica:8331,majaAndel:0.235,markusAndel:0.765,huskontoMaja:6380,icaMaja:1960,huskontoMarkus:20726,icaMarkus:6370 },
-    { year:2026,month:"November",markusNetto:37288,majaNetto:11605,husutgifter:27091,ica:8331,majaAndel:0.237,markusAndel:0.763,huskontoMaja:6430,icaMaja:1977,huskontoMarkus:20660,icaMarkus:6353 },
-    { year:2026,month:"December",markusNetto:37288,majaNetto:10260,husutgifter:27075,ica:8331,majaAndel:0.216,markusAndel:0.784,huskontoMaja:5842,icaMaja:1797,huskontoMarkus:21232,icaMarkus:6533 }
+    { year:2025,month:"April",husutgifter:24696,ica:8331,huskontoMaja:16042,icaMaja:5415,huskontoMarkus:8638,icaMarkus:2915 }
 ];
 
-const STORAGE_KEY = "familjebudget_data";
+let loanParams, expenses, huskonto, transfers, savingsGoals;
+let monthKey = "";
+let editingGoalIdx = -1;
+const expanded = { ica: false, hus: false, plan: false };
 
-const DEFAULT_CHECKLIST_CATEGORIES = ["Kök", "Möbler", "Förvaring", "Belysning", "Dörrar", "Verktygsvara", "Altan/Trädgård", "Övrigt"];
-
-const DEFAULT_CHECKLIST = [
-    { name:"Stekpanna rostfritt stål", category:"Kök", price:0 },
-    { name:"Bra skärbräda i trä", category:"Kök", price:0 },
-    { name:"Minst en bra kniv", category:"Kök", price:0 },
-    { name:"Nya köksredskap (slevar etc.)", category:"Kök", price:0 },
-    { name:"Knivslip", category:"Kök", price:0 },
-    { name:"Nya saxar", category:"Kök", price:0 },
-    { name:"Elvisp", category:"Kök", price:0 },
-    { name:"Förvaring kök", category:"Förvaring", price:0 },
-    { name:"Förvaringslådor inne", category:"Förvaring", price:0 },
-    { name:"Förvaring garage", category:"Förvaring", price:0 },
-    { name:"Matbord kök (runt)", category:"Möbler", price:0 },
-    { name:"Matbord matsal", category:"Möbler", price:0 },
-    { name:"TV-bänk", category:"Möbler", price:0 },
-    { name:"Tvåsitssoffa hall uppe", category:"Möbler", price:0 },
-    { name:"Puffar ovanvåning", category:"Möbler", price:0 },
-    { name:"TV", category:"Möbler", price:0 },
-    { name:"Lampor", category:"Belysning", price:0 },
-    { name:"Lampknappar", category:"Belysning", price:0 },
-    { name:"Dörr till sovrum uppe", category:"Dörrar", price:0 },
-    { name:"Dörrar övervåning", category:"Dörrar", price:0 },
-    { name:"Garderobsdörrar", category:"Dörrar", price:0 },
-    { name:"Blandare badrum", category:"Övrigt", price:0 },
-    { name:"Vägguttag", category:"Övrigt", price:0 },
-    { name:"Säkringar", category:"Övrigt", price:0 },
-    { name:"Mattor", category:"Övrigt", price:0 },
-    { name:"Krokar", category:"Övrigt", price:0 },
-    { name:"Robotdammsugare", category:"Övrigt", price:0 },
-    { name:"Robotgräsklippare", category:"Övrigt", price:0 },
-    { name:"Snöskyffel", category:"Övrigt", price:0 },
-    { name:"Skruvar/muttrar", category:"Verktygsvara", price:0 },
-    { name:"Såg", category:"Verktygsvara", price:0 },
-    { name:"Stege", category:"Verktygsvara", price:0 },
-    { name:"Sladdlister", category:"Övrigt", price:0 },
-    { name:"Grill", category:"Altan/Trädgård", price:0 },
-    { name:"Gasolvärmare altan", category:"Altan/Trädgård", price:0 },
-    { name:"Ved", category:"Övrigt", price:0, link:"https://www.jula.se/catalog/bygg-och-farg/varme-och-ventilation/kaminer-och-oppna-spisar/fasta-branslen/ved-023627/" },
-    { name:"Grindar", category:"Övrigt", price:0 }
-];
-
-// ═══════════════════════════════════════════════════════
-// STATE (loaded from localStorage or defaults)
-// ═══════════════════════════════════════════════════════
-let loanParams, income, expenses, huskonto, transfers, checklistItems, checkedItems, savingsGoals, sectionHeadings;
-let currentTransferIdx;
-let isChecklistEditMode = false;
-let checklistEditIndex = -1;
-
+function readStore() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch (_) { return null; } }
 function loadData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-        try {
-            const d = JSON.parse(raw);
-            loanParams = d.loanParams || { ...DEFAULT_LOAN_PARAMS };
-            income = d.income || JSON.parse(JSON.stringify(DEFAULT_INCOME));
-            expenses = d.expenses || DEFAULT_EXPENSES.map(e => ({ ...e }));
-            huskonto = d.huskonto || DEFAULT_HUSKONTO.map(e => ({ ...e }));
-            transfers = d.transfers || DEFAULT_TRANSFERS.map(t => ({ ...t }));
-            checklistItems = d.checklistItems || DEFAULT_CHECKLIST.map(c => ({ ...c }));
-            checkedItems = d.checkedItems || {};
-            savingsGoals = d.savingsGoals || [];
-            sectionHeadings = d.sectionHeadings || {};
-            
-            // Migration: fix any goals with invalid linkedItems and ensure extra field exists
-            savingsGoals = savingsGoals.map(g => ({
-                ...g,
-                linkedItems: Array.isArray(g.linkedItems) ? g.linkedItems : [],
-                extra: g.extra || 0,
-                customMonthsToGoal: g.customMonthsToGoal || 0
-            }));
-            
-            return;
-        } catch(e) { /* fall through */ }
-    }
-    // Defaults
-    loanParams = { ...DEFAULT_LOAN_PARAMS };
-    income = JSON.parse(JSON.stringify(DEFAULT_INCOME));
-    expenses = DEFAULT_EXPENSES.map(e => ({ ...e }));
-    huskonto = DEFAULT_HUSKONTO.map(e => ({ ...e }));
-    transfers = DEFAULT_TRANSFERS.map(t => ({ ...t }));
-    checklistItems = DEFAULT_CHECKLIST.map(c => ({ ...c }));
-    checkedItems = {};
-    savingsGoals = [];
-    sectionHeadings = {};
-}
-
-function saveData() {
-    // Persist migrated historical Home salary edits alongside the matching month.
-    transfers.forEach(TransferIncome.complete);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        loanParams, income, expenses, huskonto, transfers,
-        checklistItems, checkedItems, savingsGoals, sectionHeadings
+    const d = readStore() || {};
+    loanParams = Object.assign({}, DEFAULT_LOAN_PARAMS, d.loanParams || {});
+    expenses = Array.isArray(d.expenses) ? d.expenses : DEFAULT_EXPENSES.map(e => ({ ...e }));
+    huskonto = Array.isArray(d.huskonto) ? d.huskonto : DEFAULT_HUSKONTO.map(e => ({ ...e }));
+    transfers = Array.isArray(d.transfers) && d.transfers.length ? d.transfers : DEFAULT_TRANSFERS.map(t => ({ ...t }));
+    savingsGoals = (Array.isArray(d.savingsGoals) ? d.savingsGoals : []).map(g => ({
+        ...g, linkedItems: Array.isArray(g.linkedItems) ? g.linkedItems : [], extra: g.extra || 0, customMonthsToGoal: g.customMonthsToGoal || 0
     }));
-    // Reset section states on edit so they return to defaults on next page load
-    localStorage.removeItem("familjebudget_section_states");
+}
+// Only the goals are written here; everything else in the store is kept as it is.
+function saveGoals() {
+    const d = readStore() || { loanParams, expenses, huskonto, transfers };
+    d.savingsGoals = savingsGoals;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
 }
 
-// ═══════════════════════════════════════════════════════
-// EQUATIONS (from Excel)
-// ═══════════════════════════════════════════════════════
-// Monthly interest = huslån × listränta% / 12
-// Drift+fastighet = (driftkostnad + fastighetsavgift) / 12
-// Amort = huslån × ammortering% / 12 (reduced by half when loan < certain threshold)
-// Renovering = huspris × renovering% / 12
-// Total house = interest + drift + amort + reno
-// Total income = markus + maja
-// Total expenses = sum of expenses
-// Total out = totalHouse + totalExpenses + huskontoTotal
-// Kvar = totalIncome - totalOut
+// ── helpers ─────────────────────────────────────────
+const fmt = n => (n == null || !isFinite(n)) ? "—" : Math.round(n).toLocaleString("sv-SE");
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+function keyOfRow(r) { const i = MONTHS.indexOf(r && r.month); return i < 0 ? "" : r.year + "-" + String(i + 1).padStart(2, "0"); }
+function labelOf(key) { const [y, m] = key.split("-").map(Number); return MONTHS[m - 1] + " " + y; }
+function monthDiff(a, b) { const [ay, am] = a.split("-").map(Number), [by, bm] = b.split("-").map(Number); return (by - ay) * 12 + (bm - am); }
+function rowFor(key) { return transfers.find(r => keyOfRow(r) === key) || null; }
 
-function calcMonthlyInterest(loan) {
-    return Math.round(loan * (loanParams.listranta / 100) / 12);
-}
-function calcDrift() {
-    return Math.round((loanParams.driftkostnad + loanParams.fastighetsavgift) / 12);
-}
+// ── loan model (same formulas as before) ───────────
+function calcMonthlyInterest(loan) { return Math.round(loan * (loanParams.listranta / 100) / 12); }
+function calcDrift() { return Math.round((loanParams.driftkostnad + loanParams.fastighetsavgift) / 12); }
 function calcAmort(loan) {
-    // At 70% LTV (~16 years), amort drops to half
-    const threshold = loanParams.huspris * 0.7;
-    const rate = loan > threshold ? loanParams.ammortering : loanParams.ammortering / 2;
+    const rate = loan > loanParams.huspris * 0.7 ? loanParams.ammortering : loanParams.ammortering / 2;
     return Math.round(loanParams.huslan * (rate / 100) / 12);
 }
-function calcReno() {
-    return Math.round(loanParams.huspris * (loanParams.renovering / 100) / 12);
-}
-function calcTotalHouse(loan) {
-    return calcMonthlyInterest(loan) + calcDrift() + calcAmort(loan) + calcReno();
-}
-function getTotalIncome() {
-    return getIndividualIncome("budgetTracker") + getIndividualIncome("budgetTracker_maja");
-}
-
-function getYearMeanIncome(yearNumber) {
-    // Calculate mean income for months that exist in a given year
-    // Year 1 = months 1-12, Year 2 = months 13-24, etc.
-    // Only averages the months that actually have data
-    const raw = localStorage.getItem("familjebudget_data");
-    if (!raw) return getTotalIncome();
-    try {
-        const data = JSON.parse(raw);
-        if (!data.transfers || data.transfers.length === 0) return getTotalIncome();
-        
-        // Get the starting month from transfers (e.g., "April 2025")
-        const firstTransfer = data.transfers[0];
-        const monthNames = ["Januari","Februari","Mars","April","Maj","Juni","Juli","Augusti","September","Oktober","November","December"];
-        const startMonthIdx = monthNames.indexOf(firstTransfer.month); // 0-11
-        const startYear = firstTransfer.year;
-        
-        // Calculate which 12 months belong to this year number
-        const startMonthAbsolute = (yearNumber - 1) * 12; // 0-indexed month offset from first transfer
-        const monthsToCheck = [];
-        
-        for (let i = 0; i < 12; i++) {
-            const monthOffset = startMonthAbsolute + i;
-            let actualMonthIdx = (startMonthIdx + monthOffset) % 12;
-            let actualYear = startYear + Math.floor((startMonthIdx + monthOffset) / 12);
-            const monthStr = String(actualMonthIdx + 1).padStart(2, '0'); // Convert to 1-indexed month
-            const monthKey = `${actualYear}-${monthStr}`;
-            monthsToCheck.push(monthKey);
-        }
-        
-        // Get all months from budgetTracker
-        let totalIncome = 0;
-        let incomeCount = 0;
-        
-        const markusRaw = localStorage.getItem("budgetTracker");
-        const majaRaw = localStorage.getItem("budgetTracker_maja");
-        const markusBudget = markusRaw ? JSON.parse(markusRaw) : null;
-        const majaBudget = majaRaw ? JSON.parse(majaRaw) : null;
-        
-        for (const monthKey of monthsToCheck) {
-            let monthIncome = 0;
-            let monthHasData = false;
-            
-            // Get Markus income for this month
-            if (markusBudget && markusBudget.monthlyData && markusBudget.monthlyData[monthKey]) {
-                monthHasData = true;
-                const sections = markusBudget.monthlyData[monthKey].sections || [];
-                for (const section of sections) {
-                    if (section.isIncome || section.key === "income") {
-                        for (const item of section.items || []) {
-                            monthIncome += item.actual || item.budget || 0;
-                        }
-                    }
-                }
-            }
-            
-            // Get Maja income for this month
-            if (majaBudget && majaBudget.monthlyData && majaBudget.monthlyData[monthKey]) {
-                monthHasData = true;
-                const sections = majaBudget.monthlyData[monthKey].sections || [];
-                for (const section of sections) {
-                    if (section.isIncome || section.key === "income") {
-                        for (const item of section.items || []) {
-                            monthIncome += item.actual || item.budget || 0;
-                        }
-                    }
-                }
-            }
-            
-            // Only count months that have data (even if income is 0)
-            if (monthHasData) {
-                totalIncome += monthIncome;
-                incomeCount++;
-            }
-        }
-        
-        // Return mean income based on actual months with data, or fallback to current income if no data found
-        return incomeCount > 0 ? Math.round(totalIncome / incomeCount) : getTotalIncome();
-    } catch (e) {
-        return getTotalIncome();
-    }
-}
-
-function getOverallMeanIncome() {
-    // Calculate mean income across ALL available months in budgetTracker
-    // Used for stable long-term chart projections (doesn't change when switching months)
-    try {
-        const markusRaw = localStorage.getItem("budgetTracker");
-        const majaRaw = localStorage.getItem("budgetTracker_maja");
-        const markusBudget = markusRaw ? JSON.parse(markusRaw) : null;
-        const majaBudget = majaRaw ? JSON.parse(majaRaw) : null;
-        
-        let totalIncome = 0;
-        let monthCount = 0;
-        const processedMonths = new Set();
-        
-        // Process all months from Markus budget
-        if (markusBudget && markusBudget.monthlyData) {
-            for (const monthKey of Object.keys(markusBudget.monthlyData)) {
-                if (processedMonths.has(monthKey)) continue;
-                processedMonths.add(monthKey);
-                
-                let monthIncome = 0;
-                const sections = markusBudget.monthlyData[monthKey].sections || [];
-                for (const section of sections) {
-                    if (section.isIncome || section.key === "income") {
-                        for (const item of section.items || []) {
-                            monthIncome += item.actual || item.budget || 0;
-                        }
-                    }
-                }
-                
-                // Also add Maja income for this month if available
-                if (majaBudget && majaBudget.monthlyData && majaBudget.monthlyData[monthKey]) {
-                    const majaSections = majaBudget.monthlyData[monthKey].sections || [];
-                    for (const section of majaSections) {
-                        if (section.isIncome || section.key === "income") {
-                            for (const item of section.items || []) {
-                                monthIncome += item.actual || item.budget || 0;
-                            }
-                        }
-                    }
-                } else if (majaBudget && majaBudget.monthlyData) {
-                    // Maja might have data that Markus doesn't, add separately
-                    const majaSections = majaBudget.monthlyData[monthKey]?.sections || [];
-                    for (const section of majaSections) {
-                        if (section.isIncome || section.key === "income") {
-                            for (const item of section.items || []) {
-                                monthIncome += item.actual || item.budget || 0;
-                            }
-                        }
-                    }
-                }
-                
-                totalIncome += monthIncome;
-                monthCount++;
-            }
-        }
-        
-        // Also check for any months only in Maja budget
-        if (majaBudget && majaBudget.monthlyData) {
-            for (const monthKey of Object.keys(majaBudget.monthlyData)) {
-                if (processedMonths.has(monthKey)) continue;
-                processedMonths.add(monthKey);
-                
-                let monthIncome = 0;
-                const sections = majaBudget.monthlyData[monthKey].sections || [];
-                for (const section of sections) {
-                    if (section.isIncome || section.key === "income") {
-                        for (const item of section.items || []) {
-                            monthIncome += item.actual || item.budget || 0;
-                        }
-                    }
-                }
-                
-                totalIncome += monthIncome;
-                monthCount++;
-            }
-        }
-        
-        // Return mean, or fallback to data.html defaults if no months found
-        if (monthCount > 0) {
-            return Math.round(totalIncome / monthCount);
-        }
-    } catch (e) {
-        // Fall through to default
-    }
-    
-    // Fallback to data.html default income
-    try {
-        const raw = localStorage.getItem("familjebudget_data");
-        if (raw) {
-            const data = JSON.parse(raw);
-            if (data.income) {
-                return (data.income.markus?.inkomst || 0) + (data.income.maja?.inkomst || 0);
-            }
-        }
-    } catch (e) {
-        // Fall through
-    }
-    
-    return 49800; // Last resort default (based on your data)
-}
-
-function getIndividualIncome(storageKey) {
-    // Monthly transfer salary is the shared source for Home and Familjebudget.
-    const row = Array.isArray(transfers) ? transfers[currentLoanMonthIdx] : null;
-    const salary = TransferIncome.get(row)[storageKey === "budgetTracker_maja" ? "maja" : "markus"];
-    if (salary !== null) return salary;
-    // Fall back to the personal budget tracker for older months without salary data.
-    // Do NOT fallback to latest month if selected month doesn't exist
-    const selectedMonth = localStorage.getItem("selectedBudgetMonth");
-    const budgetData = readBudgetData(storageKey, selectedMonth, false);
-    if (!budgetData) return 0;
-    
-    let totalIncome = 0;
-    for (const section of budgetData.sections || []) {
-        if (section.isIncome || section.key === "income") {
-            for (const item of section.items || []) {
-                totalIncome += item.actual || item.budget || 0;
-            }
-        }
-    }
-    return totalIncome;
-}
-function getTotalExpenses() {
-    return expenses.reduce((s, e) => s + (e.amount || 0), 0);
-}
-function getTotalHuskonto() {
-    return huskonto.reduce((s, e) => s + (e.amount || 0), 0);
-}
-function getTotalOut(loan) {
-    return calcTotalHouse(loan) + getTotalExpenses() + getTotalHuskonto();
-}
-function getKvar(loan) {
-    return getTotalIncome() - getTotalOut(loan);
-}
-
-// Get remaining loan at a specific month index
-function getLoanAtMonth(monthIdx) {
-    let simLoan = loanParams.huslan;
-    // Calculate number of months from the start (April 2025 = month 0)
-    const monthNumber = monthIdx + 1;
-    for (let m = 1; m < monthNumber; m++) {
-        simLoan -= calcAmort(simLoan);
-        if (simLoan < 0) simLoan = 0;
-    }
-    return simLoan;
-}
-
-// Generate amortization table dynamically
-// Uses stable overall mean income so table doesn't change when switching months
-function generateAmortTable() {
-    const rows = [];
+function calcReno() { return Math.round(loanParams.huspris * (loanParams.renovering / 100) / 12); }
+function calcTotalHouse(loan) { return calcMonthlyInterest(loan) + calcDrift() + calcAmort(loan) + calcReno(); }
+function loanAt(monthIdx) {
     let loan = loanParams.huslan;
-    const years = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22];
-    const stableIncome = getOverallMeanIncome(); // Use overall mean income for stability
-    for (const yr of years) {
-        const month = (yr - 1) * 12 + 1;
-        // Simulate amortization to this month
-        let simLoan = loanParams.huslan;
-        for (let m = 1; m < month; m++) {
-            simLoan -= calcAmort(simLoan);
-            if (simLoan < 0) simLoan = 0;
-        }
-        const interest = calcMonthlyInterest(simLoan);
-        const drift = calcDrift();
-        const amort = calcAmort(simLoan);
-        const reno = calcReno();
-        const totalHouse = interest + drift + amort + reno;
-        const totalOut = totalHouse + getTotalExpenses() + getTotalHuskonto();
-        // Use stable overall mean income
-        const left = stableIncome - totalOut;
-        rows.push({ year: yr, loan: simLoan, interest, drift, amort, reno, totalHouse, left });
-        if (simLoan <= 0) break;
-    }
-    return rows;
+    for (let m = 0; m < monthIdx; m++) { loan -= calcAmort(loan); if (loan < 0) { loan = 0; break; } }
+    return loan;
+}
+// Month 0 is the first transfer month (when the loan started).
+function loanMonthIdx(key) { const first = keyOfRow(transfers[0]); return first ? Math.max(0, monthDiff(first, key)) : 0; }
+const sum = list => list.reduce((s, e) => s + (Number(e.amount) || 0), 0);
+
+// Net salary: the month's transfer row (shared with Home), else the personal budget's income.
+function budgetIncome(storageKey, key) {
+    try {
+        const d = JSON.parse(localStorage.getItem(storageKey) || "null");
+        const m = d && d.monthlyData && d.monthlyData[key];
+        if (!m) return null;
+        let total = 0;
+        (m.sections || []).forEach(s => { if (s.isIncome || s.key === "income") (s.items || []).forEach(i => { total += Number(i.actual || i.budget || 0); }); });
+        return total;
+    } catch (_) { return null; }
+}
+function incomes(key) {
+    const row = rowFor(key);
+    let got = { markus: null, maja: null };
+    try { if (row && window.TransferIncome) got = TransferIncome.get(row); } catch (_) {}
+    return {
+        markus: got.markus != null ? got.markus : budgetIncome("budgetTracker", key),
+        maja: got.maja != null ? got.maja : budgetIncome("budgetTracker_maja", key)
+    };
 }
 
-// Generate chart data (monthly for 25 years = 300 months, sample every 12)
-function generateChartData() {
-    const data = [];
-    let simLoan = loanParams.huslan;
-    const stableIncome = getOverallMeanIncome(); // Use stable mean income so chart doesn't change with month selection
-    for (let m = 1; m <= 300; m++) {
-        if (m === 1 || m % 12 === 1) {
-            data.push({
-                month: m,
-                loan: simLoan,
-                interest: calcMonthlyInterest(simLoan),
-                totalHouse: calcTotalHouse(simLoan),
-                left: stableIncome - (calcTotalHouse(simLoan) + getTotalExpenses() + getTotalHuskonto())
-            });
-        }
-        simLoan -= calcAmort(simLoan);
-        if (simLoan < 0) simLoan = 0;
-    }
-    return data;
+// ── render ──────────────────────────────────────────
+function kpi(label, value, sub, cls) {
+    return `<div class="fb-kpi"><small>${label}</small><b class="${cls || ""}">${value}</b><em>${sub}</em></div>`;
+}
+function renderKpis() {
+    const inc = incomes(monthKey);
+    const net = (inc.markus || 0) + (inc.maja || 0);
+    const row = rowFor(monthKey);
+    const shared = row ? (Number(row.husutgifter) || 0) + (Number(row.ica) || 0) : null;
+    const house = calcTotalHouse(loanAt(loanMonthIdx(monthKey)));
+    const left = net - (house + sum(expenses) + sum(huskonto));
+    document.getElementById("fb-kpis").innerHTML =
+        kpi("Nettoinkomst", fmt(net), "Markus + Maja", "plus") +
+        kpi("Gemensamt", fmt(shared), "Huskonto + ICA-kort") +
+        kpi("Boende / mån", fmt(house), "Ränta, drift, amortering") +
+        kpi("Kvar efter allt", (left < 0 ? "−" : "") + fmt(Math.abs(left)), "För hela familjen", left < 0 ? "minus" : "plus");
 }
 
-// Generate monthly chart data for cost and left charts (all 300 months)
-// Uses stable overall mean income so graph doesn't change when switching months
-function generateMonthlyChartData() {
-    const data = [];
-    let simLoan = loanParams.huslan;
-    const stableIncome = getOverallMeanIncome(); // Use stable mean income for entire projection
-    for (let m = 1; m <= 300; m++) {
-        data.push({
-            month: m,
-            interest: calcMonthlyInterest(simLoan),
-            totalHouse: calcTotalHouse(simLoan),
-            left: stableIncome - (calcTotalHouse(simLoan) + getTotalExpenses() + getTotalHuskonto())
-        });
-        simLoan -= calcAmort(simLoan);
-        if (simLoan < 0) simLoan = 0;
-    }
-    return data;
-}
-
-// ═══════════════════════════════════════════════════════
-// FORMATTING
-// ═══════════════════════════════════════════════════════
-function fmt(n) { if (n == null) return "—"; return Math.round(n).toLocaleString("sv-SE"); }
-function fmtPct(n) { if (n == null) return "—"; return (n * 100).toFixed(1) + "%"; }
-
-// ═══════════════════════════════════════════════════════
-// SECTION TOGGLE
-// ═══════════════════════════════════════════════════════
-function toggleSection(id) {
-    const body = document.getElementById("section-" + id);
-    const chevron = document.getElementById("chevron-" + id);
-    SurfaceMotion.measureChange(body, () => body.classList.toggle("open"));
-    chevron.classList.toggle("open");
-    // Save section state to localStorage
-    saveSectionState(id, body.classList.contains("open"));
-}
-
-function getCurrentTransferIndex() {
-    const now = new Date();
-    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const currentMonthName = monthNames[now.getMonth()];
-    const currentYear = now.getFullYear();
-    return transfers.findIndex(t => t.year === currentYear && t.month === currentMonthName);
-}
-
-function openCurrentMonthTransfer() {
-    const idx = getCurrentTransferIndex();
-    if (idx === -1) return false;
-    currentTransferIdx = idx;
-    currentLoanMonthIdx = idx;
-    return true;
-}
-
-function saveSectionState(id, isOpen) {
-    const sectionStates = JSON.parse(localStorage.getItem("familjebudget_section_states") || "{}");
-    sectionStates[id] = isOpen;
-    localStorage.setItem("familjebudget_section_states", JSON.stringify(sectionStates));
-}
-
-function loadSectionStates() {
-    const sectionStates = JSON.parse(localStorage.getItem("familjebudget_section_states") || "{}");
-    for (const [id, isOpen] of Object.entries(sectionStates)) {
-        const body = document.getElementById("section-" + id);
-        const chevron = document.getElementById("chevron-" + id);
-        if (body && chevron) {
-            if (isOpen) {
-                body.classList.add("open");
-                chevron.classList.add("open");
-            } else {
-                body.classList.remove("open");
-                chevron.classList.remove("open");
-            }
-        }
-    }
-}
-
-function toggleLoanParamsTable() {
-    const table = document.getElementById("static-params-wrapper");
-    const btn = event.target;
-    table.classList.toggle("collapsed");
-    btn.textContent = table.classList.contains("collapsed") ? "▶ Läs mer" : "▼ Läs mer";
-}
-
-// ═══════════════════════════════════════════════════════
-// EDITABLE HEADINGS
-// ═══════════════════════════════════════════════════════
-function editHeading(event, id) {
-    event.stopPropagation();
-    const el = document.getElementById("heading-" + id);
-    const current = el.textContent;
-    el.innerHTML = `<input class="section-title-input" value="${current}" onblur="saveHeading('${id}', this)" onkeydown="if(event.key==='Enter')this.blur()">`;
-    el.querySelector("input").focus();
-}
-function saveHeading(id, input) {
-    const val = input.value.trim() || id;
-    sectionHeadings[id] = val;
-    document.getElementById("heading-" + id).textContent = val;
-    saveData();
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER LOAN MONTH DISPLAY
-// ═══════════════════════════════════════════════════════
-function renderLoanMonthDisplay() {
-    const t = transfers[currentLoanMonthIdx];
-    if (t) {
-        document.getElementById("loan-month-display").textContent = `${t.month} ${t.year}`;
-    }
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER KPI
-// ═══════════════════════════════════════════════════════
-function renderKPI() {
-    const loan = getLoanAtMonth(currentLoanMonthIdx);
-    const grid = document.getElementById("kpi-grid");
-    grid.innerHTML = `
-        <div class="kpi-card"><div class="kpi-label">Huslån</div><div class="kpi-value" style="color:var(--house)">${fmt(loan)} kr</div><div class="kpi-sub">av ${fmt(loanParams.huslan)} kr</div></div>
-        <div class="kpi-card"><div class="kpi-label">Ränta/mån</div><div class="kpi-value" style="color:var(--danger)">${fmt(calcMonthlyInterest(loan))} kr</div><div class="kpi-sub">Listränta ${loanParams.listranta}%</div></div>
-        <div class="kpi-card"><div class="kpi-label">Totalt hus/mån</div><div class="kpi-value" style="color:var(--transfer)">${fmt(calcTotalHouse(loan))} kr</div><div class="kpi-sub">Ränta + drift + amort.</div></div>
-        <div class="kpi-card"><div class="kpi-label">Nettoinkomst</div><div class="kpi-value" style="color:var(--income)">${fmt(getTotalIncome())} kr</div><div class="kpi-sub">Markus + Maja</div></div>
-        <div class="kpi-card"><div class="kpi-label">Utgifter/mån</div><div class="kpi-value" style="color:var(--expense)">${fmt(getTotalExpenses())} kr</div><div class="kpi-sub">Exkl. boende</div></div>
-        <div class="kpi-card"><div class="kpi-label">Kvar/mån</div><div class="kpi-value" style="color:${getKvar(loan)>0?'var(--income)':'var(--danger)'}">${fmt(getKvar(loan))} kr</div><div class="kpi-sub">Efter alla utgifter</div></div>
-    `;
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER PARAMS (editable)
-// ═══════════════════════════════════════════════════════
-
-function renderStaticParamsTable() {
-    const staticParams = [
-        { key:"huspris", label:"Huspris", suffix:" kr" },
-        { key:"kontantinsats", label:"Kontantinsats", suffix:" kr" },
-        { key:"huslan", label:"Huslån", suffix:" kr" },
-        { key:"fastighetsavgift", label:"Fastighetsavgift/år", suffix:" kr" },
-        { key:"lagfart", label:"Lagfart", suffix:" kr" },
-        { key:"lantmateriavgift", label:"Lantmäteriavgift", suffix:" kr" },
-        { key:"skattereduktion", label:"Skattereduktion", suffix:"%" },
-        { key:"bolan", label:"Bolåneandel", suffix:"%" }
-    ];
-    const p = loanParams;
-    const tbody = document.querySelector("#static-params-table tbody");
-    tbody.innerHTML = staticParams.map(it => `
-        <tr><td>${it.label}</td><td class="num">${fmt(p[it.key])}${it.suffix}</td></tr>
-    `).join("");
-}
-
-function renderParams() {
-    const grid = document.getElementById("param-grid");
-    const p = loanParams;
-    const items = [
-        { key:"listranta", label:"Listränta", suffix:"%" },
-        { key:"ammortering", label:"Amortering", suffix:"%" },
-        { key:"driftkostnad", label:"Driftkostnad/år", suffix:" kr" },
-        { key:"renovering", label:"Renovering", suffix:"%" }
-    ];
-    grid.innerHTML = items.map(it => `
-        <div class="param-item">
-            <span class="param-label">${it.label}</span>
-            <span class="param-value"><input class="editable-input" type="number" value="${p[it.key]}" onchange="updateParam('${it.key}', this.value)" step="any">${it.suffix}</span>
-        </div>
-    `).join("");
-}
-
-function updateParam(key, val) {
-    loanParams[key] = parseFloat(val) || 0;
-    saveData();
-    renderAll();
-
-    if (new URLSearchParams(window.location.search).get("transfer") === "1") {
-        jumpToCurrentTransferMonth();
-    }
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER AMORT TABLE
-// ═══════════════════════════════════════════════════════
-function renderAmortTable() {
-    const rows = generateAmortTable();
-    document.querySelector("#amort-table tbody").innerHTML = rows.map(r => `
-        <tr><td>År ${r.year}</td><td class="num">${fmt(r.loan)}</td><td class="num">${fmt(r.interest)}</td><td class="num">${fmt(r.drift)}</td><td class="num">${fmt(r.amort)}</td><td class="num">${fmt(r.reno)}</td><td class="num">${fmt(r.totalHouse)}</td><td class="num positive">${fmt(r.left)}</td></tr>
-    `).join("");
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER INCOME & EXPENSES (editable)
-// ═══════════════════════════════════════════════════════
-function renderIncomeExpenses() {
-    const ig = document.getElementById("income-grid");
-    
-    // Get individual income from budget pages
-    const markusIncome = getIndividualIncome("budgetTracker");
-    const majaIncome = getIndividualIncome("budgetTracker_maja");
-    
-    ig.innerHTML = `
-        <div class="param-item"><span class="param-label">Markus nettolön</span><span class="param-value" style="color:var(--markus-color)">${fmt(markusIncome)} kr</span></div>
-        <div class="param-item"><span class="param-label">Majas nettolön</span><span class="param-value" style="color:var(--maja-color)">${fmt(majaIncome)} kr</span></div>
-        <div class="param-item"><span class="param-label">Totalt</span><span class="param-value" style="color:var(--income);font-weight:800">${fmt(getTotalIncome())} kr</span></div>
-    `;
-
-    // Expenses
-    const etb = document.querySelector("#expenses-table tbody");
-    const totalExp = getTotalExpenses();
-    etb.innerHTML = expenses.map((e, i) => `
-        <tr><td><input class="editable-input editable-input-wide" value="${e.name}" onchange="updateExpenseName(${i},this.value)"></td><td class="num"><input class="editable-input" type="number" value="${e.amount}" onchange="updateExpenseAmount(${i},this.value)"></td><td><span class="checklist-delete" onclick="deleteExpense(${i})">✕</span></td></tr>
-    `).join("") + `<tr class="total-row"><td>Totalt</td><td class="num">${fmt(totalExp)}</td><td></td></tr>`;
-
-    // Huskonto
-    const htb = document.querySelector("#huskonto-table tbody");
-    const totalHus = getTotalHuskonto();
-    htb.innerHTML = huskonto.map((e, i) => `
-        <tr><td><input class="editable-input editable-input-wide" value="${e.name}" onchange="updateHuskontoName(${i},this.value)"></td><td class="num"><input class="editable-input" type="number" value="${e.amount}" onchange="updateHuskontoAmount(${i},this.value)"></td><td><span class="checklist-delete" onclick="deleteHuskonto(${i})">✕</span></td></tr>
-    `).join("") + `<tr class="total-row"><td>Totalt</td><td class="num">${fmt(totalHus)}</td><td></td></tr>`;
-}
-
-function updateIncome(who, val) { income[who].inkomst = parseFloat(val) || 0; saveData(); renderAll(); }
-function updateExpenseName(i, val) { expenses[i].name = val; saveData(); }
-function updateExpenseAmount(i, val) { expenses[i].amount = parseFloat(val) || 0; saveData(); renderAll(); }
-function deleteExpense(i) { expenses.splice(i, 1); saveData(); renderAll(); }
-function addExpense() { expenses.push({ name: "Ny utgift", amount: 0 }); saveData(); renderAll(); }
-function updateHuskontoName(i, val) { huskonto[i].name = val; saveData(); }
-function updateHuskontoAmount(i, val) { huskonto[i].amount = parseFloat(val) || 0; saveData(); renderAll(); }
-function deleteHuskonto(i) { huskonto.splice(i, 1); saveData(); renderAll(); }
-function addHuskonto() { huskonto.push({ name: "Ny post", amount: 0 }); saveData(); renderAll(); }
-
-// ═══════════════════════════════════════════════════════
-// RENDER TRANSFERS
-// ═══════════════════════════════════════════════════════
-function changeTransferMonth(delta) {
-    currentTransferIdx = Math.max(0, Math.min(transfers.length - 1, currentTransferIdx + delta));
-    saveCurrentMonthToStorage();
-    renderTransferDetail();
-    renderTransferTable();
-}
-
-function deleteTransfer(idx) {
-    if (transfers.length <= 1) {
-        alert("Du kan inte ta bort den sista månaden");
+function renderTransfer() {
+    const el = document.getElementById("fb-transfer");
+    const row = rowFor(monthKey);
+    if (!row) {
+        el.innerHTML = `<p class="fb-muted">Ingen överföring är sparad för ${esc(labelOf(monthKey))}. Lägg till månaden under <a href="data.html">Data &amp; Formler</a>.</p>`;
         return;
     }
-    if (confirm(`Vill du ta bort ${transfers[idx].month} ${transfers[idx].year}?`)) {
-        transfers.splice(idx, 1);
-        if (currentTransferIdx >= transfers.length) {
-            currentTransferIdx = transfers.length - 1;
-        }
-        saveData();
-        renderTransferDetail();
-        renderTransferTable();
-    }
+    const mk = (Number(row.huskontoMarkus) || 0) + (Number(row.icaMarkus) || 0);
+    const mj = (Number(row.huskontoMaja) || 0) + (Number(row.icaMaja) || 0);
+    const total = mk + mj || 1;
+    const pm = Math.round(mk / total * 100), pj = 100 - pm;
+    const inc = incomes(monthKey);
+    const netLine = (p) => inc[p] != null ? ` · netto ${fmt(inc[p])}` : "";
+    el.innerHTML = `
+        <div class="fb-split" role="img" aria-label="Markus ${pm} procent, Maja ${pj} procent"><i style="width:${mk / total * 100}%;background:var(--fb-markus)"></i><i style="width:${mj / total * 100}%;background:var(--fb-maja)"></i></div>
+        <div class="fb-who"><span class="fb-dot" style="color:var(--fb-markus)"></span><b>Markus · ${pm} %</b><strong>${fmt(mk)} kr</strong><em>Huskonto ${fmt(row.huskontoMarkus)} · ICA-kort ${fmt(row.icaMarkus)}${netLine("markus")}</em></div>
+        <div class="fb-who"><span class="fb-dot" style="color:var(--fb-maja)"></span><b>Maja · ${pj} %</b><strong>${fmt(mj)} kr</strong><em>Huskonto ${fmt(row.huskontoMaja)} · ICA-kort ${fmt(row.icaMaja)}${netLine("maja")}</em></div>
+        ${historySvg()}`;
 }
 
-function addNewTransfer() {
-    // Get the last month and add one month
-    const lastTransfer = transfers[transfers.length - 1];
-    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const monthIdx = monthNames.indexOf(lastTransfer.month);
-    let newMonthIdx = (monthIdx + 1) % 12;
-    let newYear = lastTransfer.year + (newMonthIdx < monthIdx ? 1 : 0);
-    let newMonth = monthNames[newMonthIdx];
-    
-    // Create new transfer with sensible defaults from previous month
-    const newTransfer = {
-        year: newYear,
-        month: newMonth,
-        husutgifter: lastTransfer.husutgifter,
-        ica: lastTransfer.ica,
-        majaAndel: lastTransfer.majaAndel,
-        markusAndel: lastTransfer.markusAndel,
-        huskontoMaja: Math.round(lastTransfer.husutgifter * lastTransfer.majaAndel),
-        icaMaja: Math.round(lastTransfer.ica * lastTransfer.majaAndel),
-        huskontoMarkus: Math.round(lastTransfer.husutgifter * lastTransfer.markusAndel),
-        icaMarkus: Math.round(lastTransfer.ica * lastTransfer.markusAndel)
-    };
-    
-    transfers.push(newTransfer);
-    currentTransferIdx = transfers.length - 1;
-    saveData();
-    renderTransferDetail();
-    renderTransferTable();
+// Last 12 transfer months up to the chosen one, stacked Markus / Maja.
+function historySvg() {
+    const rows = transfers.filter(r => { const k = keyOfRow(r); return k && k <= monthKey; }).slice(-12);
+    if (rows.length < 2) return "";
+    const totals = rows.map(r => ({
+        mk: (Number(r.huskontoMarkus) || 0) + (Number(r.icaMarkus) || 0),
+        mj: (Number(r.huskontoMaja) || 0) + (Number(r.icaMaja) || 0),
+        key: keyOfRow(r)
+    }));
+    const max = Math.max(...totals.map(t => t.mk + t.mj)) || 1;
+    const W = 320, H = 70, gap = 4, bw = (W - gap * (totals.length - 1)) / totals.length;
+    const bars = totals.map((t, i) => {
+        const x = i * (bw + gap);
+        const hk = t.mk / max * (H - 14), hj = t.mj / max * (H - 14);
+        const sel = t.key === monthKey;
+        return `<g opacity="${sel ? 1 : .55}"><rect x="${x.toFixed(1)}" y="${(H - 14 - hk - hj).toFixed(1)}" width="${bw.toFixed(1)}" height="${hj.toFixed(1)}" rx="2" fill="var(--fb-maja)"/>` +
+            `<rect x="${x.toFixed(1)}" y="${(H - 14 - hk).toFixed(1)}" width="${bw.toFixed(1)}" height="${hk.toFixed(1)}" rx="2" fill="var(--fb-markus)"/>` +
+            `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 2}" text-anchor="middle">${MONTHS[Number(t.key.slice(5)) - 1].slice(0, 1)}</text></g>`;
+    }).join("");
+    return `<div class="fb-hist"><span>Senaste ${totals.length} månaderna</span><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Överföringar per månad">${bars}</svg></div>`;
 }
 
-function changeLoanMonth(delta) {
-    currentLoanMonthIdx = Math.max(0, Math.min(transfers.length - 1, currentLoanMonthIdx + delta));
-    saveCurrentMonthToStorage();
-    renderAll();
+function renderList(id, list, open, keyName) {
+    const sorted = list.slice().sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
+    const shown = open ? sorted : sorted.slice(0, 3);
+    let html = shown.map(e => `<div class="fb-it"><span>${esc(e.name)}</span><span>${fmt(e.amount)}</span></div>`).join("");
+    if (sorted.length > 3) html += `<button type="button" class="fb-link" onclick="toggleList('${keyName}')" aria-expanded="${open}">${open ? "Visa färre" : "Visa alla " + sorted.length}</button>`;
+    if (!sorted.length) html = `<p class="fb-muted">Inga poster.</p>`;
+    document.getElementById(id).innerHTML = html;
+}
+function toggleList(k) { expanded[k] = !expanded[k]; renderSections(); }
+function renderSections() {
+    document.getElementById("fb-ica-sum").innerHTML = `${fmt(sum(expenses))}<em>${expenses.length} poster</em>`;
+    document.getElementById("fb-hus-sum").innerHTML = `${fmt(sum(huskonto))}<em>${huskonto.length} poster</em>`;
+    renderList("fb-ica", expenses, expanded.ica, "ica");
+    renderList("fb-hus", huskonto, expanded.hus, "hus");
 }
 
-function saveCurrentMonthToStorage() {
-    // Save the current loan month to localStorage so other pages can sync
-    if (currentLoanMonthIdx < transfers.length) {
-        const t = transfers[currentLoanMonthIdx];
-        const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-        const monthNum = monthNames.indexOf(t.month) + 1;
-        const monthKey = `${t.year}-${String(monthNum).padStart(2, '0')}`;
-        localStorage.setItem("selectedBudgetMonth", monthKey);
-    }
+function renderHouse() {
+    const idx = loanMonthIdx(monthKey);
+    const loan = loanAt(idx);
+    // Loan curve over 25 years with a marker at the chosen month.
+    const pts = []; let l = loanParams.huslan;
+    for (let m = 0; m <= 300; m += 6) { pts.push([m, l]); for (let k = 0; k < 6 && l > 0; k++) { l -= calcAmort(l); if (l < 0) l = 0; } }
+    const W = 320, H = 56, x = m => m / 300 * W, y = v => 4 + (1 - v / loanParams.huslan) * (H - 8);
+    const line = pts.map((p, i) => (i ? "L" : "M") + x(p[0]).toFixed(1) + " " + y(p[1]).toFixed(1)).join(" ");
+    const cx = x(Math.min(idx, 300)), cy = y(loan);
+    const years = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22].map(yr => {
+        const ln = loanAt((yr - 1) * 12);
+        return `<tr><td>År ${yr}</td><td>${fmt(ln)}</td><td>${fmt(calcMonthlyInterest(ln))}</td><td>${fmt(calcTotalHouse(ln))}</td></tr>`;
+    }).join("");
+    document.getElementById("fb-house").innerHTML = `
+        <div class="fb-loan">
+            <div><b>${fmt(loan)}</b><em>Kvar av ${fmt(loanParams.huslan)}</em></div>
+            <div class="r"><b class="s">${fmt(calcMonthlyInterest(loan))}</b><em>Ränta / mån, ${String(loanParams.listranta).replace(".", ",")} %</em></div>
+        </div>
+        <div class="fb-sparkwrap">
+            <svg class="fb-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+                <path d="${line} L${W} ${H} L0 ${H}Z" fill="rgba(242,148,139,.10)"/>
+                <path d="${line}" fill="none" stroke="var(--sc)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <span class="fb-mark" style="left:${(cx / W * 100).toFixed(2)}%;top:${cy.toFixed(1)}px"></span>
+        </div>
+        <div class="fb-parts">
+            <span>Ränta <b>${fmt(calcMonthlyInterest(loan))}</b></span>
+            <span>Drift <b>${fmt(calcDrift())}</b></span>
+            <span>Amortering <b>${fmt(calcAmort(loan))}</b></span>
+            <span>Renovering <b>${fmt(calcReno())}</b></span>
+        </div>
+        <button type="button" class="fb-link" onclick="expanded.plan=!expanded.plan;renderHouse()" aria-expanded="${expanded.plan}">${expanded.plan ? "Dölj amorteringsplan" : "Amorteringsplan"}</button>
+        ${expanded.plan ? `<div class="fb-table"><table><thead><tr><th>År</th><th>Huslån</th><th>Ränta/mån</th><th>Boende/mån</th></tr></thead><tbody>${years}</tbody></table></div>` : ""}`;
 }
 
-function renderTransferDetail() {
-    // Minimal display - just show the current month in the display
-    const t = transfers[currentTransferIdx];
-    document.getElementById("transfer-month-display").textContent = `${t.month} ${t.year}`;
+// ── savings goals ───────────────────────────────────
+function linkedSaved(storageKey, names) {
+    let total = 0;
+    try {
+        const d = JSON.parse(localStorage.getItem(storageKey) || "null");
+        Object.values((d && d.monthlyData) || {}).forEach(m => (m.sections || []).forEach(s => {
+            if (s.key !== "savings") return;
+            (s.items || []).forEach(i => { if (names.includes(i.name) && i.actual > 0) total += Number(i.actual) || 0; });
+        }));
+    } catch (_) {}
+    return total;
 }
-
-function renderTransferTable() {
-    document.querySelector("#transfer-table tbody").innerHTML = transfers.map((t, i) => {
-        const isCurrent = i === currentTransferIdx;
-        const net = TransferIncome.get(t);
-        const totalNet = net.markus !== null && net.maja !== null ? fmt(net.markus + net.maja) : '—';
-        const huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
-        const icaMaja = Math.round(t.ica * t.majaAndel);
-        const huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
-        const icaMarkus = Math.round(t.ica * t.markusAndel);
-        return `<tr id="transfer-row-${i}" style="${isCurrent ? 'background:var(--accent-bg);font-weight:600' : ''}">
-            <td>${t.month} ${t.year}</td>
-            <td class="num editable-cell" onclick="startEditCell(this,${i},'husutgifter','number')" style="cursor:pointer">${fmt(t.husutgifter)}</td>
-            <td class="num editable-cell" onclick="startEditCell(this,${i},'ica','number')" style="cursor:pointer">${fmt(t.ica)}</td>
-            <td class="num editable-cell" onclick="startEditCell(this,${i},'markusNetto','income')" style="cursor:pointer;color:var(--markus-color)">${net.markus === null ? '—' : fmt(net.markus)}</td>
-            <td class="num editable-cell" onclick="startEditCell(this,${i},'majaNetto','income')" style="cursor:pointer;color:var(--maja-color)">${net.maja === null ? '—' : fmt(net.maja)}</td>
-            <td class="num" style="font-weight:650">${totalNet}</td>
-            <td class="num editable-cell" onclick="startEditCell(this,${i},'majaAndel','percent')" style="cursor:pointer;color:var(--maja-color)">${(t.majaAndel*100).toFixed(1)}%</td>
-            <td class="num editable-cell" onclick="startEditCell(this,${i},'markusAndel','percent')" style="cursor:pointer;color:var(--markus-color)">${(t.markusAndel*100).toFixed(1)}%</td>
-            <td class="num" style="color:var(--maja-color)">${fmt(huskontoMaja)}</td>
-            <td class="num" style="color:var(--maja-color)">${fmt(icaMaja)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmt(huskontoMarkus)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmt(icaMarkus)}</td>
-            <td style="text-align:center"><span class="checklist-delete" onclick="deleteTransfer(${i})" style="cursor:pointer">✕</span></td>
-        </tr>`;
+function renderGoals() {
+    const el = document.getElementById("fb-goals");
+    if (!savingsGoals.length) { el.innerHTML = `<p class="fb-muted">Inga sparmål än.</p>`; return; }
+    el.innerHTML = savingsGoals.map((g, idx) => {
+        const linked = g.linkedItems.length ? linkedSaved("budgetTracker", g.linkedItems) + linkedSaved("budgetTracker_maja", g.linkedItems) : 0;
+        const saved = (g.current || 0) + linked + (g.extra || 0);
+        const pct = g.target > 0 ? Math.min(100, Math.round(saved / g.target * 100)) : 0;
+        const left = Math.max(0, g.target - saved);
+        const months = g.customMonthsToGoal || (g.monthly > 0 ? Math.ceil(left / g.monthly) : 0);
+        const meta = saved >= g.target ? "Klart" : (months ? months + " mån kvar" : pct + " %");
+        return `<button type="button" class="fb-goal" onclick="openGoalModal(${idx})" style="--gc:${esc(g.color || "#6FD6A8")}">
+            <span class="n">${esc(g.name)}</span><span class="v">${fmt(saved)} / ${fmt(g.target)}</span>
+            <span class="fb-bar"><i style="width:${pct}%"></i></span><span class="m">${meta}</span></button>`;
     }).join("");
 }
-
-function jumpToCurrentTransferMonth() {
-    const idx = getCurrentTransferIndex();
-    if (idx === -1) {
-        showToast('Ingen överföringsrad för aktuell månad hittades.');
-        return;
-    }
-    openCurrentMonthTransfer();
-    if (typeof sectionStates !== 'undefined') {
-        sectionStates.transfers = true;
-        localStorage.setItem('familjebudget_section_states', JSON.stringify(sectionStates));
-    }
-    renderTransferDetail();
-    renderTransferTable();
-    const body = document.getElementById('section-transfers');
-    const chev = document.getElementById('chevron-transfers');
-    if (body) body.classList.add('open');
-    if (chev) chev.classList.add('open');
-    const row = document.getElementById('transfer-row-' + idx);
-    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+function savingItemNames() {
+    const names = new Set();
+    ["budgetTracker", "budgetTracker_maja"].forEach(k => {
+        try {
+            const d = JSON.parse(localStorage.getItem(k) || "null");
+            Object.values((d && d.monthlyData) || {}).forEach(m => (m.sections || []).forEach(s => { if (s.key === "savings") (s.items || []).forEach(i => i.name && names.add(i.name)); }));
+        } catch (_) {}
+    });
+    return [...names].sort((a, b) => a.localeCompare(b, "sv"));
 }
-
-function applyMonthlyHeaderImage() {
-    const monthIndex = new Date().getMonth() + 1;
-    const monthKey = String(monthIndex).padStart(2, '0');
-    const candidates = [
-        'url("img/header/month-' + monthKey + '.jpg")',
-        'url("img/header/' + monthKey + '.jpg")',
-        'url("img/header/' + monthKey + '.png")'
-    ];
-    document.documentElement.style.setProperty('--header-month-image', candidates.join(','));
-}
-
-function startEditCell(cell, idx, field, type) {
-    const t = transfers[idx];
-    let currentValue = type === 'income'
-        ? TransferIncome.get(t)[field === 'markusNetto' ? 'markus' : 'maja']
-        : t[field];
-    if (type === 'percent') {
-        currentValue = (currentValue * 100).toFixed(1);
-    }
-    
-    const input = document.createElement('input');
-    input.type = type === 'percent' || type === 'number' || type === 'income' ? 'number' : 'text';
-    if (type === 'income') { input.min = '0'; input.inputMode = 'numeric'; }
-    if (type === 'percent') input.step = '0.1';
-    input.value = currentValue === null ? '' : currentValue;
-    input.style.width = '80px';
-    input.style.padding = '4px';
-    input.style.border = '1px solid var(--border)';
-    input.style.borderRadius = '4px';
-    input.style.background = 'var(--card)';
-    input.style.color = 'var(--text)';
-    
-    let canceled = false;
-    input.onblur = () => {
-        if (!canceled) finishEditCell(idx, field, input.value, type);
-    };
-    input.onkeydown = (e) => {
-        if (e.key === 'Enter') input.blur();
-        if (e.key === 'Escape') {
-            canceled = true;
-            renderTransferTable();
-        }
-    };
-    
-    cell.innerHTML = '';
-    cell.appendChild(input);
-    input.focus();
-    input.select();
-}
-
-function finishEditCell(idx, field, value, type) {
-    const t = transfers[idx];
-    if (type === 'income') {
-        const person = field === 'markusNetto' ? 'markus' : 'maja';
-        if (!TransferIncome.update(t, person, value)) {
-            renderTransferTable();
-            return;
-        }
-        saveData();
-        renderAll();
-        return;
-    }
-    const numVal = parseFloat(value) || 0;
-    
-    if (type === 'percent') {
-        t[field] = numVal / 100;
-        if (field === 'majaAndel') {
-            t.markusAndel = 1 - t.majaAndel;
-        }
-    } else {
-        t[field] = numVal;
-    }
-    
-    // Recalculate derived values
-    t.huskontoMaja = Math.round(t.husutgifter * t.majaAndel);
-    t.icaMaja = Math.round(t.ica * t.majaAndel);
-    t.huskontoMarkus = Math.round(t.husutgifter * t.markusAndel);
-    t.icaMarkus = Math.round(t.ica * t.markusAndel);
-    
-    saveData();
-    renderTransferTable();
-}
-
-// ═══════════════════════════════════════════════════════
-// PERSONAL EXPENSES (from budgetTracker localStorage)
-// ═══════════════════════════════════════════════════════
-function readBudgetData(storageKey, monthKey = null, allowFallback = true) {
-    const raw = localStorage.getItem(storageKey);
-    if (!raw) return null;
-    try {
-        const data = JSON.parse(raw);
-        if (!data.monthlyData) return null;
-        const months = Object.keys(data.monthlyData).sort();
-        if (months.length === 0) return null;
-        
-        // Use specified monthKey, or selected month from localStorage
-        let selectedMonth = monthKey;
-        if (!selectedMonth) {
-            selectedMonth = localStorage.getItem("selectedBudgetMonth");
-        }
-        
-        // If selected month doesn't exist and fallback is disabled, return null
-        if (!data.monthlyData[selectedMonth]) {
-            if (!allowFallback) return null;
-            // Otherwise fallback to latest month
-            selectedMonth = months[months.length - 1];
-        }
-        
-        const sections = data.monthlyData[selectedMonth].sections;
-        return { sections, monthKey: selectedMonth };
-    } catch(e) { return null; }
-}
-
-function extractFromBudget(storageKey) {
-    const bd = readBudgetData(storageKey);
-    if (!bd) return { income: [], expenses: [], savings: [] };
-    const result = { income: [], expenses: [], savings: [] };
-    for (const s of bd.sections) {
-        for (const item of s.items) {
-            const entry = { name: item.name, budget: item.budget || 0, actual: item.actual || 0 };
-            if (s.isIncome || s.key === "income") {
-                result.income.push(entry);
-            } else if (s.key === "savings") {
-                result.savings.push(entry);
-            } else {
-                result.expenses.push(entry);
-            }
-        }
-    }
-    return result;
-}
-
-function renderPersonalExpenses() {
-    const markusData = extractFromBudget("budgetTracker");
-    const majaData = extractFromBudget("budgetTracker_maja");
-    const container = document.getElementById("expense-compare");
-
-    function renderCol(label, icon, color, data) {
-        if (!data || (data.income.length === 0 && data.expenses.length === 0)) {
-            return `<div class="expense-col"><h3><span style="font-size:20px">${icon}</span> ${label}</h3><p style="font-size:13px;color:var(--text-sec)">Ingen data — öppna budgetplaneraren och lägg till poster.</p></div>`;
-        }
-        // Show only actual income/expenses/savings (not budgeted values)
-        const actualIncome = data.income.filter(e => e.actual && e.actual > 0);
-        const actualExpenses = data.expenses.filter(e => e.actual && e.actual > 0);
-        const actualSavings = data.savings.filter(e => e.actual && e.actual > 0);
-        
-        const totalIncome = actualIncome.reduce((s, e) => s + e.actual, 0);
-        const totalExpenses = actualExpenses.reduce((s, e) => s + e.actual, 0);
-        const totalSavings = actualSavings.reduce((s, e) => s + e.actual, 0);
-        const left = totalIncome - totalExpenses - totalSavings;
-
-        let html = `<div class="expense-col"><h3><span style="font-size:20px">${icon}</span> ${label}</h3>`;
-        if (actualIncome.length) {
-            html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Inkomster</div>`;
-            actualIncome.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount positive">${fmt(e.actual)} kr</span></div>`; });
-            html += `<div class="expense-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="name">Totalt inkomst</span><span class="amount positive">${fmt(totalIncome)} kr</span></div>`;
-        }
-        if (actualExpenses.length) {
-            html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">Utgifter</div>`;
-            actualExpenses.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount">${fmt(e.actual)} kr</span></div>`; });
-            html += `<div class="expense-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="name">Totalt utgifter</span><span class="amount" style="color:var(--danger)">${fmt(totalExpenses)} kr</span></div>`;
-            if (totalSavings > 0) {
-                html += `<div class="expense-item" style="font-size:12px;color:var(--text-sec);padding:4px 12px 0"><span class="name">varav sparat</span><span class="amount" style="font-size:12px;color:var(--savings)">${fmt(totalSavings)} kr</span></div>`;
-            }
-        }
-        if (actualSavings.length) {
-            html += `<div style="font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">Sparande</div>`;
-            actualSavings.forEach(e => { html += `<div class="expense-item"><span class="name">${e.name}</span><span class="amount" style="color:var(--savings)">${fmt(e.actual)} kr</span></div>`; });
-            html += `<div class="expense-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:10px;margin-top:4px"><span class="name">Totalt sparande</span><span class="amount" style="color:var(--savings)">${fmt(totalSavings)} kr</span></div>`;
-        }
-        if (actualIncome.length === 0 && actualExpenses.length === 0 && actualSavings.length === 0) {
-            html += `<div style="font-size:12px;color:var(--text-sec);margin-top:12px">Ingen utgifter registrerade</div>`;
-        } else {
-            html += `<div class="expense-item" style="font-weight:800;margin-top:8px;padding-top:8px;border-top:2px solid var(--accent)"><span class="name">Kvar</span><span class="amount" style="color:${left>=0?'var(--income)':'var(--danger)'}">${fmt(left)} kr</span></div>`;
-        }
-        html += `</div>`;
-        return html;
-    }
-
-    container.innerHTML = renderCol("Markus", '<i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--markus-color);vertical-align:middle"></i>', "--markus-color", markusData) + renderCol("Maja", '<i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--maja-color);vertical-align:middle"></i>', "--maja-color", majaData);
-}
-
-// ═══════════════════════════════════════════════════════
-// SAVINGS GOALS
-// ═══════════════════════════════════════════════════════
-function getAllSavingItems() {
-    const items = {};
-    const markusData = readBudgetData("budgetTracker");
-    const majaData = readBudgetData("budgetTracker_maja");
-    
-    const extractSavings = (data) => {
-        if (!data) return;
-        for (const s of data.sections) {
-            if (s.key === "savings") {
-                for (const item of (s.items || [])) {
-                    const amount = item.actual || item.budget || 0;
-                    if (!items[item.name]) {
-                        items[item.name] = amount;
-                    }
-                }
-            }
-        }
-    };
-    
-    extractSavings(markusData);
-    extractSavings(majaData);
-    return items;
-}
-
 function openGoalModal(idx) {
-    editingGoalIdx = idx !== undefined ? idx : -1;
+    editingGoalIdx = idx != null ? idx : -1;
+    const g = editingGoalIdx >= 0 ? savingsGoals[editingGoalIdx] : { name: "", target: "", current: 0, extra: 0, monthly: 0, customMonthsToGoal: "", color: "#6FD6A8", linkedItems: [] };
     document.getElementById("modal-title").textContent = editingGoalIdx >= 0 ? "Redigera sparmål" : "Nytt sparmål";
-    
-    const allItems = getAllSavingItems();
-    const selectedItems = editingGoalIdx >= 0 ? (savingsGoals[editingGoalIdx].linkedItems || []) : [];
-    
-    // Populate checkboxes
-    const checkboxContainer = document.getElementById("goal-items-checkboxes");
-    checkboxContainer.innerHTML = Object.keys(allItems).length === 0 
-        ? '<span style="font-size:12px;color:var(--text-sec)">Inga sparande-utgifter funna. Lägg till i budgetplaneraren först.</span>'
-        : Object.entries(allItems).map(([name, amount]) => {
-            const safeId = `goal-item-${name.replace(/[^a-zA-Z0-9-_]/g, '-')}`;
-            return `
-            <div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;border-radius:6px;cursor:pointer;transition:background 0.2s;background:transparent" onmouseover="this.style.background='var(--accent-bg)'" onmouseout="this.style.background='transparent'">
-                <input type="checkbox" id="${safeId}" value="${name}" ${selectedItems.includes(name)?'checked':''} style="cursor:pointer;width:16px;height:16px;flex-shrink:0">
-                <label for="${safeId}" style="flex:1;cursor:pointer;font-size:13px;margin:0;word-break:break-word">${name}</label>
-            </div>
-        `}).join('');
-    
-    if (editingGoalIdx >= 0) {
-        const g = savingsGoals[editingGoalIdx];
-        document.getElementById("goal-name").value = g.name;
-        document.getElementById("goal-target").value = g.target;
-        document.getElementById("goal-current").value = g.current;
-        document.getElementById("goal-monthly").value = g.monthly || 0;
-        document.getElementById("goal-time-horizon").value = g.customMonthsToGoal || "";
-        document.getElementById("goal-color").value = g.color || "#10B981";
-    } else {
-        document.getElementById("goal-name").value = "";
-        document.getElementById("goal-target").value = "";
-        document.getElementById("goal-current").value = 0;
-        document.getElementById("goal-monthly").value = 0;
-        document.getElementById("goal-time-horizon").value = "";
-        document.getElementById("goal-color").value = "#10B981";
-    }
+    document.getElementById("goal-name").value = g.name;
+    document.getElementById("goal-target").value = g.target;
+    document.getElementById("goal-current").value = g.current || 0;
+    document.getElementById("goal-extra").value = g.extra || 0;
+    document.getElementById("goal-monthly").value = g.monthly || 0;
+    document.getElementById("goal-time-horizon").value = g.customMonthsToGoal || "";
+    const color = document.getElementById("goal-color");
+    color.value = g.color || "#6FD6A8"; if (!color.value) color.selectedIndex = 0;
+    const names = savingItemNames();
+    document.getElementById("goal-items-checkboxes").innerHTML = names.length
+        ? names.map((n, i) => `<label class="fb-check"><input type="checkbox" value="${esc(n)}" ${g.linkedItems.includes(n) ? "checked" : ""}> ${esc(n)}</label>`).join("")
+        : `<span class="fb-muted">Inga sparposter i budgetarna än.</span>`;
+    document.getElementById("goal-delete").hidden = editingGoalIdx < 0;
+    document.getElementById("goal-error").hidden = true;
     document.getElementById("goal-modal").classList.add("active");
 }
-
 function closeGoalModal() { document.getElementById("goal-modal").classList.remove("active"); editingGoalIdx = -1; }
-
 function saveGoal() {
-    try {
-        const name = document.getElementById("goal-name").value.trim();
-        const targetInput = document.getElementById("goal-target").value.trim();
-        const target = targetInput ? parseFloat(targetInput) : 0;
-        const current = parseFloat(document.getElementById("goal-current").value) || 0;
-        const monthly = parseFloat(document.getElementById("goal-monthly").value) || 0;
-        const color = document.getElementById("goal-color").value;
-        
-        // Get selected items from checkboxes
-        const checkboxes = document.querySelectorAll("#goal-items-checkboxes input[type='checkbox']");
-        const linkedItems = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-        
-        if (!name) { 
-            alert("Fyll i ett namn för sparmålet."); 
-            return; 
-        }
-        if (target <= 0) { 
-            alert("Fyll i ett målbelopp större än 0."); 
-            return; 
-        }
-        
-        const customMonthsToGoal = parseInt(document.getElementById("goal-time-horizon").value) || 0;
-        const goal = { name, target, current, monthly, color, linkedItems: Array.isArray(linkedItems) ? linkedItems : [], extra: 0, customMonthsToGoal };
-        if (editingGoalIdx >= 0) {
-            // Preserve existing extra value when editing
-            goal.extra = savingsGoals[editingGoalIdx].extra || 0;
-            savingsGoals[editingGoalIdx] = goal;
-        } else {
-            savingsGoals.push(goal);
-        }
-        saveData();
-        renderGoals();
-        closeGoalModal();
-    } catch(e) {
-        console.error('Error saving goal:', e);
-        alert('Ett fel uppstod när sparmålet skulle sparas. Se konsolen för detaljer.');
-    }
-}
-function deleteGoal(idx) {
-    if (confirm(`Vill du ta bort sparmålet "${savingsGoals[idx].name}"?`)) {
-        savingsGoals.splice(idx, 1); saveData(); renderGoals();
-    }
-}
-
-function addGoalExtra(idx) {
-    const goal = savingsGoals[idx];
-    const currentExtra = goal.extra || 0;
-    const input = prompt(`Lägg till sparade pengar (extra) för "${goal.name}"\n\nNuvarande extra värde: ${fmt(currentExtra)} kr\n\nAnge nytt värde (eller 0 för att ta bort):`, currentExtra);
-    
-    if (input !== null) {
-        const newExtra = parseFloat(input) || 0;
-        if (newExtra < 0) {
-            alert("Värdet kan inte vara negativt.");
-            return;
-        }
-        goal.extra = newExtra;
-        saveData();
-        renderGoals();
-    }
-}
-
-function editGoalTimeHorizon(idx) {
-    const goal = savingsGoals[idx];
-    const remaining = Math.max(0, goal.target - ((goal.current || 0) + (goal.extra || 0)));
-    const monthly = goal.monthly || 0;
-    const currentMonths = goal.customMonthsToGoal || (monthly > 0 ? Math.ceil(remaining / monthly) : 0);
-    
-    const input = prompt(
-        `Ange \u00f6nskad tidshorisont (m\u00e5nader) f\u00f6r "${goal.name}"\n\nNuvarande: ${currentMonths} m\u00e5nader\nKvarst\u00e5ende belopp: ${fmt(remaining)} kr`,
-        currentMonths
-    );
-    
-    if (input !== null) {
-        const newMonths = parseInt(input) || 0;
-        if (newMonths < 0) {
-            alert("V\u00e4rdet kan inte vara negativt.");
-            return;
-        }
-        goal.customMonthsToGoal = newMonths;
-        saveData();
-        renderGoals();
-    }
-}
-
-// Read ALL months from budget data and return linked items with monthly breakdown
-function getLinkedItemsAllMonths(storageKey, linkedItemNames) {
-    const raw = localStorage.getItem(storageKey);
-    if (!raw || !linkedItemNames || linkedItemNames.length === 0) return { monthlyTotal: 0, monthlyBreakdown: {} };
-    
-    try {
-        const data = JSON.parse(raw);
-        if (!data.monthlyData) return { monthlyTotal: 0, monthlyBreakdown: {} };
-        
-        const monthlyBreakdown = {}; // { "2026-03": 2000, "2026-04": 4000 }
-        let monthlyTotal = 0;
-        
-        // Iterate through ALL months
-        for (const monthKey of Object.keys(data.monthlyData).sort()) {
-            const sections = data.monthlyData[monthKey].sections;
-            if (!sections) continue;
-            
-            // Sum up all linked items for this month (from savings sections only)
-            let monthTotal = 0;
-            for (const section of sections) {
-                // Only look in savings sections
-                if (section.key === "savings") {
-                    for (const item of section.items || []) {
-                        if (linkedItemNames.includes(item.name) && item.actual > 0) {
-                            monthTotal += item.actual || 0;
-                        }
-                    }
-                }
-            }
-            
-            if (monthTotal > 0) {
-                monthlyBreakdown[monthKey] = monthTotal;
-                monthlyTotal += monthTotal;
-            }
-        }
-        
-        return { monthlyTotal, monthlyBreakdown };
-    } catch(e) {
-        console.error("Error reading linked items:", e);
-        return { monthlyTotal: 0, monthlyBreakdown: {} };
-    }
-}
-
-function renderGoals() {
-    const container = document.getElementById("goals-container");
-    if (savingsGoals.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-sec);font-size:13px">Inga sparmål ännu. Klicka nedan för att skapa ditt första!</p>';
-        return;
-    }
-    
-    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    
-    container.innerHTML = savingsGoals.map((g, idx) => {
-        // Ensure linkedItems is always an array
-        const linkedItems = Array.isArray(g.linkedItems) ? g.linkedItems : [];
-        
-        // Get monthly breakdown from ALL months in both budgets
-        let combinedMonthlyBreakdown = {}; // { "2026-03": 2000, "2026-04": 4000 }
-        let linkedSavedAmount = 0; // Total across all months
-        
-        if (linkedItems.length > 0) {
-            // Get all months from both budgets
-            const markusResult = getLinkedItemsAllMonths("budgetTracker", linkedItems);
-            const majaResult = getLinkedItemsAllMonths("budgetTracker_maja", linkedItems);
-            
-            // Combine monthly breakdowns (sum if both have the same month)
-            for (const [month, amount] of Object.entries(markusResult.monthlyBreakdown)) {
-                combinedMonthlyBreakdown[month] = (combinedMonthlyBreakdown[month] || 0) + amount;
-            }
-            for (const [month, amount] of Object.entries(majaResult.monthlyBreakdown)) {
-                combinedMonthlyBreakdown[month] = (combinedMonthlyBreakdown[month] || 0) + amount;
-            }
-            
-            // Total from both budgets
-            linkedSavedAmount = markusResult.monthlyTotal + majaResult.monthlyTotal;
-        }
-        
-        // Count BOTH the manually entered "already saved", the linked items (all months), AND the extra manual value
-        const currentAmount = (g.current || 0) + linkedSavedAmount + (g.extra || 0);
-        const pct = g.target > 0 ? Math.min(Math.round((currentAmount / g.target) * 100), 100) : 0;
-        const isComplete = currentAmount >= g.target;
-        const remaining = Math.max(0, g.target - currentAmount);
-        const monthly = g.monthly || 0;
-        const monthsToGoal = g.customMonthsToGoal || (monthly > 0 ? Math.ceil(remaining / monthly) : 0);
-        
-        const linkedItemsDisplay = linkedItems.length > 0 
-            ? `<div style="font-size:12px;color:var(--text-sec);margin-bottom:8px;padding:8px;background:var(--bg);border-radius:6px">
-                <strong>Länkade utgifter:</strong> ${linkedItems.join(', ')}
-              </div>`
-            : '';
-        
-        // Build monthly display showing each month's contribution
-        const numLinkedMonths = Object.keys(combinedMonthlyBreakdown).length;
-        const avgMonthly = numLinkedMonths > 0 ? Math.round(linkedSavedAmount / numLinkedMonths) : (g.monthly || 0);
-        let monthlyDisplayText = '';
-        if (Object.keys(combinedMonthlyBreakdown).length > 0) {
-            const sortedMonths = Object.keys(combinedMonthlyBreakdown).sort();
-            const monthlyRows = sortedMonths.map(monthKey => {
-                const amount = combinedMonthlyBreakdown[monthKey];
-                const monthNum = parseInt(monthKey.split('-')[1]) - 1; // "2026-03" → 2
-                const monthName = monthNames[monthNum] || monthKey;
-                return `<div style="display:flex;justify-content:space-between;padding:1px 0;font-size:11px"><span style="color:var(--text-sec)">${monthName}</span><span style="color:${g.color||'#10B981'};font-weight:600">+${fmt(amount)} kr</span></div>`;
-            }).join('');
-            monthlyDisplayText = monthlyRows;
-        }
-        
-        // Extra manual contribution
-        const extraValue = g.extra || 0;
-        const extraDisplay = extraValue > 0 
-            ? `<div style="font-size:11px;color:${g.color||'#10B981'};font-weight:600;line-height:1.4">+${fmt(extraValue)} kr Extra</div>`
-            : '';
-        
-        return `
-        <div class="goal-card">
-            <div class="goal-name">${isComplete ? '✅ ' : ''}${g.name}</div>
-            <div class="goal-target">Målbelopp: ${fmt(g.target)} kr</div>
-            ${linkedItemsDisplay}
-            ${avgMonthly > 0 ? `<div class="goal-monthly" style="color:${g.color||'#10B981'}">Genomsn. ${fmt(avgMonthly)} kr/månad</div>` : ''}
-            <div class="goal-progress-bar"><div class="goal-progress-fill" style="width:${pct}%;background:${g.color||'#10B981'}"></div></div>
-            <div class="goal-stats">
-                <div><span>Sparat:</span><div class="value">${fmt(currentAmount)} kr</div></div>
-                <div><span>Kvar:</span><div class="value">${fmt(remaining)} kr</div></div>
-                <div><span>Framsteg:</span><div class="value">${pct}%</div></div>
-                <div><span>${isComplete?'Status':'Tidshorisont'}:</span><div class="value" style="cursor:pointer" onclick="editGoalTimeHorizon(${idx})" title="Klicka för att ändra">${isComplete?'✅ Klart!':(monthsToGoal>0?monthsToGoal+' mån':'—')}</div></div>
-            </div>
-            <div style="margin-top:10px;margin-bottom:10px">
-                    ${monthlyDisplayText}
-                    ${extraDisplay}
-            </div>
-            <div class="goal-actions">
-                <button class="btn-extra" onclick="addGoalExtra(${idx})"><span style="color:#22c55e">➕</span> Lägg till extra sparande</button>
-                <button class="btn-edit" onclick="openGoalModal(${idx})">✏️ Redigera</button>
-                <button class="btn-del" onclick="deleteGoal(${idx})">🗑️ Ta bort</button>
-            </div>
-        </div>`;
-    }).join("");
-}
-
-// ═══════════════════════════════════════════════════════
-// CHECKLIST
-// ═══════════════════════════════════════════════════════
-function renderChecklist() {
-    const grid = document.getElementById("checklist-grid");
-    const total = checklistItems.length;
-    const checked = Object.keys(checkedItems).filter(k => checkedItems[k]).length;
-    document.getElementById("checklist-progress").innerHTML = `<span style="font-size:14px;font-weight:600">${checked} av ${total} klart</span><div class="checklist-progress-bar"><div class="checklist-progress-fill" style="width:${total>0?(checked/total*100):0}%"></div></div>`;
-    document.getElementById("checklist-subtitle").textContent = `${checked}/${total} klart`;
-    
-    // Group items by category
-    const grouped = {};
-    checklistItems.forEach((item, i) => {
-        const category = item.category || "Övrigt";
-        if (!grouped[category]) grouped[category] = [];
-        grouped[category].push({ item, index: i });
-    });
-    
-    // Build HTML with category headers
-    let html = "";
-    const categories = DEFAULT_CHECKLIST_CATEGORIES.filter(cat => grouped[cat]).concat(
-        Object.keys(grouped).filter(cat => !DEFAULT_CHECKLIST_CATEGORIES.includes(cat)).sort()
-    );
-    
-    let grandTotal = 0;
-    
-    for (const category of categories) {
-        const items = grouped[category];
-        const categoryTotal = items.reduce((sum, {item}) => sum + (item.price || 0), 0);
-        grandTotal += categoryTotal;
-        
-        html += `<div class="checklist-category-header" data-category="${category.replace(/"/g, '&quot;')}" ondblclick="editChecklistCategory(event)">`;
-        html += `<span style="cursor:pointer;user-select:none">${category}</span>`;
-        if (categoryTotal > 0) {
-            html += `<span class="checklist-category-total">${fmt(categoryTotal)} kr</span>`;
-        }
-        html += `</div>`;
-        
-        for (const {item, index: i} of items) {
-            const isChecked = checkedItems[i];
-            const safeLink = item.link ? item.link.replace(/"/g, '&quot;') : '';
-            html += `<div class="checklist-item ${isChecked?'checked':''}" onclick="toggleCheckItem(${i})" ondblclick="editChecklistItem(event, ${i})">
-                <div class="checklist-check">${isChecked?'✓':''}</div>
-                <span class="checklist-text" style="cursor:pointer">${item.name}</span>
-                ${item.price > 0 ? `<span class="checklist-price">${fmt(item.price)} kr</span>` : ''}
-                ${item.link?`<a class="checklist-link" href="${safeLink}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" aria-label="Öppna länk"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:''}
-                <span class="checklist-delete" onclick="event.stopPropagation();deleteChecklistItem(${i})">✕</span>
-            </div>`;
-        }
-    }
-    
-    if (grandTotal > 0) {
-        html += `<div style="padding:12px 14px;margin-top:8px;border-top:2px solid var(--accent);font-weight:600;display:flex;justify-content:space-between;align-items:center"><span>Total kostnad</span><span style="color:var(--accent)">${fmt(grandTotal)} kr</span></div>`;
-    }
-    
-    grid.innerHTML = html;
-}
-function toggleCheckItem(i) { checkedItems[i] = !checkedItems[i]; saveData(); renderChecklist(); }
-function deleteChecklistItem(i) {
-    checklistItems.splice(i, 1);
-    // Reindex checked items
-    const newChecked = {};
-    Object.keys(checkedItems).forEach(k => {
-        const ki = parseInt(k);
-        if (ki < i) newChecked[ki] = checkedItems[ki];
-        else if (ki > i) newChecked[ki - 1] = checkedItems[ki];
-    });
-    checkedItems = newChecked;
-    saveData(); renderChecklist();
-}
-function addChecklistItem() {
-    isChecklistEditMode = false;
-    checklistEditIndex = -1;
-    document.getElementById("checklist-modal").className = "modal-overlay";
-    document.querySelector("#checklist-modal h3").textContent = "Lägg till sak";
-    document.getElementById("checklist-new-name").value = "";
-    document.getElementById("checklist-new-category").value = "";
-    document.getElementById("checklist-new-category-custom").value = "";
-    document.getElementById("checklist-new-category-custom").style.display = "none";
-    document.getElementById("checklist-new-price").value = "";
-    document.getElementById("checklist-new-link").value = "";
-    document.getElementById("checklist-modal").classList.add("active");
-}
-
-function editChecklistItem(event, index) {
-    event.stopPropagation();
-    isChecklistEditMode = true;
-    checklistEditIndex = index;
-    const item = checklistItems[index];
-    
-    document.querySelector("#checklist-modal h3").textContent = "Redigera sak";
-    document.getElementById("checklist-new-name").value = item.name;
-    document.getElementById("checklist-new-category").value = item.category || "Övrigt";
-    if (item.category && !DEFAULT_CHECKLIST_CATEGORIES.includes(item.category)) {
-        document.getElementById("checklist-new-category").value = "custom";
-        document.getElementById("checklist-new-category-custom").style.display = "block";
-        document.getElementById("checklist-new-category-custom").value = item.category;
-    } else {
-        document.getElementById("checklist-new-category-custom").style.display = "none";
-        document.getElementById("checklist-new-category-custom").value = "";
-    }
-    document.getElementById("checklist-new-price").value = item.price || 0;
-    document.getElementById("checklist-new-link").value = item.link || "";
-    document.getElementById("checklist-modal").classList.add("active");
-}
-
-function editChecklistCategory(event) {
-    event.stopPropagation();
-    const headerEl = event.target.closest('.checklist-category-header');
-    const category = headerEl.dataset.category;
-    const newName = prompt(`Redigera kategori:`, category);
-    if (newName && newName.trim() !== category) {
-        // Rename category for all items in it
-        checklistItems.forEach(item => {
-            if (item.category === category) {
-                item.category = newName.trim();
-            }
-        });
-        saveData();
-        renderChecklist();
-    }
-}
-
-function closeChecklistModal() {
-    document.getElementById("checklist-modal").classList.remove("active");
-    isChecklistEditMode = false;
-    checklistEditIndex = -1;
-    document.getElementById("checklist-new-name").value = "";
-    document.getElementById("checklist-new-category").value = "";
-    document.getElementById("checklist-new-category-custom").value = "";
-    document.getElementById("checklist-new-category-custom").style.display = "none";
-    document.getElementById("checklist-new-price").value = "";
-    document.getElementById("checklist-new-link").value = "";
-}
-
-function saveChecklistItem() {
-    const name = document.getElementById("checklist-new-name").value.trim();
-    if (!name) { alert("Fyll i ett namn."); return; }
-    
-    let category = document.getElementById("checklist-new-category").value.trim();
-    if (category === "custom") {
-        category = document.getElementById("checklist-new-category-custom").value.trim();
-        if (!category) { alert("Fyll i kategorinamn."); return; }
-    }
-    if (!category) category = "Övrigt";
-    
-    const price = parseInt(document.getElementById("checklist-new-price").value) || 0;
-    const link = document.getElementById("checklist-new-link").value.trim();
-    
-    if (isChecklistEditMode && checklistEditIndex !== -1) {
-        // Update existing item
-        checklistItems[checklistEditIndex] = { name, category, price, link: link || undefined };
-    } else {
-        // Add new item
-        checklistItems.push({ name, category, price, link: link || undefined });
-    }
-    
-    saveData(); renderChecklist(); closeChecklistModal();
-}
-
-// Handle category select change
-// ═══════════════════════════════════════════════════════
-// CHARTS
-// ═══════════════════════════════════════════════════════
-let loanChart, costChart, leftChart, savingsAccChart, expenseCompareChart;
-
-function isDark() { return document.documentElement.classList.contains("dark-mode"); }
-
-function cc() {
-    const dark = isDark();
-    return {
-        grid: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-        text: dark ? "#94A3B8" : "#6B7280",
-        loan: dark ? "#FB923C" : "#F97316",
-        interest: dark ? "#F87171" : "#DC2626",
-        house: dark ? "#FBBF24" : "#F59E0B",
-        left: dark ? "#34D399" : "#10B981",
-        maja: dark ? "#F472B6" : "#EC4899",
-        markus: dark ? "#60A5FA" : "#3B82F6",
-        savings: dark ? "#FDBA74" : "#FB923C"
+    const name = document.getElementById("goal-name").value.trim();
+    const target = parseFloat(document.getElementById("goal-target").value) || 0;
+    const err = document.getElementById("goal-error");
+    if (!name || target <= 0) { err.textContent = !name ? "Skriv ett namn på sparmålet." : "Målbeloppet behöver vara större än 0."; err.hidden = false; return; }
+    const goal = {
+        name, target,
+        current: parseFloat(document.getElementById("goal-current").value) || 0,
+        extra: Math.max(0, parseFloat(document.getElementById("goal-extra").value) || 0),
+        monthly: parseFloat(document.getElementById("goal-monthly").value) || 0,
+        customMonthsToGoal: parseInt(document.getElementById("goal-time-horizon").value) || 0,
+        color: document.getElementById("goal-color").value,
+        linkedItems: [...document.querySelectorAll("#goal-items-checkboxes input:checked")].map(c => c.value)
     };
+    if (editingGoalIdx >= 0) savingsGoals[editingGoalIdx] = goal; else savingsGoals.push(goal);
+    saveGoals(); renderGoals(); closeGoalModal();
+}
+function deleteGoal() {
+    if (editingGoalIdx < 0) return;
+    if (!confirm(`Ta bort sparmålet "${savingsGoals[editingGoalIdx].name}"?`)) return;
+    savingsGoals.splice(editingGoalIdx, 1); saveGoals(); renderGoals(); closeGoalModal();
 }
 
-function baseOpts() {
-    const c = cc();
-    return {
-        responsive: true, maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        plugins: {
-            legend: { labels: { color: c.text, font: { family: "'Inter',sans-serif", size: 12 } } },
-            tooltip: { backgroundColor: isDark()?"#1A1F2E":"#fff", titleColor: isDark()?"#E2E8F0":"#1A1A2E", bodyColor: isDark()?"#94A3B8":"#6B7280", borderColor: isDark()?"#2A3041":"#E5E7EB", borderWidth: 1, padding: 12, cornerRadius: 8 }
-        },
-        scales: {
-            x: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 11 } } },
-            y: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 11 }, callback: v => fmt(v) } }
-        }
-    };
-}
-
-function createCharts() {
-    const c = cc();
-    const chartData = generateChartData();
-    const monthlyData = generateMonthlyChartData();
-    
-    // Year-only labels for loan chart (sampled yearly)
-    const yearLabels = chartData.map(d => {
-        const year = 2025 + Math.floor((d.month - 1) / 12);
-        return year.toString();
-    });
-    
-    // Month/Year labels for monthly costs and left charts
-    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const monthLabels = monthlyData.map(d => {
-        // Month 1 = April 2025 (month index 3), month 2 = May 2025, etc.
-        const totalMonths = d.month - 1; // 0-based
-        const startYear = 2025;
-        const startMonth = 3; // April (0-based)
-        const actualMonth = (startMonth + totalMonths) % 12;
-        const year = startYear + Math.floor((startMonth + totalMonths) / 12);
-        return `${monthNames[actualMonth]} ${year}`;
-    });
-    
-    const opts = baseOpts();
-
-    loanChart = new Chart(document.getElementById("loanChart"), {
-        type: "line", data: { labels: yearLabels, datasets: [{ label: "Kvarvarande lån", data: chartData.map(d => d.loan), borderColor: c.loan, backgroundColor: c.loan + "20", fill: true, tension: 0.3, pointRadius: 2 }] },
-        options: { ...opts, scales: { ...opts.scales, y: { ...opts.scales.y, ticks: { ...opts.scales.y.ticks, callback: v => (v/1e6).toFixed(1)+" Mkr" } } } }
-    });
-
-    costChart = new Chart(document.getElementById("costChart"), {
-        type: "line", data: { labels: monthLabels, datasets: [
-            { label: "Ränta/mån", data: monthlyData.map(d => d.interest), borderColor: c.interest, tension: 0.3, pointRadius: 2 },
-            { label: "Totalt hus/mån", data: monthlyData.map(d => d.totalHouse), borderColor: c.house, tension: 0.3, pointRadius: 2 }
-        ] }, options: { ...opts, scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (i) => (i % 12 === 0 ? monthLabels[i].split(' ')[1] : '') } } } }
-    });
-
-    leftChart = new Chart(document.getElementById("leftChart"), {
-        type: "bar", data: { labels: monthLabels, datasets: [{ label: "Kvar efter utgifter", data: monthlyData.map(d => d.left), backgroundColor: monthlyData.map(d => d.left>0?(c.left+"80"):(c.interest+"80")), borderColor: monthlyData.map(d => d.left>0?c.left:c.interest), borderWidth: 1, borderRadius: 4 }] },
-        options: { ...opts, scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (i) => (i % 12 === 0 ? monthLabels[i].split(' ')[1] : '') } } } }
-    });
-
-    // Accumulated savings chart (from savings goals)
-    createSavingsChart(c);
-    createExpenseCompareChart(c);
-}
-
-function createSavingsChart(c) {
-    // Filter goals: only show those with linkedItems (connected to actual savings) or monthly contributions > 0
-    const activeGoals = savingsGoals.filter(g => 
-        (g.linkedItems && g.linkedItems.length > 0) || (g.monthly && g.monthly > 0)
-    );
-    
-    if (activeGoals.length === 0) {
-        savingsAccChart = new Chart(document.getElementById("savingsAccChart"), {
-            type: "bar", data: { labels: ["Inga aktiva sparmål"], datasets: [{ label: "Sparande", data: [0], backgroundColor: c.savings + "40" }] },
-            options: baseOpts()
-        });
-        return;
-    }
-    
-    // Get actual months from budget data
-    const markusBudget = localStorage.getItem("budgetTracker");
-    const majaBudget = localStorage.getItem("budgetTracker_maja");
-    const markusMonthKeys = markusBudget ? Object.keys(JSON.parse(markusBudget).monthlyData || {}).sort() : [];
-    const majaMonthKeys = majaBudget ? Object.keys(JSON.parse(majaBudget).monthlyData || {}).sort() : [];
-    
-    // Combine all months from both budgets
-    const allMonths = [...new Set([...markusMonthKeys, ...majaMonthKeys])].sort();
-    
-    if (allMonths.length === 0) {
-        savingsAccChart = new Chart(document.getElementById("savingsAccChart"), {
-            type: "bar", data: { labels: ["Ingen data"], datasets: [{ label: "Sparande", data: [0], backgroundColor: c.savings + "40" }] },
-            options: baseOpts()
-        });
-        return;
-    }
-    
-    // Build datasets for each goal with accumulated data
-    const datasets = activeGoals.map(g => {
-        const data = [];
-        let accumulator = g.current || 0;
-        
-        // For each actual month in the data
-        for (const monthKey of allMonths) {
-            let monthTotal = 0;
-            
-            // If goal has linked items, calculate actual amount from that month
-            if (g.linkedItems && g.linkedItems.length > 0) {
-                // Check Markus budget
-                if (markusBudget) {
-                    const markusData = JSON.parse(markusBudget);
-                    const monthData = markusData.monthlyData[monthKey];
-                    if (monthData && monthData.sections) {
-                        for (const section of monthData.sections) {
-                            if (section.key === "savings") {
-                                for (const item of section.items || []) {
-                                    if (g.linkedItems.includes(item.name) && item.actual > 0) {
-                                        monthTotal += item.actual;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Check Maja budget
-                if (majaBudget) {
-                    const majaData = JSON.parse(majaBudget);
-                    const monthData = majaData.monthlyData[monthKey];
-                    if (monthData && monthData.sections) {
-                        for (const section of monthData.sections) {
-                            if (section.key === "savings") {
-                                for (const item of section.items || []) {
-                                    if (g.linkedItems.includes(item.name) && item.actual > 0) {
-                                        monthTotal += item.actual;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // If no linked items data for this month, use g.monthly if set
-            if (monthTotal === 0 && g.monthly > 0) {
-                monthTotal = g.monthly;
-            }
-            
-            // Add to accumulator
-            accumulator += monthTotal;
-            data.push(accumulator);
-        }
-        
-        return { 
-            label: g.name, 
-            data, 
-            backgroundColor: (g.color || "#10B981") + "60", 
-            borderColor: g.color || "#10B981", 
-            borderWidth: 2, 
-            borderRadius: 4 
-        };
-    });
-    
-    // Create month labels from actual month keys
-    const monthLabels = allMonths.map(monthKey => {
-        const [year, month] = monthKey.split('-');
-        const monthNum = parseInt(month) - 1;
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "Maj", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"];
-        return `${monthNames[monthNum]} ${year.slice(-2)}`;
-    });
-    
-    savingsAccChart = new Chart(document.getElementById("savingsAccChart"), {
-        type: "bar", data: { labels: monthLabels, datasets },
-        options: { 
-            ...baseOpts(), 
-            plugins: { 
-                ...baseOpts().plugins, 
-                tooltip: { ...baseOpts().plugins.tooltip, mode: "index" } 
-            }, 
-            scales: { 
-                ...baseOpts().scales, 
-                x: { ...baseOpts().scales.x, stacked: true }, 
-                y: { ...baseOpts().scales.y, stacked: true } 
-            } 
-        }
-    });
-}
-
-function createExpenseCompareChart(c) {
-    const markusData = extractFromBudget("budgetTracker");
-    const majaData = extractFromBudget("budgetTracker_maja");
-
-    // Group by section type
-    const categories = ["Bostad", "Försäkringar", "Prenumerationer", "Sparande", "Övrigt"];
-    const markusAmounts = [0, 0, 0, 0, 0];
-    const majaAmounts = [0, 0, 0, 0, 0];
-
-    function categorize(bd, amounts) {
-        if (!bd) return;
-        const raw = bd.sections || [];
-        for (const s of raw) {
-            if (s.isIncome || s.key === "income") continue;
-            let idx = 4; // default: Övrigt
-            if (s.key === "house") idx = 0;
-            else if (s.key === "insurances") idx = 1;
-            else if (s.key === "subscriptions") idx = 2;
-            else if (s.key === "savings") idx = 3;
-            // Only count actual expenses (actual > 0), not budget values
-            for (const it of (s.items || [])) { 
-                if (it.actual && it.actual > 0) {
-                    amounts[idx] += it.actual;
-                }
-            }
-        }
-    }
-
-    if (markusData) categorize(readBudgetData("budgetTracker"), markusAmounts);
-    if (majaData) categorize(readBudgetData("budgetTracker_maja"), majaAmounts);
-
-    expenseCompareChart = new Chart(document.getElementById("expenseCompareChart"), {
-        type: "bar",
-        data: {
-            labels: categories,
-            datasets: [
-                { label: "Markus", data: markusAmounts, backgroundColor: c.markus + "80", borderColor: c.markus, borderWidth: 1, borderRadius: 4 },
-                { label: "Maja", data: majaAmounts, backgroundColor: c.maja + "80", borderColor: c.maja, borderWidth: 1, borderRadius: 4 }
-            ]
-        },
-        options: baseOpts()
-    });
-}
-
-function destroyCharts() {
-    [loanChart, costChart, leftChart, savingsAccChart, expenseCompareChart].forEach(ch => { if (ch) ch.destroy(); });
-    loanChart = costChart = leftChart = savingsAccChart = expenseCompareChart = null;
-}
-
-function updateChartColors() { destroyCharts(); createCharts(); }
-
-// ═══════════════════════════════════════════════════════
-// DARK MODE
-// ═══════════════════════════════════════════════════════
-function toggleDarkMode() {
-    document.documentElement.classList.toggle("dark-mode");
-    const btn = document.getElementById("dark-mode-btn");
-    if (document.documentElement.classList.contains("dark-mode")) {
-        btn.textContent = "☀️"; localStorage.setItem("darkMode", "enabled");
-    } else {
-        btn.textContent = "🌙"; localStorage.setItem("darkMode", "disabled");
-    }
-    updateChartColors();
-}
-
-// ═══════════════════════════════════════════════════════
-// NAV MENU
-// ═══════════════════════════════════════════════════════
-function toggleNavMenu() { document.getElementById("nav-menu").classList.toggle("show"); }
-document.addEventListener("click", function(e) {
-    const w = document.querySelector(".nav-dropdown-wrapper");
-    if (w && !w.contains(e.target)) document.getElementById("nav-menu").classList.remove("show");
-});
-
-// ═══════════════════════════════════════════════════════
-// RENDER ALL
-// ═══════════════════════════════════════════════════════
-function renderAll() {
-    try {
-        // Restore headings
-        Object.keys(sectionHeadings).forEach(id => {
-            const el = document.getElementById("heading-" + id);
-            if (el) el.textContent = sectionHeadings[id];
-        });
-        renderLoanMonthDisplay();
-        renderKPI();
-        renderStaticParamsTable();
-        renderParams();
-        renderAmortTable();
-        renderIncomeExpenses();
-        renderTransferDetail();
-        renderTransferTable();
-        try { renderPersonalExpenses(); } catch(e) { console.error('renderPersonalExpenses:', e); }
-        try { renderGoals(); } catch(e) { console.error('renderGoals:', e); }
-        try { renderChecklist(); } catch(e) { console.error('renderChecklist:', e); }
-    } catch(e) {
-        console.error('renderAll error:', e);
-    } finally {
-        destroyCharts();
-        createCharts();
-    }
-}
-
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-document.addEventListener("DOMContentLoaded", function() {
-    applyMonthlyHeaderImage();
-    const queryParams = new URLSearchParams(window.location.search);
-    const openIncomeFromHome = queryParams.get("income") === "1";
-    const darkPref = localStorage.getItem("darkMode");
-    if (darkPref === null || darkPref === "enabled") {
-        document.documentElement.classList.add("dark-mode");
-        document.getElementById("dark-mode-btn").textContent = "☀️";
-        if (darkPref === null) localStorage.setItem("darkMode", "enabled");
-    }
-    
-    // Close goal modal when clicking on the overlay (outside the modal box)
-    const goalModal = document.getElementById("goal-modal");
-    goalModal.addEventListener("click", function(e) {
-        if (e.target === goalModal) {
-            closeGoalModal();
-        }
-    });
-    
-    // Close checklist modal when clicking on the overlay (outside the modal box)
-    const checklistModal = document.getElementById("checklist-modal");
-    checklistModal.addEventListener("click", function(e) {
-        if (e.target === checklistModal) {
-            closeChecklistModal();
-        }
-    });
-    
-    // Handle category select change for checklist
-    const categorySelect = document.getElementById("checklist-new-category");
-    const customInput = document.getElementById("checklist-new-category-custom");
-    if (categorySelect) {
-        categorySelect.addEventListener("change", function() {
-            customInput.style.display = this.value === "custom" ? "block" : "none";
-        });
-    }
-
-    if (openIncomeFromHome) {
-        const sectionStates = JSON.parse(localStorage.getItem("familjebudget_section_states") || "{}");
-        sectionStates.income = true;
-        localStorage.setItem("familjebudget_section_states", JSON.stringify(sectionStates));
-    }
-    
-    loadData();
-    loadSectionStates();  // Restore section open/closed states
-    currentTransferIdx = transfers.length - 1;
-    currentLoanMonthIdx = transfers.length - 1;
-    
-    // Try to sync with selected month from budget pages
-    syncWithBudgetMonth();
-
-    if (openIncomeFromHome) {
-        openCurrentMonthTransfer();
-    }
-    
-    renderAll();
-    
-    // Save the current month so other pages know which month we're showing
-    saveCurrentMonthToStorage();
-    
-    // Listen for month changes from budget pages
-    window.addEventListener('storage', (event) => {
-        if (event.key === 'selectedBudgetMonth') {
-            syncWithBudgetMonth();
-            renderAll();
-        }
-    });
-});
-
+// ── month + wiring ──────────────────────────────────
+function currentKey() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); }
 function syncWithBudgetMonth() {
-    const selectedMonth = localStorage.getItem('selectedBudgetMonth');
-    if (!selectedMonth) return; // No selection, use current defaults
-    
-    // Parse the selected month (format: "2026-03")
-    const [year, month] = selectedMonth.split('-').map(Number);
-    const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
-    const monthName = monthNames[month - 1];
-    
-    // Find this month in the transfers array
-    const idx = transfers.findIndex(t => t.year === year && t.month === monthName);
-    if (idx !== -1) {
-        currentTransferIdx = idx;
-        currentLoanMonthIdx = idx;
-    }
+    let k = "";
+    try { k = localStorage.getItem("selectedBudgetMonth") || ""; } catch (_) {}
+    monthKey = /^\d{4}-\d{2}$/.test(k) ? k : currentKey();
 }
-
-// ═══════════════════════════════════════════════════════
-// FIREBASE REAL-TIME SYNC
-// ═══════════════════════════════════════════════════════
-
-// Handle page visibility change - redraw charts when returning to page
-document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && loanChart) {
-        // Trigger chart resize/redraw when page becomes visible
-        setTimeout(() => {
-            [loanChart, costChart, leftChart, savingsAccChart, expenseCompareChart].forEach(ch => { 
-                if (ch) ch.resize(); 
-            });
-        }, 100);
-    }
+function renderAll() {
+    syncWithBudgetMonth();
+    [renderKpis, renderTransfer, renderSections, renderHouse, renderGoals].forEach(fn => { try { fn(); } catch (e) { console.error(fn.name, e); } });
+}
+function toggleNavMenu() { document.getElementById("nav-menu").classList.toggle("show"); }
+document.addEventListener("click", e => {
+    const menu = document.getElementById("nav-menu");
+    if (menu && !e.target.closest(".nav-dropdown-wrapper")) menu.classList.remove("show");
 });
+document.getElementById("goal-modal").addEventListener("click", e => { if (e.target.id === "goal-modal") closeGoalModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeGoalModal(); });
 
-// Handle window resize - redraw charts accordingly
-window.addEventListener('resize', () => {
-    [loanChart, costChart, leftChart, savingsAccChart, expenseCompareChart].forEach(ch => { 
-        if (ch) ch.resize(); 
-    });
+loadData();
+renderAll();
+window.addEventListener("storage", e => { if (e.key === "selectedBudgetMonth" || e.key === STORAGE_KEY) { if (e.key === STORAGE_KEY) loadData(); renderAll(); } });
+window.addEventListener("firebase-sync", e => {
+    const key = e.detail && e.detail.key;
+    if (key === STORAGE_KEY) loadData();
+    if ([STORAGE_KEY, "home_transfer_income_v1", "budgetTracker", "budgetTracker_maja"].includes(key)) renderAll();
 });
-
-window.addEventListener('firebase-sync', (event) => {
-  const { key } = event.detail;
-  const relevantKeys = ['familjebudget_data', 'home_transfer_income_v1', 'budgetTracker', 'budgetTracker_maja'];
-  if (relevantKeys.includes(key)) {
-    console.log(`📡 Firebase sync received for ${key} — reloading...`);
-    if (key === 'familjebudget_data') {
-      loadData();
-    } else if (key === 'budgetTracker' || key === 'budgetTracker_maja') {
-      // Personal expenses section needs to reload
-      renderPersonalExpenses();
-      return;
-    }
-    renderAll();
-  }
-});
+// The first Firebase read may land after this page has rendered.
+window.addEventListener("firebase-initial-load", () => { loadData(); renderAll(); });
 </script>
 </body>
 </html>
-

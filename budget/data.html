@@ -362,25 +362,6 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
         </div>
     </div>
 
-    <!-- 6. Checklist -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('checklist')">
-            <div class="section-icon" style="background:var(--savings-bg);color:var(--savings)">✅</div>
-            <div style="flex:1"><div class="section-title">Checklista (Inför Flytt)</div><div class="section-subtitle">Att-göra-lista med valfri länk</div></div>
-            <div class="section-chevron" id="chevron-checklist">▼</div>
-        </div>
-        <div class="section-body" id="body-checklist">
-            <div class="section-inner">
-                <div class="table-wrapper">
-                    <table class="data-table" id="checklist-table">
-                        <thead><tr><th>Namn</th><th>Länk (valfri)</th><th style="width:60px"></th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <button class="btn-add" onclick="addChecklistItem()">+ Lägg till</button>
-            </div>
-        </div>
-    </div>
 
     <!-- 7. Savings Goals -->
     <div class="section-card">
@@ -776,6 +757,7 @@ function deleteTransfer(i) {
 // RENDER CHECKLIST
 // ═══════════════════════════════════════════════════════
 function renderChecklist() {
+    if (!document.getElementById("checklist-table")) return; // checklist removed from the UI; data is kept
     document.querySelector("#checklist-table tbody").innerHTML = checklistItems.map((c, i) => `
         <tr>
             <td><input class="editable-input editable-input-wide" type="text" value="${c.name}" onchange="updateChecklist(${i},'name',this.value)"></td>
