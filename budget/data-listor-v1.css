@@ -125,3 +125,22 @@ html.listor-theme:not(#lt) body .container::before{content:"";position:absolute;
 html.listor-theme:not(#lt) body .tr-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:6px}
 html.listor-theme:not(#lt) body .tr-field span{font-size:12px;color:var(--lt-sec,#929ba9)}
 html.listor-theme:not(#lt) body .tr-field span i{font-style:normal;color:var(--lt-a,#FDBA74)}
+
+/* Transfers: what each of you transfers this month, with a split bar and glowing dots */
+html.listor-theme:not(#lt) body .tr-pay{margin-top:14px;padding:12px 14px 6px;border-radius:14px;position:relative;isolation:isolate;
+  background:radial-gradient(ellipse 80% 120% at 0% 0%,rgba(96,165,250,.07),transparent 60%),radial-gradient(ellipse 80% 120% at 100% 100%,rgba(244,114,182,.07),transparent 60%),rgba(255,255,255,.02)}
+html.listor-theme:not(#lt) body .tr-split{display:flex;gap:3px;height:6px;border-radius:4px;overflow:hidden;margin-bottom:8px}
+html.listor-theme:not(#lt) body .tr-split i{display:block;height:100%;border-radius:4px}
+html.listor-theme:not(#lt) body .tr-split i:first-child{background:#60A5FA;box-shadow:0 0 10px rgba(96,165,250,.6)}
+html.listor-theme:not(#lt) body .tr-split i:last-child{background:#F472B6;box-shadow:0 0 10px rgba(244,114,182,.6)}
+html.listor-theme:not(#lt) body .tr-who{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"d n v" ". s s";gap:0 10px;align-items:center;padding:7px 0}
+html.listor-theme:not(#lt) body .tr-who+.tr-who{border-top:1px solid rgba(255,255,255,.05)}
+html.listor-theme:not(#lt) body .tr-who .tr-dot{grid-area:d;width:9px;height:9px;margin:0;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
+html.listor-theme:not(#lt) body .tr-who.mk{color:#60A5FA}
+html.listor-theme:not(#lt) body .tr-who.mj{color:#F472B6}
+html.listor-theme:not(#lt) body .tr-who .n{grid-area:n;color:var(--lt-text,#f0f6fc);font-size:14px;font-weight:500}
+html.listor-theme:not(#lt) body .tr-who b{grid-area:v;font-size:18px;font-weight:700;color:var(--lt-text,#f0f6fc);font-variant-numeric:tabular-nums;text-shadow:0 0 18px currentColor}
+html.listor-theme:not(#lt) body .tr-who.mk b{text-shadow:0 0 16px rgba(96,165,250,.35)}
+html.listor-theme:not(#lt) body .tr-who.mj b{text-shadow:0 0 16px rgba(244,114,182,.35)}
+html.listor-theme:not(#lt) body .tr-who small{grid-area:s;justify-self:end;font-size:11.5px;color:var(--lt-dim,#7d8996);font-variant-numeric:tabular-nums}
+html.listor-theme:not(#lt) body .tr-month.is-now .tr-pay{box-shadow:inset 0 0 0 1px rgba(var(--lt-ar,253,186,116),.14)}

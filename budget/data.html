@@ -195,7 +195,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="listor-theme-v1.css?v=20261109-toggles-1">
-<link rel="stylesheet" href="data-listor-v1.css?v=20261110-5">
+<link rel="stylesheet" href="data-listor-v1.css?v=20261110-6">
 </head>
 <body>
 
@@ -649,7 +649,8 @@ function renderTransfers() {
         if (!inWindow && !showOlderTransfers) { hidden++; return ''; }
         const net = TransferIncome.get(t);
         const label = `${t.month} ${t.year}`;
-        const total = (t.huskontoMarkus || 0) + (t.icaMarkus || 0) + (t.huskontoMaja || 0) + (t.icaMaja || 0);
+        const mk = (t.huskontoMarkus || 0) + (t.icaMarkus || 0), mj = (t.huskontoMaja || 0) + (t.icaMaja || 0);
+        const total = mk + mj;
         const tag = key === nowKey ? '<span class="tr-tag">nu</span>' : key === nextKey ? '<span class="tr-tag">nästa</span>' : '';
         const field = (k, who, value, share) => `
             <label class="tr-field"><span>${who} netto <i>(${pct(share)})</i></span>
@@ -659,6 +660,11 @@ function renderTransfers() {
             <div class="tr-head"><b>${label}</b>${tag}<span class="tr-total">${fmt(total)} kr</span>
                 <button type="button" class="tr-del" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">×</button></div>
             <div class="tr-fields">${field('markusNetto', 'Markus', net.markus, t.markusAndel)}${field('majaNetto', 'Maja', net.maja, t.majaAndel)}</div>
+            <div class="tr-pay" aria-label="Att föra över ${label}">
+                <div class="tr-split"><i style="width:${mk / (mk + mj || 1) * 100}%"></i><i style="width:${mj / (mk + mj || 1) * 100}%"></i></div>
+                <div class="tr-who mk"><span class="tr-dot"></span><span class="n">Markus för över</span><b>${fmt(mk)} kr</b><small>hus ${fmt(t.huskontoMarkus)} · ICA ${fmt(t.icaMarkus)}</small></div>
+                <div class="tr-who mj"><span class="tr-dot"></span><span class="n">Maja för över</span><b>${fmt(mj)} kr</b><small>hus ${fmt(t.huskontoMaja)} · ICA ${fmt(t.icaMaja)}</small></div>
+            </div>
         </div>`;
     }).join('');
     document.getElementById('transfers-list').innerHTML = html;
