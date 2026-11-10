@@ -121,3 +121,14 @@ html.listor-theme:not(#lt) body .tr-del{appearance:none;border:0;background:tran
 html.listor-theme:not(#lt) body .tr-del:hover{color:var(--lt-minus,#F87171)}
 html.listor-theme:not(#lt) body .tr-older{appearance:none;border:0;background:transparent;color:var(--lt-sec,#929ba9);font:500 13px/1 Inter,system-ui,sans-serif;padding:12px 0 2px;cursor:pointer}
 html.listor-theme:not(#lt) body .tr-older:hover{color:var(--lt-a,#FDBA74)}
+
+/* Transfers, open month: total to pay and its split into house and ICA card (as on Home) */
+html.listor-theme:not(#lt) body .tr-sum{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 14px;padding:2px 0 6px}
+html.listor-theme:not(#lt) body .tr-sum-main{display:flex;align-items:baseline;gap:8px}
+html.listor-theme:not(#lt) body .tr-sum-main span{font-size:11.5px;color:var(--lt-sec,#929ba9)}
+html.listor-theme:not(#lt) body .tr-sum-main b{font-size:19px;font-weight:700;color:var(--lt-a,#FDBA74);font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(253,186,116,.25)}
+html.listor-theme:not(#lt) body .tr-sum-parts{display:flex;gap:12px;font-size:12px;color:var(--lt-sec,#929ba9);font-variant-numeric:tabular-nums}
+html.listor-theme:not(#lt) body .tr-sum-parts b{color:var(--lt-text,#f0f6fc);font-weight:600;margin-left:3px}
+html.listor-theme:not(#lt) body .tr-sum-parts i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:0;background:currentColor;box-shadow:0 0 8px currentColor}
+html.listor-theme:not(#lt) body .tr-sum-parts .hus i{color:#F0BC80}
+html.listor-theme:not(#lt) body .tr-sum-parts .ica i{color:#A7C4B5}

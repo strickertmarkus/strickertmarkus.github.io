@@ -195,7 +195,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="listor-theme-v1.css?v=20261110-tap-1">
-<link rel="stylesheet" href="data-listor-v1.css?v=20261110-8">
+<link rel="stylesheet" href="data-listor-v1.css?v=20261110-9">
 </head>
 <body>
 
@@ -667,6 +667,10 @@ function renderTransfers() {
                 <span class="tr-chev" aria-hidden="true"></span>
             </button>
             ${open ? `<div class="tr-body">
+                <div class="tr-sum">
+                    <div class="tr-sum-main"><span>Totalt att betala</span><b>${fmt((Number(t.husutgifter) || 0) + (Number(t.ica) || 0))} kr</b></div>
+                    <div class="tr-sum-parts"><span class="hus"><i></i>Hus <b>${fmt(t.husutgifter)}</b></span><span class="ica"><i></i>ICA-kort <b>${fmt(t.ica)}</b></span></div>
+                </div>
                 <div class="tr-fields">${field('markusNetto', 'Markus', net.markus, t.markusAndel)}${field('majaNetto', 'Maja', net.maja, t.majaAndel)}</div>
                 <div class="tr-foot"><span>Markus: hus ${fmt(t.huskontoMarkus)} · ICA ${fmt(t.icaMarkus)}</span><span>Maja: hus ${fmt(t.huskontoMaja)} · ICA ${fmt(t.icaMaja)}</span>
                     <button type="button" class="tr-del" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">Ta bort</button></div>
