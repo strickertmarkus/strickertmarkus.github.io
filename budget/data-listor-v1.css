@@ -132,3 +132,10 @@ html.listor-theme:not(#lt) body .tr-sum-parts b{color:var(--lt-text,#f0f6fc);fon
 html.listor-theme:not(#lt) body .tr-sum-parts i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:0;background:currentColor;box-shadow:0 0 8px currentColor}
 html.listor-theme:not(#lt) body .tr-sum-parts .hus i{color:#F0BC80}
 html.listor-theme:not(#lt) body .tr-sum-parts .ica i{color:#A7C4B5}
+
+/* Months: clearer separation */
+html.listor-theme:not(#lt) body .tr-month{border-bottom:0!important;margin-top:6px}
+html.listor-theme:not(#lt) body .tr-month+.tr-month{border-top:1px solid rgba(255,255,255,.10)}
+html.listor-theme:not(#lt) body .tr-month.is-open{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0) 85%);border-radius:12px;padding:0 10px 4px;margin-left:-10px;margin-right:-10px}
+html.listor-theme:not(#lt) body .tr-month.is-open+.tr-month,html.listor-theme:not(#lt) body .tr-month+.tr-month.is-open{border-top-color:transparent}
+html.listor-theme:not(#lt) body .tr-head b{font-size:15.5px}
