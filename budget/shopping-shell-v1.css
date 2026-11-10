@@ -290,8 +290,7 @@ html .nt .nt-title{flex:1;min-width:0;border:0!important;background:transparent!
 .nt-editor{min-height:55vh;padding:8px 0 90px;outline:0;color:#e6e9ee;font:400 16px/1.55 Inter,system-ui,sans-serif;word-wrap:break-word;-webkit-user-select:text;user-select:text}
 .nt-editor:empty::before{content:attr(data-placeholder);color:#5f6874;pointer-events:none}
 .nt-editor h1,.nt-editor h2{position:relative;padding-right:52px}
-.nt-editor h1{margin:16px 0 4px;padding-left:16px;font:700 22px/1.25 Inter,system-ui,sans-serif;letter-spacing:-.4px;color:#FDBA74;
-  background:radial-gradient(circle at 4px 50%,#FDBA74 0 3px,rgba(253,186,116,.35) 4px,rgba(253,186,116,0) 9px) left center/14px 100% no-repeat}
+.nt-editor h1{margin:16px 0 4px;font:700 22px/1.25 Inter,system-ui,sans-serif;letter-spacing:-.4px;color:#FDBA74}
 .nt-editor h2{margin:10px 0 2px;font:600 16px/1.35 Inter,system-ui,sans-serif;color:#FED7AA}
 .nt-editor > :first-child{margin-top:4px}
 .nt-editor h1[data-count]::after,.nt-editor h2[data-count]::after{content:attr(data-count);position:absolute;right:16px;top:50%;transform:translateY(-50%);font:600 11.5px/1 Inter,sans-serif;color:#7d8996;letter-spacing:0;font-variant-numeric:tabular-nums}
@@ -321,8 +320,9 @@ html .nt .nt-title{flex:1;min-width:0;border:0!important;background:transparent!
 
 
 /* Format button: floats bottom right (above the bottom bar or the keyboard) and opens a round two-row panel */
-.nt-bar{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(max(var(--nt-kb,0px), max(env(safe-area-inset-bottom,0px), 24px) + 70px) + 12px);z-index:3000;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 28px)}
-html:not(.has-bottom-nav):not(.under-bottom-nav) .nt-bar{bottom:calc(max(var(--nt-kb,0px), env(safe-area-inset-bottom,0px)) + 16px)}
+.nt-bar{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 82px);z-index:3000;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 28px)}
+html:not(.has-bottom-nav):not(.under-bottom-nav) .nt-bar{bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+.nt-bar.kb{transition:top .12s ease-out}
 .nt-tools{border-radius:999px;background:rgba(22,27,34,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.07);overflow:hidden;-webkit-mask-image:-webkit-radial-gradient(white,black);
   max-width:calc(100vw - 28px - 54px);transform-origin:right center;transform:scaleX(.5);opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .18s}
 .nt-scroll{display:flex;align-items:center;gap:1px;padding:5px 10px 5px 5px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;
