@@ -195,7 +195,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="listor-theme-v1.css?v=20261109-toggles-1">
-<link rel="stylesheet" href="data-listor-v1.css?v=20261110-2">
+<link rel="stylesheet" href="data-listor-v1.css?v=20261110-3">
 </head>
 <body>
 
@@ -227,10 +227,11 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 
 
     <!-- 1. Loan Parameters -->
-    <div class="section-card">
+    <div class="section-card" data-sec="loan-params" style="--sc:#F2948B">
         <div class="section-header" onclick="toggleSection('loan-params')">
             <div class="section-icon" style="background:var(--house-bg);color:var(--house)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Låneparametrar</div><div class="section-subtitle">Huspris, ränta, drift</div></div>
+            <div class="section-meta" id="meta-loan-params"></div>
             <div class="section-chevron open" id="chevron-loan-params">▼</div>
         </div>
         <div class="section-body open" id="body-loan-params">
@@ -254,10 +255,11 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     </div>
 
     <!-- 3. Shared Expenses -->
-    <div class="section-card">
+    <div class="section-card" data-sec="expenses" style="--sc:#E3C77A">
         <div class="section-header" onclick="toggleSection('expenses')">
             <div class="section-icon" style="background:var(--expense-bg);color:var(--expense)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Gemensamma Utgifter</div><div class="section-subtitle">ICA-kortet, delas varje månad</div></div>
+            <div class="section-meta" id="meta-expenses"></div>
             <div class="section-chevron" id="chevron-expenses">▼</div>
         </div>
         <div class="section-body" id="body-expenses">
@@ -279,10 +281,11 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     </div>
 
     <!-- 4. Huskonto -->
-    <div class="section-card">
+    <div class="section-card" data-sec="huskonto" style="--sc:#8EA6F7">
         <div class="section-header" onclick="toggleSection('huskonto')">
             <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Huskonto-utgifter</div><div class="section-subtitle">Dras från huskontot</div></div>
+            <div class="section-meta" id="meta-huskonto"></div>
             <div class="section-chevron" id="chevron-huskonto">▼</div>
         </div>
         <div class="section-body" id="body-huskonto">
@@ -299,10 +302,11 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     </div>
 
     <!-- 5. Transfers -->
-    <div class="section-card">
+    <div class="section-card" data-sec="transfers" style="--sc:#FDBA74">
         <div class="section-header" onclick="toggleSection('transfers')">
             <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Överföringar</div><div class="section-subtitle">Vad var och en för över varje månad</div></div>
+            <div class="section-meta" id="meta-transfers"></div>
             <div class="section-chevron" id="chevron-transfers">▼</div>
         </div>
         <div class="section-body" id="body-transfers">
@@ -444,6 +448,7 @@ function loadData() {
 }
 
 function saveData() {
+    setTimeout(renderSectionMeta, 0);
     transfers.forEach(TransferIncome.complete);
     // Formula months follow loan parameters and Huskonto-utgifter (Huskalkyl.xlsx).
     if (TransferIncome.refreshAuto({ loanParams, huskonto, transfers })) setTimeout(renderTransfers, 0);
@@ -845,6 +850,25 @@ function toggleSection(id) {
     const chevron = document.getElementById("chevron-" + id);
     SurfaceMotion.measureChange(body, () => body.classList.toggle("open"));
     chevron.classList.toggle("open");
+    syncSectionState();
+}
+// Collapsed sections show their key figure on the right of the title.
+function syncSectionState() {
+    document.querySelectorAll('.section-card[data-sec]').forEach(card => {
+        const body = document.getElementById('body-' + card.dataset.sec);
+        card.classList.toggle('is-open', !!(body && body.classList.contains('open')));
+    });
+}
+function renderSectionMeta() {
+    const set = (id, value, label) => { const el = document.getElementById('meta-' + id); if (el) el.innerHTML = `<b>${value}</b><span>${label}</span>`; };
+    const nowKey = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0');
+    const hm = TransferIncome.houseMonth(TransferIncome.sheetMonth(nowKey), loanParams);
+    set('loan-params', fmt(hm.total), 'hus / mån');
+    set('expenses', fmt(expenses.reduce((t, e) => t + (Number(e.amount) || 0), 0)), expenses.length + ' poster');
+    set('huskonto', fmt(huskonto.reduce((t, e) => t + (Number(e.amount) || 0), 0)), huskonto.length + ' poster');
+    const row = TransferIncome.rowFor({ transfers, loanParams, huskonto }, nowKey);
+    if (row) set('transfers', fmt((row.huskontoMarkus || 0) + (row.icaMarkus || 0) + (row.huskontoMaja || 0) + (row.icaMaja || 0)), 'denna månad');
+    syncSectionState();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -927,6 +951,7 @@ document.addEventListener("click", function(e) {
 // INIT
 // ═══════════════════════════════════════════════════════
 function renderAll() {
+    setTimeout(renderSectionMeta, 0);
     renderLoanParams();
     renderExpenses();
     renderHuskonto();

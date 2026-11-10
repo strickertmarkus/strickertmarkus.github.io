@@ -95,3 +95,28 @@ html.listor-theme:not(#lt) body .tr-older:hover{color:var(--lt-a,#FDBA74)}
   html.listor-theme:not(#lt) body .tr-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
   html.listor-theme:not(#lt) body .tr-calc span:not(.tr-net){flex-basis:100%}
 }
+
+/* Theme: each section has its own colour (--sc), a soft fade behind its title and a glowing dot.
+   Collapsed, the title row shows the section's key figure. */
+html.listor-theme:not(#lt) body .section-card[data-sec]{position:relative;isolation:isolate}
+html.listor-theme:not(#lt) body .section-card[data-sec]::before{content:"";position:absolute;inset:-4px -16px auto;height:150px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 60% 110px at 50% 40px,color-mix(in srgb,var(--sc) 9%,transparent),color-mix(in srgb,var(--sc) 3%,transparent) 45%,transparent 78%);transition:opacity .3s}
+html.listor-theme:not(#lt) body .section-card[data-sec].is-open::before{opacity:.75}
+html.listor-theme:not(#lt) body .section-card[data-sec] .section-icon{display:block!important;color:var(--sc)!important;background:var(--sc)!important;box-shadow:0 0 12px var(--sc),0 0 3px var(--sc)}
+html.listor-theme:not(#lt) body .section-card[data-sec] .section-title{background:linear-gradient(90deg,#f0f6fc 0%,#f0f6fc 55%,color-mix(in srgb,var(--sc) 70%,#f0f6fc) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+html.listor-theme:not(#lt) body .section-card[data-sec] .section-subtitle{color:color-mix(in srgb,var(--sc) 30%,#929ba9)!important}
+html.listor-theme:not(#lt) body .section-meta{display:flex;flex-direction:column;align-items:flex-end;text-align:right;line-height:1.2;transition:opacity .2s}
+html.listor-theme:not(#lt) body .section-meta b{font-size:16px;font-weight:700;color:var(--lt-text,#f0f6fc);font-variant-numeric:tabular-nums}
+html.listor-theme:not(#lt) body .section-meta span{font-size:11.5px;color:var(--lt-sec,#929ba9)}
+html.listor-theme:not(#lt) body .section-card.is-open .section-meta{opacity:0;pointer-events:none}
+html.listor-theme:not(#lt) body .section-card[data-sec] .section-chevron{font-size:0!important;width:9px;height:9px;flex:0 0 9px;margin-left:4px;border-right:1.6px solid var(--sc);border-bottom:1.6px solid var(--sc);transform:rotate(45deg) translate(-2px,-2px);opacity:.85;transition:transform .25s}
+html.listor-theme:not(#lt) body .section-card[data-sec] .section-chevron.open{transform:rotate(225deg) translate(-2px,-2px)}
+html.listor-theme:not(#lt) body .section-card[data-sec] .btn-add{color:var(--sc)!important}
+html.listor-theme:not(#lt) body .section-card[data-sec] .data-table tr[style*="font-weight:700"] td:first-child{color:var(--sc)!important}
+html.listor-theme:not(#lt) body .section-card[data-sec] .editable-input{border-bottom-color:color-mix(in srgb,var(--sc) 40%,transparent)!important}
+html.listor-theme:not(#lt) body .section-card[data-sec] .editable-input:focus{border-bottom-color:var(--sc)!important}
+html.listor-theme:not(#lt) body .section-card[data-sec] .editable-input-wide,html.listor-theme:not(#lt) body .section-card[data-sec] .editable-input-med{border-bottom-color:transparent!important}
+/* Header: the same soft orange fade below the title as on Home */
+html.listor-theme:not(#lt) body .header{position:relative;isolation:isolate}
+html.listor-theme:not(#lt) body .container{position:relative;isolation:isolate}
+html.listor-theme:not(#lt) body .container::before{content:"";position:absolute;inset:-30px -10% auto;height:380px;z-index:-2;pointer-events:none;background:radial-gradient(ellipse 55% 60% at 80% 0%,rgba(253,186,116,.08),transparent 72%),radial-gradient(ellipse 40% 45% at 8% 30%,rgba(253,186,116,.045),transparent 75%)}
