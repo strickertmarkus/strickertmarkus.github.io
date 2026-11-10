@@ -327,6 +327,11 @@ html.nt-sheet-open .nt-sheet{transform:none}
 .nt-bar .nt-tools button.on{background:rgba(253,186,116,.12)!important;color:#FDBA74!important}
 .nt-bar .nt-fab{border-radius:50%!important}
 /* Note heading scale: the note name is the biggest; H1 and H2 are orange, H2 a lighter shade */
-html .nt .nt-title{font:700 32px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.7px!important;height:auto!important;padding:4px 0!important;background:transparent!important;border:0!important;box-shadow:none!important;color:#f6f7f9!important}
-.nt-editor h1{font:700 21px/1.3 Inter,system-ui,sans-serif!important;letter-spacing:-.3px;color:#FDBA74!important;margin:14px 0 2px!important}
+html .nt .nt-title{font:700 26px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.5px!important;height:auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;color:#f6f7f9!important}
+.nt-editor h1{font:700 19px/1.3 Inter,system-ui,sans-serif!important;letter-spacing:-.3px;color:#FDBA74!important;margin:14px 0 2px!important}
 .nt-editor h2{font:600 17px/1.35 Inter,system-ui,sans-serif!important;color:#FED7AA!important;margin:10px 0 2px!important}
+/* Tighter note head: less space around the name row */
+html[data-list-mode="general"] .nt{padding-top:0!important}
+.nt-top{padding:0 0 6px!important;gap:6px!important}
+.nt-top .nt-icon{flex-basis:36px!important;width:36px!important;height:36px!important}
+.nt-editor{padding-top:8px!important}
