@@ -70,6 +70,13 @@
     '.pbn-sheet svg{width:19px;height:19px;fill:none;stroke:#FDBA74;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(253,186,116,.35))}' +
     '.pbn-sheet em{margin-left:auto;font-style:normal;font-size:12.5px;color:#7d8996}' +
     '.pbn-sheet .on{color:#FDBA74}' +
+    // Docked variant: edge to edge at the bottom, active tab marked by a glowing line above it.
+    '.pbn.docked{left:0;right:0;bottom:0;max-width:none;height:auto;min-height:58px;padding:6px max(8px,env(safe-area-inset-left,0px)) max(env(safe-area-inset-bottom,0px), 14px);border-radius:0;align-items:flex-start;' +
+      'background:linear-gradient(180deg,rgba(15,18,25,.72),rgba(15,18,25,.96));box-shadow:0 -10px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07)}' +
+    '.pbn.docked a,.pbn.docked button{height:52px}' +
+    '.pbn.docked .on::after{bottom:auto;top:-6px;width:26px;height:2px;border-radius:2px;box-shadow:0 0 12px #FDBA74}' +
+    'html.pbn-docked body{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 14px) + 72px)!important}' +
+    'html.pbn-docked .pbn-sheet{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 14px) + 80px)}' +
     '@media (prefers-reduced-motion:reduce){.pbn,.pbn-sheet,.pbn-dim{transition:none}}';
 
   function install() {
@@ -80,8 +87,12 @@
     document.head.appendChild(style);
     document.documentElement.classList.add('has-bottom-nav');
 
+    var STYLE_KEY = 'pbn-style-v1';
+    var docked = true;
+    try { docked = localStorage.getItem(STYLE_KEY) !== 'float'; } catch (_) {}
     var nav = document.createElement('nav');
-    nav.className = 'pbn';
+    nav.className = 'pbn' + (docked ? ' docked' : '');
+    document.documentElement.classList.toggle('pbn-docked', docked);
     nav.setAttribute('aria-label', 'Huvudmeny');
     var tabs = [
       ['home', 'Hem', 'home.html'],
@@ -108,7 +119,8 @@
       '<a href="travel.html" data-pbn="travel"' + (file === 'travel.html' ? ' class="on"' : '') + '>' + svg('travel') + 'Resor</a>' +
       '<a href="mila.html"' + (file === 'mila.html' ? ' class="on"' : '') + '>' + svg('kid') + 'Mila</a>' +
       '<a href="melker.html"' + (file === 'melker.html' ? ' class="on"' : '') + '>' + svg('kid') + 'Melker</a>' +
-      (notif ? '<button type="button" data-pbn="notif">' + svg('bell') + 'Notiser<em data-pbn-notif></em></button>' : '');
+      (notif ? '<button type="button" data-pbn="notif">' + svg('bell') + 'Notiser<em data-pbn-notif></em></button>' : '') +
+      '<button type="button" data-pbn="style">' + svg('more') + 'Bottenbar<em data-pbn-style></em></button>';
 
     document.body.appendChild(dim);
     document.body.appendChild(sheet);
@@ -120,7 +132,12 @@
       moreBtn.setAttribute('aria-expanded', String(open));
       if (open) syncNotif();
     }
+    function syncStyle() {
+      var label = sheet.querySelector('[data-pbn-style]');
+      if (label) label.textContent = docked ? 'Fast' : 'Flytande';
+    }
     function syncNotif() {
+      syncStyle();
       var label = sheet.querySelector('[data-pbn-notif]');
       if (label && notif) label.textContent = notif.getAttribute('aria-checked') === 'true' ? 'På' : 'Av';
     }
@@ -128,6 +145,15 @@
     dim.addEventListener('click', function () { setOpen(false); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
     sheet.addEventListener('click', function (e) {
+      // Switch between the docked bar and the floating capsule (remembered on this device).
+      if (e.target.closest('[data-pbn="style"]')) {
+        docked = !docked;
+        try { localStorage.setItem(STYLE_KEY, docked ? 'docked' : 'float'); } catch (_) {}
+        nav.classList.toggle('docked', docked);
+        document.documentElement.classList.toggle('pbn-docked', docked);
+        syncStyle();
+        return;
+      }
       var b = e.target.closest('[data-pbn="notif"]');
       if (b && notif) { notif.click(); setTimeout(syncNotif, 50); return; }
       // On Home, Resor opens in Home's own embedded view.
