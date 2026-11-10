@@ -222,7 +222,10 @@
     if (!week) return;
     var d = currentCalendarDate();
     var today = new Date();
-    if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth()) d = today;
+    // A tapped day in the shown month decides the week (home's selectedDate).
+    var sel = (typeof selectedDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) ? new Date(selectedDate + 'T12:00:00') : null;
+    if (sel && sel.getFullYear() === d.getFullYear() && sel.getMonth() === d.getMonth()) d = sel;
+    else if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth()) d = today;
     else d = new Date(d.getFullYear(), d.getMonth(), 1);
     week.textContent = 'Vecka ' + isoWeek(d);
   }

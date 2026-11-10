@@ -1018,7 +1018,7 @@
     }
   </style>
 <link rel="stylesheet" href="home-calendar-base.css?v=20261015-list-tabs-home-boot-1">
-<script src="calendar-ui-v2.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="calendar-ui-v2.js?v=20261110-week-1"></script>
 <script src="calendar-picker-fix-v3.js?v=20261020-surfaces-1"></script>
 <script src="calendar-followups-v4.js?v=20261020-surfaces-1"></script>
 <script src="calendar-notification-enhancements-v1.js?v=20261015-list-tabs-home-boot-1"></script>
@@ -1490,9 +1490,11 @@ function renderMonth() {
     // Match the toolbar's week anchor: today's ISO week when looking at
     // this month, otherwise the ISO week containing the month's first day.
     // This runs for both swipe and arrow navigation.
+    // A tapped day in this month wins, so the week follows the day you pressed.
     var now = new Date();
-    var weekAnchor = (year === now.getFullYear() && month === now.getMonth())
-      ? now : new Date(year, month, 1);
+    var selectedInMonth = selectedDate && selectedDate.slice(0, 7) === year + '-' + String(month + 1).padStart(2, '0');
+    var weekAnchor = selectedInMonth ? selectedDate
+      : (year === now.getFullYear() && month === now.getMonth()) ? now : new Date(year, month, 1);
     weekEl.textContent = 'Vecka ' + getISOWeekNumber(weekAnchor);
   }
   populateMonthGrid(document.getElementById('cal-grid'), year, month, true);
