@@ -99,8 +99,8 @@ html.listor-theme:not(#lt) body .tr-older:hover{color:var(--lt-a,#FDBA74)}
 /* Theme: each section has its own colour (--sc), a soft fade behind its title and a glowing dot.
    Collapsed, the title row shows the section's key figure. */
 html.listor-theme:not(#lt) body .section-card[data-sec]{position:relative;isolation:isolate}
-html.listor-theme:not(#lt) body .section-card[data-sec]::before{content:"";position:absolute;inset:-4px -16px auto;height:150px;z-index:-1;pointer-events:none;
-  background:radial-gradient(ellipse 60% 110px at 50% 40px,color-mix(in srgb,var(--sc) 9%,transparent),color-mix(in srgb,var(--sc) 3%,transparent) 45%,transparent 78%);transition:opacity .3s}
+html.listor-theme:not(#lt) body .section-card[data-sec]::before{content:"";position:absolute;inset:-70px -16px auto;height:260px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 58% 90px at 50% 112px,color-mix(in srgb,var(--sc) 9%,transparent),color-mix(in srgb,var(--sc) 3%,transparent) 45%,transparent 72%);transition:opacity .3s}
 html.listor-theme:not(#lt) body .section-card[data-sec].is-open::before{opacity:.75}
 html.listor-theme:not(#lt) body .section-card[data-sec] .section-icon{display:block!important;color:var(--sc)!important;background:var(--sc)!important;box-shadow:0 0 12px var(--sc),0 0 3px var(--sc)}
 html.listor-theme:not(#lt) body .section-card[data-sec] .section-title{background:linear-gradient(90deg,#f0f6fc 0%,#f0f6fc 55%,color-mix(in srgb,var(--sc) 70%,#f0f6fc) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -119,4 +119,9 @@ html.listor-theme:not(#lt) body .section-card[data-sec] .editable-input-wide,htm
 /* Header: the same soft orange fade below the title as on Home */
 html.listor-theme:not(#lt) body .header{position:relative;isolation:isolate}
 html.listor-theme:not(#lt) body .container{position:relative;isolation:isolate}
-html.listor-theme:not(#lt) body .container::before{content:"";position:absolute;inset:-30px -10% auto;height:380px;z-index:-2;pointer-events:none;background:radial-gradient(ellipse 55% 60% at 80% 0%,rgba(253,186,116,.08),transparent 72%),radial-gradient(ellipse 40% 45% at 8% 30%,rgba(253,186,116,.045),transparent 75%)}
+html.listor-theme:not(#lt) body .container::before{content:"";position:absolute;left:0;right:0;top:-40px;height:520px;z-index:-2;pointer-events:none;background:radial-gradient(ellipse 50% 42% at 72% 38%,rgba(253,186,116,.075),transparent 70%),radial-gradient(ellipse 36% 30% at 12% 60%,rgba(253,186,116,.04),transparent 72%)}
+
+/* Transfers: just the two net salaries per month, share in brackets */
+html.listor-theme:not(#lt) body .tr-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:6px}
+html.listor-theme:not(#lt) body .tr-field span{font-size:12px;color:var(--lt-sec,#929ba9)}
+html.listor-theme:not(#lt) body .tr-field span i{font-style:normal;color:var(--lt-a,#FDBA74)}
