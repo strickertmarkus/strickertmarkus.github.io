@@ -19,6 +19,8 @@
     return;
   }
   if (window.__pulseBottomNav) return;
+  // The training pages keep their own bottom dock; Träning is reached from Mer.
+  if (/^exercise/i.test((location.pathname.split('/').pop() || ''))) return;
   window.__pulseBottomNav = true;
 
   var file = (location.pathname.split('/').pop() || 'home.html').toLowerCase();
@@ -26,7 +28,6 @@
   var FINANCE = ['budget.html', 'budget_maja.html', 'analytics.html', 'analytics_maja.html', 'familjebudget.html', 'data.html'];
   var area = isHome ? 'home'
     : FINANCE.indexOf(file) !== -1 ? 'economy'
-    : /^exercise/.test(file) ? 'training'
     : file === 'shopping.html' ? 'lists'
     : 'more';
 
@@ -71,12 +72,14 @@
     '.pbn-sheet em{margin-left:auto;font-style:normal;font-size:12.5px;color:#7d8996}' +
     '.pbn-sheet .on{color:#FDBA74}' +
     // Docked variant: edge to edge at the bottom, active tab marked by a glowing line above it.
-    '.pbn.docked{left:0;right:0;bottom:0;max-width:none;height:auto;min-height:58px;padding:6px max(8px,env(safe-area-inset-left,0px)) max(env(safe-area-inset-bottom,0px), 14px);border-radius:0;align-items:flex-start;' +
-      'background:linear-gradient(180deg,rgba(15,18,25,.72),rgba(15,18,25,.96));box-shadow:0 -10px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07)}' +
-    '.pbn.docked a,.pbn.docked button{height:52px}' +
-    '.pbn.docked .on::after{bottom:auto;top:-6px;width:26px;height:2px;border-radius:2px;box-shadow:0 0 12px #FDBA74}' +
-    'html.pbn-docked body{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 14px) + 72px)!important}' +
-    'html.pbn-docked .pbn-sheet{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 14px) + 80px)}' +
+    // Same height and look as the training page's own dock (training-pulse-field.css .field-dock).
+    '.pbn.docked{left:0;right:0;bottom:0;max-width:none;height:auto;padding:6px max(12px,calc((100vw - 520px)/2)) calc(7px + env(safe-area-inset-bottom,0px));border-radius:0;align-items:center;' +
+      'background:linear-gradient(180deg,rgba(9,13,20,.4),rgba(9,13,20,.6));border-top:1px solid rgba(255,255,255,.05);box-shadow:none;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}' +
+    '.pbn.docked a,.pbn.docked button{height:auto;padding:4px 0 6px;font-size:9.5px;font-weight:600;letter-spacing:.02em}' +
+    '.pbn.docked svg{width:20px;height:20px}' +
+    '.pbn.docked .on::after{bottom:0;width:4px;height:4px}' +
+    'html.pbn-docked body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))!important}' +
+    'html.pbn-docked .pbn-sheet{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}' +
     '@media (prefers-reduced-motion:reduce){.pbn,.pbn-sheet,.pbn-dim{transition:none}}';
 
   function install() {
@@ -97,7 +100,6 @@
     var tabs = [
       ['home', 'Hem', 'home.html'],
       ['economy', 'Ekonomi', economyHref()],
-      ['training', 'Träning', 'exercise.html'],
       ['lists', 'Listor', 'shopping.html'],
       ['more', 'Mer', null]
     ];
@@ -116,6 +118,7 @@
     sheet.setAttribute('aria-label', 'Mer');
     var notif = isHome ? document.getElementById('home-notifications') : null;
     sheet.innerHTML = '<span class="pbn-grab" aria-hidden="true"></span>' +
+      '<a href="exercise.html">' + svg('training') + 'Träning</a>' +
       '<a href="travel.html" data-pbn="travel"' + (file === 'travel.html' ? ' class="on"' : '') + '>' + svg('travel') + 'Resor</a>' +
       '<a href="mila.html"' + (file === 'mila.html' ? ' class="on"' : '') + '>' + svg('kid') + 'Mila</a>' +
       '<a href="melker.html"' + (file === 'melker.html' ? ' class="on"' : '') + '>' + svg('kid') + 'Melker</a>' +
