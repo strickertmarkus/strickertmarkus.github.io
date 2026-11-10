@@ -73,13 +73,13 @@
     '.pbn-sheet .on{color:#FDBA74}' +
     // Docked variant: edge to edge at the bottom, active tab marked by a glowing line above it.
     // Same height and look as the training page's own dock (training-pulse-field.css .field-dock).
-    '.pbn.docked{left:0;right:0;bottom:0;max-width:none;height:auto;padding:6px max(12px,calc((100vw - 520px)/2)) calc(7px + env(safe-area-inset-bottom,0px));border-radius:0;align-items:center;' +
+    '.pbn.docked{left:0;right:0;bottom:0;max-width:none;height:auto;padding:6px max(12px,calc((100vw - 520px)/2)) calc(max(env(safe-area-inset-bottom,0px), 24px) + 4px);border-radius:0;align-items:center;' +
       'background:linear-gradient(180deg,rgba(9,13,20,.4),rgba(9,13,20,.6));border-top:1px solid rgba(255,255,255,.05);box-shadow:none;backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}' +
     '.pbn.docked a,.pbn.docked button{height:auto;padding:4px 0 6px;font-size:9.5px;font-weight:600;letter-spacing:.02em}' +
     '.pbn.docked svg{width:20px;height:20px}' +
     '.pbn.docked .on::after{bottom:0;width:4px;height:4px}' +
-    'html.pbn-docked body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))!important}' +
-    'html.pbn-docked .pbn-sheet{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}' +
+    'html.pbn-docked body{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 62px)!important}' +
+    'html.pbn-docked .pbn-sheet{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 74px)}' +
     '@media (prefers-reduced-motion:reduce){.pbn,.pbn-sheet,.pbn-dim{transition:none}}';
 
   function install() {
