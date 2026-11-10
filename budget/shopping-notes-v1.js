@@ -6,19 +6,13 @@
  *   (syncs through the existing Firebase key). `pinned` keeps a note at the top of the sheet.
  * - Headings show "done/total" for the to-dos under them and fold on a tap on that counter.
  * - Ticked to-dos sink to the end of their list. Lines with @Maja / @Markus get their colour.
- * - "Till inköp" sends the open to-dos of the section under the caret to the shopping list.
- * - Empty notes offer quick templates; swiping the name row switches note.
+ * - Swiping the name row switches note. The format panel is one row you can swipe sideways.
  */
 (function () {
   'use strict';
   var KEY = 'sh_lists';
   var SELECTED = 'sh_selected_general';
   var ALLOWED = { H1: 1, H2: 1, P: 1, DIV: 1, BR: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, UL: 1, OL: 1, LI: 1, HR: 1 };
-  var TEMPLATES = {
-    'Packlista resa': '<h1>Packlista</h1><h2>Kläder</h2><ul class="nt-todo"><li>Underkläder</li><li>Strumpor</li><li>Tröjor</li></ul><h2>Barnen</h2><ul class="nt-todo"><li>Blöjor</li><li>Gosedjur</li></ul><h2>Övrigt</h2><ul class="nt-todo"><li>Laddare</li><li>Pass</li></ul>',
-    'Inför fest': '<h1>Inför fest</h1><h2>Att handla</h2><ul class="nt-todo"><li></li></ul><h2>Att göra</h2><ul class="nt-todo"><li>Bjuda in</li><li>Duka</li></ul>',
-    'Möte': '<h1>Möte</h1><h2>Punkter</h2><ul><li></li></ul><h2>Att göra efteråt</h2><ul class="nt-todo"><li></li></ul>'
-  };
   var root, editor, titleInput, sheet, saveTimer = 0, decorateTimer = 0, currentId = null;
 
   function readLists() { try { var v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (_) { return []; } }
@@ -79,7 +73,6 @@
     hr: '<path d="M4 12h16"/><path d="M8 7h8M8 17h8" opacity=".4"/>',
     undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
     redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/>',
-    cart: '<path d="M3 4h2l2 11h11l3-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     folder: '<path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>',
     pin: '<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>'
@@ -98,19 +91,15 @@
         '<button type="button" class="nt-icon" data-nt="new" aria-label="Ny anteckning" title="Ny anteckning">' + svg('plus') + '</button>' +
         '<button type="button" class="nt-icon" data-nt="saved" aria-label="Sparade anteckningar" title="Sparade">' + svg('folder') + '<span class="nt-count" id="nt-count"></span></button>' +
       '</div>' +
-      '<div class="nt-starters" id="nt-starters"><span>Börja med</span>' + Object.keys(TEMPLATES).map(function (k) { return '<button type="button" data-nt="template" data-name="' + esc(k) + '">' + esc(k) + '</button>'; }).join('') + '</div>' +
       '<div class="nt-editor" id="nt-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Anteckning" data-placeholder="Skriv här…"></div>' +
       '<div class="nt-bar" role="toolbar" aria-label="Formatering">' +
-        '<div class="nt-tools">' +
-          '<div class="nt-row">' +
-            tool('h1', 'Rubrik', 'H1') + tool('h2', 'Underrubrik', 'H2') + tool('p', 'Brödtext', 'Aa') + '<span class="nt-sep"></span>' +
-            tool('bold', 'Fetstil', '<b>B</b>') + tool('italic', 'Kursiv', '<i>I</i>') + tool('underline', 'Understruken', '<u>U</u>') +
-          '</div>' +
-          '<div class="nt-row">' +
-            tool('todo', 'Att göra-lista', svg('todo')) + tool('ul', 'Punktlista', svg('ul')) + tool('indent', 'Öka indrag', svg('indent')) + tool('outdent', 'Minska indrag', svg('outdent')) + tool('hr', 'Avdelare', svg('hr')) + '<span class="nt-sep"></span>' +
-            tool('undo', 'Ångra', svg('undo')) + tool('redo', 'Gör om', svg('redo')) + tool('cart', 'Lägg i inköpslistan', svg('cart')) +
-          '</div>' +
-        '</div>' +
+        '<div class="nt-tools"><div class="nt-scroll">' +
+          tool('h1', 'Rubrik', 'H1') + tool('h2', 'Underrubrik', 'H2') + tool('p', 'Brödtext', 'Aa') + '<span class="nt-sep"></span>' +
+          tool('todo', 'Att göra-lista', svg('todo')) + tool('ul', 'Punktlista', svg('ul')) + '<span class="nt-sep"></span>' +
+          tool('bold', 'Fetstil', '<b>B</b>') + tool('italic', 'Kursiv', '<i>I</i>') + tool('underline', 'Understruken', '<u>U</u>') + '<span class="nt-sep"></span>' +
+          tool('indent', 'Öka indrag', svg('indent')) + tool('outdent', 'Minska indrag', svg('outdent')) + tool('hr', 'Avdelare', svg('hr')) + '<span class="nt-sep"></span>' +
+          tool('undo', 'Ångra', svg('undo')) + tool('redo', 'Gör om', svg('redo')) +
+        '</div></div>' +
         '<button type="button" class="nt-fab" data-nt="tools" aria-label="Formatering" aria-expanded="false"><span>Aa</span></button>' +
       '</div>';
     document.querySelector('main.wrap').appendChild(root);
@@ -122,19 +111,19 @@
     sheet.innerHTML = '<div class="nt-dim" data-nt="close"></div><div class="nt-sheet" role="dialog" aria-label="Sparade anteckningar"><span class="nt-grab"></span><h2>Sparade anteckningar</h2><div class="nt-list" id="nt-list"></div><button type="button" class="nt-add" data-nt="new">+ Ny anteckning</button></div>';
     document.body.appendChild(sheet);
 
-    var toast = document.createElement('div');
-    toast.className = 'nt-toast';
-    toast.id = 'nt-toast';
-    toast.setAttribute('role', 'status');
-    document.body.appendChild(toast);
-
     root.addEventListener('click', onClick);
     sheet.addEventListener('click', onClick);
     var bar = root.querySelector('.nt-bar');
     bar.addEventListener('mousedown', function (e) { e.preventDefault(); });
-    bar.addEventListener('touchstart', function (e) {
+    // Taps run on touchend (and cancel the click, so the editor keeps focus);
+    // a sideways drag scrolls the row instead.
+    var tx = 0, ty = 0;
+    bar.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+    bar.addEventListener('touchend', function (e) {
       var btn = e.target.closest('button');
       if (!btn) return;
+      var t = e.changedTouches[0];
+      if (Math.abs(t.clientX - tx) > 8 || Math.abs(t.clientY - ty) > 8) return;
       e.preventDefault();
       if (btn.dataset.nt === 'tools') toggleTools(); else run(btn.dataset.cmd);
     }, { passive: false });
@@ -146,7 +135,7 @@
       window.visualViewport.addEventListener('resize', place);
       window.visualViewport.addEventListener('scroll', place);
     }
-    editor.addEventListener('input', function () { queueSave(); queueDecorate(); syncStarters(); });
+    editor.addEventListener('input', function () { queueSave(); queueDecorate(); });
     editor.addEventListener('click', onEditorClick);
     editor.addEventListener('keydown', onKey);
     editor.addEventListener('paste', function (e) {
@@ -159,7 +148,6 @@
 
   // ── formatting ──────────────────────────────────────
   function run(cmd) {
-    if (cmd === 'cart') { sendToShopping(); return; }
     editor.focus();
     if (cmd === 'h1' || cmd === 'h2' || cmd === 'p') document.execCommand('formatBlock', false, cmd);
     else if (cmd === 'bold' || cmd === 'italic' || cmd === 'underline' || cmd === 'undo' || cmd === 'redo') document.execCommand(cmd);
@@ -177,7 +165,7 @@
       else if (cmd === 'ul' && isTodo) ul.classList.remove('nt-todo');
       else document.execCommand('insertUnorderedList');
     }
-    queueSave(); decorate(); syncBar(); syncStarters();
+    queueSave(); decorate(); syncBar();
   }
   function toggleTools(force) {
     var bar = root.querySelector('.nt-bar');
@@ -290,49 +278,6 @@
   }
   document.addEventListener('selectionchange', function () { if (root && document.activeElement === editor) syncBar(); });
 
-  // ── send open to-dos to the shopping list ──────────
-  function sendToShopping() {
-    var el = caretElement();
-    var top = el; while (top && top.parentNode !== editor) top = top.parentNode;
-    var scope = [];
-    if (top) {
-      var h = top.tagName === 'H1' || top.tagName === 'H2' ? top : null;
-      for (var n = top; !h && n; n = n.previousElementSibling) if (n.tagName === 'H1' || n.tagName === 'H2') h = n;
-      scope = h ? [h].concat(sectionOf(h)) : [top];
-    } else scope = Array.prototype.slice.call(editor.children);
-    var texts = [];
-    scope.forEach(function (b) {
-      b.querySelectorAll('ul.nt-todo li').forEach(function (li) {
-        var t = li.textContent.replace(/@\w+/g, '').trim();
-        if (t && li.getAttribute('data-checked') !== 'true') texts.push(t);
-      });
-    });
-    if (!texts.length) { toast('Inga öppna att göra-rader att skicka här'); return; }
-    var lists = readLists();
-    var shop = lists.filter(function (l) { return !l.mode || l.mode === 'shopping'; });
-    var sel = Number(localStorage.getItem('sh_selected_shopping'));
-    var target = shop.find(function (l) { return Number(l.id) === sel; }) || shop[0];
-    if (!target) { toast('Hittade ingen inköpslista'); return; }
-    target.items = Array.isArray(target.items) ? target.items : [];
-    var existing = target.items.filter(function (i) { return i && i.type !== 'category' && !i.checked; }).map(function (i) { return String(i.text || '').toLowerCase(); });
-    var added = 0;
-    texts.forEach(function (t, i) {
-      if (existing.indexOf(t.toLowerCase()) !== -1) return;
-      target.items.unshift({ id: Date.now() + i + Math.random(), type: 'item', text: t, checked: false });
-      added++;
-    });
-    writeLists(lists);
-    toast(added ? added + (added === 1 ? ' vara' : ' varor') + ' tillagd' + (added === 1 ? '' : 'a') + ' i Inköpslista' : 'Allt fanns redan i Inköpslista');
-  }
-  function toast(text) {
-    var t = document.getElementById('nt-toast');
-    if (!t) return;
-    t.textContent = text;
-    t.classList.add('show');
-    clearTimeout(t._h);
-    t._h = setTimeout(function () { t.classList.remove('show'); }, 2600);
-  }
-
   // ── saving ──────────────────────────────────────────
   function queueSave() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 450); }
   function save() {
@@ -356,11 +301,7 @@
     try { localStorage.setItem(SELECTED, String(note.id)); } catch (_) {}
     titleInput.value = note.name && note.name !== 'Anteckning' ? note.name : '';
     editor.innerHTML = sanitize(note.note || '');
-    decorate(); syncStarters(); renderCount();
-  }
-  function syncStarters() {
-    var s = document.getElementById('nt-starters');
-    if (s) s.hidden = !!editor.textContent.trim() || !!editor.querySelector('li, hr');
+    decorate(); renderCount();
   }
   function renderCount() {
     var c = document.getElementById('nt-count');
@@ -426,11 +367,6 @@
     if (act === 'new') newNote();
     else if (act === 'saved') { save(); openSheet(true); }
     else if (act === 'close') openSheet(false);
-    else if (act === 'template') {
-      editor.innerHTML = sanitize(TEMPLATES[b.dataset.name] || '');
-      if (!titleInput.value.trim()) titleInput.value = b.dataset.name;
-      decorate(); syncStarters(); save(); editor.focus();
-    }
     else if (act === 'open') { save(); show(notes().find(function (n) { return Number(n.id) === Number(b.dataset.id); })); openSheet(false); }
     else if (act === 'pin') {
       var pl = readLists();
