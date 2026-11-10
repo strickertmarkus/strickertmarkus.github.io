@@ -68,6 +68,7 @@
         '<button type="button" class="nt-icon" data-nt="saved" aria-label="Sparade anteckningar" title="Sparade"><svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg><span class="nt-count" id="nt-count"></span></button>' +
       '</div>' +
       '<div class="nt-bar" role="toolbar" aria-label="Formatering">' +
+        '<div class="nt-tools">' +
         '<button type="button" data-cmd="h1" aria-label="Rubrik">H1</button>' +
         '<button type="button" data-cmd="h2" aria-label="Underrubrik">H2</button>' +
         '<button type="button" data-cmd="p" aria-label="Brödtext">Aa</button>' +
@@ -77,6 +78,8 @@
         '<span class="nt-sep"></span>' +
         '<button type="button" data-cmd="todo" aria-label="Att göra-lista"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><path d="m5.6 7.6 1.3 1.3 2.5-2.6M14 7.5h6M4 15.5h7M14 15.5h6"/></svg></button>' +
         '<button type="button" data-cmd="ul" aria-label="Punktlista"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></button>' +
+        '</div>' +
+        '<button type="button" class="nt-fab" data-nt="tools" aria-label="Formatering" aria-expanded="false"><span>Aa</span></button>' +
       '</div>' +
       '<div class="nt-editor" id="nt-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Anteckning" data-placeholder="Skriv här…"></div>' +
       '<p class="nt-saved" id="nt-saved" aria-live="polite"></p>';
@@ -94,7 +97,22 @@
     sheet.addEventListener('click', onClick);
     // Keep the editor's selection when tapping toolbar buttons.
     root.querySelector('.nt-bar').addEventListener('mousedown', function (e) { e.preventDefault(); });
-    root.querySelector('.nt-bar').addEventListener('touchstart', function (e) { if (e.target.closest('button')) e.preventDefault(); e.target.closest('button') && run(e.target.closest('button').dataset.cmd); }, { passive: false });
+    root.querySelector('.nt-bar').addEventListener('touchstart', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      e.preventDefault();
+      if (btn.dataset.nt === 'tools') toggleTools(); else run(btn.dataset.cmd);
+    }, { passive: false });
+    // The format button floats bottom right, above the keyboard when it is open.
+    if (window.visualViewport) {
+      var place = function () {
+        var vv = window.visualViewport;
+        var kb = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop));
+        root.style.setProperty('--nt-kb', kb + 'px');
+      };
+      window.visualViewport.addEventListener('resize', place);
+      window.visualViewport.addEventListener('scroll', place);
+    }
     editor.addEventListener('input', queueSave);
     editor.addEventListener('click', toggleTodo);
     editor.addEventListener('keydown', onKey);
@@ -120,6 +138,12 @@
     }
     queueSave();
     syncBar();
+  }
+  function toggleTools(force) {
+    var bar = root.querySelector('.nt-bar');
+    var open = typeof force === 'boolean' ? force : !bar.classList.contains('open');
+    bar.classList.toggle('open', open);
+    bar.querySelector('.nt-fab').setAttribute('aria-expanded', String(open));
   }
   function closestList() {
     var sel = window.getSelection();
@@ -148,7 +172,7 @@
     var li = e.target.closest && e.target.closest('ul.nt-todo > li');
     if (!li) return;
     var r = li.getBoundingClientRect();
-    if (e.clientX - r.left > 30) return;
+    if (e.clientX - r.left > 24) return;
     e.preventDefault();
     li.setAttribute('data-checked', li.getAttribute('data-checked') === 'true' ? 'false' : 'true');
     queueSave();
@@ -238,6 +262,7 @@
     if (!b) return;
     if (b.dataset.cmd) { if (e.pointerType !== 'touch') run(b.dataset.cmd); return; }
     var act = b.dataset.nt;
+    if (act === 'tools') { if (e.pointerType !== 'touch') toggleTools(); return; }
     if (act === 'new') newNote();
     else if (act === 'saved') { save(); openSheet(true); }
     else if (act === 'close') openSheet(false);

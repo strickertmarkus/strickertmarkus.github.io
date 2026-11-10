@@ -15,6 +15,7 @@
       var pad = document.createElement('style');
       pad.textContent = 'body{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 18px) + 84px)!important}';
       (document.head || document.documentElement).appendChild(pad);
+      document.documentElement.classList.add('under-bottom-nav');
     }
     return;
   }
