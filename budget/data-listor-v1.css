@@ -68,3 +68,30 @@ html.listor-theme:not(#lt) body .actions-bar button:nth-child(n):hover{color:var
   html.listor-theme:not(#lt) body #loan-params-table th:nth-child(3),
   html.listor-theme:not(#lt) body #loan-params-table td:nth-child(3){width:28px;padding-left:4px!important;color:var(--lt-sec,#929ba9)}
 }
+
+/* Transfers: one block per month, inputs only for what you fill in, the rest as small text */
+html.listor-theme:not(#lt) body .tr-list{display:grid}
+html.listor-theme:not(#lt) body .tr-month{padding:14px 0 14px;border-bottom:1px solid var(--lt-line-soft,rgba(255,255,255,.06))}
+html.listor-theme:not(#lt) body .tr-month.is-now{position:relative}
+html.listor-theme:not(#lt) body .tr-month.is-now::before{content:"";position:absolute;inset:0 -16px;z-index:-1;background:radial-gradient(ellipse 60% 100% at 50% 50%,rgba(var(--lt-ar,253,186,116),.07),transparent 75%);pointer-events:none}
+html.listor-theme:not(#lt) body .tr-head{display:flex;align-items:center;gap:8px}
+html.listor-theme:not(#lt) body .tr-head b{font-size:16px;font-weight:600;color:var(--lt-text,#f0f6fc)}
+html.listor-theme:not(#lt) body .tr-tag{font-size:10.5px;font-weight:600;color:var(--lt-a,#FDBA74);background:rgba(var(--lt-ar,253,186,116),.10);padding:2px 8px;border-radius:9px}
+html.listor-theme:not(#lt) body .tr-total{margin-left:auto;font-size:15px;font-weight:700;color:var(--lt-text,#f0f6fc);font-variant-numeric:tabular-nums}
+html.listor-theme:not(#lt) body .tr-del{appearance:none;border:0;background:transparent;color:var(--lt-dim,#6f7a87);font-size:17px;line-height:1;padding:4px 2px 4px 8px;cursor:pointer}
+html.listor-theme:not(#lt) body .tr-del:hover{color:var(--lt-minus,#F87171)}
+html.listor-theme:not(#lt) body .tr-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 16px;margin-top:8px}
+html.listor-theme:not(#lt) body .tr-field{display:flex;flex-direction:column;gap:2px;min-width:0}
+html.listor-theme:not(#lt) body .tr-field span{font-size:11px;color:var(--lt-sec,#929ba9);white-space:nowrap}
+html.listor-theme:not(#lt) body .tr-field .editable-input{width:100%!important;text-align:left!important}
+html.listor-theme:not(#lt) body .tr-calc{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px;font-size:12.5px;color:var(--lt-sec,#929ba9);font-variant-numeric:tabular-nums}
+html.listor-theme:not(#lt) body .tr-calc b{color:var(--lt-text,#f0f6fc);font-weight:600}
+html.listor-theme:not(#lt) body .tr-calc em{font-style:normal;color:var(--lt-dim,#7d8996)}
+html.listor-theme:not(#lt) body .tr-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;margin-right:6px;vertical-align:1px}
+html.listor-theme:not(#lt) body .tr-net{flex-basis:100%;color:var(--lt-dim,#7d8996)}
+html.listor-theme:not(#lt) body .tr-older{appearance:none;border:0;background:transparent;color:var(--lt-sec,#929ba9);font:500 13.5px/1 Inter,system-ui,sans-serif;padding:14px 0 4px;cursor:pointer}
+html.listor-theme:not(#lt) body .tr-older:hover{color:var(--lt-a,#FDBA74)}
+@media(max-width:600px){
+  html.listor-theme:not(#lt) body .tr-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html.listor-theme:not(#lt) body .tr-calc span:not(.tr-net){flex-basis:100%}
+}

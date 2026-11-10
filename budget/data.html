@@ -195,7 +195,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="listor-theme-v1.css?v=20261109-toggles-1">
-<link rel="stylesheet" href="data-listor-v1.css?v=20261110-1">
+<link rel="stylesheet" href="data-listor-v1.css?v=20261110-2">
 </head>
 <body>
 
@@ -230,7 +230,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('loan-params')">
             <div class="section-icon" style="background:var(--house-bg);color:var(--house)" aria-hidden="true"></div>
-            <div style="flex:1"><div class="section-title">Låneparametrar</div><div class="section-subtitle">Huspris, ränta, amortering, drift — påverkar Familjebudget</div></div>
+            <div style="flex:1"><div class="section-title">Låneparametrar</div><div class="section-subtitle">Huspris, ränta, drift</div></div>
             <div class="section-chevron open" id="chevron-loan-params">▼</div>
         </div>
         <div class="section-body open" id="body-loan-params">
@@ -253,35 +253,11 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
         </div>
     </div>
 
-    <!-- 2. Income -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('income')">
-            <div class="section-icon" style="background:var(--income-bg);color:var(--income)" aria-hidden="true"></div>
-            <div style="flex:1"><div class="section-title">Inkomster (fallback)</div><div class="section-subtitle">Används som fallback om budgetsidornas data saknas för vald månad</div></div>
-            <div class="section-chevron" id="chevron-income">▼</div>
-        </div>
-        <div class="section-body" id="body-income">
-            <div class="section-inner">
-                <details class="formula-box">
-                    <summary class="formula-label">Visa formler (Inkomst)</summary>
-                    <code>Total inkomst</code> = Markus nettolön + Maja nettolön<br>
-                    <em>Primär källa: budgetTracker / budgetTracker_maja (income-sektionens "actual"-värden)</em>
-                </details>
-                <div class="table-wrapper">
-                    <table class="data-table" id="income-table">
-                        <thead><tr><th>Person</th><th class="num">Nettolön (kr)</th><th>Föräldraledig</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- 3. Shared Expenses -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('expenses')">
             <div class="section-icon" style="background:var(--expense-bg);color:var(--expense)" aria-hidden="true"></div>
-            <div style="flex:1"><div class="section-title">Gemensamma Utgifter</div><div class="section-subtitle">Fasta månadsutgifter som delas — påverkar Familjebudget</div></div>
+            <div style="flex:1"><div class="section-title">Gemensamma Utgifter</div><div class="section-subtitle">ICA-kortet, delas varje månad</div></div>
             <div class="section-chevron" id="chevron-expenses">▼</div>
         </div>
         <div class="section-body" id="body-expenses">
@@ -306,7 +282,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('huskonto')">
             <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)" aria-hidden="true"></div>
-            <div style="flex:1"><div class="section-title">Huskonto-utgifter</div><div class="section-subtitle">Utgifter som dras från huskontot</div></div>
+            <div style="flex:1"><div class="section-title">Huskonto-utgifter</div><div class="section-subtitle">Dras från huskontot</div></div>
             <div class="section-chevron" id="chevron-huskonto">▼</div>
         </div>
         <div class="section-body" id="body-huskonto">
@@ -326,7 +302,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('transfers')">
             <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)" aria-hidden="true"></div>
-            <div style="flex:1"><div class="section-title">Överföringar</div><div class="section-subtitle">Månatliga överföringar — husutgifter, ICA-kort, andelar</div></div>
+            <div style="flex:1"><div class="section-title">Överföringar</div><div class="section-subtitle">Vad var och en för över varje månad</div></div>
             <div class="section-chevron" id="chevron-transfers">▼</div>
         </div>
         <div class="section-body" id="body-transfers">
@@ -341,51 +317,14 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
                     <code>Total huskonto</code> = Huskonto Maja + Huskonto Markus &nbsp; <code>Total ICA</code> = ICA Maja + ICA Markus<br>
                     <em>Från januari 2027 räknas Husutgifter ut automatiskt (märkt auto) och nästa månad läggs till av sig själv, med ICA-kort och nettolöner från månaden innan. Skriv ett eget belopp i Husutgifter för att ersätta formeln, töm fältet för att gå tillbaka till den.</em>
                 </details>
-                <div class="table-wrapper">
-                    <table class="data-table" id="transfers-table">
-                        <thead><tr>
-                            <th>Månad</th><th class="num">Husutgifter</th><th class="num">ICA-kort</th>
-                            <th class="num">Markus netto</th><th class="num">Maja netto</th><th class="num">Totalt netto</th>
-                            <th class="num">Maja %</th><th class="num">Markus %</th>
-                            <th class="num">Huskonto Maja</th><th class="num">ICA Maja</th>
-                            <th class="num">Huskonto Markus</th><th class="num">ICA Markus</th>
-                            <th class="num">Total huskonto</th><th class="num">Total ICA</th>
-                            <th style="width:40px"></th>
-                        </tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div class="tr-list" id="transfers-list"></div>
+                <button type="button" class="tr-older" id="transfers-older" hidden onclick="toggleOlderTransfers()"></button>
                 <button class="btn-add" onclick="addTransfer()">+ Lägg till månad</button>
             </div>
         </div>
     </div>
 
 
-    <!-- 7. Savings Goals -->
-    <div class="section-card">
-        <div class="section-header" onclick="toggleSection('goals')">
-            <div class="section-icon" style="background:var(--income-bg);color:var(--income)" aria-hidden="true"></div>
-            <div style="flex:1"><div class="section-title">Sparmål</div><div class="section-subtitle">Familjens gemensamma sparmål</div></div>
-            <div class="section-chevron" id="chevron-goals">▼</div>
-        </div>
-        <div class="section-body" id="body-goals">
-            <div class="section-inner">
-                <details class="formula-box">
-                    <summary class="formula-label">Visa formler (Sparmål)</summary>
-                    <code>Kvar att spara</code> = Mål − Nuvarande − Extra insättningar<br>
-                    <code>Månader kvar</code> = Kvar / Månatligt sparande<br>
-                    <code>Framsteg %</code> = (Nuvarande + Extra) / Mål × 100
-                </details>
-                <div class="table-wrapper">
-                    <table class="data-table" id="goals-table">
-                        <thead><tr><th>Namn</th><th class="num">Mål (kr)</th><th class="num">Nuvarande (kr)</th><th class="num">Månatligt (kr)</th><th class="num">Extra (kr)</th><th>Färg</th><th>Länkade poster</th><th class="num">Kvar (kr)</th><th class="num">Månader</th><th class="num">Framsteg %</th><th style="width:60px"></th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-                <button class="btn-add" onclick="addGoal()">+ Lägg till sparmål</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Actions (bottom) -->
     <div class="actions-bar">
@@ -542,18 +481,13 @@ function renderLoanParams() {
     const calcMonthlyInterest = () => hm.interest, calcDrift = () => hm.drift, calcAmort = () => hm.amort, calcReno = () => hm.reno, calcTotalHouse = () => hm.total;
     const params = [
         { key: "huspris",           label: "Huspris",             suffix: " kr",  result: "" },
-        { key: "kontantinsats",     label: "Kontantinsats",       suffix: " kr",  result: "" },
         { key: "huslan",            label: "Huslån",              suffix: " kr",  result: `→ Ränta/mån: ${fmt(calcMonthlyInterest(loan))} kr` },
         { key: "listranta",         label: "Listränta",           suffix: " %",   result: `→ Ränta/mån: ${fmt(calcMonthlyInterest(loan))} kr` },
         { key: "driftkostnad",      label: "Driftkostnad/år",     suffix: " kr",  result: `→ Drift/mån: ${fmt(calcDrift())} kr` },
         { key: "fastighetsavgift",  label: "Fastighetsavgift/år", suffix: " kr",  result: `→ Drift/mån: ${fmt(calcDrift())} kr` },
         { key: "ammortering",       label: "Amortering",          suffix: " %",   result: `→ Amortering/mån: ${fmt(calcAmort(loan))} kr` },
         { key: "renovering",        label: "Renovering",          suffix: " %",   result: `→ Renovering/mån: ${fmt(calcReno())} kr` },
-        { key: "skattereduktion",   label: "Skattereduktion",     suffix: " %",   result: "" },
-        { key: "bolan",             label: "Bolån",               suffix: " %",   result: "" },
-        { key: "lagfart",           label: "Lagfart",             suffix: " kr",  result: "" },
-        { key: "pantbrev",          label: "Pantbrev",            suffix: " kr",  result: "" },
-        { key: "lantmateriavgift",  label: "Lantmäteriavgift",    suffix: " kr",  result: "" }
+        { key: "skattereduktion",   label: "Skattereduktion",     suffix: " %",   result: "" }
     ];
 
     document.querySelector("#loan-params-table tbody").innerHTML = params.map(p => `
@@ -581,6 +515,7 @@ function updateLoanParam(key, value) {
 // RENDER INCOME
 // ═══════════════════════════════════════════════════════
 function renderIncome() {
+    if (!document.getElementById("income-table")) return; // section removed; data kept
     document.querySelector("#income-table tbody").innerHTML = [
         { person: "Markus", key: "markus" },
         { person: "Maja", key: "maja" }
@@ -692,41 +627,53 @@ function deleteHuskonto(i) {
 // ═══════════════════════════════════════════════════════
 function transferKey(t) { return TransferIncome.key(t); }
 function sortTransfers() { transfers.sort((a, b) => transferKey(a) < transferKey(b) ? -1 : transferKey(a) > transferKey(b) ? 1 : 0); }
+let showOlderTransfers = false;
+function toggleOlderTransfers() { showOlderTransfers = !showOlderTransfers; renderTransfers(); }
+// One block per month: only the fields you fill in are inputs; everything the formulas
+// work out is shown as small text underneath. The latest 6 months (and any later) show by default.
 function renderTransfers() {
     sortTransfers();
     const floor = v => Math.floor(Number(v) || 0);
-    document.querySelector("#transfers-table tbody").innerHTML = transfers.map((t, i) => {
+    const nowKey = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0');
+    const firstShown = Math.max(0, transfers.findIndex(t => transferKey(t) >= nowKey) - 5);
+    const cut = transfers.findIndex(t => transferKey(t) >= nowKey) === -1 ? Math.max(0, transfers.length - 6) : firstShown;
+    const field = (i, key, label, value, extra) => `
+        <label class="tr-field"><span>${label}</span>
+            <input class="editable-input" type="number" inputmode="numeric" ${extra || ''} value="${value === null || value === undefined ? '' : value}" onchange="updateTransfer(${i},'${key}',this.value)" aria-label="${label}">
+        </label>`;
+    const html = transfers.map((t, i) => {
+        if (!showOlderTransfers && i < cut) return '';
         const net = TransferIncome.get(t);
         const hasNet = net.markus !== null && net.maja !== null;
-        const netTotal = hasNet ? fmt(net.markus + net.maja) : '—';
         const hm = t.huskontoMaja != null ? t.huskontoMaja : floor(t.husutgifter * t.majaAndel);
         const im = t.icaMaja != null ? t.icaMaja : floor(t.ica * t.majaAndel);
         const hk = t.huskontoMarkus != null ? t.huskontoMarkus : floor(t.husutgifter * t.markusAndel);
         const ik = t.icaMarkus != null ? t.icaMarkus : floor(t.ica * t.markusAndel);
-        const formulaMonth = transferKey(t) >= TransferIncome.AUTO_FROM;
-        const auto = formulaMonth && t.husAuto ? '<span class="auto-tag" title="Räknas med formeln">auto</span>' : '';
+        const key = transferKey(t);
+        const formulaMonth = key >= TransferIncome.AUTO_FROM;
+        const auto = formulaMonth && t.husAuto;
         const label = `${t.month} ${t.year}`;
-        const andel = hasNet
-            ? `<td class="num" style="color:var(--maja-color)">${(t.majaAndel*100).toFixed(1)}%</td>`
-            : `<td class="num"><input class="editable-input" type="number" step="0.1" aria-label="Maja andel ${label}" value="${(t.majaAndel*100).toFixed(1)}" onchange="updateTransfer(${i},'majaAndel',this.value/100)" style="color:var(--maja-color)"></td>`;
-        return `<tr${formulaMonth ? ' class="formula-row"' : ''}>
-            <td>${label}</td>
-            <td class="num">${auto}<input class="editable-input" type="number" inputmode="numeric" aria-label="Husutgifter ${label}" value="${t.husutgifter}" ${formulaMonth ? 'placeholder="auto"' : ''} onchange="updateTransfer(${i},'husutgifter',this.value)"></td>
-            <td class="num"><input class="editable-input" type="number" inputmode="numeric" aria-label="ICA-kort ${label}" value="${t.ica}" onchange="updateTransfer(${i},'ica',this.value)"></td>
-            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Markus netto ${label}" value="${net.markus === null ? '' : net.markus}" onchange="updateTransfer(${i},'markusNetto',this.value)" style="color:var(--markus-color)"></td>
-            <td class="num"><input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" aria-label="Maja netto ${label}" value="${net.maja === null ? '' : net.maja}" onchange="updateTransfer(${i},'majaNetto',this.value)" style="color:var(--maja-color)"></td>
-            <td class="num">${netTotal}</td>
-            ${andel}
-            <td class="num" style="color:var(--markus-color)">${(t.markusAndel*100).toFixed(1)}%</td>
-            <td class="num" style="color:var(--maja-color)">${fmt(hm)}</td>
-            <td class="num" style="color:var(--maja-color)">${fmt(im)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmt(hk)}</td>
-            <td class="num" style="color:var(--markus-color)">${fmt(ik)}</td>
-            <td class="num">${fmt(hm + hk)}</td>
-            <td class="num">${fmt(im + ik)}</td>
-            <td class="delete-cell" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">✕</td>
-        </tr>`;
-    }).join("");
+        const pk = Math.round((t.markusAndel || 0) * 1000) / 10, pj = Math.round((t.majaAndel || 0) * 1000) / 10;
+        const fields = field(i, 'husutgifter', auto ? 'Husutgifter · auto' : 'Husutgifter', t.husutgifter, formulaMonth ? 'placeholder="auto"' : '') +
+            field(i, 'ica', 'ICA-kort', t.ica) +
+            (hasNet || formulaMonth
+                ? field(i, 'markusNetto', 'Markus netto', net.markus, 'placeholder="—"') + field(i, 'majaNetto', 'Maja netto', net.maja, 'placeholder="—"')
+                : `<label class="tr-field"><span>Maja andel %</span><input class="editable-input" type="number" step="0.1" value="${pj.toFixed(1)}" onchange="updateTransfer(${i},'majaAndel',this.value/100)" aria-label="Maja andel ${label}"></label>`);
+        return `<div class="tr-month${key === nowKey ? ' is-now' : ''}">
+            <div class="tr-head"><b>${label}</b>${key === nowKey ? '<span class="tr-tag">nu</span>' : ''}<span class="tr-total">${fmt(hm + hk + im + ik)} kr</span>
+                <button type="button" class="tr-del" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">×</button></div>
+            <div class="tr-fields">${fields}</div>
+            <div class="tr-calc">
+                <span><i class="tr-dot" style="color:var(--markus-color)"></i>Markus ${String(pk).replace('.', ',')} % · <b>${fmt(hk + ik)}</b> <em>(hus ${fmt(hk)} + ICA ${fmt(ik)})</em></span>
+                <span><i class="tr-dot" style="color:var(--maja-color)"></i>Maja ${String(pj).replace('.', ',')} % · <b>${fmt(hm + im)}</b> <em>(hus ${fmt(hm)} + ICA ${fmt(im)})</em></span>
+                ${hasNet ? `<span class="tr-net">Netto total ${fmt(net.markus + net.maja)}</span>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+    document.getElementById('transfers-list').innerHTML = html;
+    const older = document.getElementById('transfers-older');
+    older.hidden = cut === 0;
+    older.textContent = showOlderTransfers ? 'Dölj äldre månader' : `Visa äldre månader (${cut})`;
 }
 
 function applyShares(t) {
@@ -791,6 +738,7 @@ function ensureTransferMonths() {
 
 function deleteTransfer(i) {
     if (transfers.length <= 1) { alert("Kan inte ta bort sista månaden"); return; }
+    if (!confirm(`Ta bort ${transfers[i].month} ${transfers[i].year}?`)) return;
     transfers.splice(i, 1);
     saveData();
     renderTransfers();
@@ -840,6 +788,7 @@ function deleteChecklist(i) {
 // RENDER SAVINGS GOALS
 // ═══════════════════════════════════════════════════════
 function renderGoals() {
+    if (!document.getElementById("goals-table")) return; // goals are edited on Familjebudget
     document.querySelector("#goals-table tbody").innerHTML = savingsGoals.map((g, i) => {
         const kvar = Math.max(0, g.target - (g.current || 0) - (g.extra || 0));
         const monthsLeft = g.monthly > 0 ? Math.ceil(kvar / g.monthly) : (kvar > 0 ? "∞" : "0");
@@ -979,12 +928,9 @@ document.addEventListener("click", function(e) {
 // ═══════════════════════════════════════════════════════
 function renderAll() {
     renderLoanParams();
-    renderIncome();
     renderExpenses();
     renderHuskonto();
     renderTransfers();
-    renderChecklist();
-    renderGoals();
 }
 
 window.addEventListener('firebase-sync', function(event) {
