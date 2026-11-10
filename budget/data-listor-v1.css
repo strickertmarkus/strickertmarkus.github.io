@@ -97,9 +97,9 @@ html.listor-theme:not(#lt) body .container::before{content:"";position:absolute;
 /* Transfers: compact months. The head shows what each of you transfers (blue Markus, pink Maja);
    tap a month to open its two net salary fields. */
 html.listor-theme:not(#lt) body .tr-list{display:grid}
-html.listor-theme:not(#lt) body .tr-month{padding:2px 0 8px;border-bottom:1px solid var(--lt-line-soft,rgba(255,255,255,.06));position:relative}
+html.listor-theme:not(#lt) body .tr-month{padding:0 0 2px;border-bottom:1px solid var(--lt-line-soft,rgba(255,255,255,.06));position:relative}
 html.listor-theme:not(#lt) body .tr-month.is-now::before{content:"";position:absolute;inset:-6px -16px;z-index:-1;background:radial-gradient(ellipse 60% 90% at 50% 50%,rgba(var(--lt-ar,253,186,116),.06),transparent 75%);pointer-events:none}
-html.listor-theme:not(#lt) body .tr-head{appearance:none;width:100%;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0 6px;-webkit-tap-highlight-color:transparent}
+html.listor-theme:not(#lt) body .tr-head{appearance:none;width:100%;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px;padding:9px 0 7px;-webkit-tap-highlight-color:transparent}
 html.listor-theme:not(#lt) body .tr-head:focus-visible{outline:2px solid var(--lt-a,#FDBA74);outline-offset:2px;border-radius:6px}
 html.listor-theme:not(#lt) body .tr-head b{font-size:15px;font-weight:600;color:var(--lt-text,#f0f6fc);white-space:nowrap}
 html.listor-theme:not(#lt) body .tr-tag{font-size:10px;font-weight:600;color:var(--lt-a,#FDBA74);background:rgba(var(--lt-ar,253,186,116),.10);padding:2px 7px;border-radius:8px}
@@ -110,11 +110,7 @@ html.listor-theme:not(#lt) body .tr-amounts .mk::before{color:#60A5FA}
 html.listor-theme:not(#lt) body .tr-amounts .mj::before{color:#F472B6}
 html.listor-theme:not(#lt) body .tr-chev{flex:0 0 7px;width:7px;height:7px;margin:0 2px 3px 4px;border-right:1.5px solid var(--lt-dim,#7d8996);border-bottom:1.5px solid var(--lt-dim,#7d8996);transform:rotate(45deg);transition:transform .2s}
 html.listor-theme:not(#lt) body .tr-month.is-open .tr-chev{transform:rotate(225deg);margin-bottom:-2px}
-html.listor-theme:not(#lt) body .tr-split{display:flex;gap:2px;height:3px;border-radius:2px;overflow:hidden}
-html.listor-theme:not(#lt) body .tr-split i{display:block;height:100%}
-html.listor-theme:not(#lt) body .tr-split i:first-child{background:#60A5FA;box-shadow:0 0 8px rgba(96,165,250,.55)}
-html.listor-theme:not(#lt) body .tr-split i:last-child{background:#F472B6;box-shadow:0 0 8px rgba(244,114,182,.55)}
-html.listor-theme:not(#lt) body .tr-body{padding-top:4px}
+html.listor-theme:not(#lt) body .tr-body{padding:0 0 8px}
 html.listor-theme:not(#lt) body .tr-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px}
 html.listor-theme:not(#lt) body .tr-field{display:flex;flex-direction:column;gap:0;min-width:0}
 html.listor-theme:not(#lt) body .tr-field span{font-size:11.5px;color:var(--lt-sec,#929ba9);white-space:nowrap;padding-top:4px}
