@@ -326,3 +326,9 @@ html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tb
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody td:nth-child(2) .editable-input{
   width:96px!important;height:28px!important;padding:2px 0!important;margin:0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--lt-a)!important;border-radius:0!important;
   box-shadow:0 6px 12px -10px rgba(var(--lt-ar),.8)!important;color:var(--lt-text)!important;font:500 14px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums}
+
+/* Header view toggles: four icons (Budget, Analys, Familj, Data) fit next to Markus/Maja */
+@media(max-width:420px){
+  html[data-finance-view]:not(#lt) .finance-view-clean-v1 button{width:40px!important}
+  html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button{padding:0 13px!important}
+}
