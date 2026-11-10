@@ -319,3 +319,10 @@ html[data-finance-view]:not(#lt) .finance-view-clean-v1 button[data-view].active
   html[data-finance-view]:not(#lt) .chart-switch{top:-10px}
   html[data-finance-view]:not(#lt) .chart-switch button{font-size:13.5px;padding:10px 14px;border-radius:19px}
 }
+
+/* Budget value under each item: a bigger tap target, edited in place with the dashed field */
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody td:nth-child(2){cursor:pointer;padding:6px 12px 6px 0!important;margin:-6px 0!important;-webkit-tap-highlight-color:transparent}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody td:nth-child(2) .editable-field{cursor:pointer;border-bottom:1px dashed rgba(var(--lt-ar),.28);padding:1px 0!important}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody td:nth-child(2) .editable-input{
+  width:96px!important;height:28px!important;padding:2px 0!important;margin:0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--lt-a)!important;border-radius:0!important;
+  box-shadow:0 6px 12px -10px rgba(var(--lt-ar),.8)!important;color:var(--lt-text)!important;font:500 14px/1 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums}
