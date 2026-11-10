@@ -195,7 +195,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="listor-theme-v1.css?v=20261109-toggles-1">
-<link rel="stylesheet" href="data-listor-v1.css?v=20261110-6">
+<link rel="stylesheet" href="data-listor-v1.css?v=20261110-7">
 </head>
 <body>
 
@@ -633,6 +633,9 @@ function deleteHuskonto(i) {
 function transferKey(t) { return TransferIncome.key(t); }
 function sortTransfers() { transfers.sort((a, b) => transferKey(a) < transferKey(b) ? -1 : transferKey(a) > transferKey(b) ? 1 : 0); }
 let showOlderTransfers = false;
+// Months open for editing; this month starts open.
+const openTransferMonths = new Set([new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')]);
+function toggleTransferMonth(key) { openTransferMonths.has(key) ? openTransferMonths.delete(key) : openTransferMonths.add(key); renderTransfers(); }
 function toggleOlderTransfers() { showOlderTransfers = !showOlderTransfers; renderTransfers(); }
 // By default only last month, this month and next month. Each month asks for the two net
 // salaries only; the share is shown in brackets. Everything else follows the formulas.
@@ -656,15 +659,20 @@ function renderTransfers() {
             <label class="tr-field"><span>${who} netto <i>(${pct(share)})</i></span>
                 <input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" value="${value === null ? '' : value}" onchange="updateTransfer(${i},'${k}',this.value)" aria-label="${who} netto ${label}">
             </label>`;
-        return `<div class="tr-month${key === nowKey ? ' is-now' : ''}">
-            <div class="tr-head"><b>${label}</b>${tag}<span class="tr-total">${fmt(total)} kr</span>
-                <button type="button" class="tr-del" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">×</button></div>
-            <div class="tr-fields">${field('markusNetto', 'Markus', net.markus, t.markusAndel)}${field('majaNetto', 'Maja', net.maja, t.majaAndel)}</div>
-            <div class="tr-pay" aria-label="Att föra över ${label}">
-                <div class="tr-split"><i style="width:${mk / (mk + mj || 1) * 100}%"></i><i style="width:${mj / (mk + mj || 1) * 100}%"></i></div>
-                <div class="tr-who mk"><span class="tr-dot"></span><span class="n">Markus för över</span><b>${fmt(mk)} kr</b><small>hus ${fmt(t.huskontoMarkus)} · ICA ${fmt(t.icaMarkus)}</small></div>
-                <div class="tr-who mj"><span class="tr-dot"></span><span class="n">Maja för över</span><b>${fmt(mj)} kr</b><small>hus ${fmt(t.huskontoMaja)} · ICA ${fmt(t.icaMaja)}</small></div>
-            </div>
+        const open = openTransferMonths.has(key);
+        const share = mk / (mk + mj || 1) * 100;
+        return `<div class="tr-month${key === nowKey ? ' is-now' : ''}${open ? ' is-open' : ''}">
+            <button type="button" class="tr-head" onclick="toggleTransferMonth('${key}')" aria-expanded="${open}">
+                <b>${label}</b>${tag}
+                <span class="tr-amounts"><span class="mk">${fmt(mk)}</span><span class="mj">${fmt(mj)}</span></span>
+                <span class="tr-chev" aria-hidden="true"></span>
+            </button>
+            <div class="tr-split" aria-hidden="true"><i style="width:${share}%"></i><i style="width:${100 - share}%"></i></div>
+            ${open ? `<div class="tr-body">
+                <div class="tr-fields">${field('markusNetto', 'Markus', net.markus, t.markusAndel)}${field('majaNetto', 'Maja', net.maja, t.majaAndel)}</div>
+                <div class="tr-foot"><span>Markus: hus ${fmt(t.huskontoMarkus)} · ICA ${fmt(t.icaMarkus)}</span><span>Maja: hus ${fmt(t.huskontoMaja)} · ICA ${fmt(t.icaMaja)}</span>
+                    <button type="button" class="tr-del" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">Ta bort</button></div>
+            </div>` : ''}
         </div>`;
     }).join('');
     document.getElementById('transfers-list').innerHTML = html;

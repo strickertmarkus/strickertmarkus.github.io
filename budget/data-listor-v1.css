@@ -69,33 +69,6 @@ html.listor-theme:not(#lt) body .actions-bar button:nth-child(n):hover{color:var
   html.listor-theme:not(#lt) body #loan-params-table td:nth-child(3){width:28px;padding-left:4px!important;color:var(--lt-sec,#929ba9)}
 }
 
-/* Transfers: one block per month, inputs only for what you fill in, the rest as small text */
-html.listor-theme:not(#lt) body .tr-list{display:grid}
-html.listor-theme:not(#lt) body .tr-month{padding:14px 0 14px;border-bottom:1px solid var(--lt-line-soft,rgba(255,255,255,.06))}
-html.listor-theme:not(#lt) body .tr-month.is-now{position:relative}
-html.listor-theme:not(#lt) body .tr-month.is-now::before{content:"";position:absolute;inset:0 -16px;z-index:-1;background:radial-gradient(ellipse 60% 100% at 50% 50%,rgba(var(--lt-ar,253,186,116),.07),transparent 75%);pointer-events:none}
-html.listor-theme:not(#lt) body .tr-head{display:flex;align-items:center;gap:8px}
-html.listor-theme:not(#lt) body .tr-head b{font-size:16px;font-weight:600;color:var(--lt-text,#f0f6fc)}
-html.listor-theme:not(#lt) body .tr-tag{font-size:10.5px;font-weight:600;color:var(--lt-a,#FDBA74);background:rgba(var(--lt-ar,253,186,116),.10);padding:2px 8px;border-radius:9px}
-html.listor-theme:not(#lt) body .tr-total{margin-left:auto;font-size:15px;font-weight:700;color:var(--lt-text,#f0f6fc);font-variant-numeric:tabular-nums}
-html.listor-theme:not(#lt) body .tr-del{appearance:none;border:0;background:transparent;color:var(--lt-dim,#6f7a87);font-size:17px;line-height:1;padding:4px 2px 4px 8px;cursor:pointer}
-html.listor-theme:not(#lt) body .tr-del:hover{color:var(--lt-minus,#F87171)}
-html.listor-theme:not(#lt) body .tr-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 16px;margin-top:8px}
-html.listor-theme:not(#lt) body .tr-field{display:flex;flex-direction:column;gap:2px;min-width:0}
-html.listor-theme:not(#lt) body .tr-field span{font-size:11px;color:var(--lt-sec,#929ba9);white-space:nowrap}
-html.listor-theme:not(#lt) body .tr-field .editable-input{width:100%!important;text-align:left!important}
-html.listor-theme:not(#lt) body .tr-calc{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px;font-size:12.5px;color:var(--lt-sec,#929ba9);font-variant-numeric:tabular-nums}
-html.listor-theme:not(#lt) body .tr-calc b{color:var(--lt-text,#f0f6fc);font-weight:600}
-html.listor-theme:not(#lt) body .tr-calc em{font-style:normal;color:var(--lt-dim,#7d8996)}
-html.listor-theme:not(#lt) body .tr-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;margin-right:6px;vertical-align:1px}
-html.listor-theme:not(#lt) body .tr-net{flex-basis:100%;color:var(--lt-dim,#7d8996)}
-html.listor-theme:not(#lt) body .tr-older{appearance:none;border:0;background:transparent;color:var(--lt-sec,#929ba9);font:500 13.5px/1 Inter,system-ui,sans-serif;padding:14px 0 4px;cursor:pointer}
-html.listor-theme:not(#lt) body .tr-older:hover{color:var(--lt-a,#FDBA74)}
-@media(max-width:600px){
-  html.listor-theme:not(#lt) body .tr-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
-  html.listor-theme:not(#lt) body .tr-calc span:not(.tr-net){flex-basis:100%}
-}
-
 /* Theme: each section has its own colour (--sc), a soft fade behind its title and a glowing dot.
    Collapsed, the title row shows the section's key figure. */
 html.listor-theme:not(#lt) body .section-card[data-sec]{position:relative;isolation:isolate}
@@ -121,26 +94,34 @@ html.listor-theme:not(#lt) body .header{position:relative;isolation:isolate}
 html.listor-theme:not(#lt) body .container{position:relative;isolation:isolate}
 html.listor-theme:not(#lt) body .container::before{content:"";position:absolute;left:0;right:0;top:-40px;height:520px;z-index:-2;pointer-events:none;background:radial-gradient(ellipse 50% 42% at 72% 38%,rgba(253,186,116,.075),transparent 70%),radial-gradient(ellipse 36% 30% at 12% 60%,rgba(253,186,116,.04),transparent 72%)}
 
-/* Transfers: just the two net salaries per month, share in brackets */
-html.listor-theme:not(#lt) body .tr-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important;margin-top:6px}
-html.listor-theme:not(#lt) body .tr-field span{font-size:12px;color:var(--lt-sec,#929ba9)}
+/* Transfers: compact months. The head shows what each of you transfers (blue Markus, pink Maja);
+   tap a month to open its two net salary fields. */
+html.listor-theme:not(#lt) body .tr-list{display:grid}
+html.listor-theme:not(#lt) body .tr-month{padding:2px 0 8px;border-bottom:1px solid var(--lt-line-soft,rgba(255,255,255,.06));position:relative}
+html.listor-theme:not(#lt) body .tr-month.is-now::before{content:"";position:absolute;inset:-6px -16px;z-index:-1;background:radial-gradient(ellipse 60% 90% at 50% 50%,rgba(var(--lt-ar,253,186,116),.06),transparent 75%);pointer-events:none}
+html.listor-theme:not(#lt) body .tr-head{appearance:none;width:100%;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:8px;padding:8px 0 6px;-webkit-tap-highlight-color:transparent}
+html.listor-theme:not(#lt) body .tr-head:focus-visible{outline:2px solid var(--lt-a,#FDBA74);outline-offset:2px;border-radius:6px}
+html.listor-theme:not(#lt) body .tr-head b{font-size:15px;font-weight:600;color:var(--lt-text,#f0f6fc);white-space:nowrap}
+html.listor-theme:not(#lt) body .tr-tag{font-size:10px;font-weight:600;color:var(--lt-a,#FDBA74);background:rgba(var(--lt-ar,253,186,116),.10);padding:2px 7px;border-radius:8px}
+html.listor-theme:not(#lt) body .tr-amounts{margin-left:auto;display:flex;gap:12px;font-size:14.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--lt-text,#f0f6fc)}
+html.listor-theme:not(#lt) body .tr-amounts span{display:inline-flex;align-items:center;gap:6px}
+html.listor-theme:not(#lt) body .tr-amounts span::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+html.listor-theme:not(#lt) body .tr-amounts .mk::before{color:#60A5FA}
+html.listor-theme:not(#lt) body .tr-amounts .mj::before{color:#F472B6}
+html.listor-theme:not(#lt) body .tr-chev{flex:0 0 7px;width:7px;height:7px;margin:0 2px 3px 4px;border-right:1.5px solid var(--lt-dim,#7d8996);border-bottom:1.5px solid var(--lt-dim,#7d8996);transform:rotate(45deg);transition:transform .2s}
+html.listor-theme:not(#lt) body .tr-month.is-open .tr-chev{transform:rotate(225deg);margin-bottom:-2px}
+html.listor-theme:not(#lt) body .tr-split{display:flex;gap:2px;height:3px;border-radius:2px;overflow:hidden}
+html.listor-theme:not(#lt) body .tr-split i{display:block;height:100%}
+html.listor-theme:not(#lt) body .tr-split i:first-child{background:#60A5FA;box-shadow:0 0 8px rgba(96,165,250,.55)}
+html.listor-theme:not(#lt) body .tr-split i:last-child{background:#F472B6;box-shadow:0 0 8px rgba(244,114,182,.55)}
+html.listor-theme:not(#lt) body .tr-body{padding-top:4px}
+html.listor-theme:not(#lt) body .tr-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 16px}
+html.listor-theme:not(#lt) body .tr-field{display:flex;flex-direction:column;gap:0;min-width:0}
+html.listor-theme:not(#lt) body .tr-field span{font-size:11.5px;color:var(--lt-sec,#929ba9);white-space:nowrap;padding-top:4px}
 html.listor-theme:not(#lt) body .tr-field span i{font-style:normal;color:var(--lt-a,#FDBA74)}
-
-/* Transfers: what each of you transfers this month, with a split bar and glowing dots */
-html.listor-theme:not(#lt) body .tr-pay{margin-top:14px;padding:12px 14px 6px;border-radius:14px;position:relative;isolation:isolate;
-  background:radial-gradient(ellipse 80% 120% at 0% 0%,rgba(96,165,250,.07),transparent 60%),radial-gradient(ellipse 80% 120% at 100% 100%,rgba(244,114,182,.07),transparent 60%),rgba(255,255,255,.02)}
-html.listor-theme:not(#lt) body .tr-split{display:flex;gap:3px;height:6px;border-radius:4px;overflow:hidden;margin-bottom:8px}
-html.listor-theme:not(#lt) body .tr-split i{display:block;height:100%;border-radius:4px}
-html.listor-theme:not(#lt) body .tr-split i:first-child{background:#60A5FA;box-shadow:0 0 10px rgba(96,165,250,.6)}
-html.listor-theme:not(#lt) body .tr-split i:last-child{background:#F472B6;box-shadow:0 0 10px rgba(244,114,182,.6)}
-html.listor-theme:not(#lt) body .tr-who{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"d n v" ". s s";gap:0 10px;align-items:center;padding:7px 0}
-html.listor-theme:not(#lt) body .tr-who+.tr-who{border-top:1px solid rgba(255,255,255,.05)}
-html.listor-theme:not(#lt) body .tr-who .tr-dot{grid-area:d;width:9px;height:9px;margin:0;border-radius:50%;background:currentColor;box-shadow:0 0 10px currentColor}
-html.listor-theme:not(#lt) body .tr-who.mk{color:#60A5FA}
-html.listor-theme:not(#lt) body .tr-who.mj{color:#F472B6}
-html.listor-theme:not(#lt) body .tr-who .n{grid-area:n;color:var(--lt-text,#f0f6fc);font-size:14px;font-weight:500}
-html.listor-theme:not(#lt) body .tr-who b{grid-area:v;font-size:18px;font-weight:700;color:var(--lt-text,#f0f6fc);font-variant-numeric:tabular-nums;text-shadow:0 0 18px currentColor}
-html.listor-theme:not(#lt) body .tr-who.mk b{text-shadow:0 0 16px rgba(96,165,250,.35)}
-html.listor-theme:not(#lt) body .tr-who.mj b{text-shadow:0 0 16px rgba(244,114,182,.35)}
-html.listor-theme:not(#lt) body .tr-who small{grid-area:s;justify-self:end;font-size:11.5px;color:var(--lt-dim,#7d8996);font-variant-numeric:tabular-nums}
-html.listor-theme:not(#lt) body .tr-month.is-now .tr-pay{box-shadow:inset 0 0 0 1px rgba(var(--lt-ar,253,186,116),.14)}
+html.listor-theme:not(#lt) body .tr-field .editable-input{width:100%!important;height:30px!important;text-align:left!important;font-size:15px!important}
+html.listor-theme:not(#lt) body .tr-foot{display:flex;flex-wrap:wrap;align-items:center;gap:2px 14px;margin-top:6px;font-size:11px;color:var(--lt-dim,#7d8996);font-variant-numeric:tabular-nums}
+html.listor-theme:not(#lt) body .tr-del{appearance:none;border:0;background:transparent;margin-left:auto;color:var(--lt-dim,#7d8996);font:500 11.5px/1 Inter,system-ui,sans-serif;padding:4px 0;cursor:pointer}
+html.listor-theme:not(#lt) body .tr-del:hover{color:var(--lt-minus,#F87171)}
+html.listor-theme:not(#lt) body .tr-older{appearance:none;border:0;background:transparent;color:var(--lt-sec,#929ba9);font:500 13px/1 Inter,system-ui,sans-serif;padding:12px 0 2px;cursor:pointer}
+html.listor-theme:not(#lt) body .tr-older:hover{color:var(--lt-a,#FDBA74)}
