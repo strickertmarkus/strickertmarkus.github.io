@@ -1,0 +1,70 @@
+/* Data & Formler in the budget style: open sections with a glowing dot, dashed-underline fields,
+   formulas folded away, compact rows. Loaded after listor-theme-v1.css. */
+html.listor-theme:not(#lt) body .container{max-width:860px;padding-top:6px}
+
+/* Sections: no cards, a hairline between them */
+html.listor-theme:not(#lt) body .section-card{background:transparent!important;border:0!important;border-bottom:1px solid var(--lt-line-soft,rgba(255,255,255,.06))!important;border-radius:0!important;box-shadow:none!important;margin:0!important;overflow:visible}
+html.listor-theme:not(#lt) body .section-header{padding:18px 2px 16px!important;gap:12px!important;background:transparent!important}
+html.listor-theme:not(#lt) body .section-header:hover{background:transparent!important}
+html.listor-theme:not(#lt) body .section-icon{width:9px!important;height:9px!important;flex:0 0 9px!important;border-radius:50%!important;font-size:0!important;background:currentColor!important;box-shadow:0 0 10px currentColor;align-self:center}
+html.listor-theme:not(#lt) body .section-title{font-size:18px!important;font-weight:600!important;color:var(--lt-text,#f0f6fc)!important}
+html.listor-theme:not(#lt) body .section-subtitle{font-size:12.5px!important;color:var(--lt-sec,#929ba9)!important;margin-top:2px}
+html.listor-theme:not(#lt) body .section-chevron{font-size:11px!important;color:var(--lt-dim,#6f7a87)!important}
+html.listor-theme:not(#lt) body .section-inner{padding:0 2px 22px!important}
+
+/* Formulas: folded into one line until opened */
+html.listor-theme:not(#lt) body .formula-box{display:block;background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;margin:0 0 10px!important;font:400 13px/1.75 Inter,system-ui,sans-serif!important;color:var(--lt-sec,#929ba9)!important}
+html.listor-theme:not(#lt) body .formula-box>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 0;color:var(--lt-a,#FDBA74)!important;font:600 12.5px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:0!important;text-transform:none!important;margin:0!important}
+html.listor-theme:not(#lt) body .formula-box>summary::-webkit-details-marker{display:none}
+html.listor-theme:not(#lt) body .formula-box>summary::after{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+html.listor-theme:not(#lt) body .formula-box[open]>summary::after{transform:rotate(225deg) translateY(-1px)}
+html.listor-theme:not(#lt) body .formula-box[open]{padding:2px 0 8px 12px!important;border-left:2px solid rgba(var(--lt-ar,253,186,116),.25)!important}
+html.listor-theme:not(#lt) body .formula-box code{font:600 13px/1.6 Inter,system-ui,sans-serif!important;color:var(--lt-text,#f0f6fc)!important;background:transparent!important}
+html.listor-theme:not(#lt) body .formula-box em{color:var(--lt-dim,#7d8996)}
+
+/* Tables: hairline rows, no zebra, quiet headers */
+html.listor-theme:not(#lt) body .data-table{font-size:15px!important}
+html.listor-theme:not(#lt) body .data-table td{padding:6px 8px!important;border-bottom:1px solid var(--lt-line-soft,rgba(255,255,255,.06))!important;color:var(--lt-text,#f0f6fc)}
+html.listor-theme:not(#lt) body .data-table td:first-child,html.listor-theme:not(#lt) body .data-table th:first-child{padding-left:0!important}
+html.listor-theme:not(#lt) body .data-table th{padding:8px 8px!important}
+html.listor-theme:not(#lt) body .data-table tr[style]{background:transparent!important}
+html.listor-theme:not(#lt) body .table-wrapper{margin:0!important}
+
+/* Fields: the budget page's dashed underline */
+html.listor-theme:not(#lt) body .editable-input{
+  width:100px;height:36px;padding:6px 0 4px!important;background:transparent!important;border:0!important;
+  border-bottom:1px dashed rgba(var(--lt-ar,253,186,116),.38)!important;border-radius:0!important;box-shadow:none!important;
+  color:var(--lt-text,#f0f6fc)!important;font:500 16px/1.2 Inter,system-ui,sans-serif!important;font-variant-numeric:tabular-nums;text-align:right
+}
+html.listor-theme:not(#lt) body .editable-input-wide,html.listor-theme:not(#lt) body .editable-input-med{width:100%!important;min-width:150px;text-align:left!important;border-bottom-color:transparent!important}
+html.listor-theme:not(#lt) body .editable-input-wide:hover,html.listor-theme:not(#lt) body .editable-input-med:hover{border-bottom-color:rgba(var(--lt-ar,253,186,116),.25)!important}
+html.listor-theme:not(#lt) body .editable-input:focus{padding:6px 0 4px!important;border-bottom:1px solid var(--lt-a,#FDBA74)!important;box-shadow:0 6px 12px -10px rgba(var(--lt-ar,253,186,116),.8)!important;background:transparent!important;outline:0!important}
+html.listor-theme:not(#lt) body .editable-input::placeholder{color:var(--lt-dim,#6f7a87)}
+html.listor-theme:not(#lt) body .editable-input::-webkit-outer-spin-button,html.listor-theme:not(#lt) body .editable-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+html.listor-theme:not(#lt) body .editable-input[type=number]{-moz-appearance:textfield}
+html.listor-theme:not(#lt) body .delete-cell{width:32px;color:var(--lt-dim,#6f7a87);opacity:1!important;font-size:14px}
+html.listor-theme:not(#lt) body .delete-cell:hover{color:var(--lt-minus,#F87171)}
+
+/* Simple name + amount lists: no header row; totals in the accent colour */
+html.listor-theme:not(#lt) body #expenses-table thead,html.listor-theme:not(#lt) body #huskonto-table thead{display:none}
+html.listor-theme:not(#lt) body #expenses-table td:first-child,html.listor-theme:not(#lt) body #huskonto-table td:first-child{width:100%}
+html.listor-theme:not(#lt) body .data-table tr[style*="font-weight:700"] td,html.listor-theme:not(#lt) body .data-table tr[style*="font-weight: 700"] td{color:var(--lt-text,#f0f6fc)!important;border-bottom:0!important;padding-top:12px!important;font-weight:700}
+html.listor-theme:not(#lt) body .data-table tr[style*="font-weight:700"] td:first-child{color:var(--lt-a,#FDBA74)!important;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+
+/* Add buttons as quiet text links */
+html.listor-theme:not(#lt) body .btn-add{border:0!important;background:transparent!important;padding:10px 0!important;margin-top:4px!important;color:var(--lt-a,#FDBA74)!important;font:500 14px/1 Inter,system-ui,sans-serif!important}
+html.listor-theme:not(#lt) body .btn-add:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* Export / import / reset moved to the bottom as small links */
+html.listor-theme:not(#lt) body .actions-bar{display:flex!important;flex-direction:row!important;flex-wrap:wrap;justify-content:center;gap:4px 18px!important;margin:30px 0 10px!important}
+html.listor-theme:not(#lt) body .actions-bar button:nth-child(n){border:0!important;background:transparent!important;box-shadow:none!important;min-height:0!important;padding:8px 0!important;color:var(--lt-sec,#929ba9)!important;font:500 13px/1 Inter,system-ui,sans-serif!important}
+html.listor-theme:not(#lt) body .actions-bar .btn-reset:nth-child(n){color:#c98b8b!important}
+html.listor-theme:not(#lt) body .actions-bar button:nth-child(n):hover{color:var(--lt-a,#FDBA74)!important}
+
+/* Loan parameters on phones: the per-row result column is dropped; the total row keeps its sum */
+@media(max-width:600px){
+  html.listor-theme:not(#lt) body #loan-params-table th:nth-child(4),
+  html.listor-theme:not(#lt) body #loan-params-table td:nth-child(4){display:none}
+  html.listor-theme:not(#lt) body #loan-params-table th:nth-child(3),
+  html.listor-theme:not(#lt) body #loan-params-table td:nth-child(3){width:28px;padding-left:4px!important;color:var(--lt-sec,#929ba9)}
+}

@@ -195,14 +195,14 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="listor-theme-v1.css?v=20261109-toggles-1">
+<link rel="stylesheet" href="data-listor-v1.css?v=20261110-1">
 </head>
 <body>
 
 <div class="header">
     <h1 style="cursor:pointer" onclick="location.href='home.html'">Data &amp; Formler</h1>
     <p>Redigera underliggande data &middot; Se formler</p>
-    <button onclick="toggleDarkMode()" id="dark-mode-btn" style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">🌙</button>
-    <div class="nav-dropdown-wrapper" style="position: absolute; top: 16px; right: 62px;">
+    <div class="nav-dropdown-wrapper" style="position: absolute; top: 16px; right: 16px;">
         <button onclick="toggleNavMenu()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;" title="Navigation">☰</button>
         <div class="nav-dropdown-menu" id="nav-menu">
             <a href="home.html"><span class="nav-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10h-6v-7H9v7H3z"/></svg></span> Startsida</a>
@@ -225,31 +225,24 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 
 <div class="container">
 
-    <!-- Actions -->
-    <div class="actions-bar">
-        <button class="btn-export" onclick="exportJSON()">Exportera JSON</button>
-        <button class="btn-export" onclick="importJSON()">Importera JSON</button>
-        <button class="btn-reset" onclick="resetAllData()">Återställ till standard</button>
-        <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
-    </div>
 
     <!-- 1. Loan Parameters -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('loan-params')">
-            <div class="section-icon" style="background:var(--house-bg);color:var(--house)">🏠</div>
+            <div class="section-icon" style="background:var(--house-bg);color:var(--house)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Låneparametrar</div><div class="section-subtitle">Huspris, ränta, amortering, drift — påverkar Familjebudget</div></div>
             <div class="section-chevron open" id="chevron-loan-params">▼</div>
         </div>
         <div class="section-body open" id="body-loan-params">
             <div class="section-inner">
-                <div class="formula-box">
-                    <div class="formula-label">Formler (Lån)</div>
-                    <code>Ränta/mån</code> = Huslån × Listränta% / 12<br>
-                    <code>Drift/mån</code> = (Driftkostnad + Fastighetsavgift) / 12<br>
-                    <code>Amortering/mån</code> = Huslån × Amortering% / 12 <em>(halveras vid LTV &lt; 70%)</em><br>
-                    <code>Renovering/mån</code> = Huspris × Renovering% / 12<br>
-                    <code>Totalt hus/mån</code> = Ränta + Drift + Amortering + Renovering
-                </div>
+                <details class="formula-box">
+                    <summary class="formula-label">Visa formler (Lån)</summary>
+                    <code>Ränta/mån</code> = INT(kvarvarande lån × Listränta% × Skattereduktion% / 12)<br>
+                    <code>Drift/mån</code> = INT((Driftkostnad + Fastighetsavgift) / 12)<br>
+                    <code>Amortering/mån</code> = INT(Huslån × Amortering% / 12) <em>(1 % under 70 % belåning, 0 under 50 %)</em><br>
+                    <code>Renovering/mån</code> = INT(Huspris × Renovering% / 12)<br>
+                    <code>Totalt hus/mån</code> = Ränta + Drift + Amortering + Renovering <em>(samma som Huskalkyl.xlsx, beräknat för innevarande månad)</em>
+                </details>
                 <div class="table-wrapper">
                     <table class="data-table" id="loan-params-table">
                         <thead><tr><th>Parameter</th><th class="num">Värde</th><th>Enhet</th><th>Beräknat resultat</th></tr></thead>
@@ -263,17 +256,17 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <!-- 2. Income -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('income')">
-            <div class="section-icon" style="background:var(--income-bg);color:var(--income)">💰</div>
+            <div class="section-icon" style="background:var(--income-bg);color:var(--income)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Inkomster (fallback)</div><div class="section-subtitle">Används som fallback om budgetsidornas data saknas för vald månad</div></div>
             <div class="section-chevron" id="chevron-income">▼</div>
         </div>
         <div class="section-body" id="body-income">
             <div class="section-inner">
-                <div class="formula-box">
-                    <div class="formula-label">Formler (Inkomst)</div>
+                <details class="formula-box">
+                    <summary class="formula-label">Visa formler (Inkomst)</summary>
                     <code>Total inkomst</code> = Markus nettolön + Maja nettolön<br>
                     <em>Primär källa: budgetTracker / budgetTracker_maja (income-sektionens "actual"-värden)</em>
-                </div>
+                </details>
                 <div class="table-wrapper">
                     <table class="data-table" id="income-table">
                         <thead><tr><th>Person</th><th class="num">Nettolön (kr)</th><th>Föräldraledig</th></tr></thead>
@@ -287,17 +280,17 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <!-- 3. Shared Expenses -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('expenses')">
-            <div class="section-icon" style="background:var(--expense-bg);color:var(--expense)">📋</div>
+            <div class="section-icon" style="background:var(--expense-bg);color:var(--expense)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Gemensamma Utgifter</div><div class="section-subtitle">Fasta månadsutgifter som delas — påverkar Familjebudget</div></div>
             <div class="section-chevron" id="chevron-expenses">▼</div>
         </div>
         <div class="section-body" id="body-expenses">
             <div class="section-inner">
-                <div class="formula-box">
-                    <div class="formula-label">Formler (Utgifter)</div>
+                <details class="formula-box">
+                    <summary class="formula-label">Visa formler (Utgifter)</summary>
                     <code>Totala utgifter</code> = Σ alla utgiftsposter<br>
                     <code>Kvar/mån</code> = Total inkomst − (Totalt hus + Totala utgifter + Huskonto)
-                </div>
+                </details>
                 <div class="table-wrapper">
                     <table class="data-table" id="expenses-table">
                         <thead><tr><th>Utgift</th><th class="num">Belopp (kr/mån)</th><th style="width:60px"></th></tr></thead>
@@ -312,7 +305,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <!-- 4. Huskonto -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('huskonto')">
-            <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)">🏦</div>
+            <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Huskonto-utgifter</div><div class="section-subtitle">Utgifter som dras från huskontot</div></div>
             <div class="section-chevron" id="chevron-huskonto">▼</div>
         </div>
@@ -332,14 +325,14 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <!-- 5. Transfers -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('transfers')">
-            <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)">🔄</div>
+            <div class="section-icon" style="background:var(--transfer-bg);color:var(--transfer)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Överföringar</div><div class="section-subtitle">Månatliga överföringar — husutgifter, ICA-kort, andelar</div></div>
             <div class="section-chevron" id="chevron-transfers">▼</div>
         </div>
         <div class="section-body" id="body-transfers">
             <div class="section-inner">
-                <div class="formula-box">
-                    <div class="formula-label">Formler (Överföringar)</div>
+                <details class="formula-box">
+                    <summary class="formula-label">Visa formler (Överföringar)</summary>
                     <code>Husutgifter</code> = Totalt hus (ränta + drift + amortering + renovering) + Huskonto-utgifter<br>
                     <code>Netto total</code> = Markus netto + Maja netto<br>
                     <code>Maja %</code> = Maja netto / Netto total &nbsp; <code>Markus %</code> = Markus netto / Netto total<br>
@@ -347,7 +340,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
                     <code>Huskonto Markus</code> = INT(Husutgifter × Markus%) &nbsp; <code>ICA Markus</code> = INT(ICA-kort × Markus%)<br>
                     <code>Total huskonto</code> = Huskonto Maja + Huskonto Markus &nbsp; <code>Total ICA</code> = ICA Maja + ICA Markus<br>
                     <em>Från januari 2027 räknas Husutgifter ut automatiskt (märkt auto) och nästa månad läggs till av sig själv, med ICA-kort och nettolöner från månaden innan. Skriv ett eget belopp i Husutgifter för att ersätta formeln, töm fältet för att gå tillbaka till den.</em>
-                </div>
+                </details>
                 <div class="table-wrapper">
                     <table class="data-table" id="transfers-table">
                         <thead><tr>
@@ -371,18 +364,18 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
     <!-- 7. Savings Goals -->
     <div class="section-card">
         <div class="section-header" onclick="toggleSection('goals')">
-            <div class="section-icon" style="background:var(--income-bg);color:var(--income)">🎯</div>
+            <div class="section-icon" style="background:var(--income-bg);color:var(--income)" aria-hidden="true"></div>
             <div style="flex:1"><div class="section-title">Sparmål</div><div class="section-subtitle">Familjens gemensamma sparmål</div></div>
             <div class="section-chevron" id="chevron-goals">▼</div>
         </div>
         <div class="section-body" id="body-goals">
             <div class="section-inner">
-                <div class="formula-box">
-                    <div class="formula-label">Formler (Sparmål)</div>
+                <details class="formula-box">
+                    <summary class="formula-label">Visa formler (Sparmål)</summary>
                     <code>Kvar att spara</code> = Mål − Nuvarande − Extra insättningar<br>
                     <code>Månader kvar</code> = Kvar / Månatligt sparande<br>
                     <code>Framsteg %</code> = (Nuvarande + Extra) / Mål × 100
-                </div>
+                </details>
                 <div class="table-wrapper">
                     <table class="data-table" id="goals-table">
                         <thead><tr><th>Namn</th><th class="num">Mål (kr)</th><th class="num">Nuvarande (kr)</th><th class="num">Månatligt (kr)</th><th class="num">Extra (kr)</th><th>Färg</th><th>Länkade poster</th><th class="num">Kvar (kr)</th><th class="num">Månader</th><th class="num">Framsteg %</th><th style="width:60px"></th></tr></thead>
@@ -392,6 +385,14 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
                 <button class="btn-add" onclick="addGoal()">+ Lägg till sparmål</button>
             </div>
         </div>
+    </div>
+
+    <!-- Actions (bottom) -->
+    <div class="actions-bar">
+        <button class="btn-export" onclick="exportJSON()">Exportera JSON</button>
+        <button class="btn-export" onclick="importJSON()">Importera JSON</button>
+        <button class="btn-reset" onclick="resetAllData()">Återställ till standard</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
     </div>
 
 </div>
@@ -536,6 +537,9 @@ function calcTotalHouse(loan) { return calcMonthlyInterest(loan) + calcDrift() +
 // ═══════════════════════════════════════════════════════
 function renderLoanParams() {
     const loan = loanParams.huslan;
+    const nowKey = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0');
+    const hm = TransferIncome.houseMonth(TransferIncome.sheetMonth(nowKey), loanParams);
+    const calcMonthlyInterest = () => hm.interest, calcDrift = () => hm.drift, calcAmort = () => hm.amort, calcReno = () => hm.reno, calcTotalHouse = () => hm.total;
     const params = [
         { key: "huspris",           label: "Huspris",             suffix: " kr",  result: "" },
         { key: "kontantinsats",     label: "Kontantinsats",       suffix: " kr",  result: "" },
@@ -561,8 +565,8 @@ function renderLoanParams() {
         </tr>
     `).join("") + `
         <tr style="font-weight:700;background:rgba(59,109,224,0.06)">
-            <td colspan="3" style="color:var(--accent)">Totalt hus/mån</td>
-            <td class="formula-result" style="font-size:14px">${fmt(calcTotalHouse(loan))} kr</td>
+            <td colspan="2" style="color:var(--accent)">Totalt hus/mån</td>
+            <td class="formula-result num" colspan="2" style="font-size:15px;text-align:right">${fmt(calcTotalHouse(loan))} kr</td>
         </tr>
     `;
 }
