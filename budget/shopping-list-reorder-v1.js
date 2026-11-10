@@ -79,7 +79,7 @@
     ].join('\n');
     doc.head.appendChild(style);
 
-    var tools=doc.querySelector('.shopping-tools-wrap');
+    var tools=doc.querySelector('.shopping-panel-head .shopping-tools-wrap');
     if(tools&&!doc.getElementById('shopping-quick-add')){
       var quick=doc.createElement('button');quick.id='shopping-quick-add';
       quick.className='shopping-quick-add';quick.type='button';

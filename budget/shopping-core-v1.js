@@ -8,8 +8,8 @@
     shopping:{title:'Inköpslista',headings:['Maxi','Willys','Hemköp','Lidl','Coop'],id:-101},
     packing:{title:'Packlista',headings:['Melker','Mila','Maja','Markus','Övrigt'],id:-102},
     todo:{title:'Att göra',headings:[],id:-103},
-    // A general list: works exactly like the shopping list, but starts empty and has no recipes or store sorting.
-    general:{title:'Lista',headings:[],id:-104}
+    // Notes: the general tab is a notes app (shopping-notes-v1.js); each note is a list with a `note` field.
+    general:{title:'Anteckningar',headings:[],id:-104}
   };
   var activeMode = 'shopping';
   // Home opens Shopping directly in the Att göra tab.
@@ -42,26 +42,8 @@
     var remembered = Number(localStorage.getItem('sh_selected_' + activeMode));
     return available.find(function(list){return Number(list.id) === remembered;}) || available[0];
   }
-  // The general list has no list card head: its tools (clear checked, undo, menu) sit in the
-  // page header next to the title instead. Other modes keep them in the list card.
-  function placeTools() {
-    var tools = document.querySelector('.shopping-tools-wrap');
-    var clear = document.getElementById('shopping-clear-done');
-    var head = document.querySelector('.shopping-panel-head');
-    var brand = document.querySelector('.app-header .brand');
-    var summaryRow = document.querySelector('.shopping-summary-row');
-    if (!tools || !head || !brand) return;
-    if (activeMode === 'general') {
-      if (tools.parentNode !== brand) brand.appendChild(tools);
-      if (clear && clear.parentNode !== tools) tools.insertBefore(clear, tools.firstChild);
-    } else {
-      if (tools.parentNode !== head) head.appendChild(tools);
-      if (clear && summaryRow && clear.parentNode !== summaryRow) summaryRow.appendChild(clear);
-    }
-  }
   function syncModeUI() {
     document.documentElement.dataset.listMode = activeMode;
-    placeTools();
     document.querySelectorAll('[data-list-mode-button]').forEach(function(button){
       button.setAttribute('aria-pressed',String(button.dataset.listModeButton === activeMode));
     });
