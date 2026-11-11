@@ -94,8 +94,8 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
   var allExerciseAssetManifestV2 = [
     {src:'exercise-points-8-9.js',attr:'data-exercise-points-8-9',group:'dashboard'},
     {src:'exercise-heart-rate-range.js',attr:'data-exercise-heart-rate-range',group:'dashboard'},
-    {src:'exercise-session-enhancements.js',attr:'data-exercise-session-enhancements',group:'session-presentation'},
-    {src:'exercise-session-runtime-core-v21.js',attr:'data-exercise-session-runtime-core-v21',group:'session-core'},
+    {src:'exercise-session-enhancements.js',version:'20261111-countup-1',attr:'data-exercise-session-enhancements',group:'session-presentation'},
+    {src:'exercise-session-runtime-core-v21.js',version:'20261111-countup-1',attr:'data-exercise-session-runtime-core-v21',group:'session-core'},
     {src:'exercise-session-theme-stability.js',attr:'data-exercise-session-theme-stability',group:'session-presentation'},
     {src:'exercise-session-stable-details.js',attr:'data-exercise-session-stable-details',group:'session-presentation'},
     {src:'exercise-reload-recovery.js',attr:'data-exercise-reload-recovery',group:'boot-recovery'},
@@ -113,11 +113,11 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-session-shell-v19.js',attr:'data-exercise-session-shell-v19',group:'session-presentation'},
     {src:'exercise-session-ux-v20.js',attr:'data-exercise-session-ux-v20',group:'session-ux'},
     {src:'exercise-motion-v1.js',attr:'data-exercise-motion-v1',group:'motion'},
-    {src:'exercise-hype-timer-layout-v1.js',attr:'data-exercise-hype-timer-layout-v1',group:'session-presentation'},
+    {src:'exercise-hype-timer-layout-v1.js',version:'20261111-countup-1',attr:'data-exercise-hype-timer-layout-v1',group:'session-presentation'},
     {src:'exercise-session-stability-v55.js',attr:'data-exercise-session-stability-v55',group:'session-stability'},
-    {src:'exercise-custom-transition-atomic-v56.js',version:'20261102-between-place-1',attr:'data-exercise-custom-transition-atomic-v56',group:'session-transition'},
+    {src:'exercise-custom-transition-atomic-v56.js',version:'20261111-countup-1',attr:'data-exercise-custom-transition-atomic-v56',group:'session-transition'},
     {src:'exercise-pulse-flow-v58.js',attr:'data-exercise-pulse-flow-v58',group:'pulse-presentation'},
-    {src:'exercise-pulse-flow-motion-v67.js',attr:'data-exercise-pulse-flow-motion-v67',group:'motion'},
+    {src:'exercise-pulse-flow-motion-v67.js',version:'20261111-countup-1',attr:'data-exercise-pulse-flow-motion-v67',group:'motion'},
     {src:'exercise-session-typography.js',attr:'data-exercise-session-typography',group:'pulse-presentation'}
   ];
   var exerciseAssetManifestV2 = embeddedFieldWorkspace
@@ -136,7 +136,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
      Boot recovery must not run here: its delayed cleanup would erase a newly
      started session after this on-demand bundle finishes loading. */
   var embeddedSessionAssetManifestV1 = embeddedFieldWorkspace
-    ? [{src:'exercise-timer-focus.js',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2.filter(function(item){return item.group!=='boot-recovery';}), [
+    ? [{src:'exercise-timer-focus.js',version:'20261111-countup-1',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2.filter(function(item){return item.group!=='boot-recovery';}), [
         {src:'exercise-progress-consistency-v10.js',attr:'data-exercise-progress-consistency-v10'},
         {src:'exercise-pulse-flow-progress-marker-v92.js',attr:'data-exercise-pulse-flow-progress-marker-v92'},
         {src:'exercise-pulse-flow-completed-marker-v102.js',attr:'data-exercise-pulse-flow-completed-marker-v102'},

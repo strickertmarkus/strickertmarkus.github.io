@@ -241,7 +241,7 @@
     if (running) transitionVisualUntil = 0;
 
     var starting = training && !restVisible() && (preStarting || customStarting || Date.now() < transitionVisualUntil);
-    var timedCardio = !!(training && running && ex && ex.kind === 'cardio' && Number(ex.time) > 0);
+    var timedCardio = !!(training && running && ex && ex.kind === 'cardio' && (Number(ex.time) > 0 || ex.timerMode === 'up'));
 
     modal.classList.toggle('persistent-hype',training);
     modal.classList.toggle('hype-focus',training);
@@ -317,6 +317,7 @@
     if (hint) hint.textContent = paused ? 'Pausad · tryck för att fortsätta' : 'Tryck för att pausa';
 
     var timedCardio = !!(running && ex && ex.kind === 'cardio' && Number(ex.time) > 0 && state.setStartedAt);
+    // A count-up timer ("Ta tid") is painted by the controller only.
     if (!timedCardio) return;
     // The controller owns countdown/overtime text and segments. This module
     // only paints pause controls once the controller is installed.
@@ -347,7 +348,7 @@
   function toggleCardioPause() {
     var state = getState();
     var ex = currentExercise(state);
-    if (!state || !state.setRunning || !state.setStartedAt || !ex || ex.kind !== 'cardio' || Number(ex.time) <= 0) return;
+    if (!state || !state.setRunning || !state.setStartedAt || !ex || ex.kind !== 'cardio' || !(Number(ex.time) > 0 || ex.timerMode === 'up')) return;
 
     if (state.__hypePaused) {
       clearPauseState(state);

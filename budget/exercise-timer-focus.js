@@ -27,7 +27,7 @@
   }
 
   function isTimedCardio(state, exercise) {
-    return !!(state && exercise && state.setRunning && state.setStartedAt && exercise.kind === 'cardio' && Number(exercise.time) > 0);
+    return !!(state && exercise && state.setRunning && state.setStartedAt && exercise.kind === 'cardio' && (Number(exercise.time) > 0 || exercise.timerMode === 'up'));
   }
 
   function cardioToken(state, exercise) {

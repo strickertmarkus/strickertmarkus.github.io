@@ -449,7 +449,8 @@
     var exercise = currentExercise(state);
     var wrap = document.getElementById('session-cardio-countdown');
     if (!wrap) return;
-    var timed = !!(state && state.setRunning && state.setStartedAt && exercise && exercise.kind === 'cardio' && Number(exercise.time) > 0);
+    var countUp = !!(exercise && exercise.timerMode === 'up');
+    var timed = !!(state && state.setRunning && state.setStartedAt && exercise && exercise.kind === 'cardio' && (Number(exercise.time) > 0 || countUp));
     wrap.classList.toggle('show', timed);
     if (!timed) {
       delete wrap.dataset.activeCountV46;
@@ -459,6 +460,25 @@
     var total = Number(exercise.time) * 60;
     var end = state.__hypePaused && state.__hypePausedAt ? Number(state.__hypePausedAt) : now;
     var elapsed = Math.max(0, (end - Number(state.setStartedAt)) / 1000);
+    if (countUp) {
+      // "Ta tid": the time counts up and the ring of segments fills once every five minutes.
+      var countRing = document.getElementById('session-countdown-ring');
+      if (countRing) countRing.classList.remove('is-overtime');
+      var countLabel = wrap.querySelector('.session-countdown-label');
+      var lap = Math.floor(elapsed / 300) + 1;
+      var countCaption = 'Tid · varv ' + lap;
+      if (countLabel && countLabel.textContent !== countCaption) countLabel.textContent = countCaption;
+      setText('session-countdown-value', formatClock(Math.floor(elapsed)));
+      var lapCount = Math.max(0, Math.min(60, Math.floor(60 * (elapsed % 300) / 300)));
+      if (wrap.dataset.activeCountV46 === 'up' + lapCount) return;
+      wrap.dataset.activeCountV46 = 'up' + lapCount;
+      document.querySelectorAll('#session-countdown-segments .session-countdown-segment').forEach(function (segment, index) {
+        var active = index < lapCount;
+        segment.classList.toggle('active', active);
+        segment.classList.toggle('inactive', !active);
+      });
+      return;
+    }
     var remaining = Math.max(0, total - elapsed);
     var overtime = elapsed >= total;
     var ring = document.getElementById('session-countdown-ring');
@@ -689,7 +709,7 @@
     logs.push(exercise.kind === 'cardio' ? {
       setNo: state.currentSet,
       actualDistance: Number(exercise.distance) || 0,
-      actualTime: Number(exercise.time) || +(duration / 60).toFixed(2),
+      actualTime: exercise.timerMode === 'up' ? +(duration / 60).toFixed(2) : Number(exercise.time) || +(duration / 60).toFixed(2),
       durationSec: duration
     } : {
       setNo: state.currentSet,

@@ -44,7 +44,7 @@
     deadlift: { yaw: -138, pitch: 16 }, rdl: { yaw: -138, pitch: 16 }, sumoDeadlift: { yaw: -150, pitch: 14 }
   };
   // Cardio and slow core moves keep an even rhythm; everything else uses the training tempo.
-  var LOOP = ['treadmill', 'bike', 'elliptical', 'stepper', 'farmerCarry', 'deadBug', 'birdDog'];
+  var LOOP = ['treadmill', 'bike', 'elliptical', 'stepper', 'farmerCarry', 'run', 'deadBug', 'birdDog'];
   function ease(x) { return x * x * (3 - 2 * x); }
 
   function init() {

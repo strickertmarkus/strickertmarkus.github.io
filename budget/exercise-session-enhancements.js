@@ -217,7 +217,7 @@
     var running = !!(state && state.setRunning && state.setStartedAt);
     var timed = !!(running && ex && ex.kind === 'cardio' && Number(ex.time) > 0);
     wrap.classList.toggle('show',timed);
-    if (!timed) return;
+    if (!timed) return; // count-up ("Ta tid") is painted by exercise-hype-timer-layout-v1.js
 
     var total = Number(ex.time) * 60;
     var elapsed = Math.max(0,(Date.now() - state.setStartedAt) / 1000);

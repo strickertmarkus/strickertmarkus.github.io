@@ -186,8 +186,18 @@ function setKind(row,kind){
 /* Cardio: distance only where it means something (running, cycling, rowing…,
    not jump rope); pace only when registering a pass, never when planning. */
 var DISTANCE=/löp|jogg|run|cykel|cykl|spinning|promenad|gång|rodd|simn|skid|vandr|crosstrainer|walk|bike|row|swim|ski/;
+/* Cardio timer in the session: 'down' counts the planned time down, 'up' ("Ta tid") counts up
+   with no planned time (one lap of the ring every five minutes). Stored in the row's -timer input. */
+function timerInput(row){return row.querySelector('input[class*="-timer"]');}
+function countsUp(row){var t=timerInput(row);return !!t&&t.value==='up';}
+function setTimerMode(row,mode){
+ var t=timerInput(row);if(!t)return;
+ if(t.value!==mode){t.value=mode;t.dispatchEvent(new Event('change',{bubbles:true}));}
+ if(mode==='up')write(field(row,2),'');
+}
 function specsFor(row){
  var kind=rowKind(row);if(kind!=='cardio')return SPECS[kind];
+ if(countsUp(row))return SPECS.cardio.filter(function(s){return s.n===1;});
  var name=key((nameInput(row)||{}).value),hasDist=!name||DISTANCE.test(name)||num(field(row,1).value)>0;
  var registering=!!row.closest('#wk-modal,#exercise-edit-modal-v9');
  return SPECS.cardio.filter(function(s){return s.n===1?hasDist:s.n==='pace'?hasDist&&registering:true;});
@@ -196,6 +206,7 @@ function specFor(row,n){return specsFor(row).filter(function(s){return String(s.
 function summaryText(row){
  var a=num(field(row,1).value),b=num(field(row,2).value);
  if(rowKind(row)==='cardio'){
+  if(countsUp(row))return (a?fmt(a)+' km · ':'')+'Ta tid · räknar uppåt';
   var parts=[];if(a)parts.push(fmt(a)+' km');if(b)parts.push(clock(b)+' min');if(a&&b)parts.push(clock(b/a)+' /km');
   return parts.length?parts.join(' · '):specsFor(row)[0].n===1?'Kondition · ange distans eller tid':'Kondition · ange tid';
  }
@@ -362,6 +373,7 @@ function renderSteps(row){
  // "Mellan set" sits on this line, left of kg/Kroppsvikt, so the open row stays compact.
  if(extra&&kind==='strength'&&row.querySelector('[data-per-set-toggle-v7]'))extra.insertAdjacentHTML('afterbegin','<div class="pbu-between-inline"><span class="pbu-step-label">Mellan set</span><button type="button" class="between-switch-v7 pbu-between-proxy" aria-label="Mellan set" aria-pressed="'+betweenConfig(row).enabled+'"></button></div>');
 if(extra&&kind==='strength')extra.insertAdjacentHTML('beforeend','<div class="pbu-seg pbu-weight-choice" role="group" aria-label="Viktalternativ"><button type="button" data-pbu-weight-mode="kg" aria-pressed="'+!bw+'">kg</button><button type="button" data-pbu-weight-mode="bodyweight" aria-pressed="'+bw+'">Kroppsvikt</button></div>');
+ if(extra&&kind==='cardio'&&timerInput(row)&&!row.closest('#wk-modal,#exercise-edit-modal-v9')){var up=countsUp(row);extra.insertAdjacentHTML('beforeend','<div class="pbu-seg pbu-weight-choice pbu-timer-choice" role="group" aria-label="Timer i passet"><button type="button" data-pbu-timer="down" aria-pressed="'+!up+'">Nedräkning</button><button type="button" data-pbu-timer="up" aria-pressed="'+up+'">Ta tid</button></div>');}
  syncSteps(row);
 }
 
@@ -479,6 +491,8 @@ function choose(row,name,kind,guideId){
  if(!name)return;
  setKind(row,kind||rowKind(row));
  write(nameInput(row),name);
+ // Outdoor running has no set length: it starts as "Ta tid".
+ if(rowKind(row)==='cardio')setTimerMode(row,/utomhus/i.test(name)?'up':'down');
  if(guideId!=null&&guideId!=='')fillFromGuide(row,Number(guideId));
  hidePicker(row);renderSteps(row);syncActions(row);
  paintRow(row);
@@ -487,7 +501,7 @@ function choose(row,name,kind,guideId){
 function fillFromGuide(row,id){
  var p=api();if(!p)return;
  var rx=p.prescription(id);if(!rx)return;
- if(rowKind(row)==='cardio'){if(!field(row,2).value&&rx.minutes)write(field(row,2),rx.minutes);}
+ if(rowKind(row)==='cardio'){if(!countsUp(row)&&!field(row,2).value&&rx.minutes)write(field(row,2),rx.minutes);}
  else if(rx.mode==='kg'){
   if(!field(row,1).value)write(field(row,1),rx.sets);
   if(!field(row,2).value&&rx.reps)write(field(row,2),rx.reps);
@@ -627,6 +641,8 @@ function bindList(modal,list,addSelector,single){
    if(secs){secs.value=Math.max(5,(Number(secs.value)||60)+Number(betweenStep.dataset.pbuBetweenStep)*15);secs.dispatchEvent(new Event('input',{bubbles:true}));}
    syncBetween(row);return;
   }
+  var timerChoice=t.closest('[data-pbu-timer]');
+  if(timerChoice){setTimerMode(row,timerChoice.dataset.pbuTimer);renderSteps(row);paintRow(row);return;}
   var weightChoice=t.closest('[data-pbu-weight-mode]');
   if(weightChoice){window.setExerciseWeightMode(row,weightChoice.dataset.pbuWeightMode);renderSteps(row);paintRow(row);return;}
   var step=t.closest('[data-pbu-step]');

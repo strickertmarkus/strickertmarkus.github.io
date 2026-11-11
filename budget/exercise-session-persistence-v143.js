@@ -111,7 +111,8 @@
         kind:'cardio',
         name:String(exercise.name || ''),
         distance:Number(exercise.distance) || 0,
-        time:Number(exercise.time) || 0
+        time:Number(exercise.time) || 0,
+        timerMode:exercise.timerMode === 'up' ? 'up' : 'down'
       };
     }
     return {

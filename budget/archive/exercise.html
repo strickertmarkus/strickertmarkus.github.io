@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="training-multipass-v1.css?v=20261104-quiet-bottom-3">
   <script>
   if(!window.__FIELD_EMBEDDED__){
-    document.write('<script defer src="exercise-timer-focus.js?v=20261026-energy-loop-4"><\/script>');
+    document.write('<script defer src="exercise-timer-focus.js?v=20261111-countup-1"><\/script>');
     document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"><\/script>');
     document.write('<script src="training-activity.js?v=20260922-observatory-composition-2"><\/script>');
   }
@@ -562,8 +562,8 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-log-ui.css?v=20261103-setlog-2">
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261103-history-back-3"></script>
-<script defer src="pulse-explore.js?v=20261108-dock-2"></script>
-<script defer src="pulse-builder-ui.js?v=20261107-t-1"></script>
+<script defer src="pulse-explore.js?v=20261111-countup-1"></script>
+<script defer src="pulse-builder-ui.js?v=20261111-countup-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-drag-2">
@@ -1585,7 +1585,8 @@ function normalizeExercise(ex){
   ex=ex||{};
   var kind=ex.kind||((ex.distance||ex.time)?'cardio':'strength');
   if(kind==='cardio'){
-    return {kind:'cardio',name:ex.name||'',distance:+ex.distance||0,time:+ex.time||0};
+    // timerMode 'up' = "Ta tid": the session timer counts up instead of down.
+    return {kind:'cardio',name:ex.name||'',distance:+ex.distance||0,time:+ex.time||0,timerMode:ex.timerMode==='up'?'up':'down'};
   }
   return {kind:'strength',name:ex.name||'',sets:+ex.sets||1,reps:+ex.reps||0,weight:ex.weightMode==='bodyweight'?0:(+ex.weight||0),weightMode:ex.weightMode==='bodyweight'?'bodyweight':'kg'};
 }
@@ -2294,6 +2295,7 @@ function buildExerciseEditorRowHtml(prefix, ex, removeHandler){
   var strengthCls=e.kind==='strength'?'':' ex-cell-hidden';
   return '<div class="ex-row-head">'
       +'<input type="hidden" class="'+prefix+'-kind" value="'+e.kind+'">'
+      +'<input type="hidden" class="'+prefix+'-timer ex-timer-mode" value="'+(e.timerMode==='up'?'up':'down')+'">'
       +'<button class="ex-kind-btn'+(e.kind==='strength'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'strength\')">Styrka</button>'
       +'<button class="ex-kind-btn'+(e.kind==='cardio'?' active':'')+'" type="button" onclick="setExerciseKind(this,\'cardio\')">Kondition</button>'
       +'<select class="exercise-weight-mode" aria-label="Viktalternativ" onchange="setExerciseWeightMode(this.closest(\'.ex-row-item, .ex-row-wrap, .inline-ex-row\'),this.value)"><option value="kg">kg</option><option value="bodyweight"'+(e.weightMode==='bodyweight'?' selected':'')+'>Kroppsvikt</option></select>'
@@ -2349,7 +2351,8 @@ function parseExerciseRow(row,prefix){
   var kindEl=row.querySelector('.'+prefix+'-kind');
   var kind=kindEl?kindEl.value:'strength';
   if(kind==='cardio'){
-    return normalizeExercise({kind:'cardio',name:name,distance:+row.querySelector('.'+prefix+'-metric1').value||0,time:+row.querySelector('.'+prefix+'-metric2').value||0});
+    var timerEl=row.querySelector('.'+prefix+'-timer');
+    return normalizeExercise({kind:'cardio',name:name,distance:+row.querySelector('.'+prefix+'-metric1').value||0,time:+row.querySelector('.'+prefix+'-metric2').value||0,timerMode:timerEl&&timerEl.value==='up'?'up':'down'});
   }
   return normalizeExercise({kind:'strength',name:name,sets:+row.querySelector('.'+prefix+'-metric1').value||1,reps:+row.querySelector('.'+prefix+'-metric2').value||0,weightMode:row.querySelector('.'+prefix+'-metric3').dataset.weightMode||'kg',weight:+row.querySelector('.'+prefix+'-metric3').value||0});
 }
@@ -2955,7 +2958,7 @@ function startWorkoutSessionForDate(iso,extraId){
     exercises:(planned.exercises||[]).map(function(ex){
       var norm=normalizeExercise(ex);
       return norm.kind==='cardio'
-        ? {kind:'cardio',name:norm.name,distance:norm.distance,time:norm.time,plannedSets:1}
+        ? {kind:'cardio',name:norm.name,distance:norm.distance,time:norm.time,timerMode:norm.timerMode,plannedSets:1}
         : {kind:'strength',name:norm.name,plannedSets:+norm.sets||1,reps:+norm.reps||0,weight:+norm.weight||0,weightMode:norm.weightMode||'kg'};
     }),
     exerciseIndex:0,
@@ -3074,7 +3077,7 @@ function renderSessionMode(){
     var targetSets=ex.plannedSets;
     currentExEl.textContent=ex.name;
     currentTargetEl.textContent=ex.kind==='cardio'
-      ? 'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time)
+      ? (ex.timerMode==='up'?'Kondition - Ta tid':'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time))
       : 'Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps · '+(ex.weightMode==='bodyweight'?'Kroppsvikt':ex.weight+' kg');
     renderSessionWeightHint(ex);
 
@@ -3148,7 +3151,7 @@ function completeCurrentSet(){
   sessionState.logs[sessionState.exerciseIndex].push(ex.kind==='cardio' ? {
     setNo:sessionState.currentSet,
     actualDistance:ex.distance||0,
-    actualTime:ex.time||+(dur/60).toFixed(2),
+    actualTime:ex.timerMode==='up'?+(dur/60).toFixed(2):ex.time||+(dur/60).toFixed(2),
     durationSec:dur
   } : {
     setNo:sessionState.currentSet,

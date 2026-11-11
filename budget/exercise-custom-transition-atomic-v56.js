@@ -59,7 +59,7 @@
     tempLogs.push({
       setNo: state.currentSet,
       actualDistance: Number(exercise.distance) || 0,
-      actualTime: Number(exercise.time) || +(duration / 60).toFixed(2),
+      actualTime: exercise.timerMode === 'up' ? +(duration / 60).toFixed(2) : Number(exercise.time) || +(duration / 60).toFixed(2),
       durationSec: duration
     });
     appendSummaryLogs(state, runtime, exercise, tempLogs, duration);
