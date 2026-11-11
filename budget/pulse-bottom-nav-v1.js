@@ -156,23 +156,30 @@
       return r.left - n.left + r.width / 2;
     }
     function place(x, w) { ind.style.width = w + 'px'; ind.style.transform = 'translateX(' + (x - w / 2) + 'px)'; }
-    function frame(x, w) { return { width: w + 'px', transform: 'translateX(' + (x - w / 2) + 'px)' }; }
+    // A frame by its left and right edge.
+    function edges(l, r, easing) { var f = { width: (r - l) + 'px', transform: 'translateX(' + l + 'px)' }; if (easing) f.easing = easing; return f; }
     var running = null;
     // part: 'both' (same page), 'stretch' (before leaving), 'shrink' (arriving)
     function travel(from, to, part, duration) {
       var a = centre(from), b = centre(to);
-      var lo = Math.min(a, b), hi = Math.max(a, b), mid = (lo + hi) / 2, span = hi - lo + 4;
       if (running) { running.cancel(); running = null; }
       if (!ind.animate || reduced() || from === to) { place(b, 4); return Promise.resolve(); }
-      var frames = part === 'stretch' ? [frame(a, 4), frame(mid, span)]
-        : part === 'shrink' ? [frame(mid, span), frame(b, 4)]
-        : [frame(a, 4), frame(mid, span), frame(b, 4)];
-      var ms = duration || (part === 'both' ? 300 : 230);
-      place(part === 'stretch' ? mid : b, part === 'stretch' ? span : 4);
-      running = ind.animate(frames, { duration: ms, easing: part === 'both' ? 'cubic-bezier(.65,0,.35,1)' : EASE });
+      // Like a worm: the front edge reaches the new tab first, then the back edge catches up,
+      // so the bar is only long while it is between the tabs.
+      var dir = b > a ? 1 : -1, d = Math.abs(b - a);
+      var dot = function (x) { return [x - 2, x + 2]; };
+      var reached = dir > 0 ? [a - 2 + d * .18, b + 2] : [b - 2, a + 2 - d * .18];
+      var start = dot(a), end = dot(b), stretched = dir > 0 ? [a - 2, b + 2] : [b - 2, a + 2];
+      var frames = part === 'stretch' ? [edges(start[0], start[1]), edges(stretched[0], stretched[1])]
+        : part === 'shrink' ? [edges(stretched[0], stretched[1]), edges(end[0], end[1])]
+        : [edges(start[0], start[1], 'cubic-bezier(.45,0,.25,1)'), Object.assign(edges(reached[0], reached[1], 'cubic-bezier(.3,0,.2,1)'), { offset: .5 }), edges(end[0], end[1])];
+      var ms = duration || (part === 'both' ? 320 : 230);
+      if (part === 'stretch') { ind.style.width = (stretched[1] - stretched[0]) + 'px'; ind.style.transform = 'translateX(' + stretched[0] + 'px)'; }
+      else place(b, 4);
+      running = ind.animate(frames, { duration: ms, easing: part === 'both' ? 'linear' : EASE });
       return running.finished.catch(function () {});
     }
-    // duration: match the page change it goes with (Home: radial reveal 220 ms, section slide ~260 ms).
+    // duration: match the page change it goes with (Home's slide: 100 ms out + 220 ms in).
     function mark(name, animate, duration) {
       if (TABS.indexOf(name) === -1) name = 'more';
       var prev = current;
@@ -251,7 +258,7 @@
       if (isHome && window.HomeHub && name !== 'budget') {
         e.preventDefault();
         if (name === current) { if (name === 'home' || name === 'transfer') window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-        mark(name, true, name === 'lists' || current === 'lists' ? 220 : 260);
+        mark(name, true, 320);
         if (name === 'lists') window.HomeHub.open('lists', a);
         else window.HomeHub.home(name === 'transfer' ? 'economy' : 'overview', a);
         return;
