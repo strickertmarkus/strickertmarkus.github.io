@@ -1,17 +1,23 @@
-/* Home's full-screen Listor/Resor views and its Översikt/Överföringar sections, all switched
- * with one slide. The destination uses the ORIGINAL Shopping/Travel document in a viewport-sized layer.
+/* Home's full-screen Budget/Listor/Resor views and its Översikt/Överföringar sections, all switched
+ * with one slide. Each view is the ORIGINAL page (budget pages, shopping.html, travel.html) in a
+ * viewport-sized layer that stays loaded, so the bottom bar switches between them without page loads.
  * URL and Back/Forward are synchronised with History API; refresh opens its native page.
  */
 (function(){
   'use strict';
-  const sources={lists:'shopping.html',travel:'travel.html'};
+  const FINANCE=['budget.html','budget_maja.html','analytics.html','analytics_maja.html','familjebudget.html','data.html'];
+  // Budget opens the finance page used last (finance-ui stores it); inside the view the page's own
+  // header switches between the finance pages.
+  const lastFinance=()=>{let p='';try{p=localStorage.getItem('finance-last-page-v1')||'';}catch(_){}return FINANCE.includes(p)?p:'budget.html';};
+  const sources={lists:'shopping.html',travel:'travel.html',get budget(){return lastFinance();}};
+  const TITLES={lists:'Listor',travel:'Resor',budget:'Budget'};
   const frames=new Map();
   let active=null,busy=false,pending=null,requestVersion=0,homeScroll=0;
   const $=selector=>document.querySelector(selector);
   const reduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pathArea=()=>{
     const tail=location.pathname.split('/').pop();
-    return tail==='shopping.html'?'lists':tail==='travel.html'?'travel':null;
+    return tail==='shopping.html'?'lists':tail==='travel.html'?'travel':FINANCE.includes(tail)?'budget':null;
   };
   const sameSite=origin=>origin===location.origin;
   const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -23,6 +29,12 @@
     if(!r.width||!r.height)return null;
     return {left:r.left,top:r.top,width:r.width,height:r.height};
   }
+  // The address shown for a view: the page it currently shows (Budget may have moved to Analys etc.).
+  function urlFor(area){
+    const r=frames.get(area);
+    try{const leaf=r&&r.frame.contentWindow.location.pathname.split('/').pop();if(leaf)return leaf;}catch(_){}
+    return sources[area];
+  }
   function makeStage(area){
     if(frames.has(area))return frames.get(area);
     const stage=document.createElement('div');
@@ -31,7 +43,7 @@
     stage.style.visibility='hidden';
     stage.style.pointerEvents='none';
     const frame=document.createElement('iframe');
-    frame.title=area==='lists'?'Listor – fullskärm':'Resor – fullskärm';
+    frame.title=TITLES[area]+' – fullskärm';
     frame.setAttribute('referrerpolicy','same-origin');
     frame.setAttribute('loading','eager');
     stage.setAttribute('role','region');
@@ -114,7 +126,7 @@
       stageVisibility(resource,true);
       hide(section,false);
       active=job.area;
-      if(job.push)history.pushState({hubMorph:job.area},'',sources[job.area]);
+      if(job.push)history.pushState({hubMorph:job.area},'',urlFor(job.area));
       changed();
       try{resource.frame.focus({preventScroll:true});}catch(_){resource.frame.focus();}
     }catch(error){
@@ -173,13 +185,17 @@
   }
 
   // The bottom bar (pulse-bottom-nav-v1.js) drives Home: open a full-screen view or go back
-  // to a section. Listor is loaded in the background so its slide starts at once.
+  // to a section.
   window.HomeHub={
     open(area,source){makeStage(area);request(area,'overview',true,source);},
     home(view,source){request(null,view==='economy'?'economy':'overview',!!active,source);},
     active(){return pending?pending.area:active;}
   };
-  window.addEventListener('load',()=>setTimeout(()=>{if(!frames.has('lists'))makeStage('lists');},1200));
+  // Listor and Budget load in the background so their slide starts at once.
+  window.addEventListener('load',()=>{
+    setTimeout(()=>{if(!frames.has('lists'))makeStage('lists');},1200);
+    setTimeout(()=>{if(!frames.has('budget'))makeStage('budget');},2600);
+  });
   window.addEventListener('message',event=>{
     if(!sameSite(event.origin)||!event.data)return;
     const validChild=[...frames.entries()].some(([area,resource])=>

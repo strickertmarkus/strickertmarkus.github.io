@@ -17,9 +17,12 @@
   var BOTTOM = 'calc(max(env(safe-area-inset-bottom,0px), 24px) + 62px)';
   // Home shows Listor/Resor in a full-screen frame under the bar: give that page room at the bottom.
   if (window.self !== window.top) {
-    if (/[?&]hubFrame=1/.test(location.search)) {
+    var inHub = /[?&]hubFrame=1/.test(location.search);
+    try { inHub = inHub || !!window.parent.HomeHub; } catch (_) {}
+    if (inHub) {
       var pad = document.createElement('style');
-      pad.textContent = 'body{padding-bottom:' + BOTTOM + '!important}';
+      // The bar lives in Home around the frame: room at the bottom, and no hamburger menu here either.
+      pad.textContent = 'body{padding-bottom:' + BOTTOM + '!important}.nav-dropdown-wrapper{display:none!important}';
       (document.head || document.documentElement).appendChild(pad);
       document.documentElement.classList.add('under-bottom-nav');
     }
@@ -36,6 +39,7 @@
   function homeArea() {
     var hub = window.HomeHub && window.HomeHub.active && window.HomeHub.active();
     if (hub === 'lists') return 'lists';
+    if (hub === 'budget') return 'budget';
     if (hub === 'travel') return 'more';
     return document.body && document.body.dataset.homeSection === 'economy' ? 'transfer' : 'home';
   }
@@ -263,11 +267,11 @@
         beforeMore = null;
       }
       // Home's own sections and full-screen views stay on the page.
-      if (isHome && window.HomeHub && name !== 'budget') {
+      if (isHome && window.HomeHub) {
         e.preventDefault();
         if (name === current) { if (name === 'home' || name === 'transfer') window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
         mark(name, true, 300);
-        if (name === 'lists') window.HomeHub.open('lists', a);
+        if (name === 'lists' || name === 'budget') window.HomeHub.open(name, a);
         else window.HomeHub.home(name === 'transfer' ? 'economy' : 'overview', a);
         return;
       }
