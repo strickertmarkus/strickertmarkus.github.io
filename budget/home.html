@@ -1036,7 +1036,7 @@
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
-<link rel="stylesheet" href="home-listor-v1.css?v=20261111-monthC-2C-1">
+<link rel="stylesheet" href="home-listor-v1.css?v=20261111-monthB-1C-2C-1">
 <script defer src="pulse-motion.js?v=20261029-home-1" data-surfaces=".modal-overlay,#home-day-popover,#day-panel,.fp-floating-menu"></script>
   <script defer src="app-refresh.js?v=20261103-1"></script>
 </head>
@@ -1048,7 +1048,7 @@
       <div class="brand-text"><h1>Frick Strickert</h1><p id="header-home-meta">--:--</p></div>
     </div>
     <div class="month-nav home-header-month-v10">
-      <button type="button" id="home-month-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="home-month-menu" aria-label="Välj månad"><strong id="month-label"></strong><small id="month-year"></small></button>
+      <button type="button" id="home-month-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="home-month-menu" aria-label="Välj månad"><strong id="month-label"></strong><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
       <div id="home-month-menu" class="home-month-menu" role="listbox" aria-label="Månader" hidden></div>
     </div>
     <div class="nav-dropdown-wrapper">
@@ -1475,8 +1475,8 @@ function getHolidayPreviewLabel(holiday) {
 function renderMonth() {
   var year = currentDate.getFullYear();
   var month = currentDate.getMonth();
-  document.getElementById('month-label').textContent = MONTHS[month];
-  document.getElementById('month-year').textContent = year;
+  // Just the month; the year is added when it is not this year.
+  document.getElementById('month-label').textContent = MONTHS[month] + (year !== new Date().getFullYear() ? ' ' + year : '');
   var weekEl = document.getElementById('calendar-week-number') ||
     document.getElementById('calendar-week-number-v2');
   if (weekEl && (!document.body.dataset.homeCalendarView ||
@@ -1657,7 +1657,7 @@ function changeMonth(delta) {
 function prevMonth() { changeMonth(-1); }
 function nextMonth() { changeMonth(1); }
 
-// Header month heading: a tap lists six months back and six ahead (plus "Idag" when away).
+// Header month ("November ⌄"): a tap lists six months back and six ahead (plus "Idag" when away).
 (function () {
   var btn = document.getElementById('home-month-btn');
   var menu = document.getElementById('home-month-menu');

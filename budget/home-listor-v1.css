@@ -172,7 +172,7 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .b
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-meta-inline{justify-content:flex-start!important;gap:6px!important;margin:0!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-time{color:#FDBA74!important;text-shadow:none!important;font-weight:700!important;letter-spacing:0!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-date{color:#8b93a1!important;font-weight:500!important;position:static!important}
-/* Month as a small heading on the right (sketch C): month name large, year under it, no frame.
+/* Month on the right as "November ⌄" (sketch B), no frame; the year shows only for another year.
    Tap opens a list of months; swiping the calendar also changes month. */
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10{
   position:relative!important;transform:none!important;left:auto!important;right:auto!important;top:auto!important;margin:0!important;flex:0 0 auto!important;
@@ -180,12 +180,13 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.m
   transition:opacity .3s cubic-bezier(.32,.72,0,1),transform .3s cubic-bezier(.32,.72,0,1),visibility .3s!important
 }
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #home-month-btn{
-  appearance:none!important;display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:3px!important;width:auto!important;height:auto!important;min-width:0!important;
-  padding:6px 0 6px 10px!important;margin:0!important;border:0!important;border-radius:10px!important;background:none!important;box-shadow:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s!important
+  appearance:none!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:5px!important;width:auto!important;height:auto!important;min-width:0!important;
+  padding:8px 0 8px 10px!important;margin:0!important;border:0!important;border-radius:10px!important;background:none!important;box-shadow:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s!important
 }
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #home-month-btn:active{transform:scale(.96)}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #month-label{min-width:0!important;width:auto!important;padding:0!important;font-size:20px!important;line-height:1!important;font-weight:800!important;letter-spacing:-.01em!important;color:#FDBA74!important;text-shadow:0 0 18px rgba(253,186,116,.25)!important;white-space:nowrap!important;text-align:right!important}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #month-year{font-size:11px!important;line-height:1!important;font-weight:600!important;color:#8b93a1!important;letter-spacing:.02em!important}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #month-label{min-width:0!important;width:auto!important;padding:0!important;font-size:16px!important;line-height:1!important;font-weight:700!important;letter-spacing:0!important;color:#FDBA74!important;text-shadow:none!important;white-space:nowrap!important}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #home-month-btn svg{width:15px;height:15px;fill:none;stroke:#FDBA74;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s cubic-bezier(.22,1,.36,1)}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #home-month-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
 .home-month-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:400;width:208px;max-height:min(360px,60vh);overflow:auto;padding:6px;border-radius:16px;background:#161B22;border:1px solid rgba(255,255,255,.07);box-shadow:0 18px 40px rgba(0,0,0,.5);transform-origin:top right;animation:home-month-in .22s cubic-bezier(.22,1,.36,1)}
 .home-month-menu[hidden]{display:none}
 @keyframes home-month-in{from{opacity:0;transform:scale(.94) translateY(-4px)}}
@@ -199,6 +200,5 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5:not([data-home
 /* Slim while scrolling */
 html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-wrap>.app-header{height:52px!important;background:rgba(12,15,21,.9)!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important}
 html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text h1{transform:scale(.7)}
-html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10 #home-month-btn{transform:scale(.82);transform-origin:right center}
 html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text p{opacity:0;max-height:0;margin-top:-6px!important}
 @media (prefers-reduced-motion:reduce){html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-wrap>.app-header,html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text h1,html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text p{transition:none!important}}
