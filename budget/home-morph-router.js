@@ -52,34 +52,20 @@
     frames.set(area,resource);
     return resource;
   }
-  /* Every Home page change is one overlapping slide: the old view slides out while the new one
-     slides in from the side of its tab, both in DURATION ms, so the screen is never empty.
-     Direction follows the order of the tabs in the bottom bar. */
-  const DURATION=300,EASE='cubic-bezier(.32,.72,0,1)';
-  const ORDER={overview:0,economy:1,lists:3,travel:4};
-  const dirOf=(from,to)=>(ORDER[to]||0)>=(ORDER[from]||0)?1:-1;
-  function slide(el,fromX,fromO,toX,toO){
+  /* Every Home page change is the same slide: the old view fades out towards the far side
+     (100 ms), the new one slides in from the side of its tab (220 ms). */
+  const EASE_IN='cubic-bezier(.4,0,1,1)',EASE_OUT='cubic-bezier(.22,1,.36,1)';
+  function slide(el,fromX,fromO,toX,toO,ms,easing){
     if(!el||!el.animate||reduced())return Promise.resolve();
-    const a=el.animate([{opacity:fromO,transform:'translate3d('+fromX+'px,0,0)'},{opacity:toO,transform:'translate3d('+toX+'px,0,0)'}],{duration:DURATION,easing:EASE});
+    const a=el.animate([{opacity:fromO,transform:'translate3d('+fromX+'px,0,0)'},{opacity:toO,transform:'translate3d('+toX+'px,0,0)'}],{duration:ms,easing});
     return a.finished.catch(()=>{});
   }
   const all=(els,fn)=>Promise.all([].concat(els).filter(Boolean).map(fn));
-  const leave=(els,dir)=>all(els,el=>slide(el,0,1,-dir*36,0));
-  const enter=(els,dir)=>all(els,el=>slide(el,dir*48,0,0,1));
+  const leave=(els,dir)=>all(els,el=>slide(el,0,1,-dir*18,0,100,EASE_IN));
+  const enter=(els,dir)=>all(els,el=>slide(el,dir*26,0,0,1,220,EASE_OUT));
+  const hide=(els,on)=>[].concat(els).filter(Boolean).forEach(el=>{el.style.opacity=on?'0':'';});
   // Home's own layer for a section: the section plus the header and "+" that float over it.
   const homeLayer=view=>[$('#home-'+view),$('.app-wrap>.app-header'),$('body>.fab')];
-  /* The section being left is copied into a fixed layer at its place, so it can slide out
-     while the new section (already in the page) slides in. */
-  function ghostOf(section){
-    if(!section||reduced())return null;
-    const r=section.getBoundingClientRect(),ghost=section.cloneNode(true);
-    // Same ids and place in the page (so its styles match); it comes after the original, so
-    // lookups by id still find the real section during the 300 ms it exists.
-    ghost.hidden=false;ghost.setAttribute('aria-hidden','true');ghost.inert=true;
-    Object.assign(ghost.style,{position:'fixed',top:r.top+'px',left:r.left+'px',width:r.width+'px',margin:'0',zIndex:'50',pointerEvents:'none'});
-    section.after(ghost);
-    return ghost;
-  }
   function stageVisibility(resource,visible){
     resource.stage.style.visibility=visible?'visible':'hidden';
     resource.stage.style.pointerEvents=visible?'auto':'none';
@@ -96,12 +82,11 @@
   async function switchSection(view){
     const current=document.body.dataset.homeSection;
     if(current===view || typeof window.selectHomeSection!=='function')return;
-    const dir=dirOf(current,view);
-    const ghost=ghostOf($('#home-'+current));
+    const dir=view==='economy'?1:-1;
+    await leave($('#home-'+current),dir);
     window.selectHomeSection(view);
     window.scrollTo(0,0);
-    await Promise.all([leave(ghost,dir),enter($('#home-'+view),dir)]);
-    ghost?.remove();
+    enter($('#home-'+view),dir);
   }
   async function openArea(job){
     if(!sources[job.area] || active===job.area)return;
@@ -114,13 +99,20 @@
       if(job.id!==requestVersion)return;
       if(!active)homeScroll=window.scrollY;
       lockHome(true);
-      const from=active||document.body.dataset.homeSection,dir=dirOf(from,job.area);
+      const section=homeLayer(document.body.dataset.homeSection);
+      await leave(previous?previous.stage:section,1);
+      if(job.id!==requestVersion){
+        if(!previous)lockHome(false);
+        return;
+      }
+      // Home stays hidden under the incoming view (the leave animation has no fill).
+      hide(section,true);
       resource.stage.style.visibility='visible';
       resource.stage.style.pointerEvents='none';
-      await Promise.all([leave(previous?previous.stage:homeLayer(document.body.dataset.homeSection),dir),enter(resource.stage,dir)]);
       if(previous)stageVisibility(previous,false);
-      if(job.id!==requestVersion && !previous && active!==job.area){stageVisibility(resource,false);lockHome(false);return;}
+      await enter(resource.stage,1);
       stageVisibility(resource,true);
+      hide(section,false);
       active=job.area;
       if(job.push)history.pushState({hubMorph:job.area},'',sources[job.area]);
       changed();
@@ -143,13 +135,18 @@
       changed();
       return;
     }
-    const resource=frames.get(active),dir=dirOf(active,view);
+    const resource=frames.get(active);
     if(document.body.dataset.homeSection!==view && typeof window.selectHomeSection==='function')window.selectHomeSection(view);
-    window.scrollTo(0,homeScroll);
-    lockHome(false);
-    await Promise.all([leave(resource.stage,dir),enter(homeLayer(view),dir)]);
+    const section=homeLayer(view);
+    // Hidden under the leaving view so it can slide in instead of flashing.
+    hide(section,true);
+    await leave(resource.stage,-1);
     stageVisibility(resource,false);
+    lockHome(false);
     active=null;
+    window.scrollTo(0,homeScroll);
+    hide(section,false);
+    enter(section,-1);
     if(job.id===requestVersion && job.push)history.pushState({hubMorph:'home'},'','home.html'+(view==='economy'?'?view=economy':''));
     changed();
   }
