@@ -73,6 +73,9 @@
     return a.finished.catch(()=>{});
   }
   const all=(els,fn)=>Promise.all([].concat(els).filter(Boolean).map(fn));
+  // Direction follows the tabs in the bottom bar: further right comes in from the right.
+  const ORDER={overview:0,economy:1,budget:2,lists:3,travel:4};
+  const dirOf=(from,to)=>(ORDER[to]||0)>=(ORDER[from]||0)?1:-1;
   const leave=(els,dir)=>all(els,el=>slide(el,0,1,-dir*18,0,100,EASE_IN));
   const enter=(els,dir)=>all(els,el=>slide(el,dir*26,0,0,1,220,EASE_OUT));
   const hide=(els,on)=>[].concat(els).filter(Boolean).forEach(el=>{el.style.opacity=on?'0':'';});
@@ -115,7 +118,8 @@
       // View to view (e.g. Budget -> Listor): Home stays hidden underneath, so it never shows
       // between the two.
       if(previous)hide(section,true);
-      await leave(previous?previous.stage:section,1);
+      const dir=dirOf(active||document.body.dataset.homeSection,job.area);
+      await leave(previous?previous.stage:section,dir);
       if(job.id!==requestVersion){
         if(!previous)lockHome(false);
         hide(section,false);
@@ -126,7 +130,7 @@
       resource.stage.style.visibility='visible';
       resource.stage.style.pointerEvents='none';
       if(previous)stageVisibility(previous,false);
-      await enter(resource.stage,1);
+      await enter(resource.stage,dir);
       stageVisibility(resource,true);
       hide(section,false);
       active=job.area;
