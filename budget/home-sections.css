@@ -1,9 +1,5 @@
-/* Home navigation shares the travel planner's quiet, highlighted tabs. */
-.home-section-tabs{display:flex;gap:6px;width:calc(100% - 48px);max-width:1152px;margin:10px auto 18px;padding:0 0 12px;border-bottom:1px solid rgba(255,255,255,.04)}
-.home-section-tabs button{appearance:none;min-height:44px;padding:11px 18px;border:0;border-radius:12px;background:transparent;color:var(--text-sec,#929ba9);font:500 14px/1.4 Inter,system-ui,sans-serif;cursor:pointer;transition:background .18s,color .18s}
-.home-section-tabs button[aria-selected="true"]{color:var(--home-view-accent,#FDBA74);background:rgba(var(--home-view-rgb,253,186,116),.065)}
-.home-section-tabs button:hover{color:var(--home-view-accent,#FDBA74)}
-.home-section-tabs button:focus-visible,.home-economy-links a:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px}
+/* Home sections (Översikt / Överföringar) are switched from the bottom bar. */
+.home-economy-links a:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px}
 #home-overview[hidden],#home-economy[hidden],#home-lists[hidden],#home-travel[hidden]{display:none!important}
 body:not([data-home-section="overview"]){--home-header-height:70px}
 html.home-finance-orange-v3 body.home-calendar-polish-v5:not([data-home-section="overview"]) .app-header>.month-nav.home-header-month-v10,
@@ -17,8 +13,7 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-economy-links a{display:flex;align-items:center;gap:22px;padding:12px 14px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:var(--bg2,#161B22);color:var(--text-sec,#929ba9);font-size:12px;text-decoration:none}
 .home-economy-links a:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.25)}
 .home-economy-links a span{color:var(--home-view-accent,#FDBA74)}
-@media(max-width:768px){.home-section-tabs{width:calc(100% - 24px);margin-top:8px;margin-bottom:14px}.home-economy,.home-lists,.home-travel{padding:4px 12px 60px}.home-section-heading{margin-bottom:18px}}
-@media(prefers-reduced-motion:reduce){.home-section-tabs button{transition:none}}
+@media(max-width:768px){.home-economy,.home-lists,.home-travel{padding:4px 12px 60px}.home-section-heading{margin-bottom:18px}}
 
 .home-lists-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
 .home-lists-grid>.widget{min-width:0;margin:0}
@@ -55,7 +50,7 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-trip-links a{padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.09);font-size:12px;color:var(--text-sec,#929ba9);text-decoration:none}
 .home-trip-links a:hover,.home-shortcuts a:hover{color:var(--home-view-accent,#FDBA74);border-color:rgba(var(--home-view-rgb,253,186,116),.3)}
 @media(max-width:768px){#home-travel-cards{grid-template-columns:1fr}.home-shortcuts{gap:8px}.home-shortcuts a{padding:12px}.home-trip-card{padding:20px}}
-@media(max-width:420px){.home-section-tabs button{flex:1;min-width:0;padding:10px 7px;font-size:13px}.home-shortcuts{grid-template-columns:1fr}.home-shortcuts a{grid-template-columns:1fr auto;align-items:center;gap:10px}}
+@media(max-width:420px){.home-shortcuts{grid-template-columns:1fr}.home-shortcuts a{grid-template-columns:1fr auto;align-items:center;gap:10px}}
 
 
 /* Current month essentials; compact rather than another calculator. */
@@ -115,7 +110,6 @@ body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-list-add-status{margin:0;color:var(--text-sec,#929ba9);font-size:11px}
 .home-list-add-status:empty{display:none}
 /* The Resor tab is a page-level workspace, not a card inside the page. */
-body[data-home-section="travel"] .home-section-tabs{position:sticky;top:var(--home-header-height,70px);z-index:99;background:rgba(15,18,25,.96);backdrop-filter:blur(12px)}
 body[data-home-section="travel"] #home-travel{width:100%;max-width:none;padding:0;margin:0}
 body[data-home-section="travel"] #home-travel-frame{display:block;width:100%;height:calc(100dvh - 128px);min-height:500px;max-height:none;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent}
 @media(max-width:768px){
@@ -138,10 +132,6 @@ body[data-home-section="lists"] #home-lists-frame{
   display:block;width:100%;height:calc(100dvh - 128px);min-height:460px;max-height:none;
   border:0;border-radius:0;box-shadow:none;background:transparent
 }
-body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-tabs{
-  position:sticky;top:var(--home-header-height,70px);z-index:99;
-  background:rgba(15,18,25,.96);backdrop-filter:blur(12px)
-}
 @media(max-width:768px){
   body[data-home-section="lists"] #home-lists-frame{height:calc(100dvh - 142px);min-height:380px}
 }
@@ -157,24 +147,6 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
 #event-modal .btn-danger svg{width:15px;height:15px;vertical-align:-3px;margin-right:5px;stroke:currentColor}
 .transfer-edit-icon svg{width:15px;height:15px;display:block}
 
-/* Navigation can open full-screen apps without a duplicate second tab row. */
-.home-section-tabs>a{
-  display:inline-flex;justify-content:center;align-items:center;min-height:44px;
-  padding:11px 18px;border:0;border-radius:12px;background:transparent;
-  color:var(--text-sec,#929ba9);font:500 14px/1.4 Inter,system-ui,sans-serif;
-  text-align:center;text-decoration:none;cursor:pointer;
-  transition:background .18s ease,color .18s ease;
-}
-.home-section-tabs>a:hover{color:var(--home-view-accent,#fdba74)}
-.home-section-tabs>a:focus-visible{outline:2px solid var(--home-view-accent,#fdba74);outline-offset:3px}
-.home-section-tabs>button[aria-pressed="true"]{
-  color:var(--home-view-accent,#FDBA74);
-  background:rgba(var(--home-view-rgb,253,186,116),.065)
-}
-@media(max-width:420px){
-  .home-section-tabs>a{flex:1;min-width:0;padding:10px 7px;font-size:13px}
-}
-@media(prefers-reduced-motion:reduce){.home-section-tabs>a{transition:none}}
 
 
 /* Responsive Home desktop: calendar consumes the real available width instead
@@ -218,7 +190,6 @@ body:is([data-home-section="lists"],[data-home-section="travel"]) .home-section-
   #home-overview .sidebar-section,
   #home-overview .home-overview-widgets,
   #home-overview .home-overview-widgets>.widget{min-width:0;max-width:100%}
-  .home-section-tabs{width:calc(100% - clamp(32px,5vw,96px));max-width:1800px}
   .home-economy,.home-lists,.home-travel{
     box-sizing:border-box;
     width:calc(100% - clamp(32px,5vw,96px));

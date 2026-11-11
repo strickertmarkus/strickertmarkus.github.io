@@ -20,12 +20,6 @@ html.hub-morph-active,body.hub-morph-active{overflow:hidden!important;overscroll
  font:600 13px/1.25 Inter,system-ui,sans-serif;
  transform-origin:top left;will-change:transform,opacity;
 }
-.home-section-tabs>a.hub-loading{
- color:var(--home-view-accent,#fdba74);
- background:rgba(253,186,116,.11);
- border-color:rgba(253,186,116,.28);
- box-shadow:inset 0 0 0 1px rgba(253,186,116,.12),0 0 19px rgba(253,186,116,.09);
-}
 @media(prefers-reduced-motion:reduce){
  .hub-morph-ghost{display:none}
 }

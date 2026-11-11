@@ -17,14 +17,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shopping-shell-v1.css?v=20261111-color-1">
-  <link rel="stylesheet" href="site-hub-home.css?v=20261016-radial-fast-clean-1">
   <script src="hub-fullscreen-child.js?v=20261016-viewtransition-lasttap-1"></script>
 <style>
-/* The Shopping shell stays intact; only reserve a small header slot for the Home launcher. */
+/* Shopping header: brand row with its buttons, mode switch on the row below. */
 .app-header{grid-template-columns:minmax(0,1fr) auto}
 .app-header>.brand{grid-column:1;grid-row:1}
 .app-header>.shopping-mode-switch{grid-column:1/-1;grid-row:2}
-.app-header>.site-hub-home{grid-column:2;grid-row:1;align-self:center}
 @media(max-width:420px){.app-header{column-gap:7px}.app-header .logo{font-size:clamp(17px,5vw,22px)}}
 </style>
 
@@ -132,7 +130,7 @@ html.shopping-embedded .wrap{padding-top:15px}
 }
 </style>
 <script defer src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
-<script src="pulse-bottom-nav-v1.js?v=20261111-2"></script>
+<script src="pulse-bottom-nav-v1.js?v=20261111-nav5"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 </head>
@@ -152,8 +150,6 @@ html.shopping-embedded .wrap{padding-top:15px}
       <button type="button" data-list-mode-button="todo" aria-pressed="false" aria-label="Att göra" title="Att göra"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 6 2 2 3-4m3 3h10M3 13l2 2 3-4m3 3h10M3 20l2 2 3-4m3 3h10"/></svg><span>Att göra</span></button>
       <button type="button" data-list-mode-button="general" aria-pressed="false" aria-label="Lista" title="Lista"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg><span>Lista</span></button>
     </nav>
-
-    <a class="site-hub-home" data-hub-link href="home.html" aria-label="Tillbaka till Översikt" title="Översikt"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10h-6v-7H9v7H3z"/></svg><span>Översikt</span></a>
   </div>
 
   <main class="wrap">

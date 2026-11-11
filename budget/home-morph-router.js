@@ -138,17 +138,32 @@
     document.body.classList.toggle('hub-morph-active',locked);
     if(app)app.inert=locked;
   }
+  const changed=()=>window.dispatchEvent(new CustomEvent('hub:change',{detail:{area:active,view:document.body.dataset.homeSection}}));
+  /* Översikt <-> Överföringar without a full-screen view: the old section slides out,
+     the new one slides in from the side of its tab in the bottom bar. */
+  async function switchSection(view){
+    const current=document.body.dataset.homeSection;
+    if(current===view || typeof window.selectHomeSection!=='function')return;
+    const out=$('#home-'+current),next=$('#home-'+view),dir=view==='economy'?1:-1;
+    if(reduced() || !out || !next || !out.animate){window.selectHomeSection(view);return;}
+    const leave=out.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translate3d('+(-dir*18)+'px,0,0)'}],
+      {duration:130,easing:'cubic-bezier(.4,0,1,1)'});
+    try{await leave.finished}catch(_){}
+    window.selectHomeSection(view);
+    window.scrollTo(0,0);
+    next.animate([{opacity:0,transform:'translate3d('+(dir*26)+'px,0,0)'},{opacity:1,transform:'none'}],
+      {duration:300,easing:'cubic-bezier(.22,1,.36,1)'});
+  }
   async function openArea(job){
     if(!sources[job.area] || active===job.area)return;
-    const tab=$('#home-tab-'+job.area);
-    const origin=job.source||tab;
+    const origin=job.source;
     const previous=active?frames.get(active):null;
     const resource=makeStage(job.area);
     origin?.classList.add('hub-loading');
     try{
       await resource.loaded;
       if(job.id!==requestVersion)return;
-      const from=rect(origin)||rect(tab),to=pillTarget(resource);
+      const from=rect(origin),to=pillTarget(resource);
       if(!active)homeScroll=window.scrollY;
       // The next page is first painted behind a mask at the touched button.
       const mask=maskGeometry(from,resource.stage);
@@ -172,6 +187,7 @@
       if(previous)stageVisibility(previous,false);
       active=job.area;
       if(job.push)history.pushState({hubMorph:job.area},'',sources[job.area]);
+      changed();
       try{resource.frame.focus({preventScroll:true});}catch(_){resource.frame.focus();}
     }catch(error){
       if(active!==job.area)stageVisibility(resource,false);
@@ -186,17 +202,15 @@
     if(!active){
       if(job.id!==requestVersion)return;
       if(job.push && pathArea())history.replaceState({hubMorph:'home'},'','home.html');
-      if(job.view==='economy' && typeof window.selectHomeSection==='function'){
-        window.selectHomeSection('economy');
-      }
+      await switchSection(job.view==='economy'?'economy':'overview');
+      changed();
       return;
     }
     const resource=frames.get(active);
     const view=job.view==='economy'?'economy':'overview';
-    const endingTab=$('#home-tab-'+view);
-    const from=pillTarget(resource),to=rect(endingTab);
-    // Retain the reverse-to-Overview effect; no extra full-page render on return.
-    try{await animatePortal(resource,from,to,false,view==='economy'?'Ekonomi':'Översikt');}catch(_){}
+    // The view shrinks back into the tapped tab (or the Hem tab when left another way).
+    const to=rect(job.source)||rect(document.querySelector('.pbn [data-pbn="'+(view==='economy'?'transfer':'home')+'"]'));
+    try{await animatePortal(resource,null,to,false,'');}catch(_){}
     stageVisibility(resource,false);
     lockHome(false);
     active=null;
@@ -206,8 +220,8 @@
       if(document.body.dataset.homeSection!==view && typeof window.selectHomeSection==='function'){
         window.selectHomeSection(view);
       }
-      try{endingTab?.focus({preventScroll:true});}catch(_){endingTab?.focus();}
     }
+    changed();
   }
   /* A last-intent-wins queue: stale loads never push history and an Overview
      request cancels any queued Listor/Resor request, including rapid taps. */
@@ -231,30 +245,13 @@
     }
   }
 
-  document.addEventListener('pointerdown',event=>{
-    const link=event.target.closest?.('.home-section-tabs a[data-home-route]');
-    if(link && sources[link.dataset.homeRoute])makeStage(link.dataset.homeRoute);
-  },{capture:true,passive:true});
-  document.addEventListener('click',event=>{
-    // A tap on Översikt/Ekonomi while Listor or Resor is loading must
-    // CANCEL the queued destination, not merely update the underlying tab.
-    const homeButton=event.target.closest?.('.home-section-tabs button[data-home-tab]');
-    if(homeButton && (busy || pending || active)){
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      request(null,homeButton.dataset.homeTab==='economy'?'economy':'overview',false,null);
-      return;
-    }
-    const link=event.target.closest?.('.home-section-tabs a[data-home-route]');
-    if(!link || event.defaultPrevented || event.button!==0 ||
-       event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||
-       link.hasAttribute('download')||(link.target&&link.target!=='_self'))return;
-    const area=link.dataset.homeRoute;
-    if(!sources[area])return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    request(area,'overview',true,link);
-  },true);
+  // The bottom bar (pulse-bottom-nav-v1.js) drives Home: open a full-screen view or go back
+  // to a section, with the reveal growing from / shrinking into the tapped tab.
+  window.HomeHub={
+    open(area,source){makeStage(area);request(area,'overview',true,source);},
+    home(view,source){request(null,view==='economy'?'economy':'overview',!!active,source);},
+    active(){return pending?pending.area:active;}
+  };
   window.addEventListener('message',event=>{
     if(!sameSite(event.origin)||!event.data)return;
     const validChild=[...frames.entries()].some(([area,resource])=>

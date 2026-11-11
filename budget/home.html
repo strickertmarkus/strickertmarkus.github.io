@@ -1027,17 +1027,17 @@
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="swedish-holidays-v1.js?v=20261013-1"></script>
-<link rel="stylesheet" href="home-sections.css?v=20261105-economy-flat-1">
-<link rel="stylesheet" href="home-morph-router.css?v=20261016-radial-fast-clean-1">
-<script defer src="home-morph-router.js?v=20261016-radial-fast-clean-1"></script>
+<link rel="stylesheet" href="home-sections.css?v=20261111-nav5">
+<link rel="stylesheet" href="home-morph-router.css?v=20261111-nav5">
+<script defer src="home-morph-router.js?v=20261111-nav5"></script>
 <script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20261020-menu-morph-6"></script>
-<script src="pulse-bottom-nav-v1.js?v=20261111-2"></script>
+<script src="pulse-bottom-nav-v1.js?v=20261111-nav5"></script>
 <script src="home-theme-controller-v1.js?v=20261019-orange-only-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
-<link rel="stylesheet" href="home-listor-v1.css?v=20261109-5">
+<link rel="stylesheet" href="home-listor-v1.css?v=20261111-hdr1">
 <script defer src="pulse-motion.js?v=20261029-home-1" data-surfaces=".modal-overlay,#home-day-popover,#day-panel,.fp-floating-menu"></script>
   <script defer src="app-refresh.js?v=20261103-1"></script>
 </head>
@@ -1046,7 +1046,7 @@
 
   <header class="app-header">
     <div class="brand">
-      <div class="brand-text"><h1 style="cursor:pointer" onclick="location.href='home.html'">Familjen Frick Strickert</h1><p id="header-home-meta">--:--</p></div>
+      <div class="brand-text"><h1>Frick Strickert</h1><p id="header-home-meta">--:--</p></div>
     </div>
     <div class="month-nav home-header-month-v10">
       <button onclick="prevMonth()">‹</button>
@@ -1078,13 +1078,7 @@
     </div>
   </header>
 
-  <nav class="home-section-tabs" aria-label="Huvudnavigation">
-    <button type="button" id="home-tab-overview" aria-pressed="true" aria-controls="home-overview" data-home-tab="overview">Översikt</button>
-    <button type="button" id="home-tab-economy" aria-pressed="false" aria-controls="home-economy" data-home-tab="economy">Ekonomi</button>
-    <a id="home-tab-lists" data-home-route="lists" href="shopping.html">Listor</a>
-    <a id="home-tab-travel" data-home-route="travel" href="travel.html">Resor</a>
-  </nav>
-  <section id="home-overview" role="tabpanel" aria-labelledby="home-tab-overview">
+  <section id="home-overview" aria-label="Översikt">
   <div class="filter-bar">
     <span class="filter-label">Visa:</span>
     <div class="member-chip active" data-member="markus"><svg class="home-member-mark" viewBox="0 0 14 14" aria-hidden="true" focusable="false" style="color:var(--c-markus)"><circle cx="7" cy="7" r="4.6" fill="currentColor"/><circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" opacity=".24"/></svg> <span>Markus</span></div>
@@ -1175,7 +1169,7 @@
     </div>
   </div>
   </section>
-  <section id="home-economy" class="home-economy" role="tabpanel" aria-labelledby="home-tab-economy" hidden>
+  <section id="home-economy" class="home-economy" aria-label="Överföringar" hidden>
     <div class="home-section-heading"><span>FAMILJENS EKONOMI</span><h2>Månadens överblick</h2></div>
     <div class="home-economy-snapshot" id="home-economy-snapshot" aria-live="polite"><p class="home-economy-muted">Hämtar månadens siffror…</p></div>
     <div class="home-loan-slot" id="home-loan-slot"></div>
@@ -1483,7 +1477,8 @@ function getHolidayPreviewLabel(holiday) {
 function renderMonth() {
   var year = currentDate.getFullYear();
   var month = currentDate.getMonth();
-  document.getElementById('month-label').textContent = MONTHS[month] + ' ' + year;
+  // Short month on phones so the large header title keeps its room.
+  document.getElementById('month-label').textContent = (window.innerWidth < 520 ? MONTHS[month].slice(0, 3) : MONTHS[month]) + ' ' + year;
   var weekEl = document.getElementById('calendar-week-number') ||
     document.getElementById('calendar-week-number-v2');
   if (weekEl && (!document.body.dataset.homeCalendarView ||
@@ -2589,9 +2584,6 @@ function selectHomeSection(section) {
   ['overview','economy'].forEach(function(name) {
     document.getElementById('home-' + name).hidden = name !== section;
   });
-  document.querySelectorAll('[data-home-tab]').forEach(function(button) {
-    button.setAttribute('aria-pressed', String(button.dataset.homeTab === section));
-  });
   closeDayEventsPopup();
   var url = new URL(location.href);
   if (section === 'economy') url.searchParams.set('view','economy');
@@ -3152,23 +3144,18 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   initCalendarFlatpickr();
   loadNotifSettings();
-  document.querySelectorAll('[data-home-tab]').forEach(function(button, index, buttons) {
-    button.addEventListener('click', function() {
-      var next = button.dataset.homeTab;
-      if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.startViewTransition(function(){ selectHomeSection(next); });
-      } else selectHomeSection(next);
-    });
-    button.addEventListener('keydown', function(event) {
-      var next;
-      if (event.key === 'ArrowRight') next = buttons[(index + 1) % buttons.length];
-      else if (event.key === 'ArrowLeft') next = buttons[(index + buttons.length - 1) % buttons.length];
-      else if (event.key === 'Home') next = buttons[0];
-      else if (event.key === 'End') next = buttons[buttons.length - 1];
-      if (next) { event.preventDefault(); next.focus(); selectHomeSection(next.dataset.homeTab); }
-    });
-  });
   selectHomeSection(new URLSearchParams(location.search).get('view') === 'economy' ? 'economy' : 'overview');
+  // The header slims to one row while the page is scrolled (styles in home-listor-v1.css).
+  (function () {
+    var compact = false, ticking = false;
+    function update() {
+      ticking = false;
+      var next = compact ? window.scrollY > 12 : window.scrollY > 36;
+      if (next !== compact) { compact = next; document.documentElement.classList.toggle('home-hdr-compact', compact); }
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
+  })();
   var holidayToggle = document.getElementById('home-show-holidays');
   if (holidayToggle && window.SwedishHolidays) {
     holidayToggle.checked = window.SwedishHolidays.isEnabled();
