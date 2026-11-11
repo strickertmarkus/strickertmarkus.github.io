@@ -266,7 +266,6 @@ html:not([data-list-mode="shopping"]) .store-sort-btn{display:none}
 /* Notes (the "Lista" tab): shopping-notes-v1.js */
 .nt{display:none}
 html[data-list-mode="general"] .shopping-dashboard{display:none}
-html[data-list-mode="general"] .app-header .brand{display:none}
 html[data-list-mode="general"] .nt{display:block;padding:0 2px 40px}
 .nt-top{display:flex;align-items:center;gap:6px;padding:0 0 6px;border-bottom:1px solid rgba(255,255,255,.07);touch-action:pan-y}
 html .nt .nt-title{flex:1;min-width:0;border:0!important;background:transparent!important;box-shadow:none!important;color:#f6f7f9!important;font:700 26px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.5px!important;height:auto!important;padding:0!important;outline:0}
@@ -366,3 +365,25 @@ html.nt-sheet-open .nt-sheet{transform:none}
 .nt-del:hover{color:#F87171}
 .nt-add{appearance:none;border:0;background:transparent;color:#FDBA74;font:600 14.5px Inter,sans-serif;padding:14px 0 4px;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.nt-sheet,.nt-dim,.nt-tools{transition:none}.nt.nt-slide-l .nt-editor,.nt.nt-slide-r .nt-editor,.nt-saved.show{animation:none}}
+
+/* All Listor tabs: no page title row (the list's own name is the heading), the list name as a
+   large title and its tools as round orange icons, like the notes in the Lista tab. */
+html body .app-header>.brand{display:none!important}
+html body .app-header>.shopping-mode-switch{margin-top:2px!important}
+html body .shopping-panel-head{align-items:center!important}
+html body .shopping-panel-head .shopping-current-list{font:700 26px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.5px!important;color:#f6f7f9!important}
+html body .shopping-panel-head .shopping-tools-wrap{gap:8px!important;align-items:center!important}
+html body .shopping-panel-head :is(.shopping-quick-add,.store-sort-btn,.undo-btn,.shopping-tools-menu>summary){
+  width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;padding:0!important;
+  display:grid!important;place-items:center!important;border-radius:50%!important;
+  border:1px solid rgba(253,186,116,.28)!important;background:rgba(253,186,116,.06)!important;color:#FDBA74!important;box-shadow:none!important;
+  transition:transform .15s!important;-webkit-tap-highlight-color:transparent
+}
+html body .shopping-panel-head :is(.shopping-quick-add,.store-sort-btn,.undo-btn,.shopping-tools-menu>summary):active{transform:scale(.94)}
+html body .shopping-panel-head :is(.shopping-quick-add,.store-sort-btn,.undo-btn,.shopping-tools-menu>summary) svg{width:18px!important;height:18px!important;stroke:currentColor;stroke-width:1.9}
+html:not([data-list-mode="shopping"]) body .shopping-panel-head .store-sort-btn{display:none!important}
+
+html body .family-todos.ft-shopping .ft-head{align-items:center!important}
+html body .family-todos.ft-shopping .ft-title{font:700 26px/1.15 Inter,system-ui,sans-serif!important;letter-spacing:-.5px!important;color:#f6f7f9!important}
+html body .family-todos.ft-shopping .ft-undo{width:36px!important;height:36px!important;min-width:36px!important;padding:0!important;display:grid!important;place-items:center!important;border-radius:50%!important;border:1px solid rgba(253,186,116,.28)!important;background:rgba(253,186,116,.06)!important;color:#FDBA74!important;box-shadow:none!important;font:500 17px/1 Inter,system-ui,sans-serif!important}
+html body .family-todos.ft-shopping .ft-undo:disabled{opacity:.45!important}
