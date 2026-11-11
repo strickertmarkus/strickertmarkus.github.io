@@ -168,20 +168,26 @@
       if (!ind.animate || reduced() || from === to) { place(b, 4); return Promise.resolve(); }
       // Like a worm: the front edge reaches the new tab first, then the back edge catches up,
       // so the bar is only long while it is between the tabs.
-      var dir = b > a ? 1 : -1, d = Math.abs(b - a);
-      var dot = function (x) { return [x - 2, x + 2]; };
-      var reached = dir > 0 ? [a - 2 + d * .18, b + 2] : [b - 2, a + 2 - d * .18];
-      var start = dot(a), end = dot(b), stretched = dir > 0 ? [a - 2, b + 2] : [b - 2, a + 2];
-      var frames = part === 'stretch' ? [edges(start[0], start[1]), edges(stretched[0], stretched[1])]
-        : part === 'shrink' ? [edges(stretched[0], stretched[1]), edges(end[0], end[1])]
-        : [edges(start[0], start[1], 'cubic-bezier(.45,0,.25,1)'), Object.assign(edges(reached[0], reached[1], 'cubic-bezier(.3,0,.2,1)'), { offset: .5 }), edges(end[0], end[1])];
-      var ms = duration || (part === 'both' ? 320 : 230);
-      if (part === 'stretch') { ind.style.width = (stretched[1] - stretched[0]) + 'px'; ind.style.left = stretched[0] + 'px'; }
-      else place(b, 4);
-      running = ind.animate(frames, { duration: ms, easing: part === 'both' ? 'linear' : EASE });
+      // Front edge and back edge each follow their own curve: the front leads, the back starts a
+      // little later and is already catching up while the front is still on its way, so the bar
+      // is longest between the tabs and is a dot again exactly when it lands.
+      var front = function (t) { var x = Math.min(1, t / .78); return 1 - Math.pow(1 - x, 3); };
+      var back = function (t) { var x = Math.max(0, Math.min(1, (t - .12) / .88)); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+      var at = function (t) {
+        var f = a + (b - a) * front(t), k = a + (b - a) * back(t);
+        return edges(Math.min(f, k) - 2, Math.max(f, k) + 2);
+      };
+      // Across pages the first half runs before leaving and the second half on the new page.
+      var t0 = part === 'shrink' ? .5 : 0, t1 = part === 'stretch' ? .5 : 1, steps = part === 'both' ? 16 : 8;
+      var frames = [];
+      for (var n = 0; n <= steps; n++) frames.push(at(t0 + (t1 - t0) * n / steps));
+      var ms = duration || (part === 'both' ? 300 : 200);
+      var last = frames[frames.length - 1];
+      ind.style.width = last.width; ind.style.left = last.left;
+      running = ind.animate(frames, { duration: ms, easing: 'linear' });
       return running.finished.catch(function () {});
     }
-    // duration: match the page change it goes with (Home's slide: 100 ms out + 220 ms in).
+    // duration: match the page change it goes with (Home's overlapping slide: 300 ms).
     function mark(name, animate, duration) {
       if (TABS.indexOf(name) === -1) name = 'more';
       var prev = current;
@@ -260,7 +266,7 @@
       if (isHome && window.HomeHub && name !== 'budget') {
         e.preventDefault();
         if (name === current) { if (name === 'home' || name === 'transfer') window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-        mark(name, true, 320);
+        mark(name, true, 300);
         if (name === 'lists') window.HomeHub.open('lists', a);
         else window.HomeHub.home(name === 'transfer' ? 'economy' : 'overview', a);
         return;

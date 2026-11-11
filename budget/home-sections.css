@@ -1,8 +1,6 @@
 /* Home sections (Översikt / Överföringar) are switched from the bottom bar. */
 .home-economy-links a:focus-visible{outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px}
 #home-overview[hidden],#home-economy[hidden],#home-lists[hidden],#home-travel[hidden]{display:none!important}
-body:not([data-home-section="overview"]){--home-header-height:70px}
-html.home-finance-orange-v3 body.home-calendar-polish-v5:not([data-home-section="overview"]) .app-header>.month-nav.home-header-month-v10,
 body:not([data-home-section="overview"])>.fab{display:none!important}
 .home-economy,.home-lists,.home-travel{max-width:1200px;margin:auto;padding:4px 24px 70px}
 .home-section-heading{margin:0 0 22px}
