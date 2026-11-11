@@ -152,8 +152,9 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-wrap>.app
   height:var(--home-header-height)!important;min-height:0!important;max-height:none!important;
   display:flex!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;
   padding:0 max(16px,calc((100vw - 1200px)/2)) 0!important;text-align:left!important;
-  background:rgba(12,15,21,.82)!important;border-bottom:1px solid rgba(255,255,255,.06)!important;
-  box-shadow:none!important;backdrop-filter:blur(22px) saturate(140%)!important;-webkit-backdrop-filter:blur(22px) saturate(140%)!important;
+  /* Same warm fade from the bottom edge up as the budget pages' header. */
+  background:linear-gradient(rgba(13,17,23,.984),rgba(253,186,116,.06)),rgba(13,17,23,.6)!important;border-bottom:1px solid rgba(253,186,116,.2)!important;
+  box-shadow:0 7px 26px rgba(0,0,0,.44),0 1px 24px rgba(253,186,116,.075)!important;backdrop-filter:blur(22px) saturate(140%)!important;-webkit-backdrop-filter:blur(22px) saturate(140%)!important;
   transition:height .32s cubic-bezier(.22,1,.36,1),background .32s,box-shadow .32s!important;
 }
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand{
@@ -171,7 +172,7 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .b
 }
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-meta-inline{justify-content:flex-start!important;gap:6px!important;margin:0!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-time{color:#FDBA74!important;text-shadow:none!important;font-weight:700!important;letter-spacing:0!important}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-date{color:#8b93a1!important;font-weight:500!important;position:static!important}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-date{color:#93C5FD!important;font-weight:600!important;position:static!important}
 /* Month on the right as "November ⌄" (sketch B), no frame; the year shows only for another year.
    Tap opens a list of months; swiping the calendar also changes month. */
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header>.month-nav.home-header-month-v10{
@@ -198,7 +199,7 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .h
 /* The month heading belongs to the calendar (Översikt only); it fades with the page change */
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5:not([data-home-section="overview"]) .app-header>.month-nav.home-header-month-v10{opacity:0!important;visibility:hidden!important;transform:translateX(8px)!important;pointer-events:none!important}
 /* Slim while scrolling */
-html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-wrap>.app-header{height:52px!important;background:rgba(12,15,21,.9)!important;box-shadow:0 8px 24px rgba(0,0,0,.35)!important}
+html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-wrap>.app-header{height:52px!important}
 html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text h1{transform:scale(.7)}
 html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text p{opacity:0;max-height:0;margin-top:-6px!important}
 @media (prefers-reduced-motion:reduce){html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-wrap>.app-header,html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text h1,html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .brand-text p{transition:none!important}}
