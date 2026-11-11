@@ -300,6 +300,7 @@ html .nt .nt-title{flex:1;min-width:0;border:0!important;background:transparent!
 .nt-editor .nt-hidden{display:none!important}
 .nt-editor p,.nt-editor div{margin:0 0 3px}
 .nt-editor b,.nt-editor strong{color:#fff;font-weight:700}
+.nt-editor h1 b,.nt-editor h1 strong,.nt-editor h2 b,.nt-editor h2 strong,.nt-editor font b,.nt-editor font strong{color:inherit}
 .nt-editor u{text-decoration-color:rgba(253,186,116,.8);text-underline-offset:3px;text-decoration-thickness:1.5px}
 .nt-editor hr{border:0;height:1px;margin:14px 0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent)}
 .nt-editor ul{margin:2px 0 6px;padding-left:20px}
@@ -333,6 +334,13 @@ html:not(.has-bottom-nav):not(.under-bottom-nav) .nt-bar{bottom:calc(env(safe-ar
 .nt-bar .nt-tools button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nt-bar .nt-tools button.on{background:rgba(253,186,116,.12)!important;color:#FDBA74}
 .nt-sep{width:1px;height:18px;margin:0 3px;background:rgba(255,255,255,.1)}
+.nt-bar .nt-colors{display:none}
+.nt-bar.pick .nt-scroll:not(.nt-colors){display:none}
+.nt-bar.pick .nt-colors{display:flex;gap:4px}
+.nt-dot{display:block;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.nt-dot-reset{background:#e6e9ee;position:relative;overflow:hidden}
+.nt-dot-reset::after{content:"";position:absolute;left:50%;top:-2px;width:1.5px;height:26px;background:#141820;transform:rotate(45deg)}
+.nt-swatch-btn{display:inline-block;padding-bottom:2px;font-weight:700;line-height:1;border-bottom:3px solid var(--sw,#e6e9ee);border-radius:1px}
 .nt-bar .nt-fab{appearance:none;flex:0 0 48px;width:48px;height:48px;min-height:48px;padding:0;border:1px solid rgba(253,186,116,.45)!important;border-radius:50%!important;background:rgba(32,27,22,.95)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#FDBA74!important;font:700 16px/1 Inter,system-ui,sans-serif;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.45),0 0 16px rgba(253,186,116,.18);-webkit-tap-highlight-color:transparent;transition:transform .15s}
 .nt-bar .nt-fab:active{transform:scale(.93)}
 .nt-bar.open .nt-fab{background:#FDBA74!important;color:#141820!important}

@@ -12,7 +12,11 @@
   'use strict';
   var KEY = 'sh_lists';
   var SELECTED = 'sh_selected_general';
-  var ALLOWED = { H1: 1, H2: 1, P: 1, DIV: 1, BR: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, UL: 1, OL: 1, LI: 1, HR: 1 };
+  // Text colours from the format row (stored as <font color>; the editor handles nesting natively).
+  var COLORS = [['Orange', '#fdba74'], ['Röd', '#f87171'], ['Grön', '#4ade80'], ['Blå', '#93c5fd'], ['Lila', '#c4b5fd'], ['Rosa', '#f9a8d4'], ['Gul', '#fde047']];
+  var COLOR_OK = {}; COLORS.forEach(function (c) { COLOR_OK[c[1]] = 1; });
+  var RESET_COLOR = '#010101';
+  var ALLOWED = { FONT: 1, H1: 1, H2: 1, P: 1, DIV: 1, BR: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, UL: 1, OL: 1, LI: 1, HR: 1 };
   var root, editor, titleInput, sheet, saveTimer = 0, decorateTimer = 0, currentId = null;
 
   function readLists() { try { var v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (_) { return []; } }
@@ -34,6 +38,14 @@
         if (child.nodeType !== 1 || !ALLOWED[child.tagName]) {
           if (child.nodeType === 1) { clean(child); while (child.firstChild) node.insertBefore(child.firstChild, child); }
           node.removeChild(child);
+          return;
+        }
+        if (child.tagName === 'FONT') {
+          var col = String(child.getAttribute('color') || '').toLowerCase();
+          clean(child);
+          if (!COLOR_OK[col]) { while (child.firstChild) node.insertBefore(child.firstChild, child); node.removeChild(child); return; }
+          Array.prototype.slice.call(child.attributes).forEach(function (a) { child.removeAttribute(a.name); });
+          child.setAttribute('color', col);
           return;
         }
         var keepClass = child.tagName === 'UL' && child.classList.contains('nt-todo');
@@ -222,6 +234,7 @@
     indent: '<path d="M10 6h10M10 12h10M10 18h10M4 9l3 3-3 3"/>',
     outdent: '<path d="M10 6h10M10 12h10M10 18h10M7 9l-3 3 3 3"/>',
     hr: '<path d="M4 12h16"/><path d="M8 7h8M8 17h8" opacity=".4"/>',
+    back: '<path d="M15 6l-6 6 6 6"/>',
     undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
     redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
@@ -247,9 +260,13 @@
         '<div class="nt-tools"><div class="nt-scroll">' +
           tool('h1', 'Rubrik', 'H1') + tool('h2', 'Underrubrik', 'H2') + tool('p', 'Brödtext', 'Aa') + '<span class="nt-sep"></span>' +
           tool('todo', 'Att göra-lista', svg('todo')) + tool('ul', 'Punktlista', svg('ul')) + '<span class="nt-sep"></span>' +
-          tool('bold', 'Fetstil', '<b>B</b>') + tool('italic', 'Kursiv', '<i>I</i>') + tool('underline', 'Understruken', '<u>U</u>') + '<span class="nt-sep"></span>' +
+          tool('bold', 'Fetstil', '<b>B</b>') + tool('italic', 'Kursiv', '<i>I</i>') + tool('underline', 'Understruken', '<u>U</u>') + tool('color', 'Textfärg', '<span class="nt-swatch-btn">A</span>') + '<span class="nt-sep"></span>' +
           tool('indent', 'Öka indrag', svg('indent')) + tool('outdent', 'Minska indrag', svg('outdent')) + tool('hr', 'Avdelare', svg('hr')) + '<span class="nt-sep"></span>' +
           tool('undo', 'Ångra', svg('undo')) + tool('redo', 'Gör om', svg('redo')) +
+        '</div><div class="nt-scroll nt-colors">' +
+          tool('colorback', 'Tillbaka', svg('back')) + '<span class="nt-sep"></span>' +
+          tool('c:' + RESET_COLOR, 'Standardfärg', '<span class="nt-dot nt-dot-reset"></span>') +
+          COLORS.map(function (c) { return tool('c:' + c[1], c[0], '<span class="nt-dot" style="background:' + c[1] + '"></span>'); }).join('') +
         '</div></div>' +
         '<button type="button" class="nt-fab" data-nt="tools" aria-label="Formatering" aria-expanded="false"><span>Aa</span></button>' +
       '</div>';
@@ -319,7 +336,24 @@
 
   // ── formatting ──────────────────────────────────────
   function run(cmd) {
+    var bar = root.querySelector('.nt-bar');
+    if (cmd === 'color' || cmd === 'colorback') { bar.classList.toggle('pick', cmd === 'color'); return; }
     editor.focus();
+    if (cmd.indexOf('c:') === 0) {
+      var col = cmd.slice(2);
+      try { document.execCommand('styleWithCSS', false, false); } catch (_) {}
+      document.execCommand('foreColor', false, col);
+      if (col === RESET_COLOR) {
+        editor.querySelectorAll('font').forEach(function (f) {
+          if (String(f.getAttribute('color')).toLowerCase() !== RESET_COLOR) return;
+          while (f.firstChild) f.parentNode.insertBefore(f.firstChild, f);
+          f.parentNode.removeChild(f);
+        });
+      }
+      bar.classList.remove('pick');
+      queueSave(); syncBar();
+      return;
+    }
     if (cmd === 'h1' || cmd === 'h2' || cmd === 'p') document.execCommand('formatBlock', false, cmd);
     else if (cmd === 'bold' || cmd === 'italic' || cmd === 'underline' || cmd === 'undo' || cmd === 'redo') document.execCommand(cmd);
     else if (cmd === 'indent' || cmd === 'outdent') {
@@ -342,6 +376,7 @@
     var bar = root.querySelector('.nt-bar');
     var open = typeof force === 'boolean' ? force : !bar.classList.contains('open');
     bar.classList.toggle('open', open);
+    if (!open) bar.classList.remove('pick');
     bar.querySelector('.nt-fab').setAttribute('aria-expanded', String(open));
   }
   function caretElement() {
@@ -368,6 +403,10 @@
       } catch (_) {}
       b.classList.toggle('on', on);
     });
+    var cur = caretElement(), shown = '';
+    while (cur && cur !== editor) { if (cur.tagName === 'FONT') { shown = String(cur.getAttribute('color')).toLowerCase(); break; } cur = cur.parentNode; }
+    var sw = root.querySelector('.nt-swatch-btn');
+    if (sw) sw.style.setProperty('--sw', COLOR_OK[shown] ? shown : '');
   }
 
   // ── headings: counters and folding; @names ─────────
