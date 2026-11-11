@@ -84,7 +84,7 @@
     '.pbn .on svg{filter:drop-shadow(0 0 6px rgba(253,186,116,.5))}' +
     '.pbn .pop svg{animation:pbn-pop .42s ' + EASE + '}' +
     '@keyframes pbn-pop{0%{transform:scale(1)}35%{transform:scale(.84)}70%{transform:scale(1.1)}100%{transform:scale(1)}}' +
-    '.pbn-ind{position:absolute;left:0;bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 4px);width:4px;height:4px;border-radius:3px;background:#FDBA74;box-shadow:0 0 9px rgba(253,186,116,.9);pointer-events:none;will-change:transform,width}' +
+    '.pbn-ind{position:absolute;left:0;bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 4px);width:4px;height:4px;border-radius:3px;background:#FDBA74;box-shadow:0 0 9px rgba(253,186,116,.9);pointer-events:none;will-change:left,width}' +
     '.pbn a:focus-visible,.pbn button:focus-visible{outline:2px solid #FDBA74;outline-offset:-4px;border-radius:14px}' +
     '.pbn-dim{position:fixed;inset:0;z-index:2147483100;background:rgba(5,7,10,.5);opacity:0;pointer-events:none;transition:opacity .25s}' +
     '.pbn-sheet{position:fixed;left:0;right:0;bottom:0;z-index:2147483150;max-width:520px;margin:0 auto;padding:10px max(18px,env(safe-area-inset-left,0px)) calc(max(env(safe-area-inset-bottom,0px), 24px) + 74px);border-radius:24px 24px 0 0;background:#161B22;' +
@@ -155,9 +155,11 @@
       var r = el.getBoundingClientRect(), n = nav.getBoundingClientRect();
       return r.left - n.left + r.width / 2;
     }
-    function place(x, w) { ind.style.width = w + 'px'; ind.style.transform = 'translateX(' + (x - w / 2) + 'px)'; }
+    // Position by left + width (both on the main thread): animating transform with width let iOS
+    // run them out of step, so the front edge overshot the tab.
+    function place(x, w) { ind.style.width = w + 'px'; ind.style.left = (x - w / 2) + 'px'; }
     // A frame by its left and right edge.
-    function edges(l, r, easing) { var f = { width: (r - l) + 'px', transform: 'translateX(' + l + 'px)' }; if (easing) f.easing = easing; return f; }
+    function edges(l, r, easing) { var f = { width: (r - l) + 'px', left: l + 'px' }; if (easing) f.easing = easing; return f; }
     var running = null;
     // part: 'both' (same page), 'stretch' (before leaving), 'shrink' (arriving)
     function travel(from, to, part, duration) {
@@ -174,7 +176,7 @@
         : part === 'shrink' ? [edges(stretched[0], stretched[1]), edges(end[0], end[1])]
         : [edges(start[0], start[1], 'cubic-bezier(.45,0,.25,1)'), Object.assign(edges(reached[0], reached[1], 'cubic-bezier(.3,0,.2,1)'), { offset: .5 }), edges(end[0], end[1])];
       var ms = duration || (part === 'both' ? 320 : 230);
-      if (part === 'stretch') { ind.style.width = (stretched[1] - stretched[0]) + 'px'; ind.style.transform = 'translateX(' + stretched[0] + 'px)'; }
+      if (part === 'stretch') { ind.style.width = (stretched[1] - stretched[0]) + 'px'; ind.style.left = stretched[0] + 'px'; }
       else place(b, 4);
       running = ind.animate(frames, { duration: ms, easing: part === 'both' ? 'linear' : EASE });
       return running.finished.catch(function () {});
