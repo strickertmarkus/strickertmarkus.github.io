@@ -84,6 +84,9 @@
     // A page's own floating "+" button (Home: new event) sits just above the bar.
     'html.has-bottom-nav:not(#pbn) body .fab{bottom:calc(max(env(safe-area-inset-bottom,0px), 18px) + 82px)!important}' +
     'html.has-bottom-nav.pbn-docked:not(#pbn) body .fab{bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 66px)!important}' +
+    // While the keyboard is up the bar stays down at the bottom (behind the keyboard) instead of
+    // being pulled up by iOS when the page scrolls; only a page's own keyboard tools show above it.
+    'html.pbn-typing .pbn{visibility:hidden;transition:none}' +
     '@media (prefers-reduced-motion:reduce){.pbn,.pbn-sheet,.pbn-dim{transition:none}}';
 
   function install() {
@@ -176,6 +179,27 @@
         if (on) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current');
       });
     }
+
+    // Keyboard up: a text field has focus here or in an embedded page (Listor/Resor on Home).
+    function typing() {
+      var a = document.activeElement;
+      try { while (a && a.tagName === 'IFRAME' && a.contentDocument) a = a.contentDocument.activeElement; } catch (_) {}
+      if (!a) return false;
+      if (a.isContentEditable || a.tagName === 'TEXTAREA') return true;
+      return a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|reset|range|color|file|image|hidden)$/i.test(a.type || '');
+    }
+    var typingTimer = 0;
+    function syncTyping() {
+      clearTimeout(typingTimer);
+      // Only touch screens get an on-screen keyboard.
+      var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      typingTimer = setTimeout(function () { document.documentElement.classList.toggle('pbn-typing', touch && typing()); }, 30);
+    }
+    document.addEventListener('focusin', syncTyping);
+    document.addEventListener('focusout', syncTyping);
+    window.addEventListener('blur', syncTyping);
+    window.addEventListener('focus', syncTyping);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', syncTyping);
 
     // Home: drive Home's own tabs instead of leaving the page.
     if (isHome) {
