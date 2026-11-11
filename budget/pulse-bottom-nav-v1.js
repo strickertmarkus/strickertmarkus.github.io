@@ -159,7 +159,7 @@
     function frame(x, w) { return { width: w + 'px', transform: 'translateX(' + (x - w / 2) + 'px)' }; }
     var running = null;
     // part: 'both' (same page), 'stretch' (before leaving), 'shrink' (arriving)
-    function travel(from, to, part) {
+    function travel(from, to, part, duration) {
       var a = centre(from), b = centre(to);
       var lo = Math.min(a, b), hi = Math.max(a, b), mid = (lo + hi) / 2, span = hi - lo + 4;
       if (running) { running.cancel(); running = null; }
@@ -167,12 +167,13 @@
       var frames = part === 'stretch' ? [frame(a, 4), frame(mid, span)]
         : part === 'shrink' ? [frame(mid, span), frame(b, 4)]
         : [frame(a, 4), frame(mid, span), frame(b, 4)];
-      var ms = part === 'both' ? 440 : 230;
+      var ms = duration || (part === 'both' ? 300 : 230);
       place(part === 'stretch' ? mid : b, part === 'stretch' ? span : 4);
       running = ind.animate(frames, { duration: ms, easing: part === 'both' ? 'cubic-bezier(.65,0,.35,1)' : EASE });
       return running.finished.catch(function () {});
     }
-    function mark(name, animate) {
+    // duration: match the page change it goes with (Home: radial reveal 220 ms, section slide ~260 ms).
+    function mark(name, animate, duration) {
       if (TABS.indexOf(name) === -1) name = 'more';
       var prev = current;
       current = name;
@@ -184,7 +185,7 @@
       if (animate && prev && prev !== name) {
         var el = tabEl(name);
         el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-        travel(prev, name, 'both');
+        travel(prev, name, 'both', duration);
       } else if (!running) place(centre(name), 4);
     }
 
@@ -250,7 +251,7 @@
       if (isHome && window.HomeHub && name !== 'budget') {
         e.preventDefault();
         if (name === current) { if (name === 'home' || name === 'transfer') window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-        mark(name, true);
+        mark(name, true, name === 'lists' || current === 'lists' ? 220 : 260);
         if (name === 'lists') window.HomeHub.open('lists', a);
         else window.HomeHub.home(name === 'transfer' ? 'economy' : 'overview', a);
         return;

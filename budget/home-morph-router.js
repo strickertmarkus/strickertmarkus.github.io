@@ -147,12 +147,12 @@
     const out=$('#home-'+current),next=$('#home-'+view),dir=view==='economy'?1:-1;
     if(reduced() || !out || !next || !out.animate){window.selectHomeSection(view);return;}
     const leave=out.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translate3d('+(-dir*18)+'px,0,0)'}],
-      {duration:130,easing:'cubic-bezier(.4,0,1,1)'});
+      {duration:100,easing:'cubic-bezier(.4,0,1,1)'});
     try{await leave.finished}catch(_){}
     window.selectHomeSection(view);
     window.scrollTo(0,0);
     next.animate([{opacity:0,transform:'translate3d('+(dir*26)+'px,0,0)'},{opacity:1,transform:'none'}],
-      {duration:300,easing:'cubic-bezier(.22,1,.36,1)'});
+      {duration:220,easing:'cubic-bezier(.22,1,.36,1)'});
   }
   async function openArea(job){
     if(!sources[job.area] || active===job.area)return;
