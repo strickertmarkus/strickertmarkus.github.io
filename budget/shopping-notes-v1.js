@@ -49,6 +49,157 @@
     return box.innerHTML;
   }
 
+  // Paste (from iPhone Notes and elsewhere) keeping its look: headings (tags or larger text),
+  // bold/italic/underline (tags or inline styles), bullet lists and checklists with their ticks.
+  var BLOCK_TAGS = /^(P|DIV|H[1-6]|UL|OL|LI|BLOCKQUOTE|TABLE|TBODY|TR|TD|TH|SECTION|ARTICLE|PRE|HR)$/;
+  function fontPx(style) {
+    var m = /font-size:\s*([\d.]+)\s*(px|pt|em|rem)?/i.exec(style || '');
+    if (!m) return 0;
+    var v = parseFloat(m[1]);
+    return m[2] === 'pt' ? v * 4 / 3 : (m[2] === 'em' || m[2] === 'rem') ? v * 16 : v;
+  }
+  function isTodoItem(li) {
+    return !!li.querySelector('input[type=checkbox]') || /check|todo|task/i.test(li.className || '') || li.hasAttribute('data-checked') || li.hasAttribute('aria-checked');
+  }
+  function isChecked(li) {
+    var box = li.querySelector('input[type=checkbox]');
+    if (box && (box.checked || box.hasAttribute('checked'))) return true;
+    return /(^|\s|-)(checked|done|completed)(\s|$)/i.test(li.className || '') || li.getAttribute('data-checked') === 'true' || li.getAttribute('aria-checked') === 'true';
+  }
+  function inlineHtml(node, fmt, size) {
+    if (node.nodeType === 3) {
+      var t = esc(node.nodeValue.replace(/[\r\n]+/g, ' '));
+      if (!t) return '';
+      if (fmt.u) t = '<u>' + t + '</u>';
+      if (fmt.i) t = '<i>' + t + '</i>';
+      if (fmt.b) t = '<b>' + t + '</b>';
+      return t;
+    }
+    if (node.nodeType !== 1) return '';
+    var tag = node.tagName;
+    if (tag === 'BR') return '<br>';
+    if (/^(INPUT|STYLE|SCRIPT|META|TITLE|UL|OL)$/.test(tag)) return '';
+    var st = node.getAttribute('style') || '';
+    var w = /font-weight:\s*(\w+)/i.exec(st);
+    var f = { b: fmt.b, i: fmt.i, u: fmt.u };
+    if (tag === 'B' || tag === 'STRONG' || (w && (w[1] === 'bold' || w[1] === 'bolder' || Number(w[1]) >= 600))) f.b = true;
+    if (w && (w[1] === 'normal' || (Number(w[1]) && Number(w[1]) < 600))) f.b = false;
+    if (tag === 'I' || tag === 'EM' || /font-style:\s*italic/i.test(st)) f.i = true;
+    if (tag === 'U' || /text-decoration[^;]*underline/i.test(st)) f.u = true;
+    var px = fontPx(st);
+    if (px) size.px = Math.max(size.px, px);
+    var out = '';
+    Array.prototype.forEach.call(node.childNodes, function (c) { out += inlineHtml(c, f, size); });
+    return out;
+  }
+  function collectBlocks(node, out, depth) {
+    var pending = null;
+    function flush() {
+      if (pending && pending.html.trim()) out.push(pending);
+      pending = null;
+    }
+    Array.prototype.forEach.call(node.childNodes, function (c) {
+      if (c.nodeType === 1 && BLOCK_TAGS.test(c.tagName)) {
+        flush();
+        var tag = c.tagName;
+        if (tag === 'HR') { out.push({ type: 'hr' }); return; }
+        if (tag === 'UL' || tag === 'OL') {
+          var todoList = /check|todo|task/i.test(c.className || '');
+          Array.prototype.forEach.call(c.children, function (li) {
+            if (li.tagName !== 'LI') { collectBlocks(li, out, depth); return; }
+            var size = { px: fontPx(li.getAttribute('style')) };
+            var fmt = { b: false, i: false, u: false };
+            var html = '';
+            Array.prototype.forEach.call(li.childNodes, function (k) {
+              if (k.nodeType === 1 && (k.tagName === 'UL' || k.tagName === 'OL')) return;
+              if (k.nodeType === 1 && BLOCK_TAGS.test(k.tagName)) { html += (html ? '<br>' : '') + inlineHtml(k, fmt, size); return; }
+              html += inlineHtml(k, fmt, size);
+            });
+            var todo = todoList || isTodoItem(li);
+            out.push({ type: 'li', html: html.replace(/^(<br>)+|(<br>)+$/g, '').replace(/^\s+/, ''), todo: todo, checked: todo && isChecked(li), depth: depth });
+            Array.prototype.forEach.call(li.children, function (k) {
+              if (k.tagName === 'UL' || k.tagName === 'OL') { var wrap = document.createElement('div'); wrap.appendChild(k.cloneNode(true)); collectBlocks(wrap, out, depth + 1); }
+            });
+          });
+          return;
+        }
+        var hasBlocks = Array.prototype.some.call(c.childNodes, function (k) { return k.nodeType === 1 && BLOCK_TAGS.test(k.tagName); });
+        var hx = /^H([1-6])$/.exec(tag);
+        if (hasBlocks && !hx) { collectBlocks(c, out, depth); return; }
+        var size = { px: fontPx(c.getAttribute('style')) };
+        var html = inlineHtml(c, { b: false, i: false, u: false }, size);
+        out.push({ type: hx ? (hx[1] === '1' ? 'h1' : 'h2') : 'p', html: html, px: size.px });
+        return;
+      }
+      if (c.nodeType === 1 && c.tagName === 'BR') { if (pending) flush(); else out.push({ type: 'p', html: '', px: 0 }); return; }
+      if (c.nodeType === 3 && !c.nodeValue.trim() && !pending) return;
+      if (!pending) pending = { type: 'p', html: '', px: 0 };
+      var s = { px: 0 };
+      pending.html += inlineHtml(c, { b: false, i: false, u: false }, s);
+      pending.px = Math.max(pending.px, s.px);
+    });
+    flush();
+  }
+  // Plain-text markers: "☐ x", "- [ ] x", "• x", "- x".
+  function markerBlock(b) {
+    if (b.type !== 'p') return b;
+    var m = /^\s*(?:[☐◻□○◯]|-\s*\[\s?\])\s+/.exec(b.html);
+    if (m) return { type: 'li', html: b.html.slice(m[0].length), todo: true, checked: false, depth: 0 };
+    m = /^\s*(?:[☑✅✓✔☒]|-\s*\[[xX]\])\s+/.exec(b.html);
+    if (m) return { type: 'li', html: b.html.slice(m[0].length), todo: true, checked: true, depth: 0 };
+    m = /^\s*[•◦▪‣\-–*]\s+/.exec(b.html);
+    if (m) return { type: 'li', html: b.html.slice(m[0].length), todo: false, checked: false, depth: 0 };
+    return b;
+  }
+  function textOf(html) { var d = document.createElement('div'); d.innerHTML = html; return d.textContent || ''; }
+  function pasteToNote(html, text) {
+    var blocks = [];
+    if (html && /<[a-z]/i.test(html)) {
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      collectBlocks(doc.body, blocks, 0);
+    } else if (text) {
+      text.replace(/\r\n?/g, '\n').split('\n').forEach(function (line) { blocks.push({ type: 'p', html: esc(line), px: 0 }); });
+    }
+    if (!blocks.length) return '';
+    // Larger text than the body size becomes a heading (Notes: Title, Heading, Subheading).
+    var weight = {};
+    blocks.forEach(function (b) { if (b.type === 'p' && b.px) { var k = Math.round(b.px); weight[k] = (weight[k] || 0) + textOf(b.html).length; } });
+    var body = 0, best = -1;
+    Object.keys(weight).forEach(function (k) { if (weight[k] > best) { best = weight[k]; body = Number(k); } });
+    blocks = blocks.map(function (b) {
+      if (b.type === 'p' && body && b.px && textOf(b.html).trim()) {
+        if (b.px >= body * 1.4) b.type = 'h1';
+        else if (b.px >= body * 1.12) b.type = 'h2';
+      }
+      if (b.type === 'h1' || b.type === 'h2') b.html = b.html.replace(/<\/?b>/g, '');
+      return markerBlock(b);
+    });
+    // Collapse runs of empty lines and drop empty ones at the ends.
+    blocks = blocks.filter(function (b, i) {
+      if (b.type !== 'p' || textOf(b.html).trim()) return true;
+      var prev = blocks[i - 1];
+      return i > 0 && i < blocks.length - 1 && !(prev && prev.type === 'p' && !textOf(prev.html).trim());
+    });
+    var out = '', stack = [];
+    function closeLists(toDepth) { while (stack.length > toDepth) { out += '</li></ul>'; stack.pop(); } }
+    blocks.forEach(function (b) {
+      if (b.type !== 'li') {
+        closeLists(0);
+        if (b.type === 'hr') out += '<hr>';
+        else out += '<' + b.type + '>' + (b.html.trim() ? b.html : '<br>') + '</' + b.type + '>';
+        return;
+      }
+      var depth = Math.min(b.depth || 0, stack.length);
+      if (stack.length > depth + 1) closeLists(depth + 1);
+      if (stack.length === depth + 1 && stack[depth] !== b.todo) closeLists(depth);
+      if (stack.length === depth + 1) out += '</li>';
+      else { out += b.todo ? '<ul class="nt-todo">' : '<ul>'; stack.push(b.todo); }
+      out += '<li' + (b.checked ? ' data-checked="true"' : '') + '>' + (b.html.trim() ? b.html : '<br>');
+    });
+    closeLists(0);
+    return sanitize(out);
+  }
+
   function currentNote(lists) {
     var all = notes(lists);
     var sel = currentId != null ? currentId : Number(localStorage.getItem(SELECTED));
@@ -154,8 +305,13 @@
     editor.addEventListener('click', onEditorClick);
     editor.addEventListener('keydown', onKey);
     editor.addEventListener('paste', function (e) {
+      var cd = e.clipboardData || window.clipboardData;
+      if (!cd) return;
       e.preventDefault();
-      document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text/plain'));
+      var html = pasteToNote(cd.getData('text/html'), cd.getData('text/plain'));
+      if (html) document.execCommand('insertHTML', false, html);
+      decorate();
+      queueSave();
     });
     titleInput.addEventListener('input', queueSave);
     setupSwipe(root.querySelector('.nt-top'));
