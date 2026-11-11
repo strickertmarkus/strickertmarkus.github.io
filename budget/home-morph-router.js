@@ -112,9 +112,13 @@
       if(!active)homeScroll=window.scrollY;
       lockHome(true);
       const section=homeLayer(document.body.dataset.homeSection);
+      // View to view (e.g. Budget -> Listor): Home stays hidden underneath, so it never shows
+      // between the two.
+      if(previous)hide(section,true);
       await leave(previous?previous.stage:section,1);
       if(job.id!==requestVersion){
         if(!previous)lockHome(false);
+        hide(section,false);
         return;
       }
       // Home stays hidden under the incoming view (the leave animation has no fill).
@@ -133,6 +137,7 @@
       if(active!==job.area)stageVisibility(resource,false);
       if(previous)stageVisibility(previous,true);
       else lockHome(false);
+      hide(homeLayer(document.body.dataset.homeSection),false);
       if(job.id===requestVersion && job.push)location.assign(sources[job.area]);
     }finally{
       origin?.classList.remove('hub-loading');
