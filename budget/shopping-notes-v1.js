@@ -293,7 +293,7 @@
       var t = e.changedTouches[0];
       if (Math.abs(t.clientX - tx) > 8 || Math.abs(t.clientY - ty) > 8) return;
       e.preventDefault();
-      if (btn.dataset.nt === 'tools') toggleTools(); else run(btn.dataset.cmd);
+      if (btn.dataset.nt === 'tools') { toggleTools(); autoOpened = false; userClosed = !root.querySelector('.nt-bar').classList.contains('open'); } else run(btn.dataset.cmd);
     }, { passive: false });
     // While typing, pin the format button just above the keyboard using the visual viewport
     // (fixed elements on iOS otherwise stay at the bottom of the layout viewport, behind it).
@@ -354,7 +354,8 @@
       queueSave(); syncBar();
       return;
     }
-    if (cmd === 'h1' || cmd === 'h2' || cmd === 'p') document.execCommand('formatBlock', false, cmd);
+    if (/^(h1|h2|p|ul|todo)$/.test(cmd) && formatLines(cmd)) { /* several lines converted */ }
+    else if (cmd === 'h1' || cmd === 'h2' || cmd === 'p') document.execCommand('formatBlock', false, cmd);
     else if (cmd === 'bold' || cmd === 'italic' || cmd === 'underline' || cmd === 'undo' || cmd === 'redo') document.execCommand(cmd);
     else if (cmd === 'indent' || cmd === 'outdent') {
       document.execCommand(cmd);
@@ -370,7 +371,59 @@
       else if (cmd === 'ul' && isTodo) ul.classList.remove('nt-todo');
       else document.execCommand('insertUnorderedList');
     }
+    // A list made inside a paragraph is lifted out to the top level.
+    editor.querySelectorAll(':scope > p > ul, :scope > div > ul').forEach(function (u) {
+      var parent = u.parentNode;
+      while (parent.firstChild) editor.insertBefore(parent.firstChild, parent);
+      editor.removeChild(parent);
+    });
     queueSave(); decorate(); syncBar();
+  }
+  // Several selected lines get the format one by one: H1/H2/text per line, or one list with an
+  // item per line (ticks kept); when every line already is that kind of list, they go back to text.
+  // Returns false for a single line (the editor's own commands handle that).
+  function formatLines(cmd) {
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return false;
+    var range = sel.getRangeAt(0);
+    var blocks = Array.prototype.filter.call(editor.children, function (b) { return range.intersectsNode(b); });
+    if (!blocks.length) return false;
+    var lines = [];
+    blocks.forEach(function (b) {
+      if (b.tagName === 'UL') {
+        Array.prototype.forEach.call(b.children, function (li) {
+          if (li.tagName !== 'LI') return;
+          var copy = li.cloneNode(true);
+          copy.querySelectorAll('ul').forEach(function (n) { n.remove(); });
+          lines.push({ html: copy.innerHTML, checked: li.getAttribute('data-checked') === 'true', todo: b.classList.contains('nt-todo'), list: true });
+        });
+      } else if (b.tagName !== 'HR') {
+        b.innerHTML.split(/<br\s*\/?>/i).forEach(function (part) {
+          if (part.replace(/<[^>]+>/g, '').trim()) lines.push({ html: part, checked: false, list: false });
+        });
+      }
+    });
+    if (lines.length < 2) return false;
+    var wantTodo = cmd === 'todo';
+    var isList = cmd === 'ul' || cmd === 'todo';
+    var already = isList && lines.every(function (l) { return l.list && l.todo === wantTodo; });
+    var html = !isList
+      ? lines.map(function (l) { return '<' + cmd + '>' + l.html + '</' + cmd + '>'; }).join('')
+      : already
+      ? lines.map(function (l) { return '<p>' + l.html + '</p>'; }).join('')
+      : '<ul' + (wantTodo ? ' class="nt-todo"' : '') + '>' + lines.map(function (l) {
+          return '<li' + (wantTodo && l.checked ? ' data-checked="true"' : '') + '>' + l.html + '</li>';
+        }).join('') + '</ul>';
+    var whole = document.createRange();
+    whole.setStartBefore(blocks[0]);
+    whole.setEndAfter(blocks[blocks.length - 1]);
+    sel.removeAllRanges();
+    sel.addRange(whole);
+    document.execCommand('insertHTML', false, sanitize(html));
+    // The editor may merge the new items into a neighbouring list and drop its class.
+    var made = closestList();
+    if (isList && !already && made) made.classList.toggle('nt-todo', wantTodo);
+    return true;
   }
   function toggleTools(force) {
     var bar = root.querySelector('.nt-bar');
@@ -486,7 +539,26 @@
     }
     setTimeout(syncBar, 0);
   }
-  document.addEventListener('selectionchange', function () { if (root && document.activeElement === editor) syncBar(); });
+  // Selecting text, or placing the caret in a line with text, opens the format row by itself;
+  // a row opened this way closes again when the editor loses focus.
+  var autoOpened = false, userClosed = false;
+  document.addEventListener('selectionchange', function () {
+    if (!root || document.activeElement !== editor) return;
+    syncBar();
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount || !editor.contains(sel.anchorNode)) return;
+    var el = caretElement();
+    while (el && el.parentNode !== editor && el !== editor) el = el.parentNode;
+    var hasText = !sel.isCollapsed || (el && el !== editor && el.textContent.trim());
+    var bar = root.querySelector('.nt-bar');
+    if (hasText && !userClosed && !bar.classList.contains('open')) { toggleTools(true); autoOpened = true; }
+  });
+  document.addEventListener('focusout', function (e) {
+    if (!root || e.target !== editor) return;
+    userClosed = false;
+    if (!autoOpened) return;
+    setTimeout(function () { if (document.activeElement !== editor) { toggleTools(false); autoOpened = false; } }, 120);
+  });
 
   // ── saving ──────────────────────────────────────────
   function queueSave() { clearTimeout(saveTimer); saveTimer = setTimeout(save, 450); }
@@ -573,7 +645,7 @@
     if (!b) return;
     if (b.dataset.cmd) { if (e.pointerType !== 'touch') run(b.dataset.cmd); return; }
     var act = b.dataset.nt;
-    if (act === 'tools') { if (e.pointerType !== 'touch') toggleTools(); return; }
+    if (act === 'tools') { if (e.pointerType !== 'touch') { toggleTools(); autoOpened = false; userClosed = !root.querySelector('.nt-bar').classList.contains('open'); } return; }
     if (act === 'new') newNote();
     else if (act === 'saved') { save(); openSheet(true); }
     else if (act === 'close') openSheet(false);
