@@ -81,6 +81,9 @@
     '.pbn.docked .on::after{bottom:0;width:4px;height:4px}' +
     'html.pbn-docked body{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 62px)!important}' +
     'html.pbn-docked .pbn-sheet{padding-bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 74px)}' +
+    // A page's own floating "+" button (Home: new event) sits just above the bar.
+    'html.has-bottom-nav:not(#pbn) body .fab{bottom:calc(max(env(safe-area-inset-bottom,0px), 18px) + 82px)!important}' +
+    'html.has-bottom-nav.pbn-docked:not(#pbn) body .fab{bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 66px)!important}' +
     '@media (prefers-reduced-motion:reduce){.pbn,.pbn-sheet,.pbn-dim{transition:none}}';
 
   function install() {
