@@ -179,6 +179,9 @@
     var menu = document.getElementById('lists-menu');
     if (!menu) return;
     var lists = modeLists();
+    // The folder button shows how many lists this tab has, like the notes' saved-notes folder.
+    var count = document.getElementById('shopping-tools-count');
+    if (count) count.textContent = lists.length ? String(lists.length) : '';
     menu.innerHTML = lists.map(function (list) {
       var active = Number(list.id) === Number(activeList);
       return '<div class="list-menu-row"><a href="#" class="' + (active ? 'active' : '') + '" onclick="selectList(' + list.id + ');return false;">' +
