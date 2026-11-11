@@ -58,7 +58,7 @@
       // Optional metadata stays collapsed instead of occupying permanent rows.
       root.innerHTML='<div class="widget-head ft-home-head">'+
         '<div class="widget-title"><a class="ft-home-title-link" href="shopping.html?mode=todo">Att göra</a></div>'+
-        '<div class="ft-home-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra" disabled>↶</button>'+
+        '<div class="ft-home-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra" disabled><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>'+
         '<button type="button" class="ft-clear-done" data-act="clear-done" hidden>Rensa klara</button>'+
         '<div class="badge" data-ft-count>0 kvar</div></div></div>'+
         '<form class="ft-add-form" data-ft-add>'+
@@ -75,7 +75,7 @@
     } else {
     root.innerHTML='<div class="ft-head"><div><div class="ft-title">'+(shop?'Att göra': 'Att göra')+'</div>'+
       '<div class="ft-subtitle" data-ft-count>Hämtar uppgifter…</div></div>'+
-      '<div class="ft-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra">↶</button>'+
+      '<div class="ft-head-actions"><button type="button" class="ft-undo" data-act="undo" title="Ångra senaste ändring" aria-label="Ångra"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>'+
       '<button type="button" class="ft-clear-done" data-act="clear-done" hidden>Rensa klara</button></div></div>'+
       '<form class="ft-add-form" data-ft-add><div class="ft-add-main"><input type="text" name="text" maxlength="240" placeholder="'+(shop?'Lägg till uppgift…':'Ny uppgift…')+'" aria-label="Ny uppgift" required autocomplete="off">'+
       '<button type="submit" class="ft-primary ft-plus" aria-label="Lägg till uppgift">＋</button></div>'+

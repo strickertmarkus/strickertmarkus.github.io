@@ -55,9 +55,6 @@
     style.id='shopping-reorder-v1-styles';
     style.textContent=[
       '.shopping-tools-wrap{display:flex;align-items:center;gap:7px}',
-      '.shopping-quick-add{flex:0 0 34px;display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid rgba(var(--accent-rgb),.33);border-radius:10px;background:rgba(var(--accent-rgb),.08);color:var(--accent);cursor:pointer;box-shadow:0 0 12px rgba(var(--accent-rgb),.05);transition:background .15s,border-color .15s}',
-      '.shopping-quick-add:hover,.shopping-quick-add:focus-visible{border-color:rgba(var(--accent-rgb),.65);background:rgba(var(--accent-rgb),.16)}',
-      '.shopping-quick-add svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}',
       'body.shopping-list-engine-v7 #items-list .list-item[data-item-id]{grid-template-columns:20px minmax(0,1fr) 22px 24px!important;gap:7px!important}',
       'body.shopping-list-engine-v7 #items-list .list-item[data-item-id] .item-text{grid-column:2!important}',
       'body.shopping-list-engine-v7 #items-list .list-item[data-item-id] .shopping-del{grid-column:3!important}',
@@ -75,24 +72,9 @@
       'body.shopping-reordering #items-list .shopping-drag-grip{cursor:grabbing}',
       'body.shopping-list-engine-v7 #items-list .category-title[data-category-id] .shopping-drag-grip{grid-column:auto;margin-left:0}',
       '@media(max-width:520px){body.shopping-list-engine-v7 #items-list .list-item[data-item-id]{grid-template-columns:18px minmax(0,1fr) 22px 24px!important;gap:6px!important}#items-list .shopping-category-quick-add{flex-basis:30px;height:30px}}',
-      '@media(prefers-reduced-motion:reduce){.shopping-quick-add{transition:none}}'
     ].join('\n');
     doc.head.appendChild(style);
 
-    var tools=doc.querySelector('.shopping-panel-head .shopping-tools-wrap');
-    if(tools&&!doc.getElementById('shopping-quick-add')){
-      var quick=doc.createElement('button');quick.id='shopping-quick-add';
-      quick.className='shopping-quick-add';quick.type='button';
-      quick.setAttribute('aria-label','Lägg till artikel i listan');
-      quick.setAttribute('title','Lägg till artikel');
-      quick.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-      tools.insertBefore(quick,tools.firstChild);
-      quick.addEventListener('click',function(){
-        var list=activeList();
-        var category=list&&list.items.find(function(e){return e&&e.type==='category';});
-        openAdd(category?category.id:null);
-      });
-    }
     var gripSvg='<svg viewBox="0 0 16 20" aria-hidden="true"><circle cx="5" cy="4" r="1.25"/><circle cx="11" cy="4" r="1.25"/><circle cx="5" cy="10" r="1.25"/><circle cx="11" cy="10" r="1.25"/><circle cx="5" cy="16" r="1.25"/><circle cx="11" cy="16" r="1.25"/></svg>';
     function decorate(){
       root.querySelectorAll('.list-item[data-item-id]').forEach(function(row){
