@@ -7,14 +7,17 @@
     budgetMaja: path.endsWith('/budget/budget_maja.html') || path.endsWith('/budget_maja.html'),
     analysisMarkus: path.endsWith('/budget/analytics.html') || path.endsWith('/analytics.html'),
     analysisMaja: path.endsWith('/budget/analytics_maja.html') || path.endsWith('/analytics_maja.html'),
-    family: path.endsWith('/budget/familjebudget.html') || path.endsWith('/familjebudget.html')
+    family: path.endsWith('/budget/familjebudget.html') || path.endsWith('/familjebudget.html'),
+    data: path.endsWith('/budget/data.html') || path.endsWith('/data.html')
   };
-  var active = page.budgetMarkus || page.budgetMaja || page.analysisMarkus || page.analysisMaja || page.family;
+  var active = page.budgetMarkus || page.budgetMaja || page.analysisMarkus || page.analysisMaja || page.family || page.data;
+  // Shared pages (Familjebudget, Data & Formler) keep the person you came from and switch it in place.
+  var shared = page.family || page.data;
   if (!active || window.__financeUiInstalled) return;
   window.__financeUiInstalled = true;
 
   var isBudget = page.budgetMarkus || page.budgetMaja;
-  var view = (page.analysisMarkus || page.analysisMaja) ? 'analysis' : (page.family ? 'family' : 'budget');
+  var view = (page.analysisMarkus || page.analysisMaja) ? 'analysis' : (page.family ? 'family' : (page.data ? 'data' : 'budget'));
   var user = (page.budgetMaja || page.analysisMaja) ? 'maja' : 'markus';
 
   // Listor theme: one orange accent on every finance view (red/green stay for money in/out).
@@ -33,7 +36,7 @@
   document.documentElement.style.setProperty('--finance-theme-glow-alpha', financeTheme.glowAlpha);
   try {
     var remembered = localStorage.getItem('budget-last-user-v1');
-    if (page.family && (remembered === 'markus' || remembered === 'maja')) user = remembered;
+    if (shared && (remembered === 'markus' || remembered === 'maja')) user = remembered;
   } catch (_) {}
 
   try { localStorage.setItem('finance-last-page-v1', path.split('/').pop()); } catch (_) {}
@@ -180,7 +183,7 @@
     if (!header) return;
     var h1 = header.querySelector('h1');
     var sub = header.querySelector('p');
-    if (h1) h1.textContent = view === 'analysis' ? 'Analys' : (view === 'family' ? 'Familjebudget' : 'Budgetplanerare');
+    if (h1) h1.textContent = view === 'analysis' ? 'Analys' : (view === 'family' ? 'Familjebudget' : (view === 'data' ? 'Data & Formler' : 'Budgetplanerare'));
     if (sub) {
       sub.textContent = user === 'maja' ? 'Maja' : 'Markus';
       sub.style.color = user === 'maja' ? '#F472B6' : '#60A5FA';
@@ -203,7 +206,7 @@
       if (!button) return;
       var nextUser = button.dataset.user;
       if (nextUser === user) return;
-      if (page.family) {
+      if (shared) {
         remember(nextUser);
         updateActiveStates();
         setHeaderIdentity();
@@ -495,7 +498,7 @@
     buildProfile();
     buildViewToggle();
     updateActiveStates();
-    setupMonthControl();
+    if (!page.data) setupMonthControl();
     setupFinanceMorphTargets();
     prefetch();
     requestAnimationFrame(function () {
