@@ -336,6 +336,13 @@ html:not(.has-bottom-nav):not(.under-bottom-nav) .nt-bar{bottom:calc(env(safe-ar
 .nt-bar .nt-colors{display:none}
 .nt-bar.pick .nt-scroll:not(.nt-colors){display:none}
 .nt-bar.pick .nt-colors{display:flex;gap:4px}
+.nt-bar .nt-linkrow{display:none}
+.nt-bar.linking .nt-scroll:not(.nt-linkrow){display:none}
+.nt-bar.linking .nt-linkrow{display:flex;gap:4px;width:min(calc(100vw - 92px),380px)}
+.nt-bar .nt-link-input{flex:1 1 auto;min-width:0;height:34px;padding:0 6px;border:0;border-bottom:1.5px dashed rgba(253,186,116,.45);border-radius:0;background:transparent;color:#f3f5f8;font:500 16px/1 Inter,system-ui,sans-serif;outline:none}
+.nt-bar .nt-link-input::placeholder{color:#6b7480}
+.nt-bar:not(.has-link) [data-cmd="unlink"]{display:none}
+.nt-bar .nt-tools [data-cmd="linkok"]{color:#FDBA74}
 .nt-dot{display:block;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .nt-dot-reset{background:#e6e9ee;position:relative;overflow:hidden}
 .nt-dot-reset::after{content:"";position:absolute;left:50%;top:-2px;width:1.5px;height:26px;background:#141820;transform:rotate(45deg)}

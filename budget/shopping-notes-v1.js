@@ -248,7 +248,10 @@
     redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     folder: '<path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>',
-    pin: '<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>'
+    pin: '<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+    unlink: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/><path d="M4 4l16 16"/>',
+    check: '<path d="m5 12 4.5 4.5L19 7"/>'
   };
   function svg(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[n] + '</svg>'; }
   function tool(cmd, label, inner) { return '<button type="button" data-cmd="' + cmd + '" aria-label="' + label + '" title="' + label + '">' + inner + '</button>'; }
@@ -269,13 +272,17 @@
         '<div class="nt-tools"><div class="nt-scroll">' +
           tool('h1', 'Rubrik', 'H1') + tool('h2', 'Underrubrik', 'H2') + tool('p', 'Brödtext', 'Aa') + '<span class="nt-sep"></span>' +
           tool('todo', 'Att göra-lista', svg('todo')) + tool('ul', 'Punktlista', svg('ul')) + '<span class="nt-sep"></span>' +
-          tool('bold', 'Fetstil', '<b>B</b>') + tool('italic', 'Kursiv', '<i>I</i>') + tool('underline', 'Understruken', '<u>U</u>') + tool('color', 'Textfärg', '<span class="nt-swatch-btn">A</span>') + '<span class="nt-sep"></span>' +
+          tool('bold', 'Fetstil', '<b>B</b>') + tool('italic', 'Kursiv', '<i>I</i>') + tool('underline', 'Understruken', '<u>U</u>') + tool('color', 'Textfärg', '<span class="nt-swatch-btn">A</span>') + tool('link', 'Länk', svg('link')) + '<span class="nt-sep"></span>' +
           tool('indent', 'Öka indrag', svg('indent')) + tool('outdent', 'Minska indrag', svg('outdent')) + tool('hr', 'Avdelare', svg('hr')) + '<span class="nt-sep"></span>' +
           tool('undo', 'Ångra', svg('undo')) + tool('redo', 'Gör om', svg('redo')) +
         '</div><div class="nt-scroll nt-colors">' +
           tool('colorback', 'Tillbaka', svg('back')) + '<span class="nt-sep"></span>' +
           tool('c:' + RESET_COLOR, 'Standardfärg', '<span class="nt-dot nt-dot-reset"></span>') +
           COLORS.map(function (c) { return tool('c:' + c[1], c[0], '<span class="nt-dot" style="background:' + c[1] + '"></span>'); }).join('') +
+        '</div><div class="nt-scroll nt-linkrow">' +
+          tool('linkback', 'Tillbaka', svg('back')) +
+          '<input class="nt-link-input" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Klistra in länk" aria-label="Länkadress">' +
+          tool('unlink', 'Ta bort länk', svg('unlink')) + tool('linkok', 'Lägg till länk', svg('check')) +
         '</div></div>' +
         '<button type="button" class="nt-fab" data-nt="tools" aria-label="Formatering" aria-expanded="false"><span>Aa</span></button>' +
       '</div>';
@@ -291,7 +298,12 @@
     root.addEventListener('click', onClick);
     sheet.addEventListener('click', onClick);
     var bar = root.querySelector('.nt-bar');
-    bar.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    bar.addEventListener('mousedown', function (e) { if (!e.target.closest('input')) e.preventDefault(); });
+    bar.addEventListener('keydown', function (e) {
+      if (!e.target.closest('.nt-link-input')) return;
+      if (e.key === 'Enter') { e.preventDefault(); applyLink(bar, false); }
+      if (e.key === 'Escape') { e.preventDefault(); closeLink(bar); }
+    });
     // Taps run on touchend (and cancel the click, so the editor keeps focus);
     // a sideways drag scrolls the row instead.
     var tx = 0, ty = 0;
@@ -311,7 +323,7 @@
       cancelAnimationFrame(placeFrame);
       placeFrame = requestAnimationFrame(function () {
         var vv = window.visualViewport;
-        var typing = document.activeElement === editor || document.activeElement === titleInput;
+        var typing = document.activeElement === editor || document.activeElement === titleInput || document.activeElement === linkInput();
         if (!vv || !typing) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
         var keyboard = window.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260;
         if (!keyboard) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
@@ -345,9 +357,53 @@
   }
 
   // ── formatting ──────────────────────────────────────
+  // ── links in the text ──
+  // The link tool keeps the selection, swaps the row to an address field, and on ✓ turns the
+  // selected text into a link (or inserts the address itself when nothing is selected).
+  var linkRange = null, linkTarget = null;
+  function linkInput() { return root.querySelector('.nt-link-input'); }
+  function openLink(bar) {
+    var sel = window.getSelection();
+    linkRange = sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0).cloneRange() : null;
+    var n = linkRange ? linkRange.startContainer : null;
+    linkTarget = n ? (n.nodeType === 1 ? n : n.parentNode).closest('a[href]') : null;
+    if (linkTarget && !editor.contains(linkTarget)) linkTarget = null;
+    bar.classList.add('linking');
+    bar.classList.toggle('has-link', !!linkTarget);
+    var input = linkInput();
+    input.value = linkTarget ? linkTarget.getAttribute('href') : '';
+    setTimeout(function () { input.focus(); input.select(); }, 30);
+  }
+  function closeLink(bar) {
+    bar.classList.remove('linking', 'has-link');
+    editor.focus();
+    if (linkRange) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(linkRange); }
+  }
+  function applyLink(bar, remove) {
+    var raw = linkInput().value.trim();
+    var url = raw && !/^[a-z][a-z0-9+.-]*:/i.test(raw) ? 'https://' + raw : raw;
+    var target = linkTarget;
+    closeLink(bar);
+    if (remove || !url) {
+      if (target) { while (target.firstChild) target.parentNode.insertBefore(target.firstChild, target); target.remove(); }
+    } else if (!/^https?:\/\//i.test(url)) {
+      return;
+    } else if (target) {
+      target.setAttribute('href', url);
+    } else if (linkRange && !linkRange.collapsed) {
+      document.execCommand('createLink', false, url);
+    } else {
+      document.execCommand('insertHTML', false, '<a href="' + url.replace(/"/g, '%22') + '">' + esc(raw) + '</a>&nbsp;');
+    }
+    linkRange = null; linkTarget = null;
+    queueSave(); syncBar();
+  }
   function run(cmd) {
     var bar = root.querySelector('.nt-bar');
     if (cmd === 'color' || cmd === 'colorback') { bar.classList.toggle('pick', cmd === 'color'); return; }
+    if (cmd === 'link') { openLink(bar); return; }
+    if (cmd === 'linkback') { closeLink(bar); return; }
+    if (cmd === 'linkok' || cmd === 'unlink') { applyLink(bar, cmd === 'unlink'); return; }
     editor.focus();
     if (cmd.indexOf('c:') === 0) {
       var col = cmd.slice(2);
@@ -439,7 +495,7 @@
     var bar = root.querySelector('.nt-bar');
     var open = typeof force === 'boolean' ? force : !bar.classList.contains('open');
     bar.classList.toggle('open', open);
-    if (!open) bar.classList.remove('pick');
+    if (!open) bar.classList.remove('pick', 'linking', 'has-link');
     bar.querySelector('.nt-fab').setAttribute('aria-expanded', String(open));
   }
   function caretElement() {
@@ -456,10 +512,14 @@
     var block = '';
     try { block = String(document.queryCommandValue('formatBlock') || '').toLowerCase(); } catch (_) {}
     var ul = closestList();
+    var at = caretElement(), inLink = !!(at && at.closest('a[href]') && editor.contains(at.closest('a[href]')));
     root.querySelectorAll('.nt-bar [data-cmd]').forEach(function (b) {
       var c = b.dataset.cmd, on = false;
       try {
-        if (c === 'bold' || c === 'italic' || c === 'underline') on = document.queryCommandState(c);
+        if (c === 'bold' || c === 'italic') on = document.queryCommandState(c);
+        // A link is drawn underlined; that is not the underline format.
+        else if (c === 'underline') on = document.queryCommandState(c) && !inLink;
+        else if (c === 'link') on = inLink;
         else if (c === 'h1' || c === 'h2') on = block === c;
         else if (c === 'todo') on = !!(ul && ul.classList.contains('nt-todo'));
         else if (c === 'ul') on = !!(ul && !ul.classList.contains('nt-todo'));
@@ -607,7 +667,7 @@
     if (linkifyEditor()) queueSave();
     userClosed = false;
     if (!autoOpened) return;
-    setTimeout(function () { if (document.activeElement !== editor) { toggleTools(false); autoOpened = false; } }, 120);
+    setTimeout(function () { if (document.activeElement !== editor && document.activeElement !== linkInput()) { toggleTools(false); autoOpened = false; } }, 120);
   });
 
   // ── saving ──────────────────────────────────────────
