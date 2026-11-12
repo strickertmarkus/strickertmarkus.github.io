@@ -173,18 +173,18 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .b
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-meta-inline{justify-content:center!important;gap:6px!important;margin:0!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-time{color:#FDBA74!important;text-shadow:none!important;font-weight:700!important;letter-spacing:0!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-date{color:#93C5FD!important;font-weight:600!important;position:static!important}
-/* Month pill in the calendar row ("‹ Nov 2026 ›"), right side: arrows step a month, a tap on the
+/* Month in the calendar row ("‹ NOV 2026 ›", no frame, sized like the week label), right side: arrows step a month, a tap on the
    month opens the month list. */
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row{
   position:relative!important;transform:none!important;left:auto!important;right:auto!important;top:auto!important;margin:0!important;
-  display:flex!important;align-items:center!important;gap:0!important;height:32px!important;padding:0 3px!important;width:auto!important;
-  border:1px solid rgba(253,186,116,.34)!important;border-radius:999px!important;background:rgba(253,186,116,.06)!important;box-shadow:none!important;z-index:20!important
+  display:flex!important;align-items:center!important;gap:0!important;height:28px!important;padding:0!important;width:auto!important;
+  border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;z-index:20!important
 }
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row>button{appearance:none!important;min-width:0!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important;color:#FDBA74!important;cursor:pointer;-webkit-tap-highlight-color:transparent}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row .home-month-step{width:26px!important;height:26px!important;padding:0!important;border-radius:50%!important;font-size:17px!important;line-height:1!important}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row .home-month-step{width:22px!important;height:26px!important;padding:0!important;border-radius:6px!important;font-size:15px!important;line-height:1!important;opacity:.85}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #home-month-btn{width:auto!important;max-width:none!important;overflow:visible!important;height:26px!important;padding:0 4px!important;border-radius:999px!important;transition:transform .15s!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #home-month-btn:active{transform:scale(.96)}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #month-label{font-size:13px!important;line-height:1!important;font-weight:700!important;color:#FDBA74!important;white-space:nowrap!important}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #month-label{font-size:11px!important;line-height:1!important;font-weight:800!important;letter-spacing:.08em!important;text-transform:uppercase!important;color:#FDBA74!important;white-space:nowrap!important}
 .home-month-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:400;width:208px;max-height:min(360px,60vh);overflow:auto;padding:6px;border-radius:16px;background:#161B22;border:1px solid rgba(255,255,255,.07);box-shadow:0 18px 40px rgba(0,0,0,.5);transform-origin:top right;animation:home-month-in .22s cubic-bezier(.22,1,.36,1)}
 .home-month-menu[hidden]{display:none}
 @keyframes home-month-in{from{opacity:0;transform:scale(.94) translateY(-4px)}}
