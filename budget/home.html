@@ -130,15 +130,6 @@
     .cal-cell.today .cal-num { color: var(--accent); }
 
     /* Swedish holidays: rendered as calendar metadata, never as Firebase events. */
-    .home-cal-holidays-toggle { display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:10px;font-weight:700;color:#B5AFC0;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent; }
-    .home-cal-holidays-toggle input { position:absolute;opacity:0;width:1px;height:1px;pointer-events:none; }
-    .home-cal-holidays-switch { width:25px;height:14px;display:inline-block;position:relative;flex:0 0 auto;border-radius:999px;border:1px solid rgba(255,255,255,.19);background:rgba(255,255,255,.09);box-shadow:inset 0 1px 2px rgba(0,0,0,.15);transition:background .2s,border-color .2s,box-shadow .22s ease; }
-    .home-cal-holidays-switch::before { content:'';position:absolute;left:2px;top:2px;width:8px;height:8px;border-radius:50%;background:#94A3B8;box-shadow:0 1px 2px rgba(0,0,0,.24);transition:transform .2s,background .2s,box-shadow .22s ease; }
-    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch { background:rgba(var(--home-view-rgb,253,186,116),.24);border-color:rgba(var(--home-view-rgb,253,186,116),.62);box-shadow:0 0 0 1px rgba(var(--home-view-rgb,253,186,116),.10),0 0 11px rgba(var(--home-view-rgb,253,186,116),.26),inset 0 0 7px rgba(var(--home-view-rgb,253,186,116),.16); }
-    .home-cal-holidays-toggle input:checked + .home-cal-holidays-switch::before { background:var(--home-view-accent,#FDBA74);transform:translateX(11px);box-shadow:0 0 5px rgba(var(--home-view-rgb,253,186,116),.92),0 0 10px rgba(var(--home-view-rgb,253,186,116),.65); }
-    .home-cal-holidays-toggle input:focus-visible + .home-cal-holidays-switch { outline:2px solid var(--home-view-accent,#FDBA74);outline-offset:3px; }
-    .home-cal-holidays-toggle:has(input:checked) > span:last-child { color:var(--home-view-accent-soft,#FDBA74);text-shadow:0 0 8px rgba(var(--home-view-rgb,253,186,116),.20); }
-    @media(prefers-reduced-motion:reduce){ .home-cal-holidays-switch,.home-cal-holidays-switch::before { transition:none; } }
     .cal-num-row { display:flex;align-items:center;justify-content:space-between;gap:2px;min-width:0; }
     .cal-num-right { display:inline-flex;align-items:center;justify-content:flex-end;gap:2px;min-width:0; }
     .cal-cell-extra { display:none;color:#B8C2CF;font-size:9px;font-weight:800;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums; }
@@ -175,9 +166,7 @@
     .home-cal-week-day-v11.swedish-holiday-official:not(.today) { border-color:rgba(242,139,144,.2); }
     .home-cal-day-holidays { display:grid;gap:5px;min-width:0; }
     @media(max-width:480px) {
-      .home-cal-holidays-toggle { font-size:10px;gap:5px; }
-      .home-cal-holidays-switch { flex-shrink:0; }
-      .cal-holiday-mark { width:5px;height:5px;flex-basis:5px; }
+          .cal-holiday-mark { width:5px;height:5px;flex-basis:5px; }
     }
 
     .cal-week-number {
@@ -1017,7 +1006,7 @@
     }
   </style>
 <link rel="stylesheet" href="home-calendar-base.css?v=20261015-list-tabs-home-boot-1">
-<script src="calendar-ui-v2.js?v=20261110-week-1"></script>
+<script src="calendar-ui-v2.js?v=20261112-always-1"></script>
 <script src="calendar-picker-fix-v3.js?v=20261020-surfaces-1"></script>
 <script src="calendar-followups-v4.js?v=20261020-surfaces-1"></script>
 <script src="calendar-notification-enhancements-v1.js?v=20261015-list-tabs-home-boot-1"></script>
@@ -1025,7 +1014,7 @@
 <script src="home-calendar-polish-v5-preview-delete-20260911.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-shopping-groups-v1.js?v=20261015-list-tabs-home-boot-1"></script>
-<script src="swedish-holidays-v1.js?v=20261013-1"></script>
+<script src="swedish-holidays-v1.js?v=20261112-always-1"></script>
 <link rel="stylesheet" href="home-sections.css?v=20261111-nav9">
 <link rel="stylesheet" href="home-morph-router.css?v=20261111-nav7">
 <script defer src="home-morph-router.js?v=20261111-budget-3"></script>
@@ -1036,7 +1025,7 @@
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
-<link rel="stylesheet" href="home-listor-v1.css?v=20261112-monthrow-3">
+<link rel="stylesheet" href="home-listor-v1.css?v=20261112-pill-2">
 <script defer src="pulse-motion.js?v=20261029-home-1" data-surfaces=".modal-overlay,#home-day-popover,#day-panel,.fp-floating-menu"></script>
   <script defer src="app-refresh.js?v=20261103-1"></script>
 </head>
@@ -1101,14 +1090,11 @@
       <div class="calendar-toolbar-v2">
       <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
       <div class="month-nav home-month-row">
-      <button type="button" id="home-month-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="home-month-menu" aria-label="Välj månad"><strong id="month-label"></strong><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button type="button" class="home-month-step" onclick="prevMonth()" aria-label="Föregående månad">‹</button>
+      <button type="button" id="home-month-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="home-month-menu" aria-label="Välj månad"><strong id="month-label"></strong></button>
+      <button type="button" class="home-month-step" onclick="nextMonth()" aria-label="Nästa månad">›</button>
       <div id="home-month-menu" class="home-month-menu" role="listbox" aria-label="Månader" hidden></div>
       </div>
-      <label class="home-cal-holidays-toggle" title="Visa svenska helgdagar och traditioner">
-        <input type="checkbox" id="home-show-holidays" checked>
-        <span class="home-cal-holidays-switch" aria-hidden="true"></span>
-        <span>Högtider</span>
-      </label>
       </div>
       <div class="cal-weekdays">
         <div class="cal-wd">Mån</div><div class="cal-wd">Tis</div><div class="cal-wd">Ons</div>
@@ -1475,8 +1461,8 @@ function getHolidayPreviewLabel(holiday) {
 function renderMonth() {
   var year = currentDate.getFullYear();
   var month = currentDate.getMonth();
-  // Just the month; the year is added when it is not this year.
-  document.getElementById('month-label').textContent = MONTHS[month] + (year !== new Date().getFullYear() ? ' ' + year : '');
+  // Short month and year in the pill ("Nov 2026").
+  document.getElementById('month-label').textContent = MONTHS[month].slice(0, 3) + ' ' + year;
   var weekEl = document.getElementById('calendar-week-number') ||
     document.getElementById('calendar-week-number-v2');
   if (weekEl && (!document.body.dataset.homeCalendarView ||
@@ -1657,7 +1643,7 @@ function changeMonth(delta) {
 function prevMonth() { changeMonth(-1); }
 function nextMonth() { changeMonth(1); }
 
-// Header month ("November ⌄"): a tap lists six months back and six ahead (plus "Idag" when away).
+// Month pill ("‹ Nov 2026 ›"): arrows step, a tap on the month lists six months back and six ahead (plus "Idag" when away).
 (function () {
   var btn = document.getElementById('home-month-btn');
   var menu = document.getElementById('home-month-menu');
@@ -3186,16 +3172,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
     update();
   })();
-  var holidayToggle = document.getElementById('home-show-holidays');
-  if (holidayToggle && window.SwedishHolidays) {
-    holidayToggle.checked = window.SwedishHolidays.isEnabled();
-    holidayToggle.addEventListener('change', function () {
-      window.SwedishHolidays.setEnabled(holidayToggle.checked);
-      closeDayEventsPopup();
-      if (selectedDate) renderDayEvents(selectedDate);
-      renderMonth();
-    });
-  }
   renderMonth();
   installMonthSwipe();
   renderShoppingWidget();

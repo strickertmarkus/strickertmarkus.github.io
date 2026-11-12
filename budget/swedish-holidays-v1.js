@@ -3,9 +3,6 @@
 
   // Swedish public holidays (SFS 1989:253) and selected traditions.
   // Calculated locally: never stored among family events or synced to Firebase.
-  var STORAGE_KEY = 'home-show-swedish-holidays-v1';
-  var enabled = true;
-  try { enabled = localStorage.getItem(STORAGE_KEY) !== 'false'; } catch (_) {}
   var years = Object.create(null);
 
   function dateISO(year, month, day) {
@@ -114,21 +111,13 @@
   }
 
   function get(iso) {
-    if (!enabled || !/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ''))) return [];
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ''))) return [];
     var year = Number(iso.slice(0, 4));
     if (!years[year]) years[year] = makeYear(year);
     return years[year][iso] || [];
   }
 
-  function setEnabled(value) {
-    enabled = !!value;
-    try { localStorage.setItem(STORAGE_KEY, String(enabled)); } catch (_) {}
-    window.dispatchEvent(new Event('swedish-holidays-change'));
-  }
-
   window.SwedishHolidays = {
-    get: get,
-    isEnabled: function () { return enabled; },
-    setEnabled: setEnabled
+    get: get
   };
 })();

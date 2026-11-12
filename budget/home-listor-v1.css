@@ -173,22 +173,19 @@ html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .b
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-meta-inline{justify-content:center!important;gap:6px!important;margin:0!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-time{color:#FDBA74!important;text-shadow:none!important;font-weight:700!important;letter-spacing:0!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .app-header .header-date{color:#93C5FD!important;font-weight:600!important;position:static!important}
-/* Month as "November ⌄" (sketch B) in the calendar row, no frame; the year shows only for another year.
-   Tap opens a list of months; swiping the calendar also changes month. */
+/* Month pill in the calendar row ("‹ Nov 2026 ›"), right side: arrows step a month, a tap on the
+   month opens the month list. */
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row{
-  position:relative!important;transform:none!important;left:auto!important;right:auto!important;top:auto!important;margin:0!important;flex:0 0 auto!important;
-  display:block!important;height:auto!important;padding:0!important;width:auto!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
-  transition:opacity .3s cubic-bezier(.32,.72,0,1),transform .3s cubic-bezier(.32,.72,0,1),visibility .3s!important
+  position:relative!important;transform:none!important;left:auto!important;right:auto!important;top:auto!important;margin:0!important;
+  display:flex!important;align-items:center!important;gap:0!important;height:32px!important;padding:0 3px!important;width:auto!important;
+  border:1px solid rgba(253,186,116,.34)!important;border-radius:999px!important;background:rgba(253,186,116,.06)!important;box-shadow:none!important;z-index:20!important
 }
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #home-month-btn{
-  appearance:none!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:5px!important;width:auto!important;height:auto!important;min-width:0!important;
-  padding:2px 8px 4px!important;margin:0!important;border:0!important;border-radius:10px!important;background:none!important;box-shadow:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s!important
-}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row>button{appearance:none!important;min-width:0!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important;color:#FDBA74!important;cursor:pointer;-webkit-tap-highlight-color:transparent}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row .home-month-step{width:26px!important;height:26px!important;padding:0!important;border-radius:50%!important;font-size:17px!important;line-height:1!important}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #home-month-btn{width:auto!important;max-width:none!important;overflow:visible!important;height:26px!important;padding:0 4px!important;border-radius:999px!important;transition:transform .15s!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #home-month-btn:active{transform:scale(.96)}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #month-label{min-width:0!important;width:auto!important;padding:0!important;font-size:16px!important;line-height:1!important;font-weight:700!important;letter-spacing:0!important;color:#FDBA74!important;text-shadow:none!important;white-space:nowrap!important}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #home-month-btn svg{width:15px;height:15px;fill:none;stroke:#FDBA74;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s cubic-bezier(.22,1,.36,1)}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #home-month-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
-.home-month-menu{position:absolute;left:50%;margin-left:-104px;top:calc(100% + 6px);z-index:400;width:208px;max-height:min(360px,60vh);overflow:auto;padding:6px;border-radius:16px;background:#161B22;border:1px solid rgba(255,255,255,.07);box-shadow:0 18px 40px rgba(0,0,0,.5);transform-origin:top center;animation:home-month-in .22s cubic-bezier(.22,1,.36,1)}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row #month-label{font-size:13px!important;line-height:1!important;font-weight:700!important;color:#FDBA74!important;white-space:nowrap!important}
+.home-month-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:400;width:208px;max-height:min(360px,60vh);overflow:auto;padding:6px;border-radius:16px;background:#161B22;border:1px solid rgba(255,255,255,.07);box-shadow:0 18px 40px rgba(0,0,0,.5);transform-origin:top right;animation:home-month-in .22s cubic-bezier(.22,1,.36,1)}
 .home-month-menu[hidden]{display:none}
 @keyframes home-month-in{from{opacity:0;transform:scale(.94) translateY(-4px)}}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2 .home-month-menu button{appearance:none!important;display:flex!important;justify-content:space-between!important;align-items:center!important;width:100%!important;height:auto!important;min-width:0!important;padding:10px 12px!important;margin:0!important;border:0!important;border-radius:10px!important;background:none!important;box-shadow:none!important;color:#e6e9ee!important;font:600 14px/1.1 Inter,system-ui,sans-serif!important;text-align:left!important;cursor:pointer}
@@ -206,9 +203,7 @@ html.home-hdr-compact.home-finance-orange-v3:not(#lt) body.home-calendar-polish-
 .sh-link{color:#93C5FD!important;text-decoration:underline!important;text-decoration-color:rgba(147,197,253,.45)!important;text-underline-offset:2px;overflow-wrap:anywhere}
 .ft-task-body .sh-link{display:block;font-size:12.5px;margin-top:2px}
 
-/* Calendar row: week number left, month centred, Högtider right */
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2{display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important}
+/* Calendar row: week number left, month pill right (holidays are always shown) */
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important}
 html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.cal-week-number{grid-column:1;grid-row:1;justify-self:start}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row{grid-column:2;grid-row:1;justify-self:center}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.home-cal-holidays-toggle{grid-column:3;grid-row:1;justify-self:end}
-html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row{z-index:20!important}
+html.home-finance-orange-v3:not(#lt) body.home-calendar-polish-v5 .calendar-toolbar-v2>.month-nav.home-month-row{grid-column:2;grid-row:1;justify-self:end}

@@ -24,7 +24,6 @@
         margin:0 0 8px;
         min-height:32px;
       }
-      .calendar-toolbar-v2 .home-cal-holidays-toggle { margin-left:auto; }
       .calendar-toolbar-v2 .cal-week-number,
       .calendar-toolbar-v2 .calendar-week-number-v2 {
         margin:0 !important;
@@ -204,13 +203,6 @@
       toolbar.appendChild(week);
     } else if (week.parentElement !== toolbar) {
       toolbar.appendChild(week);
-    }
-
-    // Home-specific calendar controls share the existing toolbar and must not
-    // create a second row when the week label/month navigation is relocated.
-    if (isHome) {
-      var holidayToggle = section.querySelector('.home-cal-holidays-toggle');
-      if (holidayToggle && holidayToggle.parentElement !== toolbar) toolbar.appendChild(holidayToggle);
     }
 
     if (!isHome && nav.parentElement !== toolbar) toolbar.appendChild(nav);
