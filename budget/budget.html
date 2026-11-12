@@ -12,7 +12,7 @@
 <script src="indexeddb-fallback.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-config.js?v=20260830-finance-clean-v1"></script>
 <script src="auth-gate.js?v=20260830-budget-hub-v1"></script>
-<script src="firebase-sync.js?v=20261109-months-1"></script>
+<script src="firebase-sync.js?v=20261112-offbudget-1"></script>
 <script src="budget-persistence-guard.js?v=20260830-finance-clean-v1"></script>
 <script src="finance-ui.js?v=20261111-data-1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1003,7 +1003,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="pulse-bottom-nav-v1.js?v=20261111-nav12"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261110-nav-1">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261112-offbudget-1">
 </head>
 <body>
 
@@ -1559,8 +1559,11 @@ function computeTotals() {
         if (s.isIncome) {
             totalIncome = s.items.reduce((sum, it) => sum + (it.actual || 0), 0);
         } else {
-            totalBudget += s.items.reduce((sum, it) => sum + it.budget, 0);
-            totalSpent += s.items.reduce((sum, it) => sum + it.actual, 0);
+            // Posts marked "räknas inte mot kvar" (item.offBudget, e.g. paid from the shared ICA card)
+            // are shown in their section but left out of the totals.
+            const counted = s.items.filter(it => !it.offBudget);
+            totalBudget += counted.reduce((sum, it) => sum + it.budget, 0);
+            totalSpent += counted.reduce((sum, it) => sum + it.actual, 0);
         }
     });
     return { totalIncome, totalBudget, totalSpent, remaining: totalIncome - totalSpent };
@@ -1661,7 +1664,21 @@ function renderSections() {
         const moreMenu = document.createElement("div");
         moreMenu.className = "section-more-menu";
         moreMenu.hidden = true;
-        moreMenu.innerHTML = '<button type="button" data-act="rename">Byt namn</button><button type="button" data-act="delete" class="danger">Ta bort avsnitt</button>';
+        // "Räknas mot kvar" per post: a small switch for each post in this section.
+        const countRows = isIncome ? '' : '<div class="sm-count-head">Räknas mot kvar</div>' + section.items.map((it, i) =>
+            `<label class="sm-count"><span>${it.name}</span><input type="checkbox" data-count="${i}"${it.offBudget ? '' : ' checked'}><i aria-hidden="true"></i></label>`).join('');
+        moreMenu.innerHTML = '<button type="button" data-act="rename">Byt namn</button>' + countRows + '<button type="button" data-act="delete" class="danger">Ta bort avsnitt</button>';
+        moreMenu.onchange = (e) => {
+            const box = e.target.closest("input[data-count]");
+            if (!box) return;
+            const it = section.items[Number(box.dataset.count)];
+            if (!it) return;
+            if (box.checked) delete it.offBudget; else it.offBudget = true;
+            saveLocal();
+            renderKPIs();
+            const row = container.querySelector(`tr[data-section="${sIdx}"][data-item="${box.dataset.count}"]`);
+            if (row) row.classList.toggle("is-off-budget", !box.checked);
+        };
         moreBtn.onclick = (e) => {
             e.stopPropagation();
             const open = moreMenu.hidden;
@@ -1670,6 +1687,7 @@ function renderSections() {
             moreBtn.setAttribute("aria-expanded", String(open));
         };
         moreMenu.onclick = (e) => {
+            if (e.target.closest(".sm-count")) { e.stopPropagation(); return; }
             const act = e.target.closest("button[data-act]");
             if (!act) return;
             e.stopPropagation();
@@ -1769,7 +1787,7 @@ function renderSections() {
             }
 
             tableHTML += `
-                <tr class="draggable-row" data-section="${sIdx}" data-item="${iIdx}">
+                <tr class="draggable-row${item.offBudget ? ' is-off-budget' : ''}" data-section="${sIdx}" data-item="${iIdx}">
                     <td>
                         <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
                         <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
@@ -2868,7 +2886,7 @@ window.addEventListener('firebase-sync', (event) => {
 <script src="transfer-income.js?v=20261109-excel-1"></script>
 <script src="budget-tap-edit-v1.js?v=20261110-1"></script>
 <script src="budget-auto-months-v1.js?v=20261109-excel-1"></script>
-<script src="budget-pay-inbox-v1.js?v=20261109-months-1"></script>
+<script src="budget-pay-inbox-v1.js?v=20261112-offbudget-1"></script>
 </body>
 </html>
 

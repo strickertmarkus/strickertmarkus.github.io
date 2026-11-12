@@ -39,7 +39,8 @@
   }
   function expenseSections(m) { return (m.sections || []).filter(function (s) { return !s.isIncome && s.key !== 'income'; }); }
   function itemsSum(sections, field) {
-    return sections.reduce(function (t, s) { return t + (s.items || []).reduce(function (u, i) { return u + (Number(i[field]) || 0); }, 0); }, 0);
+    // Posts marked "räknas inte mot kvar" (offBudget) stay out of the totals, as on the budget page.
+    return sections.reduce(function (t, s) { return t + (s.items || []).reduce(function (u, i) { return i.offBudget ? u : u + (Number(i[field]) || 0); }, 0); }, 0);
   }
   function income(m) {
     var s = (m.sections || []).find(function (x) { return x.isIncome || x.key === 'income'; });

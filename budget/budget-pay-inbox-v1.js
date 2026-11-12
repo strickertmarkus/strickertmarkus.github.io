@@ -9,6 +9,11 @@
  * `pay_merchant_rules` ({ markus: { "ica maxi": { section, item } }, maja: {...} }), synced by
  * firebase-sync.js, so the next purchase there is pre-selected.
  *
+ * Fixed monthly costs paid from the shared ICA card (Familjebudget's "ICA-kort" list in
+ * familjebudget_data.expenses) are offered here too on Markus' page, once per month, marked
+ * "Fast · ICA-kortet", so they can be sorted like a purchase. Handled ones are remembered in
+ * `pay_recurring_done` ({ markus: { "2026-11|Internet": 1 } }), synced by firebase-sync.js.
+ *
  * Uses the page's own globals: monthlyData, currentMonth, getMonthKey, getCurrentMonthSections,
  * refresh, fmt.
  */
@@ -23,7 +28,9 @@
   var MONTHS = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
   var MONTHS_LONG = ['januari', 'februari', 'mars', 'april', 'maj', 'juni', 'juli', 'augusti', 'september', 'oktober', 'november', 'december'];
 
-  var entries = [];          // [{ path, key, raw, amount, merchant, card, time }]
+  var RECUR_KEY = 'pay_recurring_done';
+  var entries = [];          // [{ path, key, raw, amount, merchant, card, time, recurring }]
+  var remote = [];           // Apple Pay entries from pay_inbox
   var panel = null;
   var db = null;
 
@@ -87,6 +94,28 @@
     return best;
   }
 
+  // ── fixed ICA-card costs ──────────────────────────────────
+  function readJson(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) { return null; } }
+  function doneMap() { var all = readJson(RECUR_KEY) || {}; return all[WHO] || {}; }
+  function setDone(key, on) {
+    var all = readJson(RECUR_KEY) || {};
+    all[WHO] = all[WHO] || {};
+    if (on) all[WHO][key] = 1; else delete all[WHO][key];
+    try { localStorage.setItem(RECUR_KEY, JSON.stringify(all)); } catch (_) {}
+  }
+  function recurring() {
+    if (WHO !== 'markus') return [];
+    var data = readJson('familjebudget_data');
+    var list = data && Array.isArray(data.expenses) ? data.expenses : [];
+    var now = new Date(), month = getMonthKey(now), done = doneMap();
+    var start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    return list.filter(function (e) { return e && e.name && Number(e.amount) > 0; }).map(function (e, i) {
+      return { key: 'ica|' + month + '|' + e.name, recurring: true, amount: Math.abs(Number(e.amount)),
+        merchant: String(e.name), card: 'ICA-kortet', time: start - i };
+    }).filter(function (e) { return !done[e.key]; });
+  }
+  function rebuild() { entries = remote.concat(recurring()); render(); }
+
   // ── budget data ───────────────────────────────────────────
   function sectionsFor(date) {
     var key = getMonthKey(date);
@@ -149,7 +178,9 @@
       var valid = guess && findItem(getCurrentMonthSections(), guess) ? guess : null;
       if (valid) suggested++;
       var d = new Date(e.time);
-      var meta = money(e.amount) + ' kr · ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + (e.card ? ' · ' + esc(e.card) : '');
+      var meta = e.recurring
+        ? money(e.amount) + ' kr · Fast · ' + esc(e.card)
+        : money(e.amount) + ' kr · ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + (e.card ? ' · ' + esc(e.card) : '');
       return '<div class="pay-row" data-key="' + esc(e.key) + '">' +
         '<div class="pay-main"><span class="pay-merchant">' + esc(e.merchant || 'Okänd butik') + '</span>' +
         '<span class="pay-meta">' + meta + '</span></div>' +
@@ -242,10 +273,12 @@
   }
 
   function removeRemote(en) {
+    if (en.recurring) { setDone(en.key, true); return; }
     if (!db) return;
     db.ref(en.path).remove().catch(function (err) { console.warn('[PayInbox] remove failed', err && err.message); });
   }
   function restoreRemote(en) {
+    if (en.recurring) { setDone(en.key, false); rebuild(); return; }
     if (!db) return;
     db.ref(en.path).set(en.raw).catch(function (err) { console.warn('[PayInbox] restore failed', err && err.message); });
   }
@@ -284,8 +317,8 @@
         });
       });
     });
-    entries = next;
-    render();
+    remote = next;
+    rebuild();
   }
 
   function start() {
@@ -309,8 +342,13 @@
       if (++tries < 60) setTimeout(wait, 250);
     })();
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { boot(); rebuild(); });
+  else { boot(); rebuild(); }
+  // New fixed costs on Familjebudget, or ones handled on the other phone.
+  window.addEventListener('firebase-sync', function (e) {
+    var k = e.detail && e.detail.key;
+    if (k === 'familjebudget_data' || k === RECUR_KEY) rebuild();
+  });
 
   // Learned rules may arrive from the other phone; refresh suggestions when they do.
   window.addEventListener('storage', function (e) { if (e.key === RULES_KEY) render(); });

@@ -332,3 +332,17 @@ html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tb
   html[data-finance-view]:not(#lt) .finance-view-clean-v1 button{width:40px!important}
   html[data-finance-view]:not(#lt) .finance-profile-clean-v1 button{padding:0 13px!important}
 }
+
+/* "Räknas mot kvar": switches per post in the section's ⋯ menu, and a quiet mark on posts left out */
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .section-more-menu{min-width:220px;max-height:min(70vh,420px);overflow:auto}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count-head{padding:10px 12px 4px;border-top:1px solid rgba(255,255,255,.06);margin-top:2px;font:700 10px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--lt-mut,#7d8696)}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;padding:0 12px;border-radius:9px;color:var(--lt-sec,#c8d0da);font:500 13px/1.2 Inter,system-ui,sans-serif;cursor:pointer}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count i{flex:0 0 auto;width:30px;height:18px;border-radius:999px;background:rgba(255,255,255,.12);position:relative;transition:background .2s}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count i::after{content:"";position:absolute;left:3px;top:3px;width:12px;height:12px;border-radius:50%;background:#94a3b8;transition:transform .2s,background .2s}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count input:checked+i{background:rgba(253,186,116,.45)}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count input:checked+i::after{transform:translateX(12px);background:#FDBA74}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-count input:focus-visible+i{outline:2px solid #FDBA74;outline-offset:2px}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] tr.is-off-budget td:first-child .editable-field::after{content:"räknas ej";display:inline-block;margin-left:7px;padding:1px 6px;border-radius:999px;border:1px solid rgba(147,197,253,.3);color:#93C5FD;font:600 9.5px/1.3 Inter,system-ui,sans-serif;letter-spacing:.02em;vertical-align:2px;opacity:.85}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] tr.is-off-budget .item-input{opacity:.62}
