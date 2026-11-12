@@ -186,7 +186,6 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 }
 @media (max-width: 480px) {
     .header { padding: 20px 12px 14px; }
-    #dark-mode-btn { position: absolute !important; top: 8px !important; left: 8px !important; right: auto !important; }
     .nav-dropdown-wrapper { position: absolute !important; top: 8px !important; right: 8px !important; left: auto !important; }
 }
 .auto-tag{display:inline-block;margin-right:6px;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:600;color:var(--lt-a,#FDBA74);background:rgba(253,186,116,.10);vertical-align:middle}
@@ -932,15 +931,6 @@ function resetAllData() {
 }
 
 // ═══════════════════════════════════════════════════════
-// DARK MODE
-// ═══════════════════════════════════════════════════════
-function toggleDarkMode() {
-    const dark = document.documentElement.classList.toggle("dark-mode");
-    localStorage.setItem("darkMode", dark ? "enabled" : "disabled");
-    document.getElementById("dark-mode-btn").textContent = dark ? "☀️" : "🌙";
-}
-
-// ═══════════════════════════════════════════════════════
 // NAV MENU
 // ═══════════════════════════════════════════════════════
 function toggleNavMenu() {
@@ -969,11 +959,10 @@ window.addEventListener('firebase-sync', function(event) {
     renderAll();
 });
 
+// The page shows the saved data at once; Firebase refreshes it when its first read arrives.
+// (A leftover dark-mode toggle used to throw here when "darkMode" was saved, so nothing showed
+// until Firebase had loaded.)
 document.addEventListener("DOMContentLoaded", function() {
-    if (localStorage.getItem("darkMode") === "enabled") {
-        document.documentElement.classList.add("dark-mode");
-        document.getElementById("dark-mode-btn").textContent = "☀️";
-    }
     loadData();
     renderAll();
     if (window.__firebaseInitialLoadDone) ensureTransferMonths();
