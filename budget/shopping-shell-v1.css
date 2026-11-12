@@ -390,3 +390,8 @@ html body .family-todos.ft-shopping .ft-undo:disabled{opacity:.45!important}
 html body .family-todos .ft-undo svg{width:17px;height:17px;display:block}
 html body .shopping-panel-head .shopping-tools-menu>summary{position:relative!important;list-style:none}
 html body .shopping-panel-head .shopping-tools-menu>summary::-webkit-details-marker{display:none}
+
+/* Links in lists, to-dos and notes */
+.sh-link,.nt-editor a[href]{color:#93C5FD!important;text-decoration:underline!important;text-decoration-color:rgba(147,197,253,.45)!important;text-underline-offset:2px;word-break:break-word;overflow-wrap:anywhere;-webkit-tap-highlight-color:transparent}
+.item-text .sh-link{margin:0 2px}
+.ft-task-body .sh-link{display:block;font-size:12.5px;margin-top:2px}

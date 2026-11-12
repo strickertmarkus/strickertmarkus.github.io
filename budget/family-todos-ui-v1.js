@@ -1,5 +1,23 @@
 (function(){
   'use strict';
+  // Links in a task: http(s)://… or www.… become a tappable link, shown as host + last part.
+  var URL_RE = /\b(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]|www\.[^\s<]+[^\s<.,;:!?)\]'"])/gi;
+  function shortUrl(url) {
+    try {
+      var u = new URL(/^www\./i.test(url) ? 'https://' + url : url);
+      var parts = u.pathname.split('/').filter(Boolean);
+      var host = u.hostname.replace(/^www\./, '');
+      return parts.length ? host + (parts.length > 1 ? '/…/' : '/') + parts[parts.length - 1] : host;
+    } catch (_) { return url; }
+  }
+  function linkify(escaped) {
+    return escaped.replace(URL_RE, function (m) {
+      var raw = m.replace(/&amp;/g, '&');
+      var href = /^www\./i.test(raw) ? 'https://' + raw : raw;
+      return '<a class="sh-link" href="' + href.replace(/"/g, '%22') + '" target="_blank" rel="noopener">' + shortUrl(raw).replace(/</g, '&lt;') + '</a>';
+    });
+  }
+
   if(window.FamilyTodosUI)return;
   var store=window.FamilyTodos;
   if(!store)return;
@@ -28,6 +46,8 @@
     var content='<div class="ft-task'+checked+'" data-id="'+esc(t.id)+'" style="--ft-member:'+COLORS[t.member]+'">'+
       '<button type="button" class="ft-check" data-act="toggle" data-id="'+esc(t.id)+'" aria-label="'+(t.done?'Återaktivera':'Klarmarkera')+' '+esc(t.text)+'">'+(t.done?'✓':'')+'</button>'+
       '<div class="ft-task-body"><button type="button" class="ft-task-title" data-act="edit" data-id="'+esc(t.id)+'">'+esc(t.text)+'</button>'+
+      // A link in the task text is shown as its own tappable line (the title itself edits the task).
+      ((esc(t.text).match(URL_RE)||[]).map(function(m){return linkify(m);}).join(''))+
       (t.tripURL?'<a class="ft-trip-link" href="'+esc(t.tripURL)+'">'+esc(t.tripName)+' <svg class="ft-link-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;flex:none"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>':'')+
       (showMeta?'<div class="ft-task-meta"><span class="ft-member-dot"></span><span>'+esc(assigned?assigned[1]:'Familjen')+'</span>'+priority+dueInfo(t)+'</div>':'')+'</div>'+
       '<div class="ft-task-actions">'+

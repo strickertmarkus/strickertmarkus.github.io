@@ -16,7 +16,7 @@
   var COLORS = [['Orange', '#fdba74'], ['Röd', '#f87171'], ['Grön', '#4ade80'], ['Blå', '#93c5fd'], ['Lila', '#c4b5fd'], ['Rosa', '#f9a8d4'], ['Gul', '#fde047']];
   var COLOR_OK = {}; COLORS.forEach(function (c) { COLOR_OK[c[1]] = 1; });
   var RESET_COLOR = '#010101';
-  var ALLOWED = { FONT: 1, H1: 1, H2: 1, P: 1, DIV: 1, BR: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, UL: 1, OL: 1, LI: 1, HR: 1 };
+  var ALLOWED = { A: 1, FONT: 1, H1: 1, H2: 1, P: 1, DIV: 1, BR: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, UL: 1, OL: 1, LI: 1, HR: 1 };
   var root, editor, titleInput, sheet, saveTimer = 0, decorateTimer = 0, currentId = null;
 
   function readLists() { try { var v = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (_) { return []; } }
@@ -46,6 +46,15 @@
           if (!COLOR_OK[col]) { while (child.firstChild) node.insertBefore(child.firstChild, child); node.removeChild(child); return; }
           Array.prototype.slice.call(child.attributes).forEach(function (a) { child.removeAttribute(a.name); });
           child.setAttribute('color', col);
+          return;
+        }
+        if (child.tagName === 'A') {
+          // Only web links are kept (href only); anything else becomes plain text.
+          var href = String(child.getAttribute('href') || '');
+          clean(child);
+          if (!/^https?:\/\//i.test(href)) { while (child.firstChild) node.insertBefore(child.firstChild, child); node.removeChild(child); return; }
+          Array.prototype.slice.call(child.attributes).forEach(function (a) { child.removeAttribute(a.name); });
+          child.setAttribute('href', href);
           return;
         }
         var keepClass = child.tagName === 'UL' && child.classList.contains('nt-todo');
@@ -327,6 +336,7 @@
       e.preventDefault();
       var html = pasteToNote(cd.getData('text/html'), cd.getData('text/plain'));
       if (html) document.execCommand('insertHTML', false, html);
+      linkifyEditor(true);
       decorate();
       queueSave();
     });
@@ -499,7 +509,46 @@
   }
   function queueDecorate() { clearTimeout(decorateTimer); decorateTimer = setTimeout(decorate, 250); }
 
+  // Web addresses typed or pasted as text become links (not while the caret is in them).
+  var URL_RE = /\b(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]|www\.[^\s<]+[^\s<.,;:!?)\]'"])/gi;
+  function linkifyEditor(force) {
+    var sel = window.getSelection(), caret = sel && sel.rangeCount ? sel.getRangeAt(0).startContainer : null;
+    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null), nodes = [], n;
+    while ((n = walker.nextNode())) if (!(n.parentNode.closest && n.parentNode.closest('a')) && (URL_RE.lastIndex = 0, URL_RE.test(n.nodeValue))) nodes.push(n);
+    nodes.forEach(function (node) {
+      var hadCaret = node === caret && document.activeElement === editor;
+      if (hadCaret && !force) return;
+      var text = node.nodeValue, frag = document.createDocumentFragment(), last = 0;
+      text.replace(URL_RE, function (m, _g, at) {
+        if (at > last) frag.appendChild(document.createTextNode(text.slice(last, at)));
+        var a = document.createElement('a');
+        a.href = /^www\./i.test(m) ? 'https://' + m : m;
+        a.textContent = m;
+        frag.appendChild(a);
+        last = at + m.length;
+      });
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      var end = frag.lastChild;
+      node.parentNode.replaceChild(frag, node);
+      // Keep typing after the pasted text, outside the link.
+      if (hadCaret && end && end.parentNode) {
+        var r = document.createRange();
+        if (end.nodeType === 3) r.setStart(end, end.nodeValue.length); else r.setStartAfter(end);
+        r.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(r);
+      }
+    });
+    return nodes.length > 0;
+  }
   function onEditorClick(e) {
+    // A tap on a link opens it in a new tab instead of placing the caret.
+    var link = e.target.closest && e.target.closest('a[href]');
+    if (link && window.getSelection().isCollapsed) {
+      e.preventDefault();
+      window.open(link.href, '_blank', 'noopener');
+      return;
+    }
     // Tap on the counter/chevron at the right of a heading folds its section.
     var h = e.target.closest && e.target.closest('h1, h2');
     if (h && h.parentNode === editor) {
@@ -555,6 +604,7 @@
   });
   document.addEventListener('focusout', function (e) {
     if (!root || e.target !== editor) return;
+    if (linkifyEditor()) queueSave();
     userClosed = false;
     if (!autoOpened) return;
     setTimeout(function () { if (document.activeElement !== editor) { toggleTools(false); autoOpened = false; } }, 120);
@@ -583,6 +633,7 @@
     try { localStorage.setItem(SELECTED, String(note.id)); } catch (_) {}
     titleInput.value = note.name && note.name !== 'Anteckning' ? note.name : '';
     editor.innerHTML = sanitize(note.note || '');
+    linkifyEditor();
     decorate(); renderCount();
   }
   function renderCount() {

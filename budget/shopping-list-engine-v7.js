@@ -307,13 +307,30 @@
     '</div>';
   }
 
+  // Links in an item: http(s)://… or www.… become a tappable link, shown as host + last part.
+  var URL_RE = /\b(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]|www\.[^\s<]+[^\s<.,;:!?)\]'"])/gi;
+  function shortUrl(url) {
+    try {
+      var u = new URL(/^www\./i.test(url) ? 'https://' + url : url);
+      var parts = u.pathname.split('/').filter(Boolean);
+      var host = u.hostname.replace(/^www\./, '');
+      return parts.length ? host + (parts.length > 1 ? '/…/' : '/') + parts[parts.length - 1] : host;
+    } catch (_) { return url; }
+  }
+  function linkify(escaped) {
+    return escaped.replace(URL_RE, function (m) {
+      var raw = m.replace(/&amp;/g, '&');
+      var href = /^www\./i.test(raw) ? 'https://' + raw : raw;
+      return '<a class="sh-link" href="' + href.replace(/"/g, '%22') + '" target="_blank" rel="noopener">' + shortUrl(raw).replace(/</g, '&lt;') + '</a>';
+    });
+  }
   function itemHtml(item) {
     var editing = state.editingItem && Number(state.editingItem.id) === Number(item.id);
     var text = editing ? state.editingItem.text : String(item.text || '');
     return '<div class="list-item ' + (isSelected(item.id) ? 'selected-row ' : '') + (item.checked ? 'done ' : '') + '" data-item-id="' + item.id + '">' +
       '<input type="checkbox" data-action="toggle-item" ' + (item.checked ? 'checked' : '') + '>' +
       '<div class="item-text' + (item.checked ? ' done' : '') + '" ' +
-        (editing ? 'contenteditable="true" spellcheck="true" data-editing-item="true"' : '') + '>' + escapeHtml(text) + '</div>' +
+        (editing ? 'contenteditable="true" spellcheck="true" data-editing-item="true"' : '') + '>' + (editing ? escapeHtml(text) : linkify(escapeHtml(text))) + '</div>' +
       '<button class="shopping-del" type="button" data-action="delete-item" aria-label="Radera ' + escapeHtml(item.text || 'artikel') + '">✕</button>' +
     '</div>';
   }
@@ -563,6 +580,8 @@
     if (!root || !root.contains(event.target)) return;
 
     if (currentEditorContains(event.target)) return;
+    // A link opens; it does not start editing the item.
+    if (event.target.closest('a.sh-link')) return;
 
     var deleteButton = event.target.closest('[data-action="delete-item"]');
     var checkbox = event.target.closest('input[type="checkbox"]');
