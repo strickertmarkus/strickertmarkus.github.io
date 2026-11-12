@@ -118,7 +118,8 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-custom-transition-atomic-v56.js',version:'20261111-countup-1',attr:'data-exercise-custom-transition-atomic-v56',group:'session-transition'},
     {src:'exercise-pulse-flow-v58.js',attr:'data-exercise-pulse-flow-v58',group:'pulse-presentation'},
     {src:'exercise-pulse-flow-motion-v67.js',version:'20261111-countup-1',attr:'data-exercise-pulse-flow-motion-v67',group:'motion'},
-    {src:'exercise-session-typography.js',attr:'data-exercise-session-typography',group:'pulse-presentation'}
+    {src:'exercise-session-typography.js',attr:'data-exercise-session-typography',group:'pulse-presentation'},
+    {src:'exercise-cardio-finish-v1.js',version:'20261112-cardio-1',attr:'data-exercise-cardio-finish-v1',group:'session-transition'}
   ];
   var exerciseAssetManifestV2 = embeddedFieldWorkspace
     ? allExerciseAssetManifestV2.filter(function (item) {
@@ -136,7 +137,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
      Boot recovery must not run here: its delayed cleanup would erase a newly
      started session after this on-demand bundle finishes loading. */
   var embeddedSessionAssetManifestV1 = embeddedFieldWorkspace
-    ? [{src:'exercise-timer-focus.js',version:'20261111-countup-1',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2.filter(function(item){return item.group!=='boot-recovery';}), [
+    ? [{src:'exercise-timer-focus.js',version:'20261112-cardio-1',attr:'data-exercise-timer-focus-v1'}].concat(allExerciseAssetManifestV2.filter(function(item){return item.group!=='boot-recovery';}), [
         {src:'exercise-progress-consistency-v10.js',attr:'data-exercise-progress-consistency-v10'},
         {src:'exercise-pulse-flow-progress-marker-v92.js',attr:'data-exercise-pulse-flow-progress-marker-v92'},
         {src:'exercise-pulse-flow-completed-marker-v102.js',attr:'data-exercise-pulse-flow-completed-marker-v102'},

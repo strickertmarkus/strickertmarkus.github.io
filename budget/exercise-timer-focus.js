@@ -858,7 +858,9 @@
       collapsedCardioToken = '';
     }
 
-    var total = Math.max(1,Number(exercise.time) * 60);
+    // "Ta tid" counts up: no deadline, so no beeps, no overtime colour and the large view stays.
+    var countUp = exercise.timerMode === 'up';
+    var total = countUp ? Infinity : Math.max(1,Number(exercise.time) * 60);
     var elapsed = elapsedForState(state,now);
     var remainingRaw = total - elapsed;
     var second = Math.ceil(remainingRaw);
