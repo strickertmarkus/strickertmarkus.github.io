@@ -12,15 +12,6 @@
     document.documentElement.dataset.homeCalendarView = 'month';
   }
 
-  function placeHomeMonthNav() {
-    var header = document.querySelector('.app-header');
-    var nav = document.querySelector('.month-nav');
-    if (!header || !nav) return false;
-    if (nav.parentElement !== header) header.appendChild(nav);
-    nav.classList.add('home-header-month-v10');
-    return true;
-  }
-
   function addStyles() {
     if (document.getElementById('home-calendar-theme-v12-style')) return;
     var style = document.createElement('style');
@@ -581,7 +572,6 @@
     }
     syncViewTheme();
     addStyles();
-    placeHomeMonthNav();
 
     var observer = new MutationObserver(function (records) {
       for (var i = 0; i < records.length; i++) {

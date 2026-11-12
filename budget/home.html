@@ -1029,14 +1029,14 @@
 <link rel="stylesheet" href="home-sections.css?v=20261111-nav9">
 <link rel="stylesheet" href="home-morph-router.css?v=20261111-nav7">
 <script defer src="home-morph-router.js?v=20261111-budget-3"></script>
-<script src="home-calendar-theme-v12.js?v=20261016-sections-2" data-home-calendar-theme-v12="true"></script>
+<script src="home-calendar-theme-v12.js?v=20261112-monthrow-1" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20261111-keepicon-1"></script>
 <script src="pulse-bottom-nav-v1.js?v=20261111-nav12"></script>
 <script src="home-theme-controller-v1.js?v=20261019-orange-only-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
-<link rel="stylesheet" href="home-listor-v1.css?v=20261112-center-2">
+<link rel="stylesheet" href="home-listor-v1.css?v=20261112-monthrow-3">
 <script defer src="pulse-motion.js?v=20261029-home-1" data-surfaces=".modal-overlay,#home-day-popover,#day-panel,.fp-floating-menu"></script>
   <script defer src="app-refresh.js?v=20261103-1"></script>
 </head>
@@ -1046,10 +1046,6 @@
   <header class="app-header">
     <div class="brand">
       <div class="brand-text"><h1>Frick Strickert</h1><p id="header-home-meta">--:--</p></div>
-    </div>
-    <div class="month-nav home-header-month-v10">
-      <button type="button" id="home-month-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="home-month-menu" aria-label="Välj månad"><strong id="month-label"></strong><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div id="home-month-menu" class="home-month-menu" role="listbox" aria-label="Månader" hidden></div>
     </div>
     <div class="nav-dropdown-wrapper">
       <button class="nav-btn" onclick="toggleNavMenu()" title="Navigation" aria-label="Öppna meny"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
@@ -1104,6 +1100,10 @@
     <div class="cal-section">
       <div class="calendar-toolbar-v2">
       <div class="cal-week-number" id="calendar-week-number">Vecka -</div>
+      <div class="month-nav home-month-row">
+      <button type="button" id="home-month-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="home-month-menu" aria-label="Välj månad"><strong id="month-label"></strong><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div id="home-month-menu" class="home-month-menu" role="listbox" aria-label="Månader" hidden></div>
+      </div>
       <label class="home-cal-holidays-toggle" title="Visa svenska helgdagar och traditioner">
         <input type="checkbox" id="home-show-holidays" checked>
         <span class="home-cal-holidays-switch" aria-hidden="true"></span>
