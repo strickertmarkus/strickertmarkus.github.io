@@ -703,15 +703,66 @@ function cardHead(title, id, actual, sub, barPct, menu) {
         <div class="section-more-wrap"><button type="button" class="section-more-btn" data-menu aria-label="Fler val för ${esc(title)}" aria-haspopup="true" aria-expanded="false">⋯</button><div class="section-more-menu" hidden>${menu}</div></div>
         ${barPct == null ? "" : `<div class="progress-bar">${barPct > 0 ? `<div class="progress-segment" style="width:${Math.min(100, barPct)}%"></div>` : ""}</div>`}`;
 }
-// Huskonto: fixed amounts, edited in Data & Formler.
+// Huskonto: same rows as the ICA categories. "Budget" is the fixed amount (familjebudget_data.huskonto,
+// also editable in Data & Formler); the field is what was paid this month (ica_card_v1.hus), the fixed amount until changed.
+function husPaid(key) { return (icaRead().hus || {})[key] || {}; }
 function renderSections() {
-    const hus = sum(huskonto);
-    document.getElementById("fb-hus-head").innerHTML = cardHead("Huskonto", "fb-hus-h", fmt(hus) + " kr", huskonto.length + " poster · fasta", null,
+    const paidMap = husPaid(monthKey);
+    const paidOf = e => paidMap[e.name] != null ? Number(paidMap[e.name]) || 0 : Number(e.amount) || 0;
+    const hus = sum(huskonto), paid = huskonto.reduce((s, e) => s + paidOf(e), 0);
+    const p = hus ? Math.round(paid / hus * 100) : 0;
+    document.getElementById("fb-hus-head").innerHTML = cardHead("Huskonto", "fb-hus-h", fmt(paid) + " kr",
+        `av ${fmt(hus)} · <b class="${paid > hus ? "is-over" : ""}">${p}%${paid > hus ? " !" : ""}</b>`, hus ? paid / hus * 100 : 0,
         `<a href="data.html">Ändra i Data &amp; Formler</a>`);
-    document.getElementById("fb-hus").innerHTML = huskonto.slice().sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0)).map(e =>
-        `<tr><td>${esc(e.name)}</td><td><span>${fmt(e.amount)}</span></td><td><span class="fb-hus-v">${fmt(e.amount)}</span></td><td><span class="item-pct ok">Fast</span></td></tr>`).join("")
-        || `<tr><td>Inga poster</td><td></td><td></td><td></td></tr>`;
+    document.getElementById("fb-hus").innerHTML = huskonto.map((e, i) => {
+        const bud = Number(e.amount) || 0, v = paidOf(e), q = bud ? Math.round(v / bud * 100) : null;
+        const cls = q == null ? "ok" : q === 100 ? "saving-positive" : q > 100 ? "over" : q > 80 ? "warn" : "ok";
+        return `<tr>
+            <td>${esc(e.name)}</td>
+            <td><span class="editable-field" data-hus="budget" data-i="${i}" role="button" tabindex="0">${fmt(bud)}</span></td>
+            <td><input type="number" inputmode="numeric" class="item-input${v ? " has-value" : ""}" data-hus-paid="${i}" value="${v || ""}" placeholder="0" aria-label="Betalt ${esc(e.name)}"></td>
+            <td><span class="item-pct ${cls}">${q == null ? "–" : q + "%"}</span></td>
+        </tr>`;
+    }).join("") || `<tr><td>Inga poster</td><td></td><td></td><td></td></tr>`;
 }
+const husBody = document.getElementById("fb-hus");
+husBody.addEventListener("change", e => {
+    const input = e.target.closest("input[data-hus-paid]");
+    if (!input) return;
+    const item = huskonto[Number(input.dataset.husPaid)];
+    if (!item) return;
+    const d = icaRead(); d.hus = d.hus || {}; const m = d.hus[monthKey] = d.hus[monthKey] || {};
+    const v = Math.max(0, Math.round(parseFloat(input.value) || 0));
+    if (v === (Number(item.amount) || 0)) delete m[item.name]; else m[item.name] = v;
+    try { localStorage.setItem(ICA_KEY, JSON.stringify(d)); } catch (_) {}
+    renderSections();
+});
+// Changing the fixed amount changes Husutgifter in the transfers too, same as in Data & Formler.
+function husEditBudget(span) {
+    const i = Number(span.dataset.i), item = huskonto[i];
+    if (!item) return;
+    const input = document.createElement("input");
+    input.type = "number"; input.inputMode = "numeric"; input.className = "editable-input"; input.value = Number(item.amount) || "";
+    span.replaceWith(input); input.focus(); input.select();
+    let done = false;
+    const finish = save => {
+        if (done) return; done = true;
+        const v = Math.max(0, Math.round(parseFloat(input.value) || 0));
+        if (save && v !== (Number(item.amount) || 0)) {
+            const d = readStore() || { loanParams, expenses, huskonto, transfers };
+            d.huskonto = (Array.isArray(d.huskonto) ? d.huskonto : huskonto).map((x, j) => j === i ? Object.assign({}, x, { amount: v }) : x);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+            loadData(); renderAll();
+        } else renderSections();
+    };
+    input.addEventListener("blur", () => finish(true));
+    input.addEventListener("keydown", e => { if (e.key === "Enter") input.blur(); if (e.key === "Escape") finish(false); });
+}
+husBody.addEventListener("click", e => { const b = e.target.closest('[data-hus="budget"]'); if (b) husEditBudget(b); });
+husBody.addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.matches("input[data-hus-paid]")) e.target.blur();
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches('[data-hus="budget"]')) { e.preventDefault(); husEditBudget(e.target); }
+});
 function closeCardMenus(except) {
     document.querySelectorAll(".fb-card .section-more-menu").forEach(m => { if (m !== except) { m.hidden = true; m.previousElementSibling.setAttribute("aria-expanded", "false"); } });
 }
@@ -1024,7 +1075,7 @@ window.addEventListener("firebase-sync", e => {
     const key = e.detail && e.detail.key;
     if (key === STORAGE_KEY) loadData();
     if ([STORAGE_KEY, "home_transfer_income_v1", "budgetTracker", "budgetTracker_maja"].includes(key)) renderAll();
-    if (key === ICA_KEY) renderIca();
+    if (key === ICA_KEY) { renderIca(); renderSections(); }
 });
 // The first Firebase read may land after this page has rendered.
 window.addEventListener("firebase-initial-load", () => { loadData(); renderAll(); });
