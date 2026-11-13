@@ -315,7 +315,18 @@
     // page's coordinates through the frames' positions. While a note field has focus the row is
     // placed every frame; while the page scrolls it fades out and comes back where it belongs
     // once the scroll has settled, so it never rides along with the text.
+    function boxOf(w, shift) {
+      var vv = w.visualViewport;
+      if (!vv) return null;
+      return { win: w, top: vv.offsetTop - shift, bottom: vv.offsetTop + vv.height - shift,
+        keyboard: w.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260 };
+    }
+    // This page's own visual viewport first: on iPhone it shrinks with the keyboard even inside
+    // Home's iframe. Only if it shows no keyboard is the top-most window's tried, mapped through
+    // the frames' positions.
     function visibleBox() {
+      var own = boxOf(window, 0);
+      if (own && own.keyboard) return own;
       var w = window, shift = 0;
       try {
         while (w.frameElement && w.parent && w.parent !== w && w.parent.visualViewport) {
@@ -323,10 +334,9 @@
           w = w.parent;
         }
       } catch (_) {}
-      var vv = w.visualViewport;
-      if (!vv) return null;
-      return { win: w, top: vv.offsetTop - shift, bottom: vv.offsetTop + vv.height - shift,
-        keyboard: w.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260 };
+      if (w === window) return own;
+      var outer = boxOf(w, shift);
+      return outer && outer.keyboard ? outer : own;
     }
     noteBox = visibleBox;
     function typingNow() { return document.activeElement === editor || document.activeElement === titleInput; }
