@@ -320,25 +320,38 @@
     }, { passive: false });
     // While typing, pin the format button just above the keyboard using the visual viewport
     // (fixed elements on iOS otherwise stay at the bottom of the layout viewport, behind it).
-    // Inside Home (Listor opens as a full-screen iframe) the keyboard only shrinks the top window's
-    // visual viewport, so that one is measured and mapped into this frame's coordinates.
+    // The keyboard is read from this page's own visual viewport, and inside Home (Listor is a
+    // full-screen iframe there) also from the top window's, mapped by the frame's top. iOS shrinks
+    // one or the other depending on version, so whichever shows the keyboard is used. While a
+    // note field has focus the position is also re-checked a few times a second.
     var topWin = window;
     try { if (window.frameElement && window.parent && window.parent.visualViewport) topWin = window.parent; } catch (_) { topWin = window; }
-    var placeFrame = 0;
+    function keyboardBottom(w) {
+      var vv = w.visualViewport;
+      if (!vv) return null;
+      var shown = w.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260;
+      if (!shown) return null;
+      var bottom = vv.offsetTop + vv.height;
+      if (w !== window) { try { bottom -= window.frameElement.getBoundingClientRect().top; } catch (_) {} }
+      return bottom;
+    }
+    function typingNow() { return document.activeElement === editor || document.activeElement === titleInput || document.activeElement === linkInput(); }
+    var placeFrame = 0, placeTimer = 0;
     function placeBar() {
       cancelAnimationFrame(placeFrame);
       placeFrame = requestAnimationFrame(function () {
-        var vv = topWin.visualViewport;
-        var typing = document.activeElement === editor || document.activeElement === titleInput || document.activeElement === linkInput();
-        if (!vv || !typing) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
-        var keyboard = topWin.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260;
-        if (!keyboard) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
-        var frameTop = 0;
-        if (topWin !== window) { try { frameTop = window.frameElement.getBoundingClientRect().top; } catch (_) {} }
+        var typing = typingNow();
+        var bottom = typing ? keyboardBottom(window) : null;
+        if (typing && bottom == null && topWin !== window) bottom = keyboardBottom(topWin);
+        if (bottom == null) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
         bar.classList.add('kb');
         bar.style.bottom = 'auto';
-        bar.style.top = Math.round(vv.offsetTop + vv.height - frameTop - bar.offsetHeight - 10) + 'px';
+        bar.style.top = Math.round(Math.min(bottom, window.innerHeight) - bar.offsetHeight - 10) + 'px';
       });
+    }
+    function watchPlace() {
+      clearInterval(placeTimer);
+      placeTimer = setInterval(function () { if (!typingNow()) { clearInterval(placeTimer); placeBar(); return; } placeBar(); }, 300);
     }
     [window, topWin].forEach(function (w, i) {
       if ((i && w === window) || !w.visualViewport) return;
@@ -347,7 +360,7 @@
     });
     window.addEventListener('scroll', placeBar, { passive: true });
     if (topWin !== window) topWin.addEventListener('scroll', placeBar, { passive: true });
-    document.addEventListener('focusin', function () { setTimeout(placeBar, 50); setTimeout(placeBar, 400); });
+    document.addEventListener('focusin', function () { setTimeout(placeBar, 50); setTimeout(placeBar, 400); if (typingNow()) watchPlace(); });
     document.addEventListener('focusout', function () { setTimeout(placeBar, 50); });
     editor.addEventListener('input', function () { wideRange = null; queueSave(); queueDecorate(); });
     editor.addEventListener('click', onEditorClick);
