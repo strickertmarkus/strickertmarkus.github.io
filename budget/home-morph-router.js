@@ -9,6 +9,9 @@
   // Budget opens the finance page used last (finance-ui stores it); inside the view the page's own
   // header switches between the finance pages.
   const lastFinance=()=>{let p='';try{p=localStorage.getItem('finance-last-page-v1')||'';}catch(_){}return FINANCE.includes(p)?p:'budget.html';};
+  // The views load with this script's ?v, so a new deploy never shows a cached old page inside Home
+  // (bump the router's ?v in home.html when a view page changes).
+  const BUILD=(()=>{try{return new URL(document.currentScript.src).searchParams.get('v')||'';}catch(_){return '';}})();
   const sources={lists:'shopping.html',travel:'travel.html',get budget(){return lastFinance();}};
   const TITLES={lists:'Listor',travel:'Resor',budget:'Budget'};
   const frames=new Map();
@@ -59,7 +62,7 @@
         resolveLoad();
       },{once:true});
     });
-    frame.src=sources[area]+'?hubFrame=1';
+    frame.src=sources[area]+'?hubFrame=1'+(BUILD?'&b='+encodeURIComponent(BUILD):'');
     const resource={stage,frame,loaded};
     frames.set(area,resource);
     return resource;

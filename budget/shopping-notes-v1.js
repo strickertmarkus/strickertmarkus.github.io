@@ -307,7 +307,9 @@
     // Taps run on touchend (and cancel the click, so the editor keeps focus);
     // a sideways drag scrolls the row instead.
     var tx = 0, ty = 0;
-    bar.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+    // touchstart comes before iOS clears the selection for the tap, so the marked text is saved here.
+    bar.addEventListener('touchstart', function (e) { rememberSelection(); tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+    bar.addEventListener('pointerdown', rememberSelection);
     bar.addEventListener('touchend', function (e) {
       var btn = e.target.closest('button');
       if (!btn) return;
@@ -696,8 +698,10 @@
   // a row opened this way closes again when the editor loses focus.
   var autoOpened = false, userClosed = false;
   document.addEventListener('selectionchange', function () {
-    if (!root || document.activeElement !== editor) return;
+    if (!root) return;
+    // Remembered even when iOS does not report the editor as focused (long-press selection in Home's frame).
     rememberSelection();
+    if (document.activeElement !== editor) return;
     syncBar();
     var sel = window.getSelection();
     if (!sel || !sel.rangeCount || !editor.contains(sel.anchorNode)) return;
