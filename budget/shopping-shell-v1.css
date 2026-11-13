@@ -322,7 +322,26 @@ html .nt .nt-title{flex:1;min-width:0;border:0!important;background:transparent!
 /* Format button: floats bottom right (above the bottom bar or the keyboard) and opens a round two-row panel */
 .nt-bar{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 82px);z-index:3000;display:flex;align-items:center;gap:6px;max-width:calc(100vw - 28px)}
 html:not(.has-bottom-nav):not(.under-bottom-nav) .nt-bar{bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
-.nt-bar.kb{transition:top .12s ease-out}
+.nt-bar.kb{transition:opacity .15s ease}
+.nt-bar.kb-moving{opacity:0;pointer-events:none}
+.nt-bar.ld-open{opacity:0;pointer-events:none}
+/* Link dialog (shopping-notes-v1.js): a small card at the top of the visible area */
+.nt-linkdlg{position:fixed;inset:0;z-index:3100}
+.nt-linkdlg[hidden]{display:none}
+.nt-ld-dim{position:absolute;inset:0;background:rgba(4,6,9,.5)}
+.nt-ld-card{position:absolute;left:12px;right:12px;top:12px;max-width:460px;margin:0 auto;padding:16px 16px 12px;border-radius:20px;background:#161b22;border:1px solid rgba(253,186,116,.22);box-shadow:0 18px 44px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif}
+.nt-ld-f{display:block;margin-bottom:14px}
+.nt-ld-f>span:first-child{display:block;margin-bottom:6px;color:#8b95a3;font:700 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.nt-ld-row{display:flex;align-items:center;gap:10px}
+.nt-ld-card input{width:100%;min-width:0;border:0;border-bottom:1.5px dashed rgba(253,186,116,.45);border-radius:0;background:transparent;color:#f3f5f8;font:500 16px/1.3 Inter,system-ui,sans-serif;padding:4px 0 7px;outline:none}
+.nt-ld-card input:focus{border-bottom-color:#FDBA74}
+.nt-ld-paste{flex:0 0 auto;appearance:none;border:1px solid rgba(253,186,116,.4);background:rgba(253,186,116,.08);color:#FDBA74;font:600 12.5px/1 Inter,system-ui,sans-serif;padding:8px 12px;border-radius:999px;cursor:pointer}
+.nt-ld-actions{display:flex;align-items:center;gap:14px}
+.nt-ld-actions>span{flex:1}
+.nt-ld-actions button{appearance:none;border:0;background:transparent;font:600 14px/1 Inter,system-ui,sans-serif;padding:10px 4px;cursor:pointer;color:#a9b1bd}
+.nt-ld-actions .nt-ld-remove{color:#f19a9a}
+.nt-ld-actions .nt-ld-remove[hidden],.nt-ld-paste[hidden]{display:none}
+.nt-ld-actions .nt-ld-save{padding:10px 18px;border-radius:999px;background:#FDBA74;color:#1b1206}
 .nt-tools{border-radius:999px;background:rgba(22,27,34,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.07);overflow:hidden;-webkit-mask-image:-webkit-radial-gradient(white,black);
   max-width:calc(100vw - 28px - 54px);transform-origin:right center;transform:scaleX(.5);opacity:0;pointer-events:none;transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .18s}
 .nt-scroll{display:flex;align-items:center;gap:1px;padding:5px 10px 5px 5px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;
@@ -336,13 +355,6 @@ html:not(.has-bottom-nav):not(.under-bottom-nav) .nt-bar{bottom:calc(env(safe-ar
 .nt-bar .nt-colors{display:none}
 .nt-bar.pick .nt-scroll:not(.nt-colors){display:none}
 .nt-bar.pick .nt-colors{display:flex;gap:4px}
-.nt-bar .nt-linkrow{display:none}
-.nt-bar.linking .nt-scroll:not(.nt-linkrow){display:none}
-.nt-bar.linking .nt-linkrow{display:flex;gap:4px;width:min(calc(100vw - 92px),380px)}
-.nt-bar .nt-link-input{flex:1 1 auto;min-width:0;height:34px;padding:0 6px;border:0;border-bottom:1.5px dashed rgba(253,186,116,.45);border-radius:0;background:transparent;color:#f3f5f8;font:500 16px/1 Inter,system-ui,sans-serif;outline:none}
-.nt-bar .nt-link-input::placeholder{color:#6b7480}
-.nt-bar:not(.has-link) [data-cmd="unlink"]{display:none}
-.nt-bar .nt-tools [data-cmd="linkok"]{color:#FDBA74}
 .nt-dot{display:block;width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
 .nt-dot-reset{background:#e6e9ee;position:relative;overflow:hidden}
 .nt-dot-reset::after{content:"";position:absolute;left:50%;top:-2px;width:1.5px;height:26px;background:#141820;transform:rotate(45deg)}

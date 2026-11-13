@@ -279,10 +279,6 @@
           tool('colorback', 'Tillbaka', svg('back')) + '<span class="nt-sep"></span>' +
           tool('c:' + RESET_COLOR, 'Standardfärg', '<span class="nt-dot nt-dot-reset"></span>') +
           COLORS.map(function (c) { return tool('c:' + c[1], c[0], '<span class="nt-dot" style="background:' + c[1] + '"></span>'); }).join('') +
-        '</div><div class="nt-scroll nt-linkrow">' +
-          tool('linkback', 'Tillbaka', svg('back')) +
-          '<input class="nt-link-input" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Klistra in länk" aria-label="Länkadress">' +
-          tool('unlink', 'Ta bort länk', svg('unlink')) + tool('linkok', 'Lägg till länk', svg('check')) +
         '</div></div>' +
         '<button type="button" class="nt-fab" data-nt="tools" aria-label="Formatering" aria-expanded="false"><span>Aa</span></button>' +
       '</div>';
@@ -298,18 +294,13 @@
     root.addEventListener('click', onClick);
     sheet.addEventListener('click', onClick);
     var bar = root.querySelector('.nt-bar');
-    bar.addEventListener('mousedown', function (e) { if (!e.target.closest('input')) e.preventDefault(); });
-    bar.addEventListener('keydown', function (e) {
-      if (!e.target.closest('.nt-link-input')) return;
-      if (e.key === 'Enter') { e.preventDefault(); applyLink(bar, false); }
-      if (e.key === 'Escape') { e.preventDefault(); closeLink(bar); }
-    });
+    bar.addEventListener('mousedown', function (e) { e.preventDefault(); });
     // Taps run on touchend (and cancel the click, so the editor keeps focus);
     // a sideways drag scrolls the row instead.
     var tx = 0, ty = 0;
-    // touchstart comes before iOS clears the selection for the tap, so the marked text is saved here.
-    bar.addEventListener('touchstart', function (e) { rememberSelection(); tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
-    bar.addEventListener('pointerdown', rememberSelection);
+    // touchstart comes before iOS clears the marking for the tap, so where the text is marked is noted here.
+    bar.addEventListener('touchstart', function (e) { snapSelection(); tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+    bar.addEventListener('pointerdown', snapSelection);
     bar.addEventListener('touchend', function (e) {
       var btn = e.target.closest('button');
       if (!btn) return;
@@ -318,53 +309,59 @@
       e.preventDefault();
       if (btn.dataset.nt === 'tools') { toggleTools(); autoOpened = false; userClosed = !root.querySelector('.nt-bar').classList.contains('open'); } else run(btn.dataset.cmd);
     }, { passive: false });
-    // While typing, pin the format button just above the keyboard using the visual viewport
-    // (fixed elements on iOS otherwise stay at the bottom of the layout viewport, behind it).
-    // The keyboard is read from this page's own visual viewport, and inside Home (Listor is a
-    // full-screen iframe there) also from the top window's, mapped by the frame's top. iOS shrinks
-    // one or the other depending on version, so whichever shows the keyboard is used. While a
-    // note field has focus the position is also re-checked a few times a second.
-    var topWin = window;
-    try { if (window.frameElement && window.parent && window.parent.visualViewport) topWin = window.parent; } catch (_) { topWin = window; }
-    function keyboardBottom(w) {
+    // ── format row above the keyboard ──
+    // The visible area is read from the top-most window's visual viewport (inside Home, Listor is
+    // a full-screen iframe and only the top window knows about the keyboard), mapped into this
+    // page's coordinates through the frames' positions. While a note field has focus the row is
+    // placed every frame; while the page scrolls it fades out and comes back where it belongs
+    // once the scroll has settled, so it never rides along with the text.
+    function visibleBox() {
+      var w = window, shift = 0;
+      try {
+        while (w.frameElement && w.parent && w.parent !== w && w.parent.visualViewport) {
+          shift += w.frameElement.getBoundingClientRect().top;
+          w = w.parent;
+        }
+      } catch (_) {}
       var vv = w.visualViewport;
       if (!vv) return null;
-      var shown = w.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260;
-      if (!shown) return null;
-      var bottom = vv.offsetTop + vv.height;
-      if (w !== window) { try { bottom -= window.frameElement.getBoundingClientRect().top; } catch (_) {} }
-      return bottom;
+      return { win: w, top: vv.offsetTop - shift, bottom: vv.offsetTop + vv.height - shift,
+        keyboard: w.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260 };
     }
-    function typingNow() { return document.activeElement === editor || document.activeElement === titleInput || document.activeElement === linkInput(); }
-    var placeFrame = 0, watching = false, lastTop = '';
+    noteBox = visibleBox;
+    function typingNow() { return document.activeElement === editor || document.activeElement === titleInput; }
+    var lastTop = '', moving = false, moveTimer = 0, watching = false;
     function placeNow() {
-      var typing = typingNow();
-      var bottom = typing ? keyboardBottom(window) : null;
-      if (typing && bottom == null && topWin !== window) bottom = keyboardBottom(topWin);
-      if (bottom == null) {
+      var box = typingNow() ? visibleBox() : null;
+      if (!box || !box.keyboard) {
         if (lastTop) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); lastTop = ''; }
         return;
       }
-      var top = Math.round(Math.min(bottom, window.innerHeight) - bar.offsetHeight - 10) + 'px';
+      var top = Math.round(Math.min(box.bottom, window.innerHeight + 400) - bar.offsetHeight - 10) + 'px';
       if (top === lastTop) return;
       lastTop = top;
       bar.classList.add('kb');
       bar.style.bottom = 'auto';
       bar.style.top = top;
     }
-    function placeBar() { cancelAnimationFrame(placeFrame); placeFrame = requestAnimationFrame(placeNow); }
-    // While a note field has focus the bar follows every frame, so iOS scrolling the page for the
-    // keyboard (or the user scrolling) never leaves it behind; it stops when focus leaves.
     function watchPlace() {
       if (watching) return;
       watching = true;
       (function loop() {
-        placeNow();
+        if (!moving) placeNow();
         if (typingNow()) requestAnimationFrame(loop);
         else { watching = false; placeNow(); }
       })();
     }
-    // iOS scrolls the caret to just above the keyboard, which is where the bar sits; move it up.
+    function onMove(e) {
+      if (!bar.classList.contains('kb')) return;
+      if (e && e.target && e.target.closest && e.target.closest('.nt-bar')) return;
+      moving = true;
+      bar.classList.add('kb-moving');
+      clearTimeout(moveTimer);
+      moveTimer = setTimeout(function () { moving = false; placeNow(); bar.classList.remove('kb-moving'); }, 180);
+    }
+    // iOS scrolls the caret to just above the keyboard, which is where the row sits; move it up.
     keepCaretAboveBar = function () {
       if (!bar.classList.contains('kb') || document.activeElement !== editor) return;
       requestAnimationFrame(function () {
@@ -376,15 +373,15 @@
         if (rect.bottom > limit && rect.top > 80) window.scrollBy(0, rect.bottom - limit);
       });
     };
-    [window, topWin].forEach(function (w, i) {
-      if ((i && w === window) || !w.visualViewport) return;
-      w.visualViewport.addEventListener('resize', placeBar);
-      w.visualViewport.addEventListener('scroll', placeBar);
+    var topBox = visibleBox(), topWindow = topBox ? topBox.win : window;
+    [window, topWindow].forEach(function (w, i) {
+      if (i && w === window) return;
+      w.addEventListener('scroll', onMove, { passive: true });
+      w.document.addEventListener('touchmove', onMove, { passive: true });
+      if (w.visualViewport) { w.visualViewport.addEventListener('scroll', onMove); w.visualViewport.addEventListener('resize', placeNow); }
     });
-    window.addEventListener('scroll', placeBar, { passive: true });
-    if (topWin !== window) topWin.addEventListener('scroll', placeBar, { passive: true });
-    document.addEventListener('focusin', function () { setTimeout(placeBar, 50); setTimeout(placeBar, 400); setTimeout(keepCaretAboveBar, 450); if (typingNow()) watchPlace(); });
-    document.addEventListener('focusout', function () { setTimeout(placeBar, 50); });
+    document.addEventListener('focusin', function () { if (typingNow()) { watchPlace(); setTimeout(keepCaretAboveBar, 450); } });
+    document.addEventListener('focusout', function () { setTimeout(placeNow, 60); });
     editor.addEventListener('input', function () { queueSave(); queueDecorate(); keepCaretAboveBar(); });
     editor.addEventListener('click', onEditorClick);
     editor.addEventListener('keydown', onKey);
@@ -404,14 +401,14 @@
 
   // ── formatting ──────────────────────────────────────
   // ── links in the text ──
-  // The link tool keeps the selection, swaps the row to an address field, and on ✓ turns the
-  // selected text into a link (or inserts the address itself when nothing is selected).
-  // On iPhone the tap on the link button (and focusing the address field) can collapse the
-  // selection first, so the last real text selection in the editor is remembered and used, and
-  // the link is built on that saved range directly instead of on the restored selection.
-  // Saved as character offsets in the note's text (not as a DOM range): iOS predictive text
-  // replaces the word's text node when the tap commits it, which would empty a saved range.
-  var linkRange = null, linkTarget = null, wideSel = null, keepCaretAboveBar = function () {};
+  // The link tool opens its own small dialog at the top of the screen (text + address) instead of
+  // a field inside the floating row: on iPhone a focused field in a fixed row makes the page jump,
+  // and the tap clears the marking. Where to put the link is noted as character offsets in the
+  // note's text (iOS predictive text swaps text nodes on the tap) at the tap itself, and if the
+  // marking is already gone, the word just before the caret is offered. On "Spara" exactly those
+  // characters become the link; nothing depends on the selection at that moment.
+  var wideSel = null, snap = null, snapAt = 0, linkJob = null, linkDlg = null, noteBox = null,
+    keepCaretAboveBar = function () {};
   function textOffset(node, offset) {
     var r = document.createRange();
     r.setStart(editor, 0);
@@ -419,42 +416,107 @@
     return r.toString().length;
   }
   function rangeAt(start, end) {
-    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null), n, pos = 0, r = document.createRange(), started = false;
+    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null), n, pos = 0, r = document.createRange(), started = false, last = null;
     while ((n = walker.nextNode())) {
       var len = n.nodeValue.length;
+      last = n;
       if (!started && start <= pos + len) { r.setStart(n, start - pos); started = true; }
       if (started && end <= pos + len) { r.setEnd(n, end - pos); return r; }
       pos += len;
     }
+    if (!last) { r.selectNodeContents(editor); r.collapse(false); return start === 0 && end === 0 ? r : null; }
     return null;
   }
-  function rememberSelection() {
+  function currentOffsets() {
     var sel = window.getSelection();
-    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    if (!sel || !sel.rangeCount) return null;
     var r = sel.getRangeAt(0);
-    if (!editor.contains(r.commonAncestorContainer)) return;
+    if (!editor.contains(r.startContainer) || !editor.contains(r.endContainer)) return null;
     var start = textOffset(r.startContainer, r.startOffset), end = textOffset(r.endContainer, r.endOffset);
-    if (start < 0 || end <= start) return;
-    wideSel = { start: start, end: end, text: r.toString() };
+    return start < 0 || end < start ? null : { start: start, end: end, text: r.toString() };
   }
-  // The saved selection is used when the caret now sits at its start or end (where iOS leaves it
-  // after clearing the marking) and the text there is unchanged.
-  function savedSelectionRange() {
-    if (!wideSel) return null;
-    var sel = window.getSelection();
-    if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
-      var at = textOffset(sel.anchorNode, sel.anchorOffset);
-      if (at !== wideSel.start && at !== wideSel.end) return null;
+  function rememberSelection() {
+    var o = currentOffsets();
+    if (o && o.end > o.start) wideSel = o;
+  }
+  function snapSelection() { snap = currentOffsets(); snapAt = Date.now(); }
+  function fullText() { var r = document.createRange(); r.selectNodeContents(editor); return r.toString(); }
+  // Where the link goes: the marking at the tap, else the last marking if the caret sits at its
+  // start or end with the text unchanged, else the word right before the caret.
+  function linkTargetNow() {
+    var o = snap && Date.now() - snapAt < 2000 ? snap : currentOffsets();
+    snap = null;
+    if (!o) return null;
+    var text = fullText();
+    if (o.end === o.start && wideSel && (o.start === wideSel.start || o.start === wideSel.end) && text.slice(wideSel.start, wideSel.end) === wideSel.text) o = wideSel;
+    if (o.end === o.start) {
+      var before = text.slice(0, o.start), m = before.match(/[^\s ]+$/);
+      if (m && !/^https?:/i.test(m[0])) o = { start: o.start - m[0].length, end: o.start };
     }
-    var r = rangeAt(wideSel.start, wideSel.end);
-    return r && r.toString() === wideSel.text ? r : null;
+    var r = rangeAt(o.start, o.end), n = r ? r.startContainer : null;
+    var a = n ? (n.nodeType === 1 ? n : n.parentNode).closest('a[href]') : null;
+    if (a && !editor.contains(a)) a = null;
+    return { start: o.start, end: o.end, text: text.slice(o.start, o.end), anchor: a };
   }
-  function linkInput() { return root.querySelector('.nt-link-input'); }
+  function buildLinkDialog() {
+    linkDlg = document.createElement('div');
+    linkDlg.className = 'nt-linkdlg';
+    linkDlg.hidden = true;
+    linkDlg.innerHTML = '<div class="nt-ld-dim" data-ld="cancel"></div>' +
+      '<form class="nt-ld-card" role="dialog" aria-label="Länk" novalidate>' +
+        '<label class="nt-ld-f"><span>Text</span><input class="nt-ld-text" autocomplete="off" placeholder="Texten som visas"></label>' +
+        '<label class="nt-ld-f"><span>Länk</span><span class="nt-ld-row"><input class="nt-ld-url" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://"><button type="button" class="nt-ld-paste" data-ld="paste">Klistra in</button></span></label>' +
+        '<div class="nt-ld-actions"><button type="button" class="nt-ld-remove" data-ld="remove">Ta bort länk</button><span></span>' +
+          '<button type="button" class="nt-ld-cancel" data-ld="cancel">Avbryt</button><button type="submit" class="nt-ld-save">Spara</button></div>' +
+      '</form>';
+    document.body.appendChild(linkDlg);
+    linkDlg.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-ld]');
+      if (!b) return;
+      if (b.dataset.ld === 'cancel') closeLinkDialog();
+      else if (b.dataset.ld === 'remove') saveLink(true);
+      else if (b.dataset.ld === 'paste' && navigator.clipboard && navigator.clipboard.readText) {
+        navigator.clipboard.readText().then(function (t) { linkDlg.querySelector('.nt-ld-url').value = String(t || '').trim(); }).catch(function () {});
+      }
+    });
+    linkDlg.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); saveLink(false); });
+    linkDlg.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLinkDialog(); });
+  }
+  function placeLinkDialog() {
+    if (!linkDlg || linkDlg.hidden) return;
+    var box = noteBox && noteBox();
+    // Below the status bar (an iframe gets no safe-area inset, so at least 44 px), plus any pan from the keyboard.
+    linkDlg.querySelector('.nt-ld-card').style.top = 'calc(max(env(safe-area-inset-top, 0px), 44px) + ' + Math.round(Math.max(0, box ? box.top : 0) + 8) + 'px)';
+    requestAnimationFrame(placeLinkDialog);
+  }
+  function openLinkDialog() {
+    linkJob = linkTargetNow();
+    if (!linkJob) { var t = fullText(); linkJob = { start: t.length, end: t.length, text: '', anchor: null }; }
+    if (!linkDlg) buildLinkDialog();
+    var a = linkJob.anchor;
+    linkDlg.querySelector('.nt-ld-text').value = a ? a.textContent : linkJob.text;
+    linkDlg.querySelector('.nt-ld-url').value = a ? a.getAttribute('href') : '';
+    linkDlg.querySelector('.nt-ld-remove').hidden = !a;
+    linkDlg.querySelector('.nt-ld-paste').hidden = !(navigator.clipboard && navigator.clipboard.readText);
+    linkDlg.hidden = false;
+    root.querySelector('.nt-bar').classList.add('ld-open');
+    placeLinkDialog();
+    // Focus in the same tap, so iPhone keeps the keyboard up.
+    var url = linkDlg.querySelector('.nt-ld-url');
+    try { url.focus({ preventScroll: true }); } catch (_) { url.focus(); }
+  }
+  function closeLinkDialog() {
+    if (!linkDlg) return;
+    linkDlg.hidden = true;
+    linkJob = null;
+    root.querySelector('.nt-bar').classList.remove('ld-open');
+    if (document.activeElement && linkDlg.contains(document.activeElement)) document.activeElement.blur();
+  }
   function wrapRangeInLinks(range, url) {
     var nodes = [], walker = document.createTreeWalker(range.commonAncestorContainer.nodeType === 3 ? range.commonAncestorContainer.parentNode : range.commonAncestorContainer, NodeFilter.SHOW_TEXT, null), n;
     while ((n = walker.nextNode())) if (n.nodeValue && range.intersectsNode(n) && editor.contains(n)) nodes.push(n);
     var sc = range.startContainer, so = range.startOffset, ec = range.endContainer, eo = range.endOffset;
-    var last = null;
+    var done = false;
     nodes.forEach(function (node) {
       var start = node === sc ? so : 0, end = node === ec ? eo : node.nodeValue.length;
       if (end <= start) return;
@@ -462,67 +524,51 @@
       if (start > 0) node = node.splitText(start);
       if (!node.nodeValue.trim()) return;
       var old = node.parentNode.closest && node.parentNode.closest('a');
-      if (old && editor.contains(old)) { old.setAttribute('href', url); last = old; return; }
+      if (old && editor.contains(old)) { old.setAttribute('href', url); done = true; return; }
       var a = document.createElement('a');
       a.setAttribute('href', url);
       node.parentNode.insertBefore(a, node);
       a.appendChild(node);
-      last = a;
+      done = true;
     });
-    if (!last) return false;
-    var after = document.createRange(); after.setStartAfter(last); after.collapse(true);
-    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(after);
-    return true;
+    return done;
   }
-  function openLink(bar) {
-    var sel = window.getSelection();
-    var live = sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0).cloneRange() : null;
-    if (!live || live.collapsed) live = savedSelectionRange() || live;
-    // Kept as offsets until ✓, so text-node swaps in between cannot empty it.
-    linkRange = live ? { start: textOffset(live.startContainer, live.startOffset), end: textOffset(live.endContainer, live.endOffset) } : null;
-    var n = live ? live.startContainer : null;
-    linkTarget = n ? (n.nodeType === 1 ? n : n.parentNode).closest('a[href]') : null;
-    if (linkTarget && !editor.contains(linkTarget)) linkTarget = null;
-    bar.classList.add('linking');
-    bar.classList.toggle('has-link', !!linkTarget);
-    var input = linkInput();
-    input.value = linkTarget ? linkTarget.getAttribute('href') : '';
-    setTimeout(function () { input.focus(); input.select(); }, 30);
-  }
-  function closeLink(bar) {
-    bar.classList.remove('linking', 'has-link');
-    editor.focus();
-    var r = linkRange && linkRange.start >= 0 ? rangeAt(linkRange.start, linkRange.end) : null;
-    if (r) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); }
-  }
-  function applyLink(bar, remove) {
-    var raw = linkInput().value.trim();
+  function saveLink(remove) {
+    var job = linkJob;
+    if (!job) return closeLinkDialog();
+    var raw = linkDlg.querySelector('.nt-ld-url').value.trim();
+    var label = linkDlg.querySelector('.nt-ld-text').value;
     var url = raw && !/^[a-z][a-z0-9+.-]*:/i.test(raw) ? 'https://' + raw : raw;
-    var target = linkTarget;
-    closeLink(bar);
-    if (remove || !url) {
-      if (target) { while (target.firstChild) target.parentNode.insertBefore(target.firstChild, target); target.remove(); }
-    } else if (!/^https?:\/\//i.test(url)) {
-      return;
-    } else if (target) {
-      target.setAttribute('href', url);
-    } else if (linkRange && linkRange.start >= 0 && linkRange.end > linkRange.start && rangeAt(linkRange.start, linkRange.end)) {
-      // Wrap the saved range itself, text node by text node, so it works across lines and blocks
-      // and never depends on the selection iPhone has already moved.
-      if (!wrapRangeInLinks(rangeAt(linkRange.start, linkRange.end), url)) document.execCommand('createLink', false, url);
-      wideSel = null;
+    if (!remove && !/^https?:\/\/\S+/i.test(url)) { linkDlg.querySelector('.nt-ld-url').focus(); return; }
+    var a = job.anchor && editor.contains(job.anchor) ? job.anchor : null;
+    if (remove) {
+      if (a) { while (a.firstChild) a.parentNode.insertBefore(a.firstChild, a); a.remove(); }
+    } else if (a) {
+      a.setAttribute('href', url);
+      if (label.trim() && label !== a.textContent) a.textContent = label;
     } else {
-      document.execCommand('insertHTML', false, '<a href="' + url.replace(/"/g, '%22') + '">' + esc(raw) + '</a>&nbsp;');
+      var r = rangeAt(job.start, job.end);
+      if (r && job.end > job.start && (label === job.text || !label.trim()) && r.toString() === job.text) {
+        wrapRangeInLinks(r, url);
+      } else {
+        if (!r) { r = document.createRange(); r.selectNodeContents(editor); r.collapse(false); }
+        var link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.textContent = label.trim() ? label : raw;
+        r.deleteContents();
+        r.insertNode(link);
+        if (job.end === job.start) link.parentNode.insertBefore(document.createTextNode(' '), link.nextSibling);
+      }
     }
-    linkRange = null; linkTarget = null;
-    queueSave(); syncBar();
+    wideSel = null;
+    closeLinkDialog();
+    decorate();
+    queueSave();
   }
   function run(cmd) {
     var bar = root.querySelector('.nt-bar');
     if (cmd === 'color' || cmd === 'colorback') { bar.classList.toggle('pick', cmd === 'color'); return; }
-    if (cmd === 'link') { openLink(bar); return; }
-    if (cmd === 'linkback') { closeLink(bar); return; }
-    if (cmd === 'linkok' || cmd === 'unlink') { applyLink(bar, cmd === 'unlink'); return; }
+    if (cmd === 'link') { openLinkDialog(); return; }
     editor.focus();
     if (cmd.indexOf('c:') === 0) {
       var col = cmd.slice(2);
@@ -614,7 +660,7 @@
     var bar = root.querySelector('.nt-bar');
     var open = typeof force === 'boolean' ? force : !bar.classList.contains('open');
     bar.classList.toggle('open', open);
-    if (!open) bar.classList.remove('pick', 'linking', 'has-link');
+    if (!open) bar.classList.remove('pick');
     bar.querySelector('.nt-fab').setAttribute('aria-expanded', String(open));
   }
   function caretElement() {
@@ -786,12 +832,12 @@
   });
   document.addEventListener('focusout', function (e) {
     if (!root || e.target !== editor) return;
-    // Moving to the link field: leave the text as it is so the saved selection stays valid.
-    if (e.relatedTarget && e.relatedTarget === linkInput()) return;
+    // Moving to the link dialog: leave the text as it is so the noted characters stay valid.
+    if (linkDlg && !linkDlg.hidden) return;
     if (linkifyEditor()) queueSave();
     userClosed = false;
     if (!autoOpened) return;
-    setTimeout(function () { if (document.activeElement !== editor && document.activeElement !== linkInput()) { toggleTools(false); autoOpened = false; } }, 120);
+    setTimeout(function () { if (document.activeElement !== editor && !(linkDlg && !linkDlg.hidden)) { toggleTools(false); autoOpened = false; } }, 120);
   });
 
   // ── saving ──────────────────────────────────────────
@@ -905,7 +951,7 @@
     if (document.documentElement.dataset.listMode !== 'general') return;
     if (!root) build();
     ensureNote();
-    if (document.activeElement !== editor && document.activeElement !== titleInput && document.activeElement !== linkInput()) show(currentNote());
+    if (document.activeElement !== editor && document.activeElement !== titleInput && !(linkDlg && !linkDlg.hidden)) show(currentNote());
   }
 
   function init() {
@@ -913,7 +959,7 @@
     new MutationObserver(activate).observe(document.documentElement, { attributes: true, attributeFilter: ['data-list-mode'] });
     window.addEventListener('firebase-sync', function (e) {
       if (e.detail && e.detail.key === KEY && root && document.documentElement.dataset.listMode === 'general'
-        && document.activeElement !== editor && document.activeElement !== titleInput && document.activeElement !== linkInput()) show(currentNote());
+        && document.activeElement !== editor && document.activeElement !== titleInput && !(linkDlg && !linkDlg.hidden)) show(currentNote());
     });
     window.addEventListener('pagehide', save);
     document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
