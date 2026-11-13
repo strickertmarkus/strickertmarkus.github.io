@@ -394,6 +394,8 @@
     document.addEventListener('focusout', function () { setTimeout(placeNow, 60); });
     editor.addEventListener('input', function () { queueSave(); queueDecorate(); keepCaretAboveBar(); });
     editor.addEventListener('click', onEditorClick);
+    editor.addEventListener('touchstart', linkTouchStart, { passive: true });
+    editor.addEventListener('touchend', linkTouchEnd, { passive: false });
     editor.addEventListener('keydown', onKey);
     editor.addEventListener('paste', function (e) {
       var cd = e.clipboardData || window.clipboardData;
@@ -776,12 +778,35 @@
     });
     return nodes.length > 0;
   }
+  // A tap on a link opens it instead of placing the caret. On iPhone the tap is caught on
+  // touchend (a click in an editable text often only moves the caret there), and the page is
+  // opened from the top window so it also works inside Home's frame.
+  function openHref(href) {
+    var w = null;
+    try { w = (window.top || window).open(href, '_blank'); } catch (_) { w = null; }
+    if (!w) { try { w = window.open(href, '_blank'); } catch (_) { w = null; } }
+    if (w) { try { w.opener = null; } catch (_) {} } else location.href = href;
+  }
+  var linkTap = null;
+  function linkTouchStart(e) {
+    var t = e.touches && e.touches[0], a = e.target.closest && e.target.closest('a[href]');
+    linkTap = a && t && e.touches.length === 1 ? { a: a, x: t.clientX, y: t.clientY, at: Date.now() } : null;
+  }
+  function linkTouchEnd(e) {
+    var tap = linkTap; linkTap = null;
+    if (!tap) return;
+    var t = e.changedTouches && e.changedTouches[0];
+    if (!t || Math.abs(t.clientX - tap.x) > 8 || Math.abs(t.clientY - tap.y) > 8 || Date.now() - tap.at > 450) return;
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (a !== tap.a) return;
+    e.preventDefault();
+    openHref(a.href);
+  }
   function onEditorClick(e) {
-    // A tap on a link opens it in a new tab instead of placing the caret.
     var link = e.target.closest && e.target.closest('a[href]');
     if (link && window.getSelection().isCollapsed) {
       e.preventDefault();
-      window.open(link.href, '_blank', 'noopener');
+      openHref(link.href);
       return;
     }
     // Tap on the counter/chevron at the right of a heading folds its section.
