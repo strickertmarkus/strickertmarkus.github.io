@@ -336,23 +336,46 @@
       return bottom;
     }
     function typingNow() { return document.activeElement === editor || document.activeElement === titleInput || document.activeElement === linkInput(); }
-    var placeFrame = 0, placeTimer = 0;
-    function placeBar() {
-      cancelAnimationFrame(placeFrame);
-      placeFrame = requestAnimationFrame(function () {
-        var typing = typingNow();
-        var bottom = typing ? keyboardBottom(window) : null;
-        if (typing && bottom == null && topWin !== window) bottom = keyboardBottom(topWin);
-        if (bottom == null) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
-        bar.classList.add('kb');
-        bar.style.bottom = 'auto';
-        bar.style.top = Math.round(Math.min(bottom, window.innerHeight) - bar.offsetHeight - 10) + 'px';
-      });
+    var placeFrame = 0, watching = false, lastTop = '';
+    function placeNow() {
+      var typing = typingNow();
+      var bottom = typing ? keyboardBottom(window) : null;
+      if (typing && bottom == null && topWin !== window) bottom = keyboardBottom(topWin);
+      if (bottom == null) {
+        if (lastTop) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); lastTop = ''; }
+        return;
+      }
+      var top = Math.round(Math.min(bottom, window.innerHeight) - bar.offsetHeight - 10) + 'px';
+      if (top === lastTop) return;
+      lastTop = top;
+      bar.classList.add('kb');
+      bar.style.bottom = 'auto';
+      bar.style.top = top;
     }
+    function placeBar() { cancelAnimationFrame(placeFrame); placeFrame = requestAnimationFrame(placeNow); }
+    // While a note field has focus the bar follows every frame, so iOS scrolling the page for the
+    // keyboard (or the user scrolling) never leaves it behind; it stops when focus leaves.
     function watchPlace() {
-      clearInterval(placeTimer);
-      placeTimer = setInterval(function () { if (!typingNow()) { clearInterval(placeTimer); placeBar(); return; } placeBar(); }, 300);
+      if (watching) return;
+      watching = true;
+      (function loop() {
+        placeNow();
+        if (typingNow()) requestAnimationFrame(loop);
+        else { watching = false; placeNow(); }
+      })();
     }
+    // iOS scrolls the caret to just above the keyboard, which is where the bar sits; move it up.
+    keepCaretAboveBar = function () {
+      if (!bar.classList.contains('kb') || document.activeElement !== editor) return;
+      requestAnimationFrame(function () {
+        var sel = window.getSelection();
+        if (!sel || !sel.rangeCount) return;
+        var rects = sel.getRangeAt(0).getClientRects(), rect = rects.length ? rects[rects.length - 1] : null;
+        if (!rect || !rect.height) return;
+        var limit = bar.getBoundingClientRect().top - 12;
+        if (rect.bottom > limit && rect.top > 80) window.scrollBy(0, rect.bottom - limit);
+      });
+    };
     [window, topWin].forEach(function (w, i) {
       if ((i && w === window) || !w.visualViewport) return;
       w.visualViewport.addEventListener('resize', placeBar);
@@ -360,9 +383,9 @@
     });
     window.addEventListener('scroll', placeBar, { passive: true });
     if (topWin !== window) topWin.addEventListener('scroll', placeBar, { passive: true });
-    document.addEventListener('focusin', function () { setTimeout(placeBar, 50); setTimeout(placeBar, 400); if (typingNow()) watchPlace(); });
+    document.addEventListener('focusin', function () { setTimeout(placeBar, 50); setTimeout(placeBar, 400); setTimeout(keepCaretAboveBar, 450); if (typingNow()) watchPlace(); });
     document.addEventListener('focusout', function () { setTimeout(placeBar, 50); });
-    editor.addEventListener('input', function () { wideRange = null; queueSave(); queueDecorate(); });
+    editor.addEventListener('input', function () { queueSave(); queueDecorate(); keepCaretAboveBar(); });
     editor.addEventListener('click', onEditorClick);
     editor.addEventListener('keydown', onKey);
     editor.addEventListener('paste', function (e) {
@@ -386,11 +409,45 @@
   // On iPhone the tap on the link button (and focusing the address field) can collapse the
   // selection first, so the last real text selection in the editor is remembered and used, and
   // the link is built on that saved range directly instead of on the restored selection.
-  var linkRange = null, linkTarget = null, wideRange = null;
+  // Saved as character offsets in the note's text (not as a DOM range): iOS predictive text
+  // replaces the word's text node when the tap commits it, which would empty a saved range.
+  var linkRange = null, linkTarget = null, wideSel = null, keepCaretAboveBar = function () {};
+  function textOffset(node, offset) {
+    var r = document.createRange();
+    r.setStart(editor, 0);
+    try { r.setEnd(node, offset); } catch (_) { return -1; }
+    return r.toString().length;
+  }
+  function rangeAt(start, end) {
+    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null), n, pos = 0, r = document.createRange(), started = false;
+    while ((n = walker.nextNode())) {
+      var len = n.nodeValue.length;
+      if (!started && start <= pos + len) { r.setStart(n, start - pos); started = true; }
+      if (started && end <= pos + len) { r.setEnd(n, end - pos); return r; }
+      pos += len;
+    }
+    return null;
+  }
   function rememberSelection() {
     var sel = window.getSelection();
-    if (!sel || !sel.rangeCount || sel.isCollapsed || !editor.contains(sel.getRangeAt(0).commonAncestorContainer)) return;
-    wideRange = sel.getRangeAt(0).cloneRange();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    var r = sel.getRangeAt(0);
+    if (!editor.contains(r.commonAncestorContainer)) return;
+    var start = textOffset(r.startContainer, r.startOffset), end = textOffset(r.endContainer, r.endOffset);
+    if (start < 0 || end <= start) return;
+    wideSel = { start: start, end: end, text: r.toString() };
+  }
+  // The saved selection is used when the caret now sits at its start or end (where iOS leaves it
+  // after clearing the marking) and the text there is unchanged.
+  function savedSelectionRange() {
+    if (!wideSel) return null;
+    var sel = window.getSelection();
+    if (sel && sel.rangeCount && editor.contains(sel.anchorNode)) {
+      var at = textOffset(sel.anchorNode, sel.anchorOffset);
+      if (at !== wideSel.start && at !== wideSel.end) return null;
+    }
+    var r = rangeAt(wideSel.start, wideSel.end);
+    return r && r.toString() === wideSel.text ? r : null;
   }
   function linkInput() { return root.querySelector('.nt-link-input'); }
   function wrapRangeInLinks(range, url) {
@@ -419,9 +476,11 @@
   }
   function openLink(bar) {
     var sel = window.getSelection();
-    linkRange = sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0).cloneRange() : null;
-    if ((!linkRange || linkRange.collapsed) && wideRange && editor.contains(wideRange.commonAncestorContainer)) linkRange = wideRange.cloneRange();
-    var n = linkRange ? linkRange.startContainer : null;
+    var live = sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0).cloneRange() : null;
+    if (!live || live.collapsed) live = savedSelectionRange() || live;
+    // Kept as offsets until ✓, so text-node swaps in between cannot empty it.
+    linkRange = live ? { start: textOffset(live.startContainer, live.startOffset), end: textOffset(live.endContainer, live.endOffset) } : null;
+    var n = live ? live.startContainer : null;
     linkTarget = n ? (n.nodeType === 1 ? n : n.parentNode).closest('a[href]') : null;
     if (linkTarget && !editor.contains(linkTarget)) linkTarget = null;
     bar.classList.add('linking');
@@ -433,7 +492,8 @@
   function closeLink(bar) {
     bar.classList.remove('linking', 'has-link');
     editor.focus();
-    if (linkRange) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(linkRange); }
+    var r = linkRange && linkRange.start >= 0 ? rangeAt(linkRange.start, linkRange.end) : null;
+    if (r) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); }
   }
   function applyLink(bar, remove) {
     var raw = linkInput().value.trim();
@@ -446,11 +506,11 @@
       return;
     } else if (target) {
       target.setAttribute('href', url);
-    } else if (linkRange && !linkRange.collapsed && editor.contains(linkRange.commonAncestorContainer)) {
+    } else if (linkRange && linkRange.start >= 0 && linkRange.end > linkRange.start && rangeAt(linkRange.start, linkRange.end)) {
       // Wrap the saved range itself, text node by text node, so it works across lines and blocks
       // and never depends on the selection iPhone has already moved.
-      if (!wrapRangeInLinks(linkRange, url)) document.execCommand('createLink', false, url);
-      wideRange = null;
+      if (!wrapRangeInLinks(rangeAt(linkRange.start, linkRange.end), url)) document.execCommand('createLink', false, url);
+      wideSel = null;
     } else {
       document.execCommand('insertHTML', false, '<a href="' + url.replace(/"/g, '%22') + '">' + esc(raw) + '</a>&nbsp;');
     }
