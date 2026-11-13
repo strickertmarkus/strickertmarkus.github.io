@@ -78,7 +78,7 @@ html.dark-mode {
     --markus-color: #60A5FA;
 }
 
-body, .kpi-card, .section-card, .chart-card {
+body, .kpi-card, .chart-card {
     transition: background-color 0.35s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -93,7 +93,6 @@ body {
 html.dark-mode .header { background: linear-gradient(135deg, #0B0F1A 0%, #151C2C 100%); box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
 html.dark-mode .kpi-card { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
 html.dark-mode .kpi-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.45); }
-html.dark-mode .section-card { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
 html.dark-mode .chart-card { box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
 html.dark-mode .data-table th { background: rgba(255,255,255,0.05); }
 html.dark-mode .data-table td { border-color: var(--border); }
@@ -131,21 +130,6 @@ html.dark-mode .transfer-card { background: rgba(255,255,255,0.04); border-color
 .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-sec); margin-bottom: 4px; }
 .kpi-value { font-size: 22px; font-weight: 700; }
 .kpi-sub { font-size: 11px; color: var(--text-sec); margin-top: 2px; }
-
-/* ── SECTION CARD ─────────────────────────────── */
-.section-card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 20px; overflow: hidden; }
-.section-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; transition: background 0.2s; }
-.section-header:hover { background: rgba(0,0,0,0.02); }
-html.dark-mode .section-header:hover { background: rgba(255,255,255,0.03); }
-.section-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-.section-title { font-size: 16px; font-weight: 700; flex: 1; }
-.section-title-input { font-size: 16px; font-weight: 700; background: transparent; border: none; border-bottom: 2px solid var(--accent); color: var(--text); font-family: inherit; outline: none; width: 100%; }
-.section-subtitle { font-size: 12px; color: var(--text-sec); }
-.section-chevron { font-size: 14px; color: var(--text-sec); transition: transform 0.25s ease-in-out; }
-.section-chevron.open { transform: rotate(180deg); }
-.section-body { height:0; overflow: hidden;  }
-.section-body.open { height:auto; }
-.section-inner { padding: 0 20px 20px; }
 
 /* ── DATA TABLE ─────────────────────────────────── */
 .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; }
@@ -312,8 +296,6 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(251,146,60,0.11); 
     .checklist-grid { grid-template-columns: 1fr; }
     .transfer-grid-2 { grid-template-columns: 1fr; }
     .transfer-grid-4 { grid-template-columns: 1fr 1fr; }
-    .section-inner { padding: 0 12px 16px; }
-    .section-header { padding: 12px 14px; }
     .btn-icon { width: 36px; height: 36px; font-size: 16px; }
     .goals-grid { grid-template-columns: 1fr; }
 }
@@ -367,17 +349,28 @@ html.dark-mode{--fb-markus:#60A5FA;--fb-maja:#F472B6}
 .fb-items{padding-top:6px}
 .fb-it{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;color:#d5dbe3;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .fb-it span:last-child{color:#929ba9;font-variant-numeric:tabular-nums}
-/* ICA-kortet: the month's shared card, budget = the month's ICA transfer */
-.fb-ica-cap{margin:2px 0 0;font-size:12.5px;color:#929ba9}
+/* ICA-kortet and Huskonto use the budget pages' section card; these fill in what budget.html's own base styles give there */
+.fb-card{margin-top:22px!important}
+.fb-card .progress-bar{display:flex;overflow:hidden}
+.fb-card .progress-segment{height:100%;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.fb-card .section-title{display:flex;align-items:center;margin:0}
+.fb-card .section-more-wrap{grid-area:m;position:relative;display:flex;justify-content:flex-end}
+.fb-card .section-more-btn{appearance:none;border:0;background:transparent;cursor:pointer;width:34px;height:34px;border-radius:10px;color:var(--lt-sec,#929ba9);font:600 18px/1 Inter,sans-serif}
+.fb-card .section-more-menu{position:absolute;right:0;top:38px;z-index:30;display:flex;flex-direction:column;min-width:200px;padding:6px;border-radius:14px;background:#161b22;border:1px solid rgba(255,255,255,.08);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.fb-card .section-more-menu a{display:flex;align-items:center;min-height:42px;padding:0 12px;border-radius:9px;color:var(--lt-sec,#c8d0da);font:500 13px/1 Inter,sans-serif;text-decoration:none}
+.fb-card .editable-field{cursor:pointer}
+.fb-card .delete-btn{appearance:none;border:0;background:transparent;cursor:pointer;padding:0 4px;line-height:1}
+.fb-ica-name{appearance:none;border:0;background:transparent;color:inherit;font:inherit;padding:2px 0;cursor:pointer;display:flex;align-items:baseline;gap:8px;min-width:0;text-align:left}
+.fb-ica-name small{color:var(--lt-dim,#6e7785);font-size:11.5px;font-weight:400;white-space:nowrap}
+.fb-ica-name::after{content:"";flex:0 0 auto;width:5px;height:5px;border-right:1.5px solid #5b6472;border-bottom:1.5px solid #5b6472;transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.fb-ica-name[aria-expanded="true"]::after{transform:translateY(1px) rotate(-135deg)}
+.fb-hus-v{display:inline-block;color:var(--lt-text,#f0f6fc);font:500 15px/1 Inter,sans-serif;font-variant-numeric:tabular-nums;padding:8px 0 4px}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody tr.fb-ica-logrow{display:block!important;min-height:0!important;padding:0 0 6px!important}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody tr.fb-ica-logrow td{display:block!important}
+.fb-ica-cap{margin:-2px 0 6px;font-size:12px;color:#929ba9}
 .fb-ica-cap b{color:#E3C77A;font-weight:600}.fb-ica-cap b.over{color:#f87171}
-.fb-sect .pay-inbox{margin:12px 0 2px!important;padding:12px 0 2px!important;background:none!important}
-.fb-ica-cat{width:100%;appearance:none;border:0;border-bottom:1px solid rgba(255,255,255,.05);background:transparent;font:inherit;text-align:left;cursor:pointer;align-items:baseline}
-.fb-ica-cat .n{flex:1;min-width:0}.fb-ica-cat .n small{color:#6e7785;font-size:12px;margin-left:8px}
-.fb-ica-cat span:last-child{color:#f0f6fc!important;font-weight:600}
-.fb-ica-cat.is-zero span:last-child{color:#5b6472!important;font-weight:400}
-.fb-ica-cat::after{content:"";width:6px;height:6px;margin-left:4px;border-right:1.5px solid #5b6472;border-bottom:1.5px solid #5b6472;transform:translateY(-3px) rotate(45deg);transition:transform .2s;align-self:center}
-.fb-ica-cat[aria-expanded="true"]::after{transform:translateY(1px) rotate(-135deg)}
-.fb-ica-log{padding:2px 0 8px 12px;border-left:1px solid rgba(227,199,122,.25);margin:4px 0 6px 2px}
+.fb-card .pay-inbox{margin:6px 0 4px!important;padding:10px 0 2px!important;background:none!important}
+.fb-ica-log{padding:2px 0 4px 12px;border-left:1px solid rgba(227,199,122,.25);margin:0 0 4px 2px}
 .fb-ica-e{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:#c3cad4}
 .fb-ica-e .m{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fb-ica-e .d{color:#6e7785;font-size:11.5px;white-space:nowrap}
@@ -387,8 +380,10 @@ html.dark-mode{--fb-markus:#60A5FA;--fb-maja:#F472B6}
 .fb-who-tag{font-size:10px;font-weight:700;border-radius:999px;padding:1px 6px;color:var(--fb-markus);background:color-mix(in srgb,var(--fb-markus) 14%,transparent)}
 .fb-who-tag.maja{color:var(--fb-maja);background:color-mix(in srgb,var(--fb-maja) 14%,transparent)}
 .fb-who-tag.fixed{color:#929ba9;background:rgba(255,255,255,.06)}
-.fb-ica-tools{display:flex;gap:18px;flex-wrap:wrap;padding-top:4px}
-.fb-ica-fixedbtn{margin-left:auto;color:#929ba9!important}
+.fb-ica-tools{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.fb-ica-fixedbtn{margin-left:auto;color:var(--lt-sec,#929ba9)!important}
+.fb-ica-fixed{padding-bottom:8px}
+.fb-ica-fixed[hidden]{display:none}
 .fb-ica-form{margin:12px 0 4px;padding:14px 0 4px;border-top:1px dashed rgba(227,199,122,.3)}
 .fb-ica-form[hidden]{display:none}
 .fb-ica-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
@@ -483,40 +478,43 @@ html.dark-mode .modal{background:#161B22!important;border:1px solid rgba(255,255
         <div id="fb-transfer"></div>
     </section>
 
-    <section class="fb-sect" style="--sc:#E3C77A" aria-labelledby="fb-ica-h">
-        <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-ica-h">ICA-kortet</h2><span class="fb-sum" id="fb-ica-sum"></span></div>
-        <div class="fb-sbar"><i id="fb-ica-bar"></i></div>
+    <!-- Same card as the budget pages' sections (listor-theme-v1.css .section-card[data-section-key]) -->
+    <section class="section-card fb-card" data-section-key="ica" style="--sc:#E3C77A" aria-labelledby="fb-ica-h">
+        <div class="section-header" id="fb-ica-head"></div>
         <p class="fb-ica-cap" id="fb-ica-cap"></p>
-        <div id="fb-ica-inbox"></div>
-        <div class="fb-items" id="fb-ica"></div>
-        <form class="fb-ica-form" id="fb-ica-form" hidden>
-            <div class="fb-ica-row">
-                <label class="fb-ica-f"><span>Belopp</span><input id="fb-ica-amount" inputmode="decimal" autocomplete="off" placeholder="0"></label>
-                <label class="fb-ica-f"><span>Butik</span><input id="fb-ica-merchant" autocomplete="off" placeholder="ICA Maxi"></label>
+        <div class="section-body">
+            <div id="fb-ica-inbox"></div>
+            <div class="table-scroll-wrapper"><table class="items-table"><tbody id="fb-ica"></tbody></table></div>
+            <form class="fb-ica-form" id="fb-ica-form" hidden>
+                <div class="fb-ica-row">
+                    <label class="fb-ica-f"><span>Belopp</span><input id="fb-ica-amount" inputmode="decimal" autocomplete="off" placeholder="0"></label>
+                    <label class="fb-ica-f"><span>Butik</span><input id="fb-ica-merchant" autocomplete="off" placeholder="ICA Maxi"></label>
+                </div>
+                <div class="fb-ica-row">
+                    <label class="fb-ica-f fb-ica-sel"><span>Kategori</span><select id="fb-ica-cat"></select></label>
+                    <div class="fb-ica-f"><span>Vem</span><div class="fb-pills" id="fb-ica-who" role="radiogroup" aria-label="Vem handlade">
+                        <button type="button" role="radio" data-who="maja" aria-checked="true">Maja</button><button type="button" role="radio" data-who="markus" aria-checked="false">Markus</button></div></div>
+                </div>
+                <div class="fb-ica-actions"><button type="button" class="fb-link" data-ica="cancel">Avbryt</button><button type="submit" class="fb-ica-save">Lägg till</button></div>
+            </form>
+            <form class="fb-ica-form fb-ica-newcat" id="fb-ica-newcat" hidden>
+                <label class="fb-ica-f"><span>Ny kategori</span><input id="fb-ica-newcat-name" autocomplete="off" placeholder="Till exempel Apotek"></label>
+                <div class="fb-ica-actions"><button type="button" class="fb-link" data-ica="cancel">Avbryt</button><button type="submit" class="fb-ica-save">Lägg till</button></div>
+            </form>
+            <div class="add-row fb-ica-tools">
+                <button type="button" class="add-btn" data-ica="add">+ Lägg till köp</button>
+                <button type="button" class="add-btn" data-ica="newcat">+ Kategori</button>
+                <button type="button" class="add-btn fb-ica-fixedbtn" data-ica="fixed" aria-expanded="false"></button>
             </div>
-            <div class="fb-ica-row">
-                <label class="fb-ica-f fb-ica-sel"><span>Kategori</span><select id="fb-ica-cat"></select></label>
-                <div class="fb-ica-f"><span>Vem</span><div class="fb-pills" id="fb-ica-who" role="radiogroup" aria-label="Vem handlade">
-                    <button type="button" role="radio" data-who="maja" aria-checked="true">Maja</button><button type="button" role="radio" data-who="markus" aria-checked="false">Markus</button></div></div>
-            </div>
-            <div class="fb-ica-actions"><button type="button" class="fb-link" data-ica="cancel">Avbryt</button><button type="submit" class="fb-ica-save">Lägg till</button></div>
-        </form>
-        <form class="fb-ica-form fb-ica-newcat" id="fb-ica-newcat" hidden>
-            <label class="fb-ica-f"><span>Ny kategori</span><input id="fb-ica-newcat-name" autocomplete="off" placeholder="Till exempel Apotek"></label>
-            <div class="fb-ica-actions"><button type="button" class="fb-link" data-ica="cancel">Avbryt</button><button type="submit" class="fb-ica-save">Lägg till</button></div>
-        </form>
-        <div class="fb-ica-tools">
-            <button type="button" class="fb-link" data-ica="add">+ Lägg till köp</button>
-            <button type="button" class="fb-link" data-ica="newcat">+ Kategori</button>
-            <button type="button" class="fb-link fb-ica-fixedbtn" data-ica="fixed" aria-expanded="false"></button>
+            <div class="fb-ica-fixed" id="fb-ica-fixed" hidden></div>
         </div>
-        <div class="fb-items" id="fb-ica-fixed" hidden></div>
     </section>
 
-    <section class="fb-sect" style="--sc:#8EA6F7" aria-labelledby="fb-hus-h">
-        <div class="fb-sh"><span class="fb-dot"></span><h2 id="fb-hus-h">Huskonto</h2><span class="fb-sum" id="fb-hus-sum"></span></div>
-        <div class="fb-sbar"><i id="fb-hus-bar"></i></div>
-        <div class="fb-items" id="fb-hus"></div>
+    <section class="section-card fb-card" data-section-key="huskonto" style="--sc:#8EA6F7" aria-labelledby="fb-hus-h">
+        <div class="section-header" id="fb-hus-head"></div>
+        <div class="section-body">
+            <div class="table-scroll-wrapper"><table class="items-table"><tbody id="fb-hus"></tbody></table></div>
+        </div>
     </section>
 
     <section class="fb-sect" style="--sc:#F2948B" aria-labelledby="fb-house-h">
@@ -602,7 +600,7 @@ const DEFAULT_TRANSFERS = [
 let loanParams, expenses, huskonto, transfers, savingsGoals;
 let monthKey = "";
 let editingGoalIdx = -1;
-const expanded = { ica: false, hus: false, plan: false };
+const expanded = { plan: false };
 // Shared ICA-card month (synced key): categories + sorted purchases per month.
 const ICA_KEY = "ica_card_v1";
 const ICA_CATS = ["Mat", "Hushåll", "Barn", "Fasta kostnader", "Övrigt"];
@@ -698,21 +696,30 @@ function renderTransfer() {
 }
 
 
-function renderList(id, list, open, keyName) {
-    const sorted = list.slice().sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
-    const shown = open ? sorted : sorted.slice(0, 3);
-    let html = shown.map(e => `<div class="fb-it"><span>${esc(e.name)}</span><span>${fmt(e.amount)}</span></div>`).join("");
-    if (sorted.length > 3) html += `<button type="button" class="fb-link" onclick="toggleList('${keyName}')" aria-expanded="${open}">${open ? "Visa färre" : "Visa alla " + sorted.length}</button>`;
-    if (!sorted.length) html = `<p class="fb-muted">Inga poster.</p>`;
-    document.getElementById(id).innerHTML = html;
+// Card header like the budget pages: title with dot, total and "av …", bar, "⋯" menu.
+function cardHead(title, id, actual, sub, barPct, menu) {
+    return `<h2 class="section-title" id="${id}">${esc(title)}</h2>
+        <div class="progress-info"><span class="ps-actual">${actual}</span><span class="ps-budget">${sub}</span></div>
+        <div class="section-more-wrap"><button type="button" class="section-more-btn" data-menu aria-label="Fler val för ${esc(title)}" aria-haspopup="true" aria-expanded="false">⋯</button><div class="section-more-menu" hidden>${menu}</div></div>
+        ${barPct == null ? "" : `<div class="progress-bar">${barPct > 0 ? `<div class="progress-segment" style="width:${Math.min(100, barPct)}%"></div>` : ""}</div>`}`;
 }
-function toggleList(k) { expanded[k] = !expanded[k]; renderSections(); }
+// Huskonto: fixed amounts, edited in Data & Formler.
 function renderSections() {
     const hus = sum(huskonto);
-    document.getElementById("fb-hus-sum").innerHTML = `${fmt(hus)}<em>${huskonto.length} poster</em>`;
-    document.getElementById("fb-hus-bar").style.width = "100%";
-    renderList("fb-hus", huskonto, expanded.hus, "hus");
+    document.getElementById("fb-hus-head").innerHTML = cardHead("Huskonto", "fb-hus-h", fmt(hus) + " kr", huskonto.length + " poster · fasta", null,
+        `<a href="data.html">Ändra i Data &amp; Formler</a>`);
+    document.getElementById("fb-hus").innerHTML = huskonto.slice().sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0)).map(e =>
+        `<tr><td>${esc(e.name)}</td><td><span>${fmt(e.amount)}</span></td><td><span class="fb-hus-v">${fmt(e.amount)}</span></td><td><span class="item-pct ok">Fast</span></td></tr>`).join("")
+        || `<tr><td>Inga poster</td><td></td><td></td><td></td></tr>`;
 }
+function closeCardMenus(except) {
+    document.querySelectorAll(".fb-card .section-more-menu").forEach(m => { if (m !== except) { m.hidden = true; m.previousElementSibling.setAttribute("aria-expanded", "false"); } });
+}
+document.addEventListener("click", e => {
+    const btn = e.target.closest(".fb-card [data-menu]");
+    if (btn) { const m = btn.nextElementSibling; closeCardMenus(m); m.hidden = !m.hidden; btn.setAttribute("aria-expanded", String(!m.hidden)); return; }
+    if (!e.target.closest(".fb-card .section-more-menu")) closeCardMenus();
+});
 
 // ── ICA-kortet: purchases sorted into categories, budget = the month's ICA transfer ──
 function icaRead() {
@@ -753,26 +760,36 @@ function renderIca() {
     const spent = log.reduce((s, e) => s + (Number(e.amount) || 0), 0);
     const left = budget != null ? budget - spent : null;
     const name = MONTHS[Number(monthKey.slice(5)) - 1].toLowerCase();
-    document.getElementById("fb-ica-sum").innerHTML = `${fmt(spent)}<em>${budget != null ? "av " + fmt(budget) : "ingen budget"}</em>`;
-    const bar = document.getElementById("fb-ica-bar");
-    bar.style.width = budget ? Math.min(100, spent / budget * 100) + "%" : "0%";
-    bar.style.background = left != null && left < 0 ? "#f87171" : "";
+    const over = left != null && left < 0;
+    document.getElementById("fb-ica-head").innerHTML = cardHead("ICA-kortet", "fb-ica-h", fmt(spent) + " kr",
+        budget != null ? `av ${fmt(budget)} · <b class="${over ? "is-over" : ""}">${budget ? Math.round(spent / budget * 100) : 0}%${over ? " !" : ""}</b>` : "ingen budget",
+        budget ? spent / budget * 100 : 0,
+        `<button type="button" data-ica="add">Lägg till köp</button><button type="button" data-ica="newcat">Ny kategori</button>`);
     document.getElementById("fb-ica-cap").innerHTML = budget == null
         ? `Ingen ICA-överföring sparad för ${esc(name)}.`
         : left >= 0 ? `<b>${fmt(left)} kr kvar</b> på kortet i ${esc(name)}` : `<b class="over">${fmt(-left)} kr över</b> i ${esc(name)}`;
     // Categories that only exist in this month's log (deleted later) still show.
     const cats = d.cats.concat(log.map(e => e.cat).filter((c, i, a) => c && !d.cats.includes(c) && a.indexOf(c) === i));
+    const budgets = d.budgets || {};
     document.getElementById("fb-ica").innerHTML = cats.map(cat => {
         const items = log.filter(e => e.cat === cat).sort((a, b) => b.time - a.time);
         const total = items.reduce((s, e) => s + (Number(e.amount) || 0), 0);
         const open = !!icaOpen[cat];
+        const bud = Number(budgets[cat]) || 0;
+        const p = bud ? Math.round(total / bud * 100) : null;
+        const cls = p == null ? "ok" : p === 100 ? "saving-positive" : p > 100 ? "over" : p > 80 ? "warn" : "ok";
         const rows = items.map(e => {
             const t = new Date(e.time);
             const who = e.fixed ? `<span class="fb-who-tag fixed">Fast</span>` : e.who === "maja" ? `<span class="fb-who-tag maja">Maja</span>` : e.who === "markus" ? `<span class="fb-who-tag">Markus</span>` : "";
             return `<div class="fb-ica-e"><span class="m">${esc(e.merchant || "Köp")}</span>${who}<span class="d">${t.getDate()} ${icaShort[t.getMonth()]}</span><span class="a">${fmt(e.amount)}</span><button type="button" class="x" data-ica="del" data-id="${esc(e.id)}" aria-label="Ta bort ${esc(e.merchant || "köpet")}">×</button></div>`;
         }).join("");
-        const body = open ? `<div class="fb-ica-log">${rows || `<p class="fb-muted">Inga köp i ${esc(name)}.</p>`}${!items.length && d.cats.includes(cat) ? `<button type="button" class="fb-link" data-ica="delcat" data-cat="${esc(cat)}">Ta bort kategorin</button>` : ""}</div>` : "";
-        return `<button type="button" class="fb-it fb-ica-cat${total ? "" : " is-zero"}" data-ica="cat" data-cat="${esc(cat)}" aria-expanded="${open}"><span class="n">${esc(cat)}${items.length ? `<small>${items.length} köp</small>` : ""}</span><span>${fmt(total)}</span></button>${body}`;
+        const log2 = open ? `<tr class="fb-ica-logrow"><td colspan="4"><div class="fb-ica-log">${rows || `<p class="fb-muted">Inga köp i ${esc(name)}.</p>`}</div></td></tr>` : "";
+        return `<tr data-cat="${esc(cat)}">
+            <td><button type="button" class="fb-ica-name" data-ica="cat" data-cat="${esc(cat)}" aria-expanded="${open}">${esc(cat)}${items.length ? `<small>${items.length} köp</small>` : ""}</button><button type="button" class="delete-btn" data-ica="delcat" data-cat="${esc(cat)}" aria-label="Ta bort ${esc(cat)}">×</button></td>
+            <td><span class="editable-field" data-ica="budget" data-cat="${esc(cat)}" role="button" tabindex="0">${bud ? fmt(bud) : "0"}</span></td>
+            <td><input type="number" inputmode="numeric" class="item-input${total ? " has-value" : ""}" data-ica-total="${esc(cat)}" value="${total || ""}" placeholder="0" aria-label="Utgifter ${esc(cat)}"></td>
+            <td><span class="item-pct ${cls}">${p == null ? "–" : p + "%"}</span></td>
+        </tr>${log2}`;
     }).join("");
     const fixedBtn = document.querySelector('[data-ica="fixed"]');
     const fixedList = document.getElementById("fb-ica-fixed");
@@ -794,10 +811,48 @@ document.querySelector('[aria-labelledby="fb-ica-h"]').addEventListener("click",
     const act = b.dataset.ica;
     if (act === "cat") { icaOpen[b.dataset.cat] = !icaOpen[b.dataset.cat]; renderIca(); }
     else if (act === "del") { const d = icaRead(); d.months[monthKey] = (d.months[monthKey] || []).filter(x => x.id !== b.dataset.id); icaWrite(d); }
-    else if (act === "delcat") { const d = icaRead(); d.cats = d.cats.filter(c => c !== b.dataset.cat); delete icaOpen[b.dataset.cat]; icaWrite(d); }
-    else if (act === "add" || act === "newcat") icaForms(act);
+    else if (act === "delcat") {
+        const cat = b.dataset.cat, d = icaRead();
+        const used = (d.months[monthKey] || []).some(x => x.cat === cat);
+        if (used && !confirm(`Ta bort kategorin "${cat}"? Månadens köp i den finns kvar.`)) return;
+        d.cats = d.cats.filter(c => c !== cat); delete icaOpen[cat]; if (d.budgets) delete d.budgets[cat]; icaWrite(d);
+    }
+    else if (act === "budget") icaEditBudget(b);
+    else if (act === "add" || act === "newcat") { closeCardMenus(); icaForms(act); }
     else if (act === "cancel") icaForms(null);
     else if (act === "fixed") { const l = document.getElementById("fb-ica-fixed"); l.hidden = !l.hidden; renderIca(); }
+});
+// Budget per category: tap the "Budget …" value, like the budget pages.
+function icaEditBudget(span) {
+    const cat = span.dataset.cat, d = icaRead();
+    const input = document.createElement("input");
+    input.type = "number"; input.inputMode = "numeric"; input.className = "editable-input";
+    input.value = Number((d.budgets || {})[cat]) || "";
+    span.replaceWith(input); input.focus(); input.select();
+    let done = false;
+    const finish = save => {
+        if (done) return; done = true;
+        if (save) { const dd = icaRead(); dd.budgets = dd.budgets || {}; const v = Math.max(0, Math.round(parseFloat(input.value) || 0)); if (v) dd.budgets[cat] = v; else delete dd.budgets[cat]; icaWrite(dd); }
+        else renderIca();
+    };
+    input.addEventListener("blur", () => finish(true));
+    input.addEventListener("keydown", e => { if (e.key === "Enter") input.blur(); if (e.key === "Escape") finish(false); });
+}
+// Typing a new total for a category adds the difference as an adjustment, so the purchases stay as they are.
+document.getElementById("fb-ica").addEventListener("change", e => {
+    const input = e.target.closest("input[data-ica-total]");
+    if (!input) return;
+    const cat = input.dataset.icaTotal;
+    const total = (icaRead().months[monthKey] || []).filter(x => x.cat === cat).reduce((s, x) => s + (Number(x.amount) || 0), 0);
+    const diff = Math.round(parseFloat(input.value) || 0) - total;
+    if (!diff) return;
+    const [y, m] = monthKey.split("-").map(Number), now = new Date();
+    const time = now.getFullYear() === y && now.getMonth() + 1 === m ? now.getTime() : new Date(y, m - 1, 1, 12).getTime();
+    FamilyIca.add({ month: monthKey, cat, amount: diff, merchant: "Justering", who: "", time });
+});
+document.getElementById("fb-ica").addEventListener("keydown", e => {
+    if (e.key === "Enter" && e.target.matches("input[data-ica-total]")) e.target.blur();
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches('[data-ica="budget"]')) { e.preventDefault(); icaEditBudget(e.target); }
 });
 document.getElementById("fb-ica-who").addEventListener("click", e => {
     const b = e.target.closest("button[data-who]");
