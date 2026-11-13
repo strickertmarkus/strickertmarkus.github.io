@@ -360,11 +360,20 @@
   // ── links in the text ──
   // The link tool keeps the selection, swaps the row to an address field, and on ✓ turns the
   // selected text into a link (or inserts the address itself when nothing is selected).
-  var linkRange = null, linkTarget = null;
+  // On iPhone the tap on the link button (and focusing the address field) can collapse the
+  // selection first, so the last real text selection in the editor is remembered and used, and
+  // the link is built on that saved range directly instead of on the restored selection.
+  var linkRange = null, linkTarget = null, wideRange = null, wideAt = 0;
+  function rememberSelection() {
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed || !editor.contains(sel.getRangeAt(0).commonAncestorContainer)) return;
+    wideRange = sel.getRangeAt(0).cloneRange(); wideAt = Date.now();
+  }
   function linkInput() { return root.querySelector('.nt-link-input'); }
   function openLink(bar) {
     var sel = window.getSelection();
     linkRange = sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0).cloneRange() : null;
+    if ((!linkRange || linkRange.collapsed) && wideRange && Date.now() - wideAt < 4000 && editor.contains(wideRange.commonAncestorContainer)) linkRange = wideRange.cloneRange();
     var n = linkRange ? linkRange.startContainer : null;
     linkTarget = n ? (n.nodeType === 1 ? n : n.parentNode).closest('a[href]') : null;
     if (linkTarget && !editor.contains(linkTarget)) linkTarget = null;
@@ -390,8 +399,26 @@
       return;
     } else if (target) {
       target.setAttribute('href', url);
-    } else if (linkRange && !linkRange.collapsed) {
-      document.execCommand('createLink', false, url);
+    } else if (linkRange && !linkRange.collapsed && editor.contains(linkRange.commonAncestorContainer)) {
+      // Wrap the saved range itself (several blocks: each text piece gets its own link).
+      var a = document.createElement('a');
+      a.setAttribute('href', url);
+      try {
+        a.appendChild(linkRange.extractContents());
+        a.querySelectorAll('a').forEach(function (inner) { while (inner.firstChild) inner.parentNode.insertBefore(inner.firstChild, inner); inner.remove(); });
+        if (a.querySelector('p,div,h1,h2,li,ul')) {
+          // Block content: put it back and fall back to the browser's own command on the restored selection.
+          linkRange.insertNode(a);
+          while (a.firstChild) a.parentNode.insertBefore(a.firstChild, a);
+          a.remove();
+          document.execCommand('createLink', false, url);
+        } else {
+          linkRange.insertNode(a);
+          var after = document.createRange(); after.setStartAfter(a); after.collapse(true);
+          var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(after);
+        }
+      } catch (_) { document.execCommand('createLink', false, url); }
+      wideRange = null;
     } else {
       document.execCommand('insertHTML', false, '<a href="' + url.replace(/"/g, '%22') + '">' + esc(raw) + '</a>&nbsp;');
     }
@@ -653,6 +680,7 @@
   var autoOpened = false, userClosed = false;
   document.addEventListener('selectionchange', function () {
     if (!root || document.activeElement !== editor) return;
+    rememberSelection();
     syncBar();
     var sel = window.getSelection();
     if (!sel || !sel.rangeCount || !editor.contains(sel.anchorNode)) return;
@@ -664,6 +692,8 @@
   });
   document.addEventListener('focusout', function (e) {
     if (!root || e.target !== editor) return;
+    // Moving to the link field: leave the text as it is so the saved selection stays valid.
+    if (e.relatedTarget && e.relatedTarget === linkInput()) return;
     if (linkifyEditor()) queueSave();
     userClosed = false;
     if (!autoOpened) return;
