@@ -347,7 +347,7 @@
     if (topWin !== window) topWin.addEventListener('scroll', placeBar, { passive: true });
     document.addEventListener('focusin', function () { setTimeout(placeBar, 50); setTimeout(placeBar, 400); });
     document.addEventListener('focusout', function () { setTimeout(placeBar, 50); });
-    editor.addEventListener('input', function () { queueSave(); queueDecorate(); });
+    editor.addEventListener('input', function () { wideRange = null; queueSave(); queueDecorate(); });
     editor.addEventListener('click', onEditorClick);
     editor.addEventListener('keydown', onKey);
     editor.addEventListener('paste', function (e) {
@@ -371,17 +371,41 @@
   // On iPhone the tap on the link button (and focusing the address field) can collapse the
   // selection first, so the last real text selection in the editor is remembered and used, and
   // the link is built on that saved range directly instead of on the restored selection.
-  var linkRange = null, linkTarget = null, wideRange = null, wideAt = 0;
+  var linkRange = null, linkTarget = null, wideRange = null;
   function rememberSelection() {
     var sel = window.getSelection();
     if (!sel || !sel.rangeCount || sel.isCollapsed || !editor.contains(sel.getRangeAt(0).commonAncestorContainer)) return;
-    wideRange = sel.getRangeAt(0).cloneRange(); wideAt = Date.now();
+    wideRange = sel.getRangeAt(0).cloneRange();
   }
   function linkInput() { return root.querySelector('.nt-link-input'); }
+  function wrapRangeInLinks(range, url) {
+    var nodes = [], walker = document.createTreeWalker(range.commonAncestorContainer.nodeType === 3 ? range.commonAncestorContainer.parentNode : range.commonAncestorContainer, NodeFilter.SHOW_TEXT, null), n;
+    while ((n = walker.nextNode())) if (n.nodeValue && range.intersectsNode(n) && editor.contains(n)) nodes.push(n);
+    var sc = range.startContainer, so = range.startOffset, ec = range.endContainer, eo = range.endOffset;
+    var last = null;
+    nodes.forEach(function (node) {
+      var start = node === sc ? so : 0, end = node === ec ? eo : node.nodeValue.length;
+      if (end <= start) return;
+      if (end < node.nodeValue.length) node.splitText(end);
+      if (start > 0) node = node.splitText(start);
+      if (!node.nodeValue.trim()) return;
+      var old = node.parentNode.closest && node.parentNode.closest('a');
+      if (old && editor.contains(old)) { old.setAttribute('href', url); last = old; return; }
+      var a = document.createElement('a');
+      a.setAttribute('href', url);
+      node.parentNode.insertBefore(a, node);
+      a.appendChild(node);
+      last = a;
+    });
+    if (!last) return false;
+    var after = document.createRange(); after.setStartAfter(last); after.collapse(true);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(after);
+    return true;
+  }
   function openLink(bar) {
     var sel = window.getSelection();
     linkRange = sel && sel.rangeCount && editor.contains(sel.getRangeAt(0).startContainer) ? sel.getRangeAt(0).cloneRange() : null;
-    if ((!linkRange || linkRange.collapsed) && wideRange && Date.now() - wideAt < 4000 && editor.contains(wideRange.commonAncestorContainer)) linkRange = wideRange.cloneRange();
+    if ((!linkRange || linkRange.collapsed) && wideRange && editor.contains(wideRange.commonAncestorContainer)) linkRange = wideRange.cloneRange();
     var n = linkRange ? linkRange.startContainer : null;
     linkTarget = n ? (n.nodeType === 1 ? n : n.parentNode).closest('a[href]') : null;
     if (linkTarget && !editor.contains(linkTarget)) linkTarget = null;
@@ -408,24 +432,9 @@
     } else if (target) {
       target.setAttribute('href', url);
     } else if (linkRange && !linkRange.collapsed && editor.contains(linkRange.commonAncestorContainer)) {
-      // Wrap the saved range itself (several blocks: each text piece gets its own link).
-      var a = document.createElement('a');
-      a.setAttribute('href', url);
-      try {
-        a.appendChild(linkRange.extractContents());
-        a.querySelectorAll('a').forEach(function (inner) { while (inner.firstChild) inner.parentNode.insertBefore(inner.firstChild, inner); inner.remove(); });
-        if (a.querySelector('p,div,h1,h2,li,ul')) {
-          // Block content: put it back and fall back to the browser's own command on the restored selection.
-          linkRange.insertNode(a);
-          while (a.firstChild) a.parentNode.insertBefore(a.firstChild, a);
-          a.remove();
-          document.execCommand('createLink', false, url);
-        } else {
-          linkRange.insertNode(a);
-          var after = document.createRange(); after.setStartAfter(a); after.collapse(true);
-          var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(after);
-        }
-      } catch (_) { document.execCommand('createLink', false, url); }
+      // Wrap the saved range itself, text node by text node, so it works across lines and blocks
+      // and never depends on the selection iPhone has already moved.
+      if (!wrapRangeInLinks(linkRange, url)) document.execCommand('createLink', false, url);
       wideRange = null;
     } else {
       document.execCommand('insertHTML', false, '<a href="' + url.replace(/"/g, '%22') + '">' + esc(raw) + '</a>&nbsp;');
@@ -819,7 +828,7 @@
     if (document.documentElement.dataset.listMode !== 'general') return;
     if (!root) build();
     ensureNote();
-    if (document.activeElement !== editor && document.activeElement !== titleInput) show(currentNote());
+    if (document.activeElement !== editor && document.activeElement !== titleInput && document.activeElement !== linkInput()) show(currentNote());
   }
 
   function init() {
@@ -827,7 +836,7 @@
     new MutationObserver(activate).observe(document.documentElement, { attributes: true, attributeFilter: ['data-list-mode'] });
     window.addEventListener('firebase-sync', function (e) {
       if (e.detail && e.detail.key === KEY && root && document.documentElement.dataset.listMode === 'general'
-        && document.activeElement !== editor && document.activeElement !== titleInput) show(currentNote());
+        && document.activeElement !== editor && document.activeElement !== titleInput && document.activeElement !== linkInput()) show(currentNote());
     });
     window.addEventListener('pagehide', save);
     document.addEventListener('visibilitychange', function () { if (document.hidden) save(); });
