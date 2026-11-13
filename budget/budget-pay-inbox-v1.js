@@ -1,4 +1,4 @@
-/* Apple Pay inbox for the budget pages (budget.html / budget_maja.html).
+/* Apple Pay inbox for the budget pages (budget.html / budget_maja.html) and Familjebudget.
  *
  * An iOS Shortcuts automation ("When I tap any of my cards") POSTs each Wallet payment to
  * Realtime Database: pay_inbox/<secret token>/<push id> = { amount, merchant, card, who }.
@@ -9,20 +9,28 @@
  * `pay_merchant_rules` ({ markus: { "ica maxi": { section, item } }, maja: {...} }), synced by
  * firebase-sync.js, so the next purchase there is pre-selected.
  *
- * Fixed monthly costs paid from the shared ICA card (Familjebudget's "ICA-kort" list in
- * familjebudget_data.expenses) are offered here too on Markus' page, once per month, marked
- * "Fast · ICA-kortet", so they can be sorted like a purchase. Handled ones are remembered in
- * `pay_recurring_done` ({ markus: { "2026-11|Internet": 1 } }), synced by firebase-sync.js.
+ * Two modes:
+ * - budget (budget.html / budget_maja.html): the person's own card purchases go into a budget
+ *   post. Purchases with the shared ICA card (card name contains "ICA") are left out here.
+ * - ica (familjebudget.html): every ICA-card purchase, from either phone, goes into one of the
+ *   shared ICA categories (window.FamilyIca on that page; budget = the month's ICA transfer).
+ *   The fixed costs paid from the card (familjebudget_data.expenses) are offered once a month,
+ *   marked "Fast"; handled ones are remembered in `pay_recurring_done` ({ ica: { "ica|2026-11|Internet": 1 } },
+ *   older ones under markus), synced by firebase-sync.js. Learned shops go under rules.ica.
  *
- * Uses the page's own globals: monthlyData, currentMonth, getMonthKey, getCurrentMonthSections,
- * refresh, fmt.
+ * Budget mode uses the page's own globals: monthlyData, currentMonth, getMonthKey,
+ * getCurrentMonthSections, refresh, fmt.
  */
 (function () {
   'use strict';
   if (window.__budgetPayInboxV1) return;
   window.__budgetPayInboxV1 = true;
 
+  var MODE = /familjebudget\.html$/i.test(location.pathname) ? 'ica' : 'budget';
   var WHO = /budget_maja\.html$/i.test(location.pathname) ? 'maja' : 'markus';
+  var BUCKET = MODE === 'ica' ? 'ica' : WHO;   // where learned shops and handled fixed costs live
+  function isIcaCard(card) { return /\bica\b/i.test(String(card || '')); }
+  function monthOf(date) { return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0'); }
   var RULES_KEY = 'pay_merchant_rules';
   var PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
   var MONTHS = ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
@@ -82,7 +90,7 @@
     try { localStorage.setItem(RULES_KEY, JSON.stringify(rules)); } catch (_) {}
   }
   function guessTarget(merchant) {
-    var mine = readRules()[WHO] || {};
+    var mine = readRules()[BUCKET] || {};
     var n = norm(merchant);
     if (!n) return null;
     if (mine[n]) return mine[n];
@@ -96,27 +104,29 @@
 
   // ── fixed ICA-card costs ──────────────────────────────────
   function readJson(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) { return null; } }
-  function doneMap() { var all = readJson(RECUR_KEY) || {}; return all[WHO] || {}; }
+  // Fixed costs handled before the move to Familjebudget sit under markus; both count.
+  function doneMap() { var all = readJson(RECUR_KEY) || {}; return Object.assign({}, all.markus || {}, all.ica || {}); }
   function setDone(key, on) {
     var all = readJson(RECUR_KEY) || {};
-    all[WHO] = all[WHO] || {};
-    if (on) all[WHO][key] = 1; else delete all[WHO][key];
+    all.ica = all.ica || {};
+    if (on) all.ica[key] = 1; else { delete all.ica[key]; if (all.markus) delete all.markus[key]; }
     try { localStorage.setItem(RECUR_KEY, JSON.stringify(all)); } catch (_) {}
   }
   function recurring() {
-    if (WHO !== 'markus') return [];
+    if (MODE !== 'ica') return [];
     var data = readJson('familjebudget_data');
     var list = data && Array.isArray(data.expenses) ? data.expenses : [];
-    var now = new Date(), month = getMonthKey(now), done = doneMap();
+    var now = new Date(), month = monthOf(now), done = doneMap();
     var start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
     return list.filter(function (e) { return e && e.name && Number(e.amount) > 0; }).map(function (e, i) {
-      return { key: 'ica|' + month + '|' + e.name, recurring: true, amount: Math.abs(Number(e.amount)),
+      return { key: 'ica|' + month + '|' + e.name, recurring: true, month: month, amount: Math.abs(Number(e.amount)),
         merchant: String(e.name), card: 'ICA-kortet', time: start - i };
     }).filter(function (e) { return !done[e.key]; });
   }
   function rebuild() { entries = remote.concat(recurring()); render(); }
 
-  // ── budget data ───────────────────────────────────────────
+  // ── targets: budget posts, or the shared ICA categories ───
+  function family() { return MODE === 'ica' && window.FamilyIca ? window.FamilyIca : null; }
   function sectionsFor(date) {
     var key = getMonthKey(date);
     if (!monthlyData[key] && typeof window.budgetEnsureMonths === 'function') window.budgetEnsureMonths();
@@ -124,9 +134,18 @@
     return { sections: getCurrentMonthSections(), own: false, date: currentMonth };
   }
   function targetOptions() {
+    if (MODE === 'ica') {
+      var f = family();
+      return f ? [{ key: 'ica', name: 'ICA-kortet', items: f.cats() }] : [];
+    }
     return getCurrentMonthSections().filter(function (s) { return !s.isIncome; }).map(function (s) {
       return { key: s.key, name: s.name, items: s.items.map(function (it) { return it.name; }) };
     });
+  }
+  function validTarget(target) {
+    if (!target) return false;
+    if (MODE === 'ica') { var f = family(); return !!(f && target.section === 'ica' && f.cats().indexOf(target.item) !== -1); }
+    return !!findItem(getCurrentMonthSections(), target);
   }
   function findItem(sections, target) {
     if (!target) return null;
@@ -139,22 +158,25 @@
   // ── UI ────────────────────────────────────────────────────
   function ensurePanel() {
     if (panel && document.body.contains(panel)) return panel;
-    var anchor = document.getElementById('sections-container');
+    var anchor = document.getElementById(MODE === 'ica' ? 'fb-ica-inbox' : 'sections-container');
     if (!anchor) return null;
     panel = document.createElement('section');
     panel.className = 'pay-inbox';
     panel.id = 'pay-inbox';
     panel.hidden = true;
     panel.setAttribute('aria-label', 'Nya köp att sortera');
-    var row = document.querySelector('.new-section-row');
-    (row || anchor).parentNode.insertBefore(panel, row || anchor);
+    if (MODE === 'ica') anchor.appendChild(panel);
+    else {
+      var row = document.querySelector('.new-section-row');
+      (row || anchor).parentNode.insertBefore(panel, row || anchor);
+    }
     panel.addEventListener('click', onPanelClick);
     panel.addEventListener('change', onPanelChange);
     return panel;
   }
 
   function optionHtml(selected) {
-    var html = '<option value="">Välj post…</option>';
+    var html = '<option value="">' + (MODE === 'ica' ? 'Välj kategori…' : 'Välj post…') + '</option>';
     targetOptions().forEach(function (s) {
       html += '<optgroup label="' + esc(s.name) + '">';
       s.items.forEach(function (name) {
@@ -175,7 +197,8 @@
     var suggested = 0;
     var rows = mine.map(function (e) {
       var guess = guessTarget(e.merchant);
-      var valid = guess && findItem(getCurrentMonthSections(), guess) ? guess : null;
+      if (!guess && e.recurring) guess = { section: 'ica', item: 'Fasta kostnader' };
+      var valid = validTarget(guess) ? guess : null;
       if (valid) suggested++;
       var d = new Date(e.time);
       var meta = e.recurring
@@ -193,7 +216,7 @@
         '</div></div>';
     }).join('');
     p.innerHTML =
-      '<div class="pay-head"><span class="pay-title">Nya köp att sortera</span><span class="pay-count">' + mine.length + '</span>' +
+      '<div class="pay-head"><span class="pay-title">' + (MODE === 'ica' ? 'Att sortera' : 'Nya köp att sortera') + '</span><span class="pay-count">' + mine.length + '</span>' +
       (suggested > 1 ? '<button type="button" class="pay-all" data-act="all">Godkänn förslag (' + suggested + ')</button>' : '') +
       '</div>' + rows;
     p.hidden = false;
@@ -227,7 +250,36 @@
   }
 
   // ── actions ───────────────────────────────────────────────
+  function approveIca(keys) {
+    var f = family();
+    if (!f) return;
+    var done = [];
+    var rules = readRules();
+    rules.ica = rules.ica || {};
+    keys.forEach(function (key) {
+      var en = entryByKey(key);
+      var target = selectedTarget(key);
+      if (!en || !validTarget(target)) return;
+      var month = en.month || monthOf(new Date(en.time));
+      var id = f.add({ month: month, cat: target.item, amount: Math.round(en.amount), merchant: en.merchant,
+        who: en.recurring ? '' : String((en.raw && en.raw.who) || 'markus').toLowerCase(), time: en.time, fixed: !!en.recurring });
+      var n = norm(en.merchant);
+      if (n && !en.recurring) rules.ica[n] = { section: 'ica', item: target.item };
+      done.push({ en: en, id: id, month: month, cat: target.item, amount: Math.round(en.amount) });
+    });
+    if (!done.length) return;
+    writeRules(rules);
+    entries = entries.filter(function (en) { return !done.some(function (d) { return d.en.key === en.key; }); });
+    render();
+    done.forEach(function (d) { removeRemote(d.en); });
+    var first = done[0];
+    toast(done.length === 1 ? 'Lade till ' + money(first.amount) + ' kr på ' + first.cat : 'Lade till ' + done.length + ' köp', function () {
+      done.forEach(function (d) { f.remove(d.month, d.id); restoreRemote(d.en); });
+    });
+  }
+
   function approve(keys) {
+    if (MODE === 'ica') return approveIca(keys);
     var done = [];
     var rules = readRules();
     rules[WHO] = rules[WHO] || {};
@@ -308,7 +360,8 @@
       Object.keys(group).forEach(function (key) {
         var raw = group[key] || {};
         var who = String(raw.who || 'markus').toLowerCase();
-        if (who !== WHO) return;
+        // ICA-card purchases are sorted on Familjebudget, everything else on the person's own page.
+        if (MODE === 'ica' ? !isIcaCard(raw.card) : (who !== WHO || isIcaCard(raw.card))) return;
         var amount = parseAmount(raw.amount);
         if (!amount) return;
         next.push({
@@ -344,11 +397,12 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { boot(); rebuild(); });
   else { boot(); rebuild(); }
-  // New fixed costs on Familjebudget, or ones handled on the other phone.
+  // New fixed costs or categories on Familjebudget, or ones handled on the other phone.
   window.addEventListener('firebase-sync', function (e) {
     var k = e.detail && e.detail.key;
-    if (k === 'familjebudget_data' || k === RECUR_KEY) rebuild();
+    if (MODE === 'ica' && (k === 'familjebudget_data' || k === RECUR_KEY || k === 'ica_card_v1')) rebuild();
   });
+  window.addEventListener('family-ica:change', render);
 
   // Learned rules may arrive from the other phone; refresh suggestions when they do.
   window.addEventListener('storage', function (e) { if (e.key === RULES_KEY) render(); });
