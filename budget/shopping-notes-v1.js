@@ -318,25 +318,33 @@
     }, { passive: false });
     // While typing, pin the format button just above the keyboard using the visual viewport
     // (fixed elements on iOS otherwise stay at the bottom of the layout viewport, behind it).
+    // Inside Home (Listor opens as a full-screen iframe) the keyboard only shrinks the top window's
+    // visual viewport, so that one is measured and mapped into this frame's coordinates.
+    var topWin = window;
+    try { if (window.frameElement && window.parent && window.parent.visualViewport) topWin = window.parent; } catch (_) { topWin = window; }
     var placeFrame = 0;
     function placeBar() {
       cancelAnimationFrame(placeFrame);
       placeFrame = requestAnimationFrame(function () {
-        var vv = window.visualViewport;
+        var vv = topWin.visualViewport;
         var typing = document.activeElement === editor || document.activeElement === titleInput || document.activeElement === linkInput();
         if (!vv || !typing) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
-        var keyboard = window.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260;
+        var keyboard = topWin.innerHeight - vv.height > 120 || (screen.height - vv.height) > 260;
         if (!keyboard) { bar.style.top = ''; bar.style.bottom = ''; bar.classList.remove('kb'); return; }
+        var frameTop = 0;
+        if (topWin !== window) { try { frameTop = window.frameElement.getBoundingClientRect().top; } catch (_) {} }
         bar.classList.add('kb');
         bar.style.bottom = 'auto';
-        bar.style.top = Math.round(vv.offsetTop + vv.height - bar.offsetHeight - 10) + 'px';
+        bar.style.top = Math.round(vv.offsetTop + vv.height - frameTop - bar.offsetHeight - 10) + 'px';
       });
     }
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', placeBar);
-      window.visualViewport.addEventListener('scroll', placeBar);
-    }
+    [window, topWin].forEach(function (w, i) {
+      if ((i && w === window) || !w.visualViewport) return;
+      w.visualViewport.addEventListener('resize', placeBar);
+      w.visualViewport.addEventListener('scroll', placeBar);
+    });
     window.addEventListener('scroll', placeBar, { passive: true });
+    if (topWin !== window) topWin.addEventListener('scroll', placeBar, { passive: true });
     document.addEventListener('focusin', function () { setTimeout(placeBar, 50); setTimeout(placeBar, 400); });
     document.addEventListener('focusout', function () { setTimeout(placeBar, 50); });
     editor.addEventListener('input', function () { queueSave(); queueDecorate(); });
