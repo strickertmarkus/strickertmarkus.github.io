@@ -26,8 +26,6 @@ html:not(#lt) body.home-calendar-polish-v5 .home-overview-widgets{gap:28px!impor
 html:not(#lt) body.home-calendar-polish-v5 .widget.link-card:hover{transform:none!important;background:transparent!important}
 
 /* Economy tab: the budget links get a chevron like the Listor rows */
-html:not(#lt) .home-economy-links a::after{content:"›";margin-left:auto;color:#7d8996;font-size:16px;line-height:1}
-html:not(#lt) .home-economy-links a:hover::after{color:#FDBA74}
 
 /* ── Month calendar: open grid (no boxes), today as an orange circle, two events per day
    with a colour bar before the text, multi-day events as one bar across the days ── */
