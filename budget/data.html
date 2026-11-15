@@ -197,7 +197,7 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="listor-theme-v1.css?v=20261112-offbudget-1">
-<link rel="stylesheet" href="data-listor-v1.css?v=20261110-10">
+<link rel="stylesheet" href="data-listor-v1.css?v=20261115-tr-2">
 </head>
 <body>
 
@@ -323,14 +323,43 @@ html.dark-mode .info-tag { background: rgba(96,165,250,0.15); }
                     <code>Total huskonto</code> = Huskonto Maja + Huskonto Markus &nbsp; <code>Total ICA</code> = ICA Maja + ICA Markus<br>
                     <em>Från januari 2027 räknas Husutgifter ut automatiskt (märkt auto) och nästa månad läggs till av sig själv, med ICA-kort och nettolöner från månaden innan. Skriv ett eget belopp i Husutgifter för att ersätta formeln, töm fältet för att gå tillbaka till den.</em>
                 </details>
+                <div class="tr-top">
+                    <div class="tr-year" role="group" aria-label="År">
+                        <button type="button" onclick="stepTransferYear(-1)" aria-label="Föregående år">‹</button>
+                        <b id="transfers-year"></b>
+                        <button type="button" onclick="stepTransferYear(1)" aria-label="Nästa år">›</button>
+                    </div>
+                    <button type="button" class="tr-fillbtn" onclick="openFillSheet()">Fyll i lön</button>
+                </div>
+                <div class="tr-cols" aria-hidden="true"><span>Månad</span><span class="mk">Markus</span><span class="mj">Maja</span><span></span></div>
                 <div class="tr-list" id="transfers-list"></div>
-                <button type="button" class="tr-older" id="transfers-older" hidden onclick="toggleOlderTransfers()"></button>
                 <button class="btn-add" onclick="addTransfer()">+ Lägg till månad</button>
             </div>
         </div>
     </div>
 
 
+
+    <!-- Fyll i nettolön för flera månader (Överföringar); a card at the top so neither the keyboard nor the bottom bar covers it -->
+    <div class="tr-sheet" id="fill-sheet" hidden>
+        <div class="tr-sheet-dim" onclick="closeFillSheet()"></div>
+        <form class="tr-sheet-card" role="dialog" aria-modal="true" aria-labelledby="fill-title" onsubmit="event.preventDefault();applyFill()">
+            <h3 id="fill-title">Fyll i nettolön</h3>
+            <div class="tr-pills" role="radiogroup" aria-label="Vem" id="fill-who">
+                <button type="button" role="radio" data-who="markus" aria-checked="true">Markus</button>
+                <button type="button" role="radio" data-who="maja" aria-checked="false">Maja</button>
+                <button type="button" role="radio" data-who="both" aria-checked="false">Båda</button>
+            </div>
+            <div class="tr-sheet-grid">
+                <label class="tr-sf" id="fill-markus-wrap"><span>Markus netto</span><input id="fill-markus" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+                <label class="tr-sf" id="fill-maja-wrap" hidden><span>Maja netto</span><input id="fill-maja" type="number" inputmode="numeric" min="0" placeholder="0"></label>
+                <label class="tr-sf"><span>Från</span><select id="fill-from" onchange="fillCount()"></select></label>
+                <label class="tr-sf"><span>Till</span><select id="fill-to" onchange="fillCount()"></select></label>
+            </div>
+            <p class="tr-sheet-note" id="fill-note"></p>
+            <div class="tr-sheet-actions"><button type="button" class="tr-sheet-cancel" onclick="closeFillSheet()">Avbryt</button><button type="submit" class="tr-sheet-save" id="fill-save">Fyll i</button></div>
+        </form>
+    </div>
 
     <!-- Actions (bottom) -->
     <div class="actions-bar">
@@ -634,56 +663,137 @@ function deleteHuskonto(i) {
 // ═══════════════════════════════════════════════════════
 function transferKey(t) { return TransferIncome.key(t); }
 function sortTransfers() { transfers.sort((a, b) => transferKey(a) < transferKey(b) ? -1 : transferKey(a) > transferKey(b) ? 1 : 0); }
-let showOlderTransfers = false;
-// Months open for editing; this month starts open.
-const openTransferMonths = new Set([new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0')]);
+// One row per month for the chosen year: the two net salaries are typed straight into the row
+// (Enter jumps Markus → Maja → next month, like a spreadsheet) and what each transfers is shown
+// under them in blue/pink. A tap on the month opens the breakdown; × removes the month.
+// "Fyll i lön" fills one salary for a whole period at once.
+let transferYear = new Date().getFullYear();
+const openTransferMonths = new Set();
 function toggleTransferMonth(key) { openTransferMonths.has(key) ? openTransferMonths.delete(key) : openTransferMonths.add(key); renderTransfers(); }
-function toggleOlderTransfers() { showOlderTransfers = !showOlderTransfers; renderTransfers(); }
-// By default only last month, this month and next month. Each month asks for the two net
-// salaries only; the share is shown in brackets. Everything else follows the formulas.
+function transferYears() { const ys = transfers.map(t => Number(t.year)).filter(Boolean); return ys.length ? [Math.min(...ys), Math.max(...ys)] : [transferYear, transferYear]; }
+function stepTransferYear(d) { const [lo, hi] = transferYears(); transferYear = Math.min(hi, Math.max(lo, transferYear + d)); renderTransfers(); }
+const SHORT_MONTHS = ["Jan","Feb","Mar","Apr","Maj","Jun","Jul","Aug","Sep","Okt","Nov","Dec"];
+function trShort(t) { const i = TransferIncome.MONTHS.indexOf(t.month); return i >= 0 ? SHORT_MONTHS[i] : t.month; }
+function trPct(v) { return (Math.round((Number(v) || 0) * 1000) / 10).toString().replace('.', ',') + ' %'; }
+function trDetail(t) {
+    return `<div class="tr-detail">
+        <span>Att betala <b class="o">${fmt((Number(t.husutgifter) || 0) + (Number(t.ica) || 0))}</b></span>
+        <span><i class="hus"></i>Hus <b>${fmt(Number(t.husutgifter) || 0)}</b>${t.husAuto ? ' <em>auto</em>' : ''}</span>
+        <span><i class="ica"></i>ICA <b>${fmt(Number(t.ica) || 0)}</b></span>
+        <span class="mk">Markus ${trPct(t.markusAndel)} · hus ${fmt(Number(t.huskontoMarkus) || 0)} · ICA ${fmt(Number(t.icaMarkus) || 0)}</span>
+        <span class="mj">Maja ${trPct(t.majaAndel)} · hus ${fmt(Number(t.huskontoMaja) || 0)} · ICA ${fmt(Number(t.icaMaja) || 0)}</span>
+    </div>`;
+}
+function trSends(t) { return { mk: (t.huskontoMarkus || 0) + (t.icaMarkus || 0), mj: (t.huskontoMaja || 0) + (t.icaMaja || 0) }; }
 function renderTransfers() {
     sortTransfers();
+    const [lo, hi] = transferYears();
+    transferYear = Math.min(hi, Math.max(lo, transferYear));
+    document.getElementById('transfers-year').textContent = transferYear;
     const d = new Date();
     const keyOf = (y, m) => { const x = new Date(y, m, 1); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); };
-    const prevKey = keyOf(d.getFullYear(), d.getMonth() - 1), nowKey = keyOf(d.getFullYear(), d.getMonth()), nextKey = keyOf(d.getFullYear(), d.getMonth() + 1);
-    const pct = v => (Math.round((Number(v) || 0) * 1000) / 10).toString().replace('.', ',') + ' %';
-    let hidden = 0;
+    const nowKey = keyOf(d.getFullYear(), d.getMonth()), nextKey = keyOf(d.getFullYear(), d.getMonth() + 1);
     const html = transfers.map((t, i) => {
-        const key = transferKey(t);
-        const inWindow = key >= prevKey && key <= nextKey;
-        if (!inWindow && !showOlderTransfers) { hidden++; return ''; }
-        const net = TransferIncome.get(t);
+        if (Number(t.year) !== transferYear) return '';
+        const key = transferKey(t), net = TransferIncome.get(t), s = trSends(t);
         const label = `${t.month} ${t.year}`;
-        const mk = (t.huskontoMarkus || 0) + (t.icaMarkus || 0), mj = (t.huskontoMaja || 0) + (t.icaMaja || 0);
-        const total = mk + mj;
-        const tag = key === nowKey ? '<span class="tr-tag">nu</span>' : key === nextKey ? '<span class="tr-tag">nästa</span>' : '';
-        const field = (k, who, value, share) => `
-            <label class="tr-field"><span>${who} netto <i>(${pct(share)})</i></span>
-                <input class="editable-input" type="number" min="0" inputmode="numeric" placeholder="—" value="${value === null ? '' : value}" onchange="updateTransfer(${i},'${k}',this.value)" aria-label="${who} netto ${label}">
-            </label>`;
+        const sub = key === nowKey ? 'nu' : key === nextKey ? 'nästa' : t.husAuto ? 'auto' : t.year;
         const open = openTransferMonths.has(key);
-        return `<div class="tr-month${key === nowKey ? ' is-now' : ''}${open ? ' is-open' : ''}">
-            <button type="button" class="tr-head" onclick="toggleTransferMonth('${key}')" aria-expanded="${open}">
-                <b>${label}</b>${tag}
-                <span class="tr-amounts"><span class="mk">${fmt(mk)}</span><span class="mj">${fmt(mj)}</span></span>
-                <span class="tr-chev" aria-hidden="true"></span>
-            </button>
-            ${open ? `<div class="tr-body">
-                <div class="tr-sum">
-                    <div class="tr-sum-main"><span>Totalt att betala</span><b>${fmt((Number(t.husutgifter) || 0) + (Number(t.ica) || 0))} kr</b></div>
-                    <div class="tr-sum-parts"><span class="hus"><i></i>Hus <b>${fmt(t.husutgifter)}</b></span><span class="ica"><i></i>ICA-kort <b>${fmt(t.ica)}</b></span></div>
-                </div>
-                <div class="tr-fields">${field('markusNetto', 'Markus', net.markus, t.markusAndel)}${field('majaNetto', 'Maja', net.maja, t.majaAndel)}</div>
-                <div class="tr-foot"><span>Markus: hus ${fmt(t.huskontoMarkus)} · ICA ${fmt(t.icaMarkus)}</span><span>Maja: hus ${fmt(t.huskontoMaja)} · ICA ${fmt(t.icaMaja)}</span>
-                    <button type="button" class="tr-del" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">Ta bort</button></div>
-            </div>` : ''}
+        const field = (who, k, value, sends) => `<label class="tr-cell ${who}">
+                <input class="tr-in" type="number" min="0" inputmode="numeric" enterkeyhint="next" placeholder="—" value="${value === null ? '' : value}" data-i="${i}" data-who="${k}" aria-label="${k === 'markus' ? 'Markus' : 'Maja'} netto ${label}">
+                <small>för över <b data-send="${who}">${fmt(sends)}</b></small></label>`;
+        return `<div class="tr-row${key === nowKey ? ' is-now' : ''}${open ? ' is-open' : ''}" data-key="${key}">
+            <button type="button" class="tr-mo" onclick="toggleTransferMonth('${key}')" aria-expanded="${open}" aria-label="Visa uträkning för ${label}">${trShort(t)}<small>${sub}</small></button>
+            ${field('mk', 'markus', net.markus, s.mk)}${field('mj', 'maja', net.maja, s.mj)}
+            <button type="button" class="tr-x" onclick="deleteTransfer(${i})" aria-label="Ta bort ${label}">×</button>
+            ${open ? trDetail(t) : ''}
         </div>`;
     }).join('');
-    document.getElementById('transfers-list').innerHTML = html;
-    const older = document.getElementById('transfers-older');
-    older.hidden = hidden === 0 && !showOlderTransfers;
-    older.textContent = showOlderTransfers ? 'Visa bara de närmaste månaderna' : `Visa alla månader (${hidden} till)`;
+    document.getElementById('transfers-list').innerHTML = html || '<p class="tr-empty">Inga månader för det här året.</p>';
 }
+// Saving a salary updates the row in place, so focus can move on to the next field.
+document.addEventListener('change', e => {
+    const input = e.target.closest && e.target.closest('.tr-in');
+    if (!input) return;
+    const t = transfers[Number(input.dataset.i)];
+    if (!t || !TransferIncome.update(t, input.dataset.who, input.value)) return;
+    saveData();
+    const row = input.closest('.tr-row'), s = trSends(t);
+    row.querySelector('[data-send="mk"]').textContent = fmt(s.mk);
+    row.querySelector('[data-send="mj"]').textContent = fmt(s.mj);
+    const det = row.querySelector('.tr-detail');
+    if (det) det.outerHTML = trDetail(t);
+    renderSectionMeta && renderSectionMeta();
+});
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('.tr-in')) return;
+    e.preventDefault();
+    const all = [...document.querySelectorAll('#transfers-list .tr-in')];
+    const next = all[all.indexOf(e.target) + 1];
+    if (next) { next.focus(); next.select(); } else e.target.blur();
+});
+
+// ── Fyll i lön ──
+function monthLabel(k) { const [y, m] = k.split('-').map(Number); return SHORT_MONTHS[m - 1] + ' ' + y; }
+function openFillSheet() {
+    sortTransfers();
+    const keys = transfers.map(transferKey);
+    const now = new Date(), nowKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+    // "Till" can also reach a year past the last month; missing months are then created.
+    const toKeys = keys.slice();
+    let k = keys[keys.length - 1];
+    for (let n = 0; n < 12; n++) { k = TransferIncome.nextKey(k); toKeys.push(k); }
+    const from = keys.includes(nowKey) ? nowKey : keys[keys.length - 1];
+    document.getElementById('fill-from').innerHTML = keys.map(x => `<option value="${x}"${x === from ? ' selected' : ''}>${monthLabel(x)}</option>`).join('');
+    document.getElementById('fill-to').innerHTML = toKeys.map(x => `<option value="${x}"${x === keys[keys.length - 1] ? ' selected' : ''}>${monthLabel(x)}${toKeys.indexOf(x) >= keys.length ? ' (ny)' : ''}</option>`).join('');
+    const last = transfers[transfers.length - 1], net = TransferIncome.get(last);
+    document.getElementById('fill-markus').value = net.markus ?? '';
+    document.getElementById('fill-maja').value = net.maja ?? '';
+    const sheet = document.getElementById('fill-sheet');
+    if (sheet.parentNode !== document.body) document.body.appendChild(sheet); // above the fixed header
+    sheet.hidden = false;
+    fillCount();
+    setTimeout(() => { const el = document.getElementById(fillWho() === 'maja' ? 'fill-maja' : 'fill-markus'); el.focus(); el.select(); }, 60);
+}
+function closeFillSheet() { document.getElementById('fill-sheet').hidden = true; }
+function fillWho() { return (document.querySelector('#fill-who [aria-checked="true"]') || {}).dataset?.who || 'markus'; }
+function fillCount() {
+    const from = document.getElementById('fill-from').value, to = document.getElementById('fill-to').value;
+    let n = 0, k = from;
+    while (k <= to && n < 200) { n++; k = TransferIncome.nextKey(k); }
+    if (to < from) n = 0;
+    const created = Math.max(0, n - transfers.filter(t => { const x = transferKey(t); return x >= from && x <= to; }).length);
+    document.getElementById('fill-save').textContent = n ? `Fyll i ${n} ${n === 1 ? 'månad' : 'månader'}` : 'Fyll i';
+    document.getElementById('fill-note').textContent = n ? (created ? `${created} nya månader skapas. ` : '') + 'Överföringarna räknas om för alla.' : 'Välj en Till-månad efter Från.';
+}
+document.getElementById('fill-who').addEventListener('click', e => {
+    const b = e.target.closest('button[data-who]');
+    if (!b) return;
+    document.querySelectorAll('#fill-who button').forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    const who = b.dataset.who;
+    document.getElementById('fill-markus-wrap').hidden = who === 'maja';
+    document.getElementById('fill-maja-wrap').hidden = who === 'markus';
+});
+function applyFill() {
+    const from = document.getElementById('fill-from').value, to = document.getElementById('fill-to').value;
+    if (to < from) return;
+    const who = fillWho();
+    const values = { markus: document.getElementById('fill-markus').value, maja: document.getElementById('fill-maja').value };
+    const people = who === 'both' ? ['markus', 'maja'] : [who];
+    if (people.some(p => TransferIncome.amount(values[p]) === null)) { document.getElementById(people[0] === 'maja' ? 'fill-maja' : 'fill-markus').focus(); return; }
+    TransferIncome.ensureRows({ loanParams, huskonto, transfers }, to);
+    sortTransfers();
+    transfers.forEach(t => {
+        const k = transferKey(t);
+        if (k >= from && k <= to) people.forEach(p => TransferIncome.update(t, p, values[p]));
+    });
+    saveData();
+    closeFillSheet();
+    transferYear = Number(from.slice(0, 4));
+    renderTransfers();
+    renderSectionMeta && renderSectionMeta();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('fill-sheet').hidden) closeFillSheet(); });
 
 function applyShares(t) {
     if (TransferIncome.recalculate(t)) return;
@@ -747,7 +857,7 @@ function ensureTransferMonths() {
 
 function deleteTransfer(i) {
     if (transfers.length <= 1) { alert("Kan inte ta bort sista månaden"); return; }
-    if (!confirm(`Ta bort ${transfers[i].month} ${transfers[i].year}?`)) return;
+    if (!confirm(`Ta bort ${transfers[i].month} ${transfers[i].year}?${transferKey(transfers[i]) >= TransferIncome.AUTO_FROM ? ' Månader fram till nästa månad läggs till igen automatiskt.' : ''}`)) return;
     transfers.splice(i, 1);
     saveData();
     renderTransfers();
