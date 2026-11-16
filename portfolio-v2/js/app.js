@@ -142,6 +142,9 @@
   }
   var CATCHIPS = [['all', 'All'], ['research', 'Research', COLOR.research], ['engineering', 'Engineering', COLOR.engineering], ['side', 'Side projects', COLOR.side]];
 
+  /* ---------- home: the ticker, twice over so it loops without a seam ---------- */
+  [0, 1].forEach(function () { S.TICKER.forEach(function (it) { var sp = h('span', null, it[0]); if (it[1]) sp.style.setProperty('--c', COLOR[it[1]]); $('ticker').appendChild(sp); }); });
+
   /* ---------- home: featured work ---------- */
   ['sv', 'cme', 'fam'].forEach(function (id, i) {
     var p = P[id], a = h('a', 'feat rv', [motifWrap(p, 'home'), h('span', 'feat-t', [h('span', 'eyebrow', meta(p)), h('h3', null, p.title), h('p', null, p.desc), h('span', 'link go', ['Open project', arrow(1)])])]);
@@ -210,7 +213,10 @@
       var pl = h('div', 'plist'); list.forEach(function (q) { var b = h('button', null, [q.short, h('span', null, CATNAME[q.cat])]); b.type = 'button'; b.addEventListener('click', function () { Scene.select(q.id); }); pl.appendChild(b); }); panel.appendChild(pl);
     }
     panel.classList.remove('swap'); if (!document.body.classList.contains('boot')) { void panel.offsetWidth; panel.classList.add('swap'); }
+    requestAnimationFrame(sheet);
   }
+  function sheet() { Scene.setSheetTop(panel.parentNode.getBoundingClientRect().top); }
+  window.addEventListener('resize', sheet);
   Scene.onSelect(renderPanel);
   chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
   document.addEventListener('keydown', function (e) { if (current.view !== 'explore' || /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'ArrowRight') { stepProject(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { stepProject(-1); e.preventDefault(); } });
@@ -343,8 +349,9 @@
 
   /* ---------- scroll- and pointer-driven light ---------- */
   viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') Scene.setScroll(this.scrollTop); }, { passive: true });
-  var heroText = document.querySelector('.hero h1');
-  function heroEdge() { Scene.setHomeLeft(heroText.getBoundingClientRect().right + 28); }
+  var heroText = document.querySelector('.hero h1'), heroCta = document.querySelector('.hero .cta'), tickerEl = document.querySelector('.ticker'), homeEl = viewEl('home');
+  /* Where the network may sit on Home: right of the headline on wide screens, between the text and the ticker on phones. */
+  function heroEdge() { var st = homeEl.scrollTop; Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, heroCta.getBoundingClientRect().bottom + st, tickerEl.getBoundingClientRect().top + st); }
   window.addEventListener('resize', heroEdge);
   var journey = $('journey');
   function trace() { var r = journey.getBoundingClientRect(); journey.style.setProperty('--p', Math.max(0, Math.min(1, (window.innerHeight * .62 - r.top) / Math.max(1, r.height))).toFixed(3)); }

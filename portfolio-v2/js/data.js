@@ -7,6 +7,8 @@
   var CATNAME = { research: 'Research', engineering: 'Engineering', side: 'Side project' };
 
   var SKILLS = ['Fortran', '3D MHD', 'HPC', 'Tecplot', 'Monte Carlo', 'Python', 'Bash', 'C++', 'DOORS NG', 'TestStand', 'LabVIEW', 'JavaScript'];
+  /* The ticker on Home. The dot takes the colour of the area a tool belongs to in the network; shared tools stay white. */
+  var TICKER = [['NI TestStand', 'engineering'], ['LabVIEW', 'engineering'], ['Python'], ['C++', 'engineering'], ['DOORS NG', 'engineering'], ['Bash'], ['Fortran', 'research'], ['3D MHD', 'research'], ['Monte Carlo', 'research'], ['HPC', 'research'], ['Tecplot', 'research'], ['JIRA', 'engineering'], ['Git']];
   var AREAS = [
     { id: 'd:research', cat: 'research', label: 'Research' },
     { id: 'd:engineering', cat: 'engineering', label: 'Engineering' },
@@ -330,5 +332,5 @@
     { name: 'Leadership', weight: 45, color: '#5EEAD4', items: ['Team-lead duties and coordination', 'Agile retrospectives and process improvement', 'Mentoring and knowledge transfer', 'Customer and stakeholder contact', 'Security-classified project work', 'Coaching and board work since my teens'] }
   ];
 
-  window.SITE = { COLOR: COLOR, CATNAME: CATNAME, SKILLS: SKILLS, AREAS: AREAS, PROJECTS: PROJECTS, GROUPS: GROUPS, EXPERIENCE: EXPERIENCE, COMPETENCE: COMPETENCE };
+  window.SITE = { COLOR: COLOR, CATNAME: CATNAME, SKILLS: SKILLS, TICKER: TICKER, AREAS: AREAS, PROJECTS: PROJECTS, GROUPS: GROUPS, EXPERIENCE: EXPERIENCE, COMPETENCE: COMPETENCE };
 })();

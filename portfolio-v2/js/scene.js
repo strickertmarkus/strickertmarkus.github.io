@@ -39,7 +39,7 @@
   /* ---------- state ---------- */
   var W = 0, H = 0, dpr = 1, narrow = false, D = 900;
   var view = 'home', cat = 'all', sel = byId.cme, hover = null, onSelect = null, onHover = null;
-  var t = 0, last = 0, t0 = -1, scrollY = 0, homeLeft = 0;
+  var t = 0, last = 0, t0 = -1, scrollY = 0, homeLeft = 0, homeTop = 0, homeBottom = 0, sheetTop = 0;
   var cam = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1 }, tgt = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1 }, projNames = true;
   var userYaw = 0, userPitch = 0, userZoom = 1, first = true, mx = .5, my = .5, pmx = .5, pmy = .5;
   /* drifting light: [colour, x, y, radius, alpha] per view, as fractions of the screen */
@@ -66,11 +66,15 @@
     var sw = narrow ? 340 : 860, sh = narrow ? 420 : 540;
     tgt.hx = 1; projNames = true;
     if (view === 'explore') {
-      var aw = narrow ? W : W - 372 - 64 - 40, ah = narrow ? H * .56 - 112 : H - 250;
+      /* Phones: the network gets what is left between the filter row and the sheet with the selected project. */
+      var aw = narrow ? W : W - 372 - 64 - 40, ah = narrow ? (sheetTop || H * .56) - 134 : H - 250;
       tgt.zoom = clamp(Math.min(aw / sw, ah / sh), .3, 1.5);
-      tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 112 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
+      tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 122 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
     } else if (view === 'home') {
-      if (narrow) { tgt.zoom = clamp(Math.min(W / sw, (H * .34) / sh), .3, 1); tgt.cx = W / 2; tgt.cy = H * .63; tgt.labels = 0; }
+      if (narrow) { /* between the hero text and the ticker; on a short phone with no room there, it is left out */
+        var room2 = (homeBottom || H * .8) - (homeTop || H * .46) - 28;
+        tgt.zoom = clamp(Math.min(W / sw, room2 / sh), .3, 1); tgt.cx = W / 2; tgt.cy = (homeTop || H * .46) + 14 + room2 / 2; tgt.labels = 0; tgt.bright = room2 >= 150 ? 1 : 0; return done();
+      }
       else {
         /* The network gets the space to the right of the hero text, with its names. The columns are squeezed
            sideways (hx) before any names are dropped: every name from about 530 px of room, skills and areas
@@ -84,7 +88,7 @@
       tgt.bright = 1;
     } else {
       tgt.zoom = narrow ? .8 : 1.2; tgt.cx = narrow ? W * .5 : W * 1.02; tgt.cy = narrow ? H * .24 : H * .46; tgt.labels = 0; /* wide: mostly past the right edge, clear of the text */
-      tgt.bright = view === 'cv' ? .06 : (narrow ? .09 : .14);
+      tgt.bright = narrow ? 0 : (view === 'cv' ? .06 : .14); /* phones: text takes the whole width, so no network behind it */
     }
     done();
   }
@@ -203,6 +207,7 @@
         ctx.font = ((n === sel || n === hover) && focus ? '600 13px ' : '500 12px ') + 'Inter,system-ui,sans-serif';
         ctx.fillStyle = strong ? '#F0F6FC' : '#B6BEC9'; ctx.textAlign = 'left'; ctx.fillText(n.label, p[0] + r + 9, p[1]);
       } else {
+        if (n.type === 's' && narrow && cam.zoom < .5 && !strong) continue; /* small phones: only the skills of the selection are named */
         ctx.font = (n.type === 'd' ? '600 12px ' : '500 11.5px ') + 'Inter,system-ui,sans-serif';
         ctx.fillStyle = n.type === 'd' ? COLOR[n.cat] : (strong ? '#F0F6FC' : '#B6BEC9');
         if (n.type === 's') { ctx.textAlign = 'right'; ctx.fillText(n.label, p[0] - r - 8, p[1]); }
@@ -242,7 +247,8 @@
   var api = {
     setView: function (v) { view = v; hover = null; aim(); cv.style.cursor = v === 'explore' ? 'grab' : 'default'; },
     setScroll: function (px) { scrollY = Math.max(0, px); },
-    setHomeLeft: function (px) { homeLeft = px; if (view === 'home') aim(); },
+    setHomeBox: function (left, top, bottom) { homeLeft = left; homeTop = top; homeBottom = bottom; if (view === 'home') aim(); },
+    setSheetTop: function (px) { sheetTop = px; if (view === 'explore') aim(); },
     setFilter: function (c) { cat = c; },
     select: function (id) { var n = byId[id]; if (!n) return; sel = n; n.flare = 1; if (onSelect) onSelect(id); },
     selected: function () { return sel.id; },
