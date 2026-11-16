@@ -136,9 +136,14 @@
       var k = h('span', null, [h('i'), s[0] + ' ', h('b', null, s[1] + '%')]); k.firstChild.style.setProperty('--c', PALETTE[i % PALETTE.length]); key.appendChild(k); });
     var el = h('div', 'split', [bar, key]); el.setAttribute('role', 'img'); el.setAttribute('aria-label', split.map(function (s) { return s[0] + ' ' + s[1] + '%'; }).join(', ')); return el;
   }
+  /* A .seg row is plain text with a glowing line that slides under the chosen item; other rows are pills. */
+  function segPlace(el) { var bar = el.querySelector('.seg-bar'), b = el.querySelector('[aria-pressed="true"]'); if (!bar || !b || !b.offsetWidth) return; var i = b.querySelector('i'); bar.style.width = (b.offsetWidth - 24) + 'px'; bar.style.transform = 'translate(' + (b.offsetLeft + 12) + 'px,' + (b.offsetTop + b.offsetHeight - 6) + 'px)'; bar.style.setProperty('--c', i && i.style.color ? i.style.color : '#F0F6FC'); }
+  function segAll() { document.querySelectorAll('.seg').forEach(segPlace); }
+  window.addEventListener('resize', segAll); if (document.fonts && document.fonts.ready) document.fonts.ready.then(segAll);
   function chips(el, items, onPick) {
     items.forEach(function (it, i) { var b = h('button', null, it[2] ? [h('i'), it[1]] : it[1]); b.type = 'button'; b.setAttribute('data-v', it[0]); b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false'); if (it[2]) b.firstChild.style.color = it[2]; el.appendChild(b); });
-    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); onPick(b.getAttribute('data-v')); });
+    if (el.classList.contains('seg')) el.appendChild(h('span', 'seg-bar'));
+    el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); segPlace(el); onPick(b.getAttribute('data-v')); });
   }
   var CATCHIPS = [['all', 'All'], ['research', 'Research', COLOR.research], ['engineering', 'Engineering', COLOR.engineering], ['side', 'Side projects', COLOR.side]];
 
@@ -238,12 +243,7 @@
     }
     lastSel = id; renderPanel(id);
   });
-  /* Desktop filter: a text row with a glowing line that slides under the chosen area. */
-  var segEl = $('net-chips'), segBar = h('span', 'seg-bar');
-  function segMove() { var b = segEl.querySelector('[aria-pressed="true"]'); if (!b || !b.offsetWidth) return; segBar.style.width = (b.offsetWidth - 24) + 'px'; segBar.style.transform = 'translateX(' + (b.offsetLeft + 12) + 'px)'; segBar.style.setProperty('--c', b.firstChild && b.firstChild.style ? b.firstChild.style.color || '#F0F6FC' : '#F0F6FC'); }
-  window.addEventListener('resize', segMove);
-  chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); segMove(); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
-  segEl.appendChild(segBar);
+  chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
   document.addEventListener('keydown', function (e) { if (current.view !== 'explore' || /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'ArrowRight') { stepProject(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { stepProject(-1); e.preventDefault(); } });
 
   /* ---------- about: competence ring and experience ---------- */
@@ -278,7 +278,8 @@
         var row = h('div', 'xp rv' + (/now/.test(x.y) ? ' now' : ''), [h('span', 'y', x.y), body]); row.setAttribute('data-g', g[0]); exp.appendChild(row);
       });
     });
-    chips($('exp-chips'), [['all', 'All']].concat(S.GROUPS), function (v) { exp.querySelectorAll('[data-g]').forEach(function (r) { r.classList.toggle('hide', v !== 'all' && r.getAttribute('data-g') !== v); r.classList.add('in'); }); });
+    var SHORT = { current: 'Now', academic: 'Research', talks: 'Talks', projects: 'Other work', lead: 'Leadership', edu: 'Education' }; /* short labels so the row fits on one line */
+    chips($('exp-chips'), [['all', 'All']].concat(S.GROUPS.map(function (g) { return [g[0], SHORT[g[0]] || g[1]]; })), function (v) { exp.querySelectorAll('[data-g]').forEach(function (r) { r.classList.toggle('hide', v !== 'all' && r.getAttribute('data-g') !== v); r.classList.add('in'); }); });
   })();
 
   /* ---------- contact form ---------- */
@@ -292,8 +293,15 @@
       .then(function () { btn.disabled = false; });
   });
   /* ---------- CV: dark on screen, or the light sheet that also prints ---------- */
-  var cvEl = document.querySelector('.cv'), printing = false, wasPaper = false;
-  chips($('cv-mode'), [['dark', 'Dark'], ['paper', 'Paper']], function (v) { cvEl.classList.toggle('paper', v === 'paper'); });
+  /* "Open as paper" lays the CV out as a white sheet over the whole screen; print always uses that sheet. */
+  var cvEl = document.querySelector('.cv'), paperBtn = $('paper'), printing = false, wasPaper = false;
+  function setPaper(on) {
+    cvEl.classList.toggle('paper', on); document.body.classList.toggle('paper-open', on); paperBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    paperBtn.firstChild.textContent = on ? 'Close paper ' : 'Open as paper '; viewEl('cv').scrollTop = 0;
+  }
+  paperBtn.addEventListener('click', function () { setPaper(!cvEl.classList.contains('paper')); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.body.classList.contains('paper-open')) setPaper(false); });
+  window.addEventListener('hashchange', function () { if (location.hash !== '#cv' && document.body.classList.contains('paper-open')) setPaper(false); });
   window.addEventListener('beforeprint', function () { if (printing) return; printing = true; wasPaper = cvEl.classList.contains('paper'); cvEl.classList.add('paper'); });
   window.addEventListener('afterprint', function () { printing = false; cvEl.classList.toggle('paper', wasPaper); });
   $('print').addEventListener('click', function () { window.print(); });
@@ -353,7 +361,7 @@
       if (r.view === 'project' && !same) { renderProject(P[r.id]); newEl.scrollTop = 0; }
       if (oldEl && oldEl !== newEl) oldEl.classList.remove('on', 'out-l', 'out-r');
       if (!instant && !same) { newEl.classList.remove('out-l', 'out-r'); newEl.classList.add('on', dir > 0 ? 'from-r' : 'from-l'); void newEl.offsetWidth; newEl.classList.remove('from-r', 'from-l'); } else newEl.classList.add('on');
-      reveal(newEl); if (r.view === 'about') trace(); if (r.view === 'home') whatLines(); if (r.view === 'explore') segMove();
+      reveal(newEl); if (r.view === 'about') trace(); if (r.view === 'home') whatLines(); segAll();
       document.body.classList.toggle('scrolled', newEl.scrollTop > 10);
       if (r.anchor) { var t = $(r.anchor); if (t) setTimeout(function () { t.scrollIntoView({ behavior: instant || reducedMotion() ? 'auto' : 'smooth', block: 'start' }); }, instant ? 0 : 240); }
     }

@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=10">
+<link rel="stylesheet" href="css/site.css?v=11">
 </head>
 <body class="boot">
 <canvas id="scene" tabindex="-1" aria-hidden="true"></canvas>
@@ -51,7 +51,7 @@
 
     <div class="facts rv">
       <div><b>2026 –</b><span>Test automation with NI TestStand and LabVIEW</span></div>
-      <div><b>2 years</b><span>System verification on assignment at Saab Dynamics</span></div>
+      <div><b>3 years</b><span>System verification at Saab Dynamics, as a consultant</span></div>
       <div><b>MNRAS 2024</b><span>First-author paper from 21 3D MHD simulations</span></div>
     </div>
 
@@ -76,8 +76,8 @@
       <ol class="path rv">
         <li><span>2017</span><b>Lund University</b><em>BSc Physics, MSc Astrophysics</em></li>
         <li><span>2022</span><b>Leiden Observatory</b><em>Doctoral research</em></li>
-        <li><span>2024</span><b>BerDiz at Saab Dynamics</b><em>Test and verification engineer</em></li>
-        <li class="now"><span>2026</span><b>Sigma Technology Tech House</b><em>Consultant, test automation</em></li>
+        <li><span>2023</span><b>Saab Dynamics</b><em>System verification engineer, via BerDiz</em></li>
+        <li class="now"><span>2026</span><b>Sigma Technology Tech House</b><em>Test and verification engineer</em></li>
       </ol>
       <a class="link quiet rv" href="#about">The longer story</a>
     </section>
@@ -92,7 +92,7 @@
   <!-- WORK -->
   <section class="view" id="v-work" aria-label="Work">
     <header class="page-head"><p class="eyebrow">Work</p><h1>Engineering, research and the things I build at home.</h1></header>
-    <div class="chips glass" role="group" aria-label="Filter work" id="work-chips"></div>
+    <div class="chips seg" role="group" aria-label="Filter work" id="work-chips"></div>
     <div class="rows" id="rows"></div>
     <footer class="foot">Markus Strickert · Motala, Sweden</footer>
   </section>
@@ -146,7 +146,7 @@
 
     <section class="band">
       <header class="band-head rv"><p class="eyebrow">Experience</p><h2>Everything, in detail.</h2><p class="sub">Each bar shows how the work in that role was split.</p></header>
-      <div class="chips glass" role="group" aria-label="Filter experience" id="exp-chips"></div>
+      <div class="chips seg" role="group" aria-label="Filter experience" id="exp-chips"></div>
       <div class="exp" id="exp"></div>
     </section>
 
@@ -171,73 +171,87 @@
 
   <!-- CV: a static page -->
   <section class="view" id="v-cv" aria-label="CV">
-    <div class="cv-bar"><div class="chips glass" role="group" aria-label="CV appearance" id="cv-mode"></div><button type="button" class="link quiet" id="print">Print or save as PDF</button></div>
+    <div class="cv-bar"><button type="button" class="link" id="paper" aria-expanded="false">Open as paper <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-8 8"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button><button type="button" class="link quiet" id="print">Print or save as PDF</button></div>
     <div class="cv">
       <div class="cv-side">
-        <img class="cv-photo" src="img/markus.jpg" alt="Portrait of Markus Strickert" width="168" height="168">
-        <div><h1>Markus Strickert</h1><p class="role">Test automation and system verification engineer</p></div>
+        <img class="cv-photo" src="img/markus.jpg" alt="Portrait of Markus Frick Strickert" width="168" height="168">
+        <div><h1>Markus Frick Strickert</h1><p class="role">Lead Test Engineer</p></div>
         <div class="cv-meta">
           <span>Motala, Sweden</span>
           <a href="mailto:strickertmarkus@gmail.com">strickertmarkus@gmail.com</a>
           <a href="https://www.linkedin.com/in/markus-strickert-33524b19a/" target="_blank" rel="noopener">LinkedIn</a>
-          <span>Swedish, native · English, professional · German, basic</span>
+          <a href="https://github.com/strickertmarkus" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="cv-side-block">
+          <h2>Languages</h2>
+          <p>Swedish, native<br>English, professional<br>German, basic</p>
+        </div>
+        <div class="cv-side-block">
+          <h2>Licences</h2>
+          <p>B driver's licence<br>Leadership licence<br>Electrical safety certification</p>
         </div>
       </div>
       <div class="cv-main">
         <section>
-          <h2>Profile</h2>
-          <p class="summary">I test and validate systems across hardware, firmware and software, from early development to delivery. I design and automate tests, work hands-on in the lab and write the verification and requirements documents that go with them. My background is in astrophysics and scientific computing. An analytical mind, problem solving and teamwork in agile teams are what I lean on every day.</p>
+          <h2>Summary</h2>
+          <p class="summary">Versatile in data analysis, programming and system verification across hardware, software and firmware. Experienced with test automation, requirement specifications, applied physics and agile work. A strong programming and research background, and confident in hands-on lab work. Organised and adaptable, I value collaboration, enjoy taking on leadership roles and work well both in a group and on my own.</p>
         </section>
         <section>
           <h2>Experience</h2>
           <div class="job now"><span class="y">2026 – now</span><div>
-            <h3>Consultant, test automation</h3><p class="org">Sigma Technology Tech House</p>
-            <ul><li>Automated PATS tests for complex component boards with NI TestStand and LabVIEW.</li><li>MUX switch routing, electrical measurements, filtering, Ethernet and protocol validation.</li></ul></div></div>
-          <div class="job"><span class="y">2024 – 2026</span><div>
-            <h3>Test and verification engineer</h3><p class="org">BerDiz, on assignment at Saab Dynamics</p>
-            <ul><li>System verification across hardware, firmware and software, from integration and commissioning to customer delivery.</li><li>System test responsible in formal analyses and customer demonstrations, handling security-classified equipment.</li><li>Test automation and simulator improvements in C++ and Python.</li><li>Requirements and test specifications in DOORS NG; team-lead duties and agile retrospectives.</li></ul></div></div>
+            <h3>Test and verification engineer</h3><p class="org">Sigma Technology Tech House</p>
+            <ul><li>Developed and automated PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, integrating measurement instruments, hardware control and signal routing.</li><li>Responsible for hardware and software verification, requirements management, technical documentation and test reporting.</li><li>Delivered an automated test solution demonstrated to the customer, with positive feedback for its intuitive design, clear structure and reproducibility.</li></ul></div></div>
+          <div class="job"><span class="y">2023 – 2026</span><div>
+            <h3>System verification engineer</h3><p class="org">Saab Dynamics, as a consultant at BerDiz AB</p>
+            <ul><li>Initiated, documented and verified products from early development to customer delivery.</li><li>Key roles in automating tests through scripting, customising the simulators under development and coordinating lab spaces.</li><li>Formal verification documentation, and testing across hardware, firmware and software.</li><li>Highest possible score in the consultant evaluation, 2024.</li></ul></div></div>
           <div class="job"><span class="y">2022 – 2023</span><div>
-            <h3>Doctoral researcher</h3><p class="org">Leiden Observatory</p>
-            <ul><li>One of 13 projects selected from more than 500 applicants.</li><li>Star–planet interaction modelled with 3D MHD simulations on the Snellius supercomputer.</li><li>Improved simulation tools in Fortran and built analysis workflows in Python.</li><li>First-author paper in MNRAS. Teaching assistant in an exoplanet course.</li><li>Left the programme before the defence to move home to Sweden with my family.</li></ul></div></div>
+            <h3>PhD researcher</h3><p class="org">Leiden Observatory</p>
+            <ul><li>Modelled stellar winds and coronal mass ejections with 3D MHD simulations on the Snellius supercomputer.</li><li>Post-processed the results in (Py)Tecplot and compared them with Hubble and EUVE observations; Python and Linux/AWK for filtering and visualisation.</li><li>Teaching assistant in an exoplanet course, co-developing material around the MESA code.</li><li>Left the programme before the defence to move home to Sweden with my family.</li></ul></div></div>
         </section>
         <section>
           <h2>Education</h2>
-          <div class="job"><span class="y">2020 – 2022</span><div><h3>MSc Astrophysics</h3><p class="org">Lund University. Thesis: Black hole dynamics in stellar clusters.</p></div></div>
-          <div class="job"><span class="y">2017 – 2020</span><div><h3>BSc Physics</h3><p class="org">Lund University. Thesis: Galactic dynamics and the spread of galactic civilisations.</p></div></div>
+          <div class="job"><span class="y">2017 – 2022</span><div><h3>Master of Science, astrophysics</h3><p class="org">Lund University, 307.5 credits. BSc thesis on galactic dynamics and the spread of galactic civilisations; MSc thesis on black hole dynamics in stellar clusters.</p></div></div>
         </section>
         <section>
           <h2>Publication and talks</h2>
-          <div class="job"><span class="y">2024</span><div><h3>High-latitude coronal mass ejections on the young solar-like star AB Dor</h3><p class="org">K. M. Strickert, D. Evensberget, A. A. Vidotto. MNRAS 533, 1156–1165. <a href="https://academic.oup.com/mnras/article/533/1/1156/7729277" target="_blank" rel="noopener">Read on MNRAS</a></p></div></div>
-          <div class="job"><span class="y">2023</span><div><h3>BCool Exospace Weather Workshop</h3><p class="org">Max Planck Institute, Göttingen. Talk on how strong magnetic fields suppress eruptions on AB Doradus.</p></div></div>
-          <div class="job"><span class="y">2021 – 2022</span><div><h3>Astroflow Workshop</h3><p class="org">Leiden Observatory. Presented my Master's thesis research.</p></div></div>
+          <div class="job"><span class="y">2024</span><div><h3>High-latitude coronal mass ejections on the young solar-like star AB Dor</h3><p class="org">First author, MNRAS 533, 1156–1165. <a href="https://academic.oup.com/mnras/article/533/1/1156/7729277" target="_blank" rel="noopener">Read on MNRAS</a></p></div></div>
+          <div class="job"><span class="y">2023</span><div><h3>BCool Exospace Weather Workshop</h3><p class="org">Max Planck Institute, Göttingen. Talk on how strong overlying magnetic fields suppress eruptions on AB Doradus.</p></div></div>
+          <div class="job"><span class="y">2022</span><div><h3>Astroflow Workshop</h3><p class="org">Leiden Observatory. Presented my Master's thesis research.</p></div></div>
+        </section>
+        <section>
+          <h2>Merits and awards</h2>
+          <div class="kvs">
+            <div><span>2024</span><b>Highest possible score in the consultant evaluation as a system verification engineer at Saab Dynamics</b></div>
+            <div><span>2023</span><b>KISS workshop and think tank, Caltech: selected as one of a few early-career candidates to help shape future space missions for extrasolar space weather</b></div>
+            <div><span>Award</span><b>Bängt Bodèns Fond: stipend for leadership and commitment in the Frisksport association in Motala</b></div>
+          </div>
         </section>
         <section>
           <h2>Skills</h2>
           <div class="kvs">
-            <div><span>Test</span><b>NI TestStand, LabVIEW, NI MAX, lab work on hardware and firmware</b></div>
-            <div><span>Verification</span><b>DOORS NG, IFS, JIRA, formal verification documents, work to military standards</b></div>
-            <div><span>Programming</span><b>Python, C++, Bash, Fortran, AWK, VBA</b></div>
-            <div><span>Simulation</span><b>3D MHD, Monte Carlo, HPC clusters, Tecplot</b></div>
-            <div><span>Other</span><b>Git, LaTeX, VS Code, Office 365, AI-assisted development</b></div>
+            <div><span>Test</span><b>NI TestStand, LabVIEW, NI Switch Executive, NI MAX; electronics testing, signal processing in hardware and software</b></div>
+            <div><span>Verification</span><b>Test and requirement specifications in DOORS NG, formal verification documents, agile work in JIRA</b></div>
+            <div><span>Programming</span><b>Python, C/C++, Fortran, Bash/AWK, Excel VBA, Git, LaTeX</b></div>
+            <div><span>Scientific</span><b>BATS-R-US (AWSoM), MOCCA, Nbody6++GPU, MESA, CFD, SPH; HPC on Snellius and Kepler</b></div>
+            <div><span>Analysis</span><b>NumPy, SciPy, Tecplot, Topcat, Gnuplot, Manim; Runge-Kutta integrators, Fourier analysis, machine learning</b></div>
           </div>
         </section>
         <section>
           <h2>Leadership</h2>
           <div class="kvs">
-            <div><span>2021 – 2022</span><b>Board member, ALVA astronomy association, Lund University</b></div>
-            <div><span>2019 – 2020</span><b>Board member and head of the mentor committee, Associates, Lund University</b></div>
-            <div><span>2011 – 2017</span><b>Coach and board member, Motala Frisksportklubb</b></div>
+            <div><span>2017 – 2020</span><b>Associates, Lund University: head of the mentor committee in the science department</b></div>
+            <div><span>2011 – 2017</span><b>Motala Frisksportklubb: board member 2013–2014, instructor in trampoline, circus, freerunning and gymnastics, helped design the freerunning park opened in 2014</b></div>
           </div>
         </section>
         <a class="link quiet cv-more" href="#about">Full experience, with every role and workshop</a>
       </div>
     </div>
-    <footer class="foot">Markus Strickert · Motala, Sweden</footer>
+    <footer class="foot">Markus Frick Strickert · Motala, Sweden</footer>
   </section>
 </main>
 
-<script src="js/data.js?v=5"></script>
+<script src="js/data.js?v=6"></script>
 <script src="js/scene.js?v=10"></script>
-<script src="js/app.js?v=11"></script>
+<script src="js/app.js?v=12"></script>
 </body>
 </html>

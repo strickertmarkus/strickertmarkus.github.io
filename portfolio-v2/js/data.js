@@ -172,11 +172,11 @@
       id: 'sv', cat: 'engineering', motif: 'vmodel',
       short: 'System verification',
       title: 'System verification',
-      kind: 'Test and verification engineer', where: 'BerDiz, on assignment at Saab Dynamics', period: '2024–2026',
+      kind: 'System verification engineer', where: 'Saab Dynamics, via BerDiz', period: '2023–2026',
       desc: 'Verification from early development to customer delivery, across hardware, firmware and software.',
-      lead: 'Two years of system verification across software and hardware. I started, wrote and verified products from early development to customer delivery, with hands-on integration and commissioning along the way.',
+      lead: 'Three years of system verification across software and hardware. I started, wrote and verified products from early development to customer delivery, with hands-on integration and commissioning along the way.',
       skills: ['C++', 'Python', 'Bash', 'DOORS NG'],
-      stats: [['2 years', 'system-level verification'], ['HW · FW · SW', 'tested together in the lab']],
+      stats: [['3 years', 'system-level verification'], ['HW · FW · SW', 'tested together in the lab'], ['Top score', 'in the consultant evaluation, 2024']],
       facts: [['Role', 'System test responsible'], ['Requirements', 'DOORS NG'], ['Way of working', 'Agile, JIRA']],
       split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]],
       blocks: [
@@ -197,12 +197,12 @@
       id: 'ta', cat: 'engineering', motif: 'matrix',
       short: 'Test automation',
       title: 'Test automation',
-      kind: 'Consultant', where: 'Sigma Technology Tech House', period: '2026 – now',
-      desc: 'Automated tests for complex electronics boards: electrical measurements, filtering, Ethernet and protocol checks.',
-      lead: 'I design and run automated PATS tests with NI TestStand and National Instruments tools. The work covers switch routing, reading circuit specifications and building test suites for complex component boards.',
+      kind: 'Test and verification engineer', where: 'Sigma Technology Tech House', period: '2026 – now',
+      desc: 'Automated production tests for circuit boards: instruments, hardware control and signal routing in one sequence.',
+      lead: 'I develop and automate PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, bringing measurement instruments, hardware control and signal routing together. I am also responsible for verification, requirements, documentation and test reports. The first solution was demonstrated to the customer and praised for its intuitive design, clear structure and reproducibility.',
       skills: ['TestStand', 'LabVIEW'],
       stats: [],
-      facts: [['Tools', 'NI TestStand, LabVIEW, NI MAX'], ['Scope', 'Switch routing, measurement, protocols']],
+      facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive'], ['Scope', 'PCB production test, signal routing, measurement']],
       split: [['Test automation and TestStand', 35], ['Electrical measurements', 25], ['National Instruments tools', 25], ['Ethernet and protocol testing', 15]],
       blocks: [
         { type: 'list', title: 'What the tests cover', items: [
@@ -211,7 +211,8 @@
           'Electrical measurements and filtering.',
           'Ethernet connectivity and protocol validation.'
         ] },
-        { type: 'table', title: 'Stack', rows: [['Sequencing', 'NI TestStand'], ['Instrument code', 'LabVIEW'], ['Configuration and debugging', 'NI MAX and NI debugging tools']] }
+        { type: 'table', title: 'Stack', rows: [['Sequencing', 'NI TestStand'], ['Instrument code', 'LabVIEW'], ['Signal routing', 'NI Switch Executive'], ['Configuration and debugging', 'NI MAX and NI debugging tools']] },
+        { type: 'quote', title: 'Outcome', body: 'An automated test solution demonstrated to the customer, who singled out its intuitive design, clear structure and reproducibility.' }
       ],
       links: []
     },
@@ -256,10 +257,10 @@
   /* Everything from the old "Detailed Competence Profile", with the competence split per role. */
   var GROUPS = [['current', 'Current and recent'], ['academic', 'Academic and research'], ['talks', 'Conferences and workshops'], ['projects', 'Projects and other work'], ['lead', 'Leadership and volunteering'], ['edu', 'Education']];
   var EXPERIENCE = [
-    { g: 'current', y: '2026 – now', title: 'Consultant, test automation', org: 'Sigma Technology Tech House',
-      text: 'Design and run automated PATS tests with NI TestStand and National Instruments tools: MUX switch routing, circuit specification analysis, and test suites for electrical measurements, filtering, Ethernet connectivity and protocol validation on complex component boards. LabVIEW, NI MAX and NI debugging tools.',
+    { g: 'current', y: '2026 – now', title: 'Test and verification engineer', org: 'Sigma Technology Tech House',
+      text: 'Developed and automated PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, integrating measurement instruments, hardware control and signal routing. Responsible for hardware and software verification, requirements, technical documentation and test reporting. Delivered an automated test solution demonstrated to the customer, with positive feedback for its intuitive design, clear structure and reproducibility.',
       split: [['Test automation and TestStand', 35], ['Electrical measurements', 25], ['National Instruments tools', 25], ['Ethernet and protocol testing', 15]], project: 'ta' },
-    { g: 'current', y: '2024 – 2026', title: 'Test and verification engineer', org: 'BerDiz, on assignment at Saab Dynamics',
+    { g: 'current', y: '2023 – 2026', title: 'System verification engineer', org: 'Saab Dynamics, as a consultant at BerDiz AB',
       text: 'Started, wrote and verified products from early development to customer delivery. Led test automation through scripting, managed the customisation of simulators and coordinated lab spaces. Formal verification documents, and testing across hardware, firmware and software.',
       split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]], project: 'sv' },
     { g: 'academic', y: '2022 – 2023', title: 'Doctoral researcher', org: 'Leiden Observatory',
@@ -274,6 +275,9 @@
     { g: 'academic', y: '2020', title: 'Bachelor\'s thesis', org: 'Lund University',
       text: 'Modelled epicyclic motion of stars in the Milky Way and simulated planetary abiogenesis with Monte Carlo methods, in a self-consistent Python model of how civilisations develop and spread across the galaxy.',
       split: [['Python development', 40], ['Astrophysical modelling', 35], ['Simulation and analysis', 25]], project: 'gal' },
+    { g: 'talks', y: '2023', title: 'KISS workshop and think tank', org: 'Caltech, California',
+      text: 'Nominated and selected as one of a few early-career candidates for a KISS workshop on future space missions for extrasolar space weather.',
+      split: [['Mission concepts', 50], ['Collaboration', 50]] },
     { g: 'talks', y: '2023', title: 'BCool Exospace Weather Workshop', org: 'Max Planck Institute, Göttingen',
       text: 'Talk on how strong overlying magnetic fields suppress coronal mass ejections on AB Doradus, from 3D MHD models in BATS-R-US.',
       split: [['3D MHD modelling', 50], ['Technical presentation', 50]] },
