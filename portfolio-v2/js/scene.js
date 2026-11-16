@@ -71,13 +71,13 @@
       tgt.zoom = clamp(Math.min(aw / sw, ah / sh), .3, 1.5);
       tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? top3 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
       if (narrow) { /* height decides the size; the columns are squeezed sideways so skill and area names stay on screen */
-        var half3 = (W - 86 - 100) / 2; tgt.zoom = clamp(ah / sh, .3, 1.3); tgt.hx = half3 / (135 * tgt.zoom); tgt.cx = 86 + half3;
+        var half3 = (W - 98 - 104) / 2; tgt.zoom = clamp(ah / 380, .3, 1.3); tgt.hx = half3 / (135 * tgt.zoom); tgt.cx = 98 + half3;
       }
     } else if (view === 'home') {
       if (narrow) { /* between the hero text and the ticker, with skill names on the left and area names on the right */
-        var top2 = homeTop || H * .46, room2 = (homeBottom || H * .8) - top2 - 20, padL = 86, padR = 100, half = (W - padL - padR) / 2;
+        var top2 = homeTop || H * .46, room2 = (homeBottom || H * .8) - top2 - 40, padL = 98, padR = 104, half = (W - padL - padR) / 2;
         tgt.zoom = 1; tgt.hx = half / 135; tgt.hy = clamp(room2 / 380, .3, 1); projNames = false;
-        tgt.cx = padL + half; tgt.cy = top2 + 10 + room2 / 2; tgt.labels = room2 >= 140 ? .85 : 0; tgt.bright = room2 >= 80 ? 1 : 0; return done();
+        tgt.cx = padL + half; tgt.cy = top2 + 26 + room2 / 2; tgt.labels = room2 >= 140 ? .85 : 0; tgt.bright = room2 >= 80 ? 1 : 0; return done();
       }
       else {
         /* The network gets the space to the right of the hero text, with its names. The columns are squeezed
@@ -213,7 +213,7 @@
       if (n.type === 'p') {
         if (!projNames || (narrow && n !== sel && n !== hover)) continue;
         ctx.font = ((n === sel || n === hover) && focus ? '600 13px ' : '500 12px ') + 'Inter,system-ui,sans-serif';
-        ctx.fillStyle = strong ? '#F0F6FC' : '#B6BEC9'; ctx.textAlign = 'left'; ctx.fillText(n.label, p[0] + r + 9, p[1]);
+        ctx.fillStyle = strong ? '#F0F6FC' : '#B6BEC9'; ctx.textAlign = 'left'; ctx.fillText(n.label, p[0] + r + (isSel ? 18 : 9), p[1]); /* clear of the selection ring */
       } else {
         if (n.type === 's' && narrow && cam.zoom < .5 && !strong) continue; /* small phones: only the skills of the selection are named */
         ctx.font = (n.type === 'd' ? '600 12px ' : '500 11.5px ') + 'Inter,system-ui,sans-serif';

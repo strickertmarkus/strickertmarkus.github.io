@@ -207,9 +207,10 @@
     grip.type = 'button'; grip.setAttribute('aria-label', 'Show or hide details'); grip.setAttribute('aria-expanded', sheetEl.classList.contains('open') ? 'true' : 'false');
     head.addEventListener('click', toggleSheet); panel.appendChild(head); panel.appendChild(more);
     if (p) {
-      var eb = h('p', 'eyebrow', meta(p)); eb.style.color = COLOR[p.cat]; head.appendChild(eb); head.appendChild(h('h3', null, p.title));
+      /* phones: the eyebrow keeps to one line, and where it happened moves into the details */
+      var eb = h('p', 'eyebrow', phone.matches ? [CATNAME[p.cat], p.period].filter(Boolean).join(' · ') : meta(p)); eb.style.color = COLOR[p.cat]; head.appendChild(eb); head.appendChild(h('h3', null, p.title));
       more.appendChild(h('p', 'd', p.desc));
-      var kv = h('div', 'kv'); p.facts.forEach(function (f) { kv.appendChild(h('div', null, [h('span', null, f[0]), h('b', null, f[1])])); }); more.appendChild(kv);
+      var kv = h('div', 'kv'); (phone.matches ? [['Where', p.where]] : []).concat(p.facts).forEach(function (f) { kv.appendChild(h('div', null, [h('span', null, f[0]), h('b', null, f[1])])); }); more.appendChild(kv);
       more.appendChild(h('p', 'used', ['Built with ', h('b', null, p.skills.join(' · '))]));
       var b1 = h('button', null, arrow(-1)), b2 = h('button', null, arrow(1)); b1.type = b2.type = 'button'; b1.setAttribute('aria-label', 'Previous project'); b2.setAttribute('aria-label', 'Next project');
       b1.addEventListener('click', function () { stepProject(-1); }); b2.addEventListener('click', function () { stepProject(1); });
