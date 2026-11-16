@@ -194,7 +194,7 @@
   /* ---------- explore panel ---------- */
   var panel = $('panel');
   function stepProject(d) { var id = Scene.selected(), i = P[id] ? PROJECTS.indexOf(P[id]) : -1; i = (i + d + PROJECTS.length) % PROJECTS.length; Scene.select(PROJECTS[i].id); }
-  /* On phones the sheet starts as a short summary so the network keeps the screen; the grip or the title opens the rest. */
+  /* On phones the selection starts as a short summary so the network keeps the screen; the chevron or the title opens the rest. */
   var sheetEl = panel.parentNode, phone = window.matchMedia('(max-width: 760px)');
   function toggleSheet() {
     if (!phone.matches) return;
@@ -224,8 +224,8 @@
     panel.classList.remove('swap'); if (!document.body.classList.contains('boot')) { void panel.offsetWidth; panel.classList.add('swap'); }
     requestAnimationFrame(sheet);
   }
-  /* The network is laid out against the short sheet; an opened sheet slides over it instead of squeezing it. */
-  function sheet() { if (!sheetEl.classList.contains('open')) Scene.setSheetTop(sheetEl.getBoundingClientRect().top); }
+  /* Phones: the network is laid out below the short selection; opened details fold down over it on their own backdrop. */
+  function sheet() { if (phone.matches && !sheetEl.classList.contains('open')) Scene.setSheetTop(sheetEl.getBoundingClientRect().bottom); }
   window.addEventListener('resize', sheet);
   Scene.onSelect(renderPanel);
   chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });

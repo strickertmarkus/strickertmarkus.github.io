@@ -99,7 +99,6 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .facts b{font-size:clamp(24px,2.6vw,34px);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .facts span{font-size:14px;color:var(--muted);max-width:22em}
 
-.net-cap{display:none}
 .ticker{margin:0 calc(var(--pad)*-1);overflow:hidden;border-block:1px solid var(--line);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 .ticker-in{display:flex;width:max-content;animation:tick 46s linear infinite}
 .ticker span{padding:18px 30px;font-size:14px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);white-space:nowrap;position:relative}
@@ -382,12 +381,8 @@ canvas.motif{width:100%;height:100%;display:block}
   .fx-spot{display:none}
   /* Phones: the hero keeps a fixed 236 px under the caption for the network, so it is large enough to carry its names; the ticker follows. */
   .hero{min-height:0;max-width:none;justify-content:flex-start;padding:6px 0 236px;gap:16px}
-  /* Phones: the network takes the links' place, under a caption that says what it shows and leads to Explore. */
+  /* Phones: the network takes the links' place. */
   .hero .cta{display:none}
-  .net-cap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .net-cap i{font-style:normal;color:var(--amber)}
-  .net-cap b{display:inline-flex;align-items:center;gap:6px;color:var(--amber);font-weight:600}
-  .net-cap svg{width:16px;height:16px}
   .what,.values{grid-template-columns:minmax(0,1fr)}
   .what li:nth-child(even){margin-top:0}
   .feat{grid-template-columns:minmax(0,1fr);gap:16px}
@@ -412,18 +407,21 @@ canvas.motif{width:100%;height:100%;display:block}
   #v-explore .chips{top:66px;left:16px;right:16px}
   .chips button{padding:0 10px;gap:6px;font-size:12.5px}
   .hint{display:none}
-  /* The sheet: a short summary by default so the network keeps the screen; .open shows the rest. */
-  .panel{left:8px;right:8px;top:auto;bottom:calc(max(env(safe-area-inset-bottom,0px),12px) + 74px);width:auto;max-height:64%;padding:4px 22px 6px;border-radius:26px}
-  .panel-in,.sheet-head,.more{gap:8px}
-  .sheet-head{cursor:pointer}
-  .grip{display:block;position:relative;width:56px;height:22px;margin:0 auto -2px}
-  .grip::before{content:"";position:absolute;left:10px;right:10px;top:9px;height:4px;border-radius:2px;background:rgba(255,255,255,.28)}
-  .panel h3{font-size:20px}
+  /* Phones: the selection sits in the page under the filters, no card; the network fills the space below it.
+     The chevron or the title shows the details, and the network makes room. */
+  .panel{left:0;right:0;top:120px;bottom:auto;width:auto;max-height:none;overflow:visible;padding:0 22px;border:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none}
+  .panel-in,.sheet-head,.more{gap:6px}
+  .sheet-head{position:relative;cursor:pointer;padding-right:44px}
+  .grip{display:block;position:absolute;right:-12px;top:6px;width:44px;height:44px}
+  .grip::before{content:"";position:absolute;left:17px;top:15px;width:9px;height:9px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg);transition:transform .4s var(--ease)}
+  .panel.open .grip::before{transform:translate(0,5px) rotate(-135deg)}
+  .panel h3{font-size:22px}
   .panel p.d{font-size:14px}
   .panel:not(.open) .more{display:none}
   .panel:not(.open) .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .panel:not(.open) h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .panel.open .more{padding-bottom:4px}
+  .panel.open{background:linear-gradient(180deg,rgba(11,14,20,.97) 0,rgba(11,14,20,.97) calc(100% - 28px),rgba(11,14,20,0));padding-bottom:28px}
+  .panel.open .more{max-height:46vh;overflow:auto;padding-bottom:2px}
+  .panel .acts{border-bottom:1px solid var(--line);padding-bottom:4px}
   .about-top{grid-template-columns:minmax(0,1fr);min-height:0;gap:26px}
   .portrait{width:150px;border-radius:28px}
   .portrait img{border-radius:28px}

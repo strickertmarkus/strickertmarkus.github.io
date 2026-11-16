@@ -66,10 +66,13 @@
     var sw = narrow ? 380 : 860, sh = narrow ? 440 : 540;
     tgt.hx = 1; tgt.hy = 1; projNames = true;
     if (view === 'explore') {
-      /* Phones: the network gets what is left between the filter row and the sheet with the selected project. */
-      var aw = narrow ? W : W - 372 - 64 - 40, ah = narrow ? (sheetTop || H * .7) - 146 : H - 250;
+      /* Phones: the network fills what is left between the selection (sheetTop is its bottom edge) and the bottom bar. */
+      var top3 = (sheetTop || H * .4) + 14, ah = narrow ? window.innerHeight - 96 - top3 : H - 250, aw = narrow ? W : W - 372 - 64 - 40;
       tgt.zoom = clamp(Math.min(aw / sw, ah / sh), .3, 1.5);
-      tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 130 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
+      tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? top3 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
+      if (narrow) { /* height decides the size; the columns are squeezed sideways so skill and area names stay on screen */
+        var half3 = (W - 86 - 100) / 2; tgt.zoom = clamp(ah / sh, .3, 1.3); tgt.hx = half3 / (135 * tgt.zoom); tgt.cx = 86 + half3;
+      }
     } else if (view === 'home') {
       if (narrow) { /* between the hero text and the ticker, with skill names on the left and area names on the right */
         var top2 = homeTop || H * .46, room2 = (homeBottom || H * .8) - top2 - 20, padL = 86, padR = 100, half = (W - padL - padR) / 2;
