@@ -228,7 +228,16 @@
   /* Phones: the network is laid out below the short selection; opened details fold down over it on their own backdrop. */
   function sheet() { if (phone.matches && !sheetEl.classList.contains('open')) Scene.setSheetTop(sheetEl.getBoundingClientRect().bottom); }
   window.addEventListener('resize', sheet);
-  Scene.onSelect(renderPanel);
+  /* Phones have no filter row: tapping an area in the network filters to it, tapping it again goes back to all. */
+  var lastSel = null;
+  Scene.onSelect(function (id) {
+    var area = id.indexOf('d:') === 0;
+    if (phone.matches) {
+      if (area && id === lastSel) { lastSel = null; Scene.setFilter('all'); Scene.select(PROJECTS.filter(function (q) { return q.cat === id.slice(2); })[0].id); return; }
+      Scene.setFilter(area ? id.slice(2) : 'all');
+    }
+    lastSel = id; renderPanel(id);
+  });
   chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
   document.addEventListener('keydown', function (e) { if (current.view !== 'explore' || /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'ArrowRight') { stepProject(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { stepProject(-1); e.preventDefault(); } });
 

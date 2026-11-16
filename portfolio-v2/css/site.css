@@ -404,12 +404,12 @@ canvas.motif{width:100%;height:100%;display:block}
   .stats div + div{padding-left:0;border-left:0}
   .tbl div{grid-template-columns:minmax(0,1fr);gap:2px}
   .next a.big{align-items:flex-start;text-align:left}
-  #v-explore .chips{top:66px;left:16px;right:16px}
+  #v-explore .chips{display:none} /* phones filter by tapping an area in the network */
   .chips button{padding:0 10px;gap:6px;font-size:12.5px}
   .hint{display:none}
   /* Phones: the selection sits in the page under the filters, no card; the network fills the space below it.
      The chevron or the title shows the details, and the network makes room. */
-  .panel{left:0;right:0;top:120px;bottom:auto;width:auto;max-height:none;overflow:visible;padding:0 22px;border:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none}
+  .panel{left:0;right:0;top:74px;bottom:auto;width:auto;max-height:none;overflow:visible;padding:0 22px;border:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none}
   .panel-in,.sheet-head,.more{gap:6px}
   .sheet-head{position:relative;cursor:pointer;padding-right:44px}
   .grip{display:block;position:absolute;right:-12px;top:6px;width:44px;height:44px}

@@ -219,7 +219,7 @@
         ctx.font = (n.type === 'd' ? '600 12px ' : '500 11.5px ') + 'Inter,system-ui,sans-serif';
         ctx.fillStyle = n.type === 'd' ? COLOR[n.cat] : (strong ? '#F0F6FC' : '#B6BEC9');
         if (n.type === 's') { ctx.textAlign = 'right'; ctx.fillText(n.label, p[0] - r - 8, p[1]); }
-        else { ctx.textAlign = 'left'; ctx.fillText(n.label, p[0] + r + 9, p[1]); }
+        else { ctx.textAlign = 'left'; ctx.fillText(n.label, p[0] + r + (isSel ? 18 : 9), p[1]); }
       }
     }
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
