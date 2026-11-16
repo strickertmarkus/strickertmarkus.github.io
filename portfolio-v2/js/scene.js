@@ -71,10 +71,10 @@
       tgt.zoom = clamp(Math.min(aw / sw, ah / sh), .3, 1.5);
       tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 130 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
     } else if (view === 'home') {
-      if (narrow) { /* a wide band between the hero text and the ticker: full width, flattened (hy) to the height that is free */
-        var room2 = (homeBottom || H * .8) - (homeTop || H * .46) - 16;
-        tgt.zoom = 1; tgt.hx = clamp((W - 64) / 270, 1, 1.5); tgt.hy = clamp(room2 / 400, .2, 1);
-        tgt.cx = W / 2; tgt.cy = (homeTop || H * .46) + 8 + room2 / 2; tgt.labels = 0; tgt.bright = room2 >= 70 ? 1 : 0; return done();
+      if (narrow) { /* between the hero text and the ticker, with skill names on the left and area names on the right */
+        var top2 = homeTop || H * .46, room2 = (homeBottom || H * .8) - top2 - 20, padL = 86, padR = 100, half = (W - padL - padR) / 2;
+        tgt.zoom = 1; tgt.hx = half / 135; tgt.hy = clamp(room2 / 380, .3, 1); projNames = false;
+        tgt.cx = padL + half; tgt.cy = top2 + 10 + room2 / 2; tgt.labels = room2 >= 140 ? .85 : 0; tgt.bright = room2 >= 80 ? 1 : 0; return done();
       }
       else {
         /* The network gets the space to the right of the hero text, with its names. The columns are squeezed
@@ -95,8 +95,9 @@
   }
   function done() { if (first) { for (var k in tgt) cam[k] = tgt[k]; first = false; } }
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2); W = window.innerWidth; H = window.innerHeight; narrow = W <= 760;
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    /* The canvas is as tall as the largest viewport (100lvh), so Safari's toolbar showing and hiding while you scroll does not move the network. */
+    dpr = Math.min(window.devicePixelRatio || 1, 2); W = window.innerWidth; H = cv.clientHeight || window.innerHeight; narrow = W <= 760;
+    var pw = Math.round(W * dpr), ph = Math.round(H * dpr); if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
     layout(); aim();
   }
 
@@ -125,7 +126,7 @@
     var pitch = clamp(.1 + userPitch + (1 - me) * .4 + (explore ? 0 : (pmy - .5) * .12), -.5, 1.1);
     cyw = Math.cos(yaw); syw = Math.sin(yaw); cpt = Math.cos(pitch); spt = Math.sin(pitch);
     /* On Home the network belongs to the hero: it scrolls away with it and fades out. */
-    var home = view === 'home', fade = home ? 1 - clamp(scrollY / (H * .5), 0, 1) : 1, lift = home ? scrollY * .9 : 0;
+    var home = view === 'home', fade = home ? 1 - clamp(scrollY / (H * .5), 0, 1) : 1, lift = home ? scrollY * (narrow ? 1 : .9) : 0;
     var B = cam.bright * fade, i, p, n;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.clearRect(0, 0, W, H);

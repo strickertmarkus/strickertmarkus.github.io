@@ -30,7 +30,7 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 ::selection{background:rgba(253,186,116,.3)}
 
 /* ---------- background layers ---------- */
-#scene{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:none;outline:none}
+#scene{position:fixed;top:0;left:0;width:100%;height:100vh;height:100lvh;display:block;z-index:0;touch-action:none;outline:none}
 .fx{position:fixed;inset:0;z-index:1;pointer-events:none}
 .fx i{position:absolute;inset:0}
 .fx-grid{background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.4px);background-size:30px 30px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 70% 40%,#000 0,transparent 75%);mask-image:radial-gradient(ellipse 70% 60% at 70% 40%,#000 0,transparent 75%);opacity:.5}
@@ -99,6 +99,7 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .facts b{font-size:clamp(24px,2.6vw,34px);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .facts span{font-size:14px;color:var(--muted);max-width:22em}
 
+.net-cap{display:none}
 .ticker{margin:0 calc(var(--pad)*-1);overflow:hidden;border-block:1px solid var(--line);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 .ticker-in{display:flex;width:max-content;animation:tick 46s linear infinite}
 .ticker span{padding:18px 30px;font-size:14px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);white-space:nowrap;position:relative}
@@ -379,7 +380,14 @@ canvas.motif{width:100%;height:100%;display:block}
   .cv.paper{grid-template-columns:minmax(0,1fr);gap:28px;padding:26px 22px}
   .fx-grid{-webkit-mask-image:radial-gradient(ellipse 90% 50% at 50% 30%,#000 0,transparent 80%);mask-image:radial-gradient(ellipse 90% 50% at 50% 30%,#000 0,transparent 80%)}
   .fx-spot{display:none}
-  .hero{min-height:calc(100vh - 240px);min-height:calc(100svh - 240px);max-width:none;justify-content:flex-start;padding-top:6px;gap:16px}
+  /* Phones: the hero keeps a fixed 236 px under the caption for the network, so it is large enough to carry its names; the ticker follows. */
+  .hero{min-height:0;max-width:none;justify-content:flex-start;padding:6px 0 236px;gap:16px}
+  /* Phones: the network takes the links' place, under a caption that says what it shows and leads to Explore. */
+  .hero .cta{display:none}
+  .net-cap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .net-cap i{font-style:normal;color:var(--amber)}
+  .net-cap b{display:inline-flex;align-items:center;gap:6px;color:var(--amber);font-weight:600}
+  .net-cap svg{width:16px;height:16px}
   .what,.values{grid-template-columns:minmax(0,1fr)}
   .what li:nth-child(even){margin-top:0}
   .feat{grid-template-columns:minmax(0,1fr);gap:16px}

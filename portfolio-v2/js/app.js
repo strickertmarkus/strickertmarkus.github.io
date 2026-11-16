@@ -363,9 +363,13 @@
   function whatLines() { var vh = window.innerHeight; whatItems.forEach(function (li) { var r = li.getBoundingClientRect(); li.style.setProperty('--w', Math.max(0, Math.min(1, (vh * .92 - r.top) / (vh * .4))).toFixed(3)); }); }
   viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') { Scene.setScroll(this.scrollTop); whatLines(); } }, { passive: true });
   window.addEventListener('resize', whatLines);
-  var heroText = document.querySelector('.hero h1'), heroCta = document.querySelector('.hero .cta'), tickerEl = document.querySelector('.ticker'), homeEl = viewEl('home');
+  var heroText = document.querySelector('.hero h1'), heroEl = document.querySelector('.hero'), tickerEl = document.querySelector('.ticker'), homeEl = viewEl('home');
   /* Where the network may sit on Home: right of the headline on wide screens, between the text and the ticker on phones. */
-  function heroEdge() { var st = homeEl.scrollTop; Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, heroCta.getBoundingClientRect().bottom + st, tickerEl.getBoundingClientRect().top + st); }
+  function heroEdge() {
+    var st = homeEl.scrollTop, bottom = 0; /* the lowest visible part of the hero: the links on wide screens, the caption on phones */
+    [].forEach.call(heroEl.children, function (c) { if (c.offsetParent) bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
+    Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, bottom + st, tickerEl.getBoundingClientRect().top + st);
+  }
   window.addEventListener('resize', heroEdge);
   var journey = $('journey');
   function trace() { var r = journey.getBoundingClientRect(); journey.style.setProperty('--p', Math.max(0, Math.min(1, (window.innerHeight * .62 - r.top) / Math.max(1, r.height))).toFixed(3)); }
