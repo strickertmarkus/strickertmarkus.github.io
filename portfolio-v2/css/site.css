@@ -304,6 +304,20 @@ canvas.motif{width:100%;height:100%;display:block}
 .comp-items.swap{animation:swap .5s var(--ease)}
 
 .exp{display:flex;flex-direction:column;margin-top:26px;max-width:980px}
+/* Work: the competence ring as an overview above the list. */
+.work-comp{max-width:1040px;margin:8px 0 56px}
+.work-comp > h2{margin-bottom:22px}
+/* CV: the full history folds out under the sheet. */
+.history{max-width:1040px;margin-top:72px;border-top:1px solid var(--line)}
+.history summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 0;min-height:44px}
+.history summary::-webkit-details-marker{display:none}
+.history summary span{display:flex;flex-direction:column;gap:4px}
+.history summary h2{font-size:clamp(24px,2.6vw,34px);font-weight:700;letter-spacing:-.03em}
+.history summary em{font-style:normal;font-size:14px;color:var(--muted)}
+.history summary i{flex:0 0 auto;width:12px;height:12px;margin-right:6px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(45deg) translate(-3px,-3px);transition:transform .4s var(--ease)}
+.history[open] summary i{transform:rotate(-135deg)}
+.history .chips{margin-top:2px}
+.paper-open .history{display:none}
 .exp-g{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:34px 0 12px}
 .exp-g.hide,.xp.hide{display:none}
 .xp{display:grid;grid-template-columns:120px minmax(0,1fr);gap:6px 24px;padding:22px 0;border-top:1px solid var(--line)}
@@ -470,7 +484,7 @@ canvas.motif{width:100%;height:100%;display:block}
 /* Print: only the CV sheet. app.js switches it to the light sheet before printing. */
 @media print{
   html,body{height:auto;overflow:visible;background:#fff}
-  #scene,.fx,.topbar,.tabs,.brand,.reach,.foot,.cv-bar,.view:not(#v-cv){display:none!important}
+  #scene,.fx,.topbar,.tabs,.brand,.reach,.foot,.cv-bar,.history,.view:not(#v-cv){display:none!important}
   .view{position:static;opacity:1;visibility:visible;padding:0;overflow:visible}
   .cv.paper{box-shadow:none;padding:0;max-width:none;border-radius:0}
 }

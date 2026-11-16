@@ -53,7 +53,7 @@
           'Mass, velocity and kinetic energy all rise with poloidal magnetic flux, with separate power-law fits for open and closed regions and energy differences of up to six orders of magnitude.'
         ] },
         { type: 'quote', title: 'What it means', body: 'High-latitude active regions in open field are the natural place for energetic eruptions on AB Dor. That fits the 1994 EUVE dimming and the star\'s known polar spots.' },
-        { type: 'text', title: 'Presented', body: ['BCool Exospace Weather Workshop, Max Planck Institute, Göttingen, 2023.'] }
+        { type: 'list', title: 'Presented at', items: ['BCool Exospace Weather Workshop, Max Planck Institute, Göttingen, 2023: talk on how strong overlying magnetic fields suppress CMEs on AB Dor.', 'KISS workshop and think tank, Caltech, 2023: selected as one of a few early-career candidates to shape future space missions for extrasolar space weather.'] }
       ],
       cite: 'K. M. Strickert, D. Evensberget, A. A. Vidotto (2024). High-latitude coronal mass ejections on the young solar-like star AB Dor. Monthly Notices of the Royal Astronomical Society 533, 1156–1165.',
       links: [['Read on MNRAS', 'https://academic.oup.com/mnras/article/533/1/1156/7729277'], ['DOI 10.1093/mnras/stae1884', 'https://doi.org/10.1093/mnras/stae1884'], ['arXiv:2408.00637', 'https://arxiv.org/abs/2408.00637'], ['PDF', '../Paper_PhD.pdf']]
@@ -86,7 +86,7 @@
           '47 Tucanae is best explained by an intermediate-mass black hole of about 1,000 M☉.',
           'Low binary fraction, bright centre and strong segregation together identify clusters that host an IMBH.'
         ] },
-        { type: 'text', title: 'Presented', body: ['Astroflow Workshop, Leiden Observatory, 2021–2022, with doctoral and post-doctoral researchers and external speakers.'] }
+        { type: 'list', title: 'Presented at and workshops', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Direct N-body Simulations Workshop, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'TRENDY3, Evanston, 2021: conference on triple and multiple star evolution and dynamics.'] }
       ],
       cite: 'Markus Strickert (2022). Black Hole Dynamics in Stellar Clusters. Master\'s thesis, Lund Observatory, Lund University.',
       links: [['Lund University publication', 'https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=9095211&fileOId=9095212'], ['PDF', '../2022-EXA196_Strickert-Markus.pdf']]
@@ -203,7 +203,7 @@
       skills: ['TestStand', 'LabVIEW'],
       stats: [],
       facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive'], ['Scope', 'PCB production test, signal routing, measurement']],
-      split: [['Test automation and TestStand', 35], ['Electrical measurements', 25], ['National Instruments tools', 25], ['Ethernet and protocol testing', 15]],
+      split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]],
       blocks: [
         { type: 'list', title: 'What the tests cover', items: [
           'MUX switch routing.',
@@ -255,11 +255,11 @@
   ];
 
   /* Everything from the old "Detailed Competence Profile", with the competence split per role. */
-  var GROUPS = [['current', 'Current and recent'], ['academic', 'Academic and research'], ['talks', 'Conferences and workshops'], ['projects', 'Projects and other work'], ['lead', 'Leadership and volunteering'], ['edu', 'Education']];
+  var GROUPS = [['current', 'Current and recent'], ['academic', 'Academic and research'], ['projects', 'Projects and other work'], ['lead', 'Leadership and volunteering'], ['edu', 'Education']];
   var EXPERIENCE = [
     { g: 'current', y: '2026 – now', title: 'Test and verification engineer', org: 'Sigma Technology Tech House',
       text: 'Developed and automated PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, integrating measurement instruments, hardware control and signal routing. Responsible for hardware and software verification, requirements, technical documentation and test reporting. Delivered an automated test solution demonstrated to the customer, with positive feedback for its intuitive design, clear structure and reproducibility.',
-      split: [['Test automation and TestStand', 35], ['Electrical measurements', 25], ['National Instruments tools', 25], ['Ethernet and protocol testing', 15]], project: 'ta' },
+      split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]], project: 'ta' },
     { g: 'current', y: '2023 – 2026', title: 'System verification engineer', org: 'Saab Dynamics, as a consultant at BerDiz AB',
       text: 'Started, wrote and verified products from early development to customer delivery. Led test automation through scripting, managed the customisation of simulators and coordinated lab spaces. Formal verification documents, and testing across hardware, firmware and software.',
       split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]], project: 'sv' },
@@ -275,51 +275,21 @@
     { g: 'academic', y: '2020', title: 'Bachelor\'s thesis', org: 'Lund University',
       text: 'Modelled epicyclic motion of stars in the Milky Way and simulated planetary abiogenesis with Monte Carlo methods, in a self-consistent Python model of how civilisations develop and spread across the galaxy.',
       split: [['Python development', 40], ['Astrophysical modelling', 35], ['Simulation and analysis', 25]], project: 'gal' },
-    { g: 'talks', y: '2023', title: 'KISS workshop and think tank', org: 'Caltech, California',
-      text: 'Nominated and selected as one of a few early-career candidates for a KISS workshop on future space missions for extrasolar space weather.',
-      split: [['Mission concepts', 50], ['Collaboration', 50]] },
-    { g: 'talks', y: '2023', title: 'BCool Exospace Weather Workshop', org: 'Max Planck Institute, Göttingen',
-      text: 'Talk on how strong overlying magnetic fields suppress coronal mass ejections on AB Doradus, from 3D MHD models in BATS-R-US.',
-      split: [['3D MHD modelling', 50], ['Technical presentation', 50]] },
-    { g: 'talks', y: '2021 – 2022', title: 'Astroflow Workshop', org: 'Leiden Observatory',
-      text: 'Presented my Master\'s thesis research. Worked with doctoral and post-doctoral researchers and external speakers at Leiden University.',
-      split: [['Research presentation', 50], ['Academic collaboration', 50]] },
-    { g: 'talks', y: '2021', title: 'Direct N-body Simulations Workshop', org: 'Heidelberg, Germany (online)',
-      text: 'School on gravitational N-body simulations of dense clusters. Introduction to the Nbody6++GPU code and supercomputer use (HPC, Kepler).',
-      split: [['N-body simulations', 60], ['HPC training', 40]] },
-    { g: 'talks', y: '2021', title: 'TRENDY3 Workshop', org: 'Evanston, USA',
-      text: 'Conference on observations and theory of triple and multiple star evolution and dynamics, and the role of hierarchical systems.',
-      split: [['Multiple star systems', 60], ['Conference attendance', 40]] },
     { g: 'projects', y: '2021', title: 'Summer research project', org: 'Lund University',
       text: 'Smoothed particle hydrodynamics for 576 stellar collisions. Delaunay triangulation for post-processing and matplotlib for visualisation, on the Aurora and SNIC supercomputers.',
       split: [['SPH simulations', 40], ['Data analysis and visualisation', 35], ['Supercomputer resources', 25]], project: 'sph' },
-    { g: 'projects', y: '2020 – 2021', title: 'Personal assistant', org: 'Assistans för dig AB, Motala',
-      text: 'Household care with responsibility for medication, social activities and attendance. Experience with tube feeding, epilepsy and neurological conditions.',
-      split: [['Care and support', 50], ['Medical and health management', 30], ['Social and emotional support', 20]] },
-    { g: 'projects', y: '2015 – 2017', title: 'Personal assistant', org: 'Hammarstrands Assistans AB, Motala',
-      text: 'Assistant to two people. Internal licence for medical dosing. Personal care and social development.',
-      split: [['Care and support', 50], ['Medical procedures', 30], ['Social development', 20]] },
-    { g: 'projects', y: '2013 – 2016', title: 'Personal assistant', org: 'Alminia Assistans, Motala',
-      text: 'Assistant to a person living with paralysis. Learned the basics of tracheostomy care, respiratory equipment and general care.',
-      split: [['Care', 60], ['Medical assistance', 25], ['Equipment training', 15]] },
+    { g: 'projects', y: '2013 – 2021', title: 'Personal assistant', org: 'Hammarstrands, Alminia Assistans and ASD, Motala and Linköping',
+      text: 'Care work, mostly in the summers, alongside school and studies. Responsibility for medication and for people living with paralysis and epilepsy, including tracheostomy and respiratory equipment.',
+      split: [['Care and support', 55], ['Medical procedures', 30], ['Social support', 15]] },
     { g: 'lead', y: '2021 – 2022', title: 'ALVA, board member', org: 'Lund University',
       text: 'Student-run association for astronomy events and news. Lectures, planetarium shows and observation nights.',
       split: [['Event organisation', 45], ['Student engagement', 35], ['Astronomy outreach', 20]] },
     { g: 'lead', y: '2019 – 2020', title: 'Associates, board member', org: 'Lund University',
-      text: 'Head of the mentor committee in the science department. Introduced new students to the university.',
+      text: 'Head of the mentor committee in the science department, introducing new students to the university. Also showed physics experiments to the public at Kulturnatten in Lund.',
       split: [['Mentoring and guidance', 60], ['Student integration', 30], ['Organisation', 10]] },
-    { g: 'lead', y: '2017 – 2018', title: 'Kulturnatten', org: 'Lund University',
-      text: 'Annual event where scientists in Lund show physics experiments to locals and visitors.',
-      split: [['Public engagement', 50], ['Physics demonstration', 35], ['Community outreach', 15]] },
-    { g: 'lead', y: '2015', title: 'Young leader', org: 'Östergötlands Idrottsförbund, Motala',
-      text: 'Responsible for several groups of children in different activities. Basic training in anatomy, injury treatment and leadership.',
-      split: [['Leadership', 45], ['Activity coaching', 35], ['Anatomy and safety', 20]] },
-    { g: 'lead', y: '2015', title: 'Leadership training, Plattformen', org: 'Motala',
-      text: 'Theory and practice in leading children and young people.',
-      split: [['Leadership training', 60], ['Practical skills', 40]] },
-    { g: 'lead', y: '2011 – 2017', title: 'Motala Frisksportklubb', org: 'Motala',
-      text: 'Association for equality, health and activity. Board member 2013–2014. Coached trampoline, circus, freerunning and gymnastics, and represented the board in designing the freerunning park that opened in Motala in 2014.',
-      split: [['Sports leadership', 35], ['Equipment development', 25], ['Community building', 25], ['Health promotion', 15]] },
+    { g: 'lead', y: '2011 – 2017', title: 'Motala Frisksportklubb and youth leadership', org: 'Motala',
+      text: 'Board member 2013–2014 and instructor in trampoline, circus, freerunning and gymnastics. Helped design the freerunning park that opened in Motala in 2014. Young leader with Östergötlands Idrottsförbund and leadership training in 2015. Stipend from Bängt Bodèns Fond for leadership and commitment.',
+      split: [['Coaching', 40], ['Board work', 25], ['Facility design', 20], ['Leadership training', 15]] },
     { g: 'edu', y: '2020 – 2022', title: 'MSc Astrophysics', org: 'Lund University', text: 'Thesis: Black hole dynamics in stellar clusters.', project: 'bh' },
     { g: 'edu', y: '2017 – 2020', title: 'BSc Physics', org: 'Lund University', text: 'Thesis: Galactic dynamics and the spread of galactic civilisations.', project: 'gal' },
     { g: 'edu', y: '2015 – 2017', title: 'Upper secondary school, natural sciences', org: 'Platengymnasiet, Motala', text: '',

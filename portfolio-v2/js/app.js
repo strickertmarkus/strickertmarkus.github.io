@@ -278,7 +278,7 @@
         var row = h('div', 'xp rv' + (/now/.test(x.y) ? ' now' : ''), [h('span', 'y', x.y), body]); row.setAttribute('data-g', g[0]); exp.appendChild(row);
       });
     });
-    var SHORT = { current: 'Now', academic: 'Research', talks: 'Talks', projects: 'Other work', lead: 'Leadership', edu: 'Education' }; /* short labels so the row fits on one line */
+    var SHORT = { current: 'Now', academic: 'Research', projects: 'Other work', lead: 'Leadership', edu: 'Education' }; /* short labels so the row fits on one line */
     chips($('exp-chips'), [['all', 'All']].concat(S.GROUPS.map(function (g) { return [g[0], SHORT[g[0]] || g[1]]; })), function (v) { exp.querySelectorAll('[data-g]').forEach(function (r) { r.classList.toggle('hide', v !== 'all' && r.getAttribute('data-g') !== v); r.classList.add('in'); }); });
   })();
 
@@ -305,6 +305,10 @@
   window.addEventListener('beforeprint', function () { if (printing) return; printing = true; wasPaper = cvEl.classList.contains('paper'); cvEl.classList.add('paper'); });
   window.addEventListener('afterprint', function () { printing = false; cvEl.classList.toggle('paper', wasPaper); });
   $('print').addEventListener('click', function () { window.print(); });
+  /* Full history: the filter line and the reveals need the box open before they can be measured. */
+  var hist = $('cv-history');
+  hist.addEventListener('toggle', function () { if (hist.open) { segAll(); hist.querySelectorAll('.rv').forEach(function (r) { r.classList.add('in'); }); } });
+  document.querySelector('.cv-more').addEventListener('click', function () { hist.open = true; });
 
   /* ---------- the travelling dot, ported from budget/pulse-bottom-nav-v1.js ---------- */
   var tabs = document.querySelector('.tabs'), ind = tabs.querySelector('.ind'), TABS = ['home', 'work', 'explore', 'about', 'cv'];
