@@ -338,7 +338,7 @@
       if (r.view === 'project' && !same) { renderProject(P[r.id]); newEl.scrollTop = 0; }
       if (oldEl && oldEl !== newEl) oldEl.classList.remove('on', 'out-l', 'out-r');
       if (!instant && !same) { newEl.classList.remove('out-l', 'out-r'); newEl.classList.add('on', dir > 0 ? 'from-r' : 'from-l'); void newEl.offsetWidth; newEl.classList.remove('from-r', 'from-l'); } else newEl.classList.add('on');
-      reveal(newEl); if (r.view === 'about') trace();
+      reveal(newEl); if (r.view === 'about') trace(); if (r.view === 'home') whatLines();
       document.body.classList.toggle('scrolled', newEl.scrollTop > 10);
       if (r.anchor) { var t = $(r.anchor); if (t) setTimeout(function () { t.scrollIntoView({ behavior: instant || reducedMotion() ? 'auto' : 'smooth', block: 'start' }); }, instant ? 0 : 240); }
     }
@@ -358,7 +358,11 @@
   });
 
   /* ---------- scroll- and pointer-driven light ---------- */
-  viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') Scene.setScroll(this.scrollTop); }, { passive: true });
+  /* The line over each "What I do" item draws itself as the item scrolls up the screen. */
+  var whatItems = [].slice.call(document.querySelectorAll('.what li'));
+  function whatLines() { var vh = window.innerHeight; whatItems.forEach(function (li) { var r = li.getBoundingClientRect(); li.style.setProperty('--w', Math.max(0, Math.min(1, (vh * .92 - r.top) / (vh * .4))).toFixed(3)); }); }
+  viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') { Scene.setScroll(this.scrollTop); whatLines(); } }, { passive: true });
+  window.addEventListener('resize', whatLines);
   var heroText = document.querySelector('.hero h1'), heroCta = document.querySelector('.hero .cta'), tickerEl = document.querySelector('.ticker'), homeEl = viewEl('home');
   /* Where the network may sit on Home: right of the headline on wide screens, between the text and the ticker on phones. */
   function heroEdge() { var st = homeEl.scrollTop; Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, heroCta.getBoundingClientRect().bottom + st, tickerEl.getBoundingClientRect().top + st); }

@@ -51,7 +51,7 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 /* Navigation: in the top bar on wide screens, docked at the bottom on phones. The dot is the family app's travelling dot. */
 .tabs{position:fixed;z-index:6;top:9px;left:50%;transform:translateX(-50%);display:flex;padding:5px;border-radius:999px}
 .tabs a{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px 4px;font-size:14px;font-weight:500;color:var(--muted);transition:color .25s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
-.tabs a:hover{color:var(--ink)}
+@media (hover:hover){.tabs a:hover{color:var(--ink)}}
 .tabs a svg{display:none;width:20px;height:20px;stroke-width:1.9;transition:filter .25s}
 .tabs a span{display:inline-block}
 .tabs a.on{color:var(--amber);font-weight:600}
@@ -108,8 +108,7 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .what{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(32px,6vw,96px)}
 .what li{position:relative;padding:34px 0 38px;border-top:1px solid var(--line)}
 .what li:nth-child(even){margin-top:72px}
-.what li::before{content:"";position:absolute;left:0;top:-1px;width:64px;height:1px;background:var(--amber);box-shadow:0 0 14px rgba(253,186,116,.9);transition:width .8s var(--ease)}
-.what li:hover::before{width:100%}
+.what li::before{content:"";position:absolute;left:0;top:-1px;width:calc(var(--w,0)*100%);height:1px;background:linear-gradient(90deg,var(--amber),rgba(253,186,116,.25));box-shadow:0 0 14px rgba(253,186,116,.9);transition:width .2s linear}
 .what .num{display:block;font-size:clamp(54px,7vw,96px);line-height:1;font-weight:700;letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1px rgba(253,186,116,.5);margin-bottom:14px;font-variant-numeric:tabular-nums}
 .what h3{font-size:24px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
 .what p{color:var(--muted);max-width:28em}

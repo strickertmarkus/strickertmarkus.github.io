@@ -40,7 +40,7 @@
   var W = 0, H = 0, dpr = 1, narrow = false, D = 900;
   var view = 'home', cat = 'all', sel = byId.cme, hover = null, onSelect = null, onHover = null;
   var t = 0, last = 0, t0 = -1, scrollY = 0, homeLeft = 0, homeTop = 0, homeBottom = 0, sheetTop = 0;
-  var cam = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1 }, tgt = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1 }, projNames = true;
+  var cam = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, tgt = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, projNames = true;
   var userYaw = 0, userPitch = 0, userZoom = 1, first = true, mx = .5, my = .5, pmx = .5, pmy = .5;
   /* drifting light: [colour, x, y, radius, alpha] per view, as fractions of the screen */
   var LIGHT = {
@@ -64,16 +64,17 @@
   }
   function aim() {
     var sw = narrow ? 380 : 860, sh = narrow ? 440 : 540;
-    tgt.hx = 1; projNames = true;
+    tgt.hx = 1; tgt.hy = 1; projNames = true;
     if (view === 'explore') {
       /* Phones: the network gets what is left between the filter row and the sheet with the selected project. */
       var aw = narrow ? W : W - 372 - 64 - 40, ah = narrow ? (sheetTop || H * .7) - 146 : H - 250;
       tgt.zoom = clamp(Math.min(aw / sw, ah / sh), .3, 1.5);
       tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 130 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
     } else if (view === 'home') {
-      if (narrow) { /* between the hero text and the ticker; on a short phone with no room there, it is left out */
-        var room2 = (homeBottom || H * .8) - (homeTop || H * .46) - 28;
-        tgt.zoom = clamp(Math.min(W / sw, room2 / sh), .3, 1); tgt.cx = W / 2; tgt.cy = (homeTop || H * .46) + 14 + room2 / 2; tgt.labels = 0; tgt.bright = room2 >= 150 ? 1 : 0; return done();
+      if (narrow) { /* a wide band between the hero text and the ticker: full width, flattened (hy) to the height that is free */
+        var room2 = (homeBottom || H * .8) - (homeTop || H * .46) - 16;
+        tgt.zoom = 1; tgt.hx = clamp((W - 64) / 270, 1, 1.5); tgt.hy = clamp(room2 / 400, .2, 1);
+        tgt.cx = W / 2; tgt.cy = (homeTop || H * .46) + 8 + room2 / 2; tgt.labels = 0; tgt.bright = room2 >= 70 ? 1 : 0; return done();
       }
       else {
         /* The network gets the space to the right of the hero text, with its names. The columns are squeezed
@@ -105,7 +106,7 @@
     var y = p[1] * cpt - z * spt, z2 = p[1] * spt + z * cpt;
     var dep = D + z2; if (dep < 160) return null;
     var s = cam.zoom * userZoom * D / dep;
-    return [cam.cx + x * s * cam.hx, cam.cy - liftY + y * s, s, z2];
+    return [cam.cx + x * s * cam.hx, cam.cy - liftY + y * s * cam.hy, s, z2];
   }
   function bez(A, B, mxp, u) { var v = 1 - u; return [v * v * v * A[0] + 3 * v * v * u * mxp + 3 * v * u * u * mxp + u * u * u * B[0], v * v * v * A[1] + 3 * v * v * u * A[1] + 3 * v * u * u * B[1] + u * u * u * B[1]]; }
 
@@ -190,7 +191,7 @@
     for (i = 0; i < order.length; i++) {
       n = order[i]; p = n.scr;
       var isSel = n === sel && explore && cam.labels > .5;
-      var depth = clamp(1 - p[3] / 1500, .4, 1.15), r = n.rad * clamp(p[2], .5, 1.7) * (isSel ? 1.35 : 1), c = n.cat ? COLOR[n.cat] : WHITE, a = n.vis * depth * B;
+      var depth = clamp(1 - p[3] / 1500, .4, 1.15), r = n.rad * clamp(p[2], .5, 1.7) * Math.min(1, .35 + cam.hy * .9) * (isSel ? 1.35 : 1), c = n.cat ? COLOR[n.cat] : WHITE, a = n.vis * depth * B;
       ctx.globalCompositeOperation = 'lighter';
       glow(c, p[0], p[1], r * (5.5 + n.flare * 4) * (isSel ? 1.5 : 1), a * (.5 + n.flare * .45));
       ctx.globalAlpha = Math.min(1, a); ctx.fillStyle = c; ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.283); ctx.fill();
