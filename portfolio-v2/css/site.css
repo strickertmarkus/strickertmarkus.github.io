@@ -212,6 +212,8 @@ canvas.motif{width:100%;height:100%;display:block}
 .split-key b{font-weight:500;color:var(--soft);font-variant-numeric:tabular-nums}
 .vid{border-radius:22px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line),0 30px 80px -30px rgba(134,239,172,.3)}
 .vid video{width:100%;background:#000}
+.vid.phone{width:min(320px,78vw);border-radius:38px;padding:8px;background:linear-gradient(160deg,#2A303B,#11151C);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 100px -30px rgba(134,239,172,.35)}
+.vid.phone video{border-radius:30px;display:block}
 .cite{font-size:15px;color:var(--muted)!important}
 .proj-links{display:flex;flex-wrap:wrap;gap:4px 28px;margin-top:10px}
 .next{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-top:88px;padding-top:28px;border-top:1px solid var(--line)}

@@ -179,12 +179,15 @@
   }
   function renderProject(p) {
     var box = $('project'); box.textContent = ''; box.className = 'proj';
-    var eb = h('p', 'eyebrow', [CATNAME[p.cat], p.kind, p.where, p.period].filter(Boolean).join(' · ')); eb.style.color = COLOR[p.cat];
+    var eb = h('p', 'eyebrow', [CATNAME[p.cat], p.kind, p.where, p.period].filter(function (x, i, all) { return x && all.indexOf(x) === i; }).join(' · ')); /* no repeated words when kind equals the category */ eb.style.color = COLOR[p.cat];
     box.appendChild(linkTo('#work', 'All work', 'link quiet back', -1)); box.appendChild(eb); box.appendChild(h('h1', null, p.title)); box.appendChild(h('p', 'lead', p.lead));
     box.appendChild(h('div', 'proj-hero', motif(p.motif, COLOR[p.cat], 'project')));
     if (p.stats.length) { var st = h('div', 'stats rv'); p.stats.forEach(function (s) { st.appendChild(h('div', null, [h('b', null, s[0]), h('span', null, s[1])])); }); box.appendChild(st); }
     var blocks = h('div', 'blocks');
-    if (p.video) { var v = h('video'); v.src = p.video.src; v.poster = p.video.poster; v.controls = true; v.loop = true; v.muted = true; v.playsInline = true; v.preload = 'metadata'; v.setAttribute('aria-label', p.video.label); blocks.appendChild(h('section', 'block wide rv', [h('h2', null, p.video.label), h('div', 'vid', v)])); }
+    if (p.video) { /* a phone recording plays by itself, muted and looping, like a screen beside the text */
+      var v = h('video'); v.src = p.video.src; v.poster = p.video.poster; v.loop = true; v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('aria-label', p.video.label);
+      if (p.video.phone) { v.autoplay = true; v.preload = 'auto'; } else { v.controls = true; v.preload = 'metadata'; }
+      blocks.appendChild(h('section', 'block wide rv', [h('h2', null, p.video.label), h('div', p.video.phone ? 'vid phone' : 'vid', v)])); if (p.video.phone) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () { v.controls = true; }); } }
     if (p.split) blocks.appendChild(h('section', 'block wide rv', [h('h2', null, 'How the work was split'), splitEl(p.split)]));
     p.blocks.forEach(function (b) { blocks.appendChild(block(b, p)); });
     var facts = h('div', 'tbl'); p.facts.concat([['Built with', p.skills.join(', ')]]).forEach(function (r) { facts.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); });
