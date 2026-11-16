@@ -177,6 +177,41 @@
     else if (b.type === 'quote') { el.className = 'block wide quote rv'; el.appendChild(h('p', null, b.body)); }
     return el;
   }
+  /* The live demo: the real app in a phone, served by demo/sw.js with invented data and no Firebase.
+     Wide screens get the phone inline; phones get a button that opens the demo full screen. */
+  var demoReady = null;
+  function demoWorker() {
+    if (demoReady) return demoReady;
+    demoReady = !('serviceWorker' in navigator) ? Promise.reject(new Error('no sw')) : navigator.serviceWorker.register('demo/sw.js', { scope: 'demo/' }).then(function (reg) {
+      var w = reg.active || reg.waiting || reg.installing; if (reg.active) return reg;
+      return new Promise(function (res, rej) { w.addEventListener('statechange', function () { if (w.state === 'activated') res(reg); else if (w.state === 'redundant') rej(new Error('sw failed')); }); });
+    });
+    return demoReady;
+  }
+  function demoBlock(start) {
+    var screen = h('div', 'demo-screen', h('p', 'demo-wait', 'Starting the demo…')), phoneEl = h('div', 'demo-phone', screen);
+    var open = linkTo(start, 'Open the demo full screen'); open.removeAttribute('target'); open.removeAttribute('rel');
+    var text = h('div', 'demo-text', [
+      h('p', 'eyebrow', 'Try it'), h('h3', null, 'The real app, with invented data.'),
+      h('p', null, 'Tap through Hem, Budget, Listor and Mer › Träning in the phone. Everything runs in your browser on made-up numbers and names. Nothing is saved, and nothing reaches the app my family uses.'),
+      open, h('p', 'demo-note', 'Some parts need a login in the real app and are left out. Reload the page to start over.')
+    ]);
+    var el = h('section', 'block wide rv demo', [phoneEl, text]);
+    open.addEventListener('click', function (e) { e.preventDefault(); demoWorker().then(function () { location.href = start; }, function () { open.textContent = 'The demo needs a newer browser.'; }); });
+    if (!window.matchMedia('(max-width: 760px)').matches) {
+      demoWorker().then(function () {
+        if (!el.isConnected) return;
+        var f = h('iframe'); f.src = start; f.title = 'Family app demo'; f.setAttribute('loading', 'lazy');
+        f.addEventListener('load', function () { screen.classList.add('ready'); });
+        screen.appendChild(f);
+      }, function () { screen.firstChild.textContent = 'The demo needs a browser with service workers.'; });
+    } else {
+      var img = h('img'); img.src = 'img/family/hem.jpg'; img.alt = ''; screen.textContent = ''; screen.appendChild(img); screen.classList.add('ready', 'poster');
+      screen.addEventListener('click', function () { open.click(); });
+    }
+    return el;
+  }
+
   /* Full-size view of one screen, with arrows and Esc. */
   var lb = null;
   function lightbox(list, at) {
@@ -201,6 +236,7 @@
     if (!p.gallery) box.appendChild(h('div', 'proj-hero', motif(p.motif, COLOR[p.cat], 'project'))); /* real screens make the drawn picture unnecessary */
     if (p.stats.length) { var st = h('div', 'stats rv'); p.stats.forEach(function (s) { st.appendChild(h('div', null, [h('b', null, s[0]), h('span', null, s[1])])); }); box.appendChild(st); }
     var blocks = h('div', 'blocks');
+    if (p.demo) blocks.appendChild(demoBlock(p.demo));
     if (p.gallery) { /* rows of phone screens; one tap opens the screen large */
       var gal = h('div', 'gal'), all = [];
       p.gallery.forEach(function (g) {

@@ -222,7 +222,8 @@
       title: 'Family app',
       kind: 'Side project', where: 'Built at home', period: 'ongoing',
       desc: 'A private web app my family uses every day: budget, shared calendar, lists and training, synced live between phones.',
-      lead: 'The app my family runs on. It started as a budget and grew into a shared calendar, shopping lists and notes, and a training section. It is private, so the screens below come from the real app filled with invented names and numbers.',
+      lead: 'The app my family runs on. It started as a budget and grew into a shared calendar, shopping lists and notes, and a training section. It is private, so the demo and the screens below run the real app with invented names and numbers.',
+      demo: 'demo/app/home.html',
       gallery: [
         { title: 'Calendar and lists', shots: [['hem', 'Shared month calendar'], ['handelser', 'Upcoming events'], ['inkop', 'Shopping list by store'], ['att-gora', 'To-dos with owner and due date']] },
         { title: 'Budget', shots: [['budget', 'Posts against what was spent'], ['analys', 'Six months against budget'], ['analys-pengar', 'Where the money goes']] },

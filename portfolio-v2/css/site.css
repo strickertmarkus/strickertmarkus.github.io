@@ -212,6 +212,22 @@ canvas.motif{width:100%;height:100%;display:block}
 .split-key b{font-weight:500;color:var(--soft);font-variant-numeric:tabular-nums}
 .vid{border-radius:22px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line),0 30px 80px -30px rgba(134,239,172,.3)}
 .vid video{width:100%;background:#000}
+/* Live demo: the app in a phone frame beside the text. The iframe is a real 390×844 phone, scaled. */
+.demo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(32px,6vw,88px);align-items:center}
+.demo-phone{--s:.8;width:calc(390px*var(--s) + 20px);padding:10px;border-radius:48px;background:linear-gradient(160deg,#2A303B,#0E1117);box-shadow:0 0 0 1px rgba(255,255,255,.08),0 50px 120px -40px rgba(253,186,116,.35),0 30px 60px -30px rgba(0,0,0,.9)}
+.demo-screen{position:relative;width:calc(390px*var(--s));height:calc(844px*var(--s));border-radius:38px;overflow:hidden;background:#0B0E14}
+.demo-screen iframe{position:absolute;left:0;top:0;width:390px;height:844px;border:0;transform:scale(var(--s));transform-origin:0 0;opacity:0;transition:opacity .6s ease}
+.demo-screen.ready iframe{opacity:1}
+.demo-screen.poster{cursor:pointer}
+.demo-screen.poster img{width:100%;height:100%;object-fit:cover}
+.demo-wait{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:var(--muted)}
+.demo-screen.ready .demo-wait{display:none}
+.demo-text{display:flex;flex-direction:column;gap:14px;max-width:30em}
+.demo-text h3{font-size:clamp(24px,2.6vw,34px);font-weight:700;letter-spacing:-.03em;line-height:1.1}
+.demo-text p{color:var(--soft)}
+.demo-text .demo-note{font-size:13px;color:var(--muted)!important}
+@media (max-width:760px){.demo{grid-template-columns:minmax(0,1fr)}.demo-phone{--s:.6;margin:0 auto}}
+
 /* Gallery: phone screens side by side in rows that scroll sideways, edge to edge on the right. */
 .gal{display:flex;flex-direction:column;gap:44px}
 .gal-group h3{font-size:13px;font-weight:600;color:var(--soft);margin-bottom:14px}
