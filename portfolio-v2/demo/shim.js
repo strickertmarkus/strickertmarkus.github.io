@@ -33,9 +33,21 @@
   var demoTop = window;
   try { if (window.parent !== window && window.parent.__familyDemo) demoTop = window.parent.__demoTop; } catch (e) {}
   window.__demoTop = demoTop;
+  /* a stand-in for the meditation store's login and cloud, so the seeded sessions show; it saves nothing */
+  var snap = { val: function () { return null; } };
+  var zref = { on: function (t, cb) { setTimeout(function () { cb(snap); }, 0); }, off: function () {}, once: function () { return Promise.resolve(snap); },
+    child: function () { return { set: function () { return Promise.resolve(); } }; } };
+  window.__demoZenFirebase = {
+    auth: function () { return { currentUser: null, onAuthStateChanged: function (cb) { setTimeout(function () { cb({ uid: 'demo', email: 'demo' }); }, 0); } }; },
+    database: function () { return { ref: function (path) { return path === '.info/connected' ? { on: function (t, cb) { setTimeout(function () { cb({ val: function () { return true; } }); }, 0); } } : zref; } }; }
+  };
+  /* the children's pages are not part of the demo */
+  var hide = document.createElement('style');
+  hide.textContent = 'a[href*="mila.html"],a[href*="melker.html"],[data-member="mila"],[data-member="melker"],.notif-row:has(#notif-mila),.notif-row:has(#notif-melker),.zen-menu-label:has(+a[href*="mila.html"]){display:none!important}';
+  document.documentElement.appendChild(hide);
 
   /* ---------- invented data, once per tab ---------- */
-  if (!api.getItem('__demo_seeded')) {
+  if (!api.getItem('__demo_seeded_v2')) {
     var S = function (k, v) { put(k, typeof v === 'string' ? v : JSON.stringify(v)); };
     var now = new Date(); now.setHours(12, 0, 0, 0);
     var pad = function (n) { return String(n).padStart(2, '0'); };
@@ -60,6 +72,45 @@
       md[month(mi - 5)] = { sections: m };
     }
     S('budgetTracker', { currentMonth: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(), monthlyData: md });
+    var md2 = JSON.parse(JSON.stringify(md));
+    Object.keys(md2).forEach(function (k) { md2[k].sections.forEach(function (s) { s.items.forEach(function (x, ii) {
+      if (s.isIncome) { x.budget = ii === 0 ? 26400 : ii === 1 ? 1250 : 0; x.actual = ii === 2 ? 0 : x.budget; }
+      else { x.budget = Math.round(x.budget * 0.82 / 10) * 10; x.actual = Math.round(x.actual * (0.78 + (ii % 4) * 0.05) / 10) * 10; }
+    }); }); });
+    S('budgetTracker_maja', { currentMonth: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(), monthlyData: md2 });
+
+    /* shared household: an invented house, loan, fixed costs and monthly transfers */
+    var MN = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
+    var loan = { huspris: 3950000, huslan: 2960000, kontantinsats: 990000, listranta: 3.45, driftkostnad: 38000, fastighetsavgift: 8400, skattereduktion: 100, bolan: 75, lagfart: 59250, renovering: 0.5, ammortering: 2, pantbrev: -6200, lantmateriavgift: 825 };
+    var rows = [], legacy = {};
+    for (var ti = -8; ti <= 1; ti++) {
+      var dd = new Date(now.getFullYear(), now.getMonth() + ti, 1), a = 29400 + (ti > -3 ? 600 : 0), b = 26400 - (ti % 3 === 0 ? 900 : 0);
+      var hus = 19840 - (ti + 8) * 14, ica = 6200, sb = b / (a + b), sa = a / (a + b);
+      rows.push({ year: dd.getFullYear(), month: MN[dd.getMonth()], markusNetto: a, majaNetto: b, husutgifter: hus, ica: ica, majaAndel: sb, markusAndel: sa,
+        huskontoMaja: Math.floor(hus * sb), huskontoMarkus: Math.floor(hus * sa), icaMaja: Math.floor(ica * sb), icaMarkus: Math.floor(ica * sa) });
+      legacy[dd.getFullYear() + '-' + pad(dd.getMonth() + 1)] = { markus: a, maja: b };
+    }
+    S('home_transfer_income_v1', legacy);
+    S('familjebudget_data', {
+      loanParams: loan,
+      income: { markus: { inkomst: 30000, foraldraledig: false }, maja: { inkomst: 26400, foraldraledig: false } },
+      expenses: [{ name: 'Mat och hushåll', amount: 5200 }, { name: 'Bredband', amount: 349 }, { name: 'Hemförsäkring', amount: 290 }, { name: 'Bilförsäkring', amount: 410 },
+        { name: 'Streaming', amount: 129 }, { name: 'Mobil', amount: 398 }, { name: 'Sparande semester', amount: 1500 }, { name: 'Kollektivtrafik', amount: 970 }],
+      huskonto: [{ name: 'El', amount: 900 }, { name: 'Vatten och sopor', amount: 640 }],
+      transfers: rows,
+      checklistItems: [{ name: 'Ny dammsugare' }, { name: 'Byta lampor i hallen' }, { name: 'Måla staketet' }], checkedItems: {},
+      savingsGoals: [{ name: 'Semester', target: 30000, current: 12500, monthly: 1500 }, { name: 'Buffert', target: 50000, current: 31000, monthly: 1000 }],
+      sectionHeadings: {}
+    });
+    var buys = {}, ts = function (off, h) { var d = new Date(now); d.setDate(d.getDate() + off); d.setHours(h, 12, 0, 0); return d.getTime(); };
+    buys[month(0)] = [
+      { id: 'i1', cat: 'Mat', amount: 684, merchant: 'Matbutiken', who: 'markus', time: ts(-9, 17) },
+      { id: 'i2', cat: 'Mat', amount: 412, merchant: 'Matbutiken', who: 'maja', time: ts(-6, 18) },
+      { id: 'i3', cat: 'Hushåll', amount: 239, merchant: 'Järnhandeln', who: 'markus', time: ts(-5, 11) },
+      { id: 'i4', cat: 'Mat', amount: 951, merchant: 'Stormarknaden', who: 'maja', time: ts(-2, 16) },
+      { id: 'i5', cat: 'Övrigt', amount: 149, merchant: 'Apoteket', who: 'markus', time: ts(-1, 12) }];
+    S('ica_card_v1', { cats: ['Mat', 'Hushåll', 'Barn', 'Fasta kostnader', 'Övrigt'], budgets: { Mat: 4200, 'Hushåll': 800, 'Övrigt': 600 }, months: buys });
+
     S('selectedBudgetMonth', month(0)); S('finance-last-page-v1', 'budget.html'); S('budget-last-user-v1', 'markus');
 
     var ev = function (id, off, title, member, time, endOff, endTime, loc) { return { id: id, date: day(off), title: title, shortTitle: '', location: loc || '', otherPeople: '', time: time || '', endDate: endOff != null ? day(endOff) : '', endTime: endTime || '', member: member, emoji: '', notes: '', repeat: 'none', repeatUntil: '', reminderMinutes: null }; };
@@ -87,18 +138,29 @@
     var wk = [], n = 0, start = -41;
     for (var w = 0; w < 6; w++) {
       [[0, 'Styrka', 'Överkropp', 52, 118, [['Bänkpress', 4, 8, 60 + w * 2.5], ['Rodd med skivstång', 4, 10, 50 + w * 2.5], ['Axelpress', 3, 10, 30 + w]]],
-       [2, 'Löpning', 'Distans', 38 + w, 148, null, 6 + w * 0.4],
+       [2, 'Löpning', 'Distans', 38 + w, 148, null, 6 + w * 0.4, 46.1 + w * 0.35],
        [3, 'Styrka', 'Underkropp', 55, 122, [['Knäböj', 4, 6, 80 + w * 2.5], ['Marklyft', 3, 5, 100 + w * 5], ['Utfall', 3, 10, 16]]],
-       [5, 'Löpning', 'Intervaller', 32, 158, null, 5.2],
+       [5, 'Löpning', 'Intervaller', 32, 158, null, 5.2, 46.4 + w * 0.3],
        [6, 'Rörlighet', 'Stretch', 20, 92, null]].forEach(function (s0) {
         var off = start + w * 7 + s0[0]; if (off > 0) return;
         var o = { id: 'w' + (++n), date: day(off), name: s0[2], title: s0[2], type: s0[1], duration: s0[3], hrAvg: s0[4], hrMin: s0[4] - 25, hrMax: s0[4] + 24, notes: '' };
         if (s0[5]) o.exercises = s0[5].map(function (e) { return { name: e[0], sets: e[1], reps: e[2], weight: e[3] }; });
-        if (s0[6]) o.runDistance = Math.round(s0[6] * 10) / 10;
+        if (s0[6]) {
+          var km = Math.round(s0[6] * 10) / 10, pace = (s0[2] === 'Intervaller' ? 5.15 : 5.85) - w * 0.04;
+          o.runDistance = km; o.runTime = Math.round(km * pace * 10) / 10; o.avgPaceKm = Math.round(pace * 100) / 100; o.vo2 = Math.round(s0[7] * 10) / 10;
+          o.exercises = [{ kind: 'cardio', name: 'Löpning', distance: km, time: o.runTime }];
+        }
         wk.push(o);
       });
     }
-    S('ex_wk', wk); S('ex_goals', { weeklySessions: 4, weeklyMinutes: 180 });
+    S('ex_wk', wk); S('ex_goals', { weeklyWk: 4, runDistanceGoal: 10, vo2Goal: 50 });
+    var zen = {}, feel = ['calm', 'lighter', 'present', 'calm', 'same'], zn = 0;
+    for (var zd = -34; zd <= 0; zd++) {
+      var zt = function (h) { var d = new Date(now); d.setDate(d.getDate() + zd); d.setHours(h, 5, 0, 0); return d.getTime(); };
+      if ((zd + 34) % 2 === 0 || zd > -6) { var id1 = 'demo_m' + (++zn); zen[id1] = { id: id1, type: 'session', kind: 'meditation', name: (zd % 3 ? 'Andningsankare' : 'Kväll'), completedAt: zt(21), seconds: 300 + ((zd + 40) % 4) * 120, note: '', feeling: feel[zn % 5], guidance: 'breath', updatedAt: zt(21) }; }
+      if ((zd + 34) % 3 === 0 || zd === 0 || zd === -2) { var id2 = 'demo_s' + (++zn); zen[id2] = { id: id2, type: 'session', kind: 'stretch', name: (zd % 2 ? 'Morgonstretch' : 'Höfter och rygg'), completedAt: zt(7), seconds: 480 + ((zd + 40) % 3) * 180, note: '', feeling: feel[(zn + 2) % 5], updatedAt: zt(7) }; }
+    }
+    ['markus', 'maja'].forEach(function (pr) { S('zen_v1_demo_' + pr + '_entries', zen); });
     var rest = { enabled: true, type: 'rest', seconds: 60, name: 'Vila' };
     S('ex_templates', [
       { id: 9001, name: 'Överkropp', type: 'Styrka', duration: 50, exercises: [
@@ -110,7 +172,7 @@
         { kind: 'strength', name: 'Knäböj', sets: 4, reps: 6, weight: 92.5, weightMode: 'kg', betweenSets: rest },
         { kind: 'strength', name: 'Marklyft', sets: 3, reps: 5, weight: 125, weightMode: 'kg', betweenSets: rest }] }
     ]);
-    put('__demo_seeded', '1');
+    put('__demo_seeded_v2', '1');
   }
 
   /* ---------- invented names on screen ---------- */
@@ -118,9 +180,12 @@
     var to = r[1]; return [r[0], function (m) { return m === m.toUpperCase() && m !== m.toLowerCase() ? to.toUpperCase() : m === m.toLowerCase() ? to.toLowerCase() : to; }];
   });
   function swap(v) { var n = v; NAMES.forEach(function (r) { n = n.replace(r[0], r[1]); }); return n; }
+  var CODE = /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/;
   function fix(node) {
     if (!node) return;
-    var w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT), t;
+    if (node.nodeType === 1 && CODE.test(node.nodeName)) return;
+    /* only visible text: script and style sources must stay as they are */
+    var w = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, { acceptNode: function (t) { return t.parentNode && CODE.test(t.parentNode.nodeName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } }), t;
     while ((t = w.nextNode())) { var n = swap(t.nodeValue); if (n !== t.nodeValue) t.nodeValue = n; }
     if (node.querySelectorAll) node.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(function (e) { var n = swap(e.placeholder); if (n !== e.placeholder) e.placeholder = n; });
   }

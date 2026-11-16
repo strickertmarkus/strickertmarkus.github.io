@@ -24,15 +24,18 @@ self.addEventListener('fetch', e => {
   if (OWN.includes(rest)) return;
   // demo/app/x -> /budget/x, any other demo/x (from ../ links) -> /x
   const target = new URL((rest.startsWith('app/') ? SITE + 'budget/' + rest.slice(4) : SITE + rest) + url.search, url.origin);
+  if (/\/budget\/(mila|melker)\.html$/.test(target.pathname)) { e.respondWith(Response.redirect(APP + 'home.html', 302)); return; }
   if (/\/budget\/(travel-sw|firebase-messaging-sw|sw)\.js$/.test(target.pathname)) { e.respondWith(new Response('', { headers: { 'Content-Type': 'text/javascript' } })); return; }
   const html = e.request.mode === 'navigate' || /\.html?$/.test(target.pathname) || target.pathname.endsWith('/');
   // In the portfolio the app sits in an iframe; "window.top" must mean the demo's own top page,
   // or the bottom bar hides itself and some links would replace the portfolio.
   const topless = t => t.replace(/\bwindow\.top\b/g, 'window.__demoTop');
+  // The meditation store gets the shim's stand-in for login and cloud, so it can show the invented sessions.
+  const zen = (u, t) => /\/zen-store\.js$/.test(u.pathname) ? '(function(firebase){' + t.replace(/window\.firebase/g, 'firebase') + '\n})(window.__demoZenFirebase);' : t;
   if (!html) {
     if (!/\.js$/.test(target.pathname)) { e.respondWith(fetch(target, { credentials: 'same-origin' })); return; }
     e.respondWith(fetch(target, { credentials: 'same-origin' }).then(async r => r.ok
-      ? new Response(topless(await r.text()), { headers: { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' } }) : r));
+      ? new Response(zen(target, topless(await r.text())), { headers: { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' } }) : r));
     return;
   }
   e.respondWith(fetch(target, { credentials: 'same-origin' }).then(async r => {
