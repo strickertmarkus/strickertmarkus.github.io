@@ -15,16 +15,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=2">
+<link rel="stylesheet" href="css/site.css?v=3">
 </head>
 <body class="boot">
 <canvas id="scene" tabindex="-1" aria-hidden="true"></canvas>
 <div class="fx" aria-hidden="true"><i class="fx-grid"></i><i class="fx-spot"></i><i class="fx-grain"></i></div>
 
+<div class="topbar" aria-hidden="true"></div>
 <a class="brand" href="#home"><img src="img/markus.jpg" alt="" width="32" height="32"><span>Markus Strickert</span></a>
 <a class="reach glass" href="#contact" aria-label="Contact"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2.5"/><path d="M4.5 8l7.5 5.5L19.5 8"/></svg><span>Contact</span></a>
 
-<nav class="tabs glass" aria-label="Main">
+<nav class="tabs" aria-label="Main">
   <a href="#home" data-go="home"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10h-6v-6H9v6H3z"/></svg><span>Home</span></a>
   <a href="#work" data-go="work"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg><span>Work</span></a>
   <a href="#explore" data-go="explore"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M6.7 7.3l3.7 3.3M6.7 16.7l3.7-3.3M14 12h3"/></svg><span>Explore</span></a>
@@ -44,14 +45,15 @@
         <a class="link" href="#work">See the work <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
         <a class="link quiet" href="#cv">Read the CV</a>
       </div>
-      <div class="facts">
-        <div><b>2026 –</b><span>Test automation with NI TestStand and LabVIEW</span></div>
-        <div><b>2 years</b><span>System verification on assignment at Saab Dynamics</span></div>
-        <div><b>MNRAS 2024</b><span>First-author paper from 21 3D MHD simulations</span></div>
-      </div>
     </div>
 
     <div class="ticker" aria-hidden="true"><div class="ticker-in"><span>NI TestStand</span><span>LabVIEW</span><span>Python</span><span>C++</span><span>DOORS NG</span><span>Bash</span><span>Fortran</span><span>3D MHD</span><span>Monte Carlo</span><span>HPC</span><span>Tecplot</span><span>JIRA</span><span>Git</span><span>NI TestStand</span><span>LabVIEW</span><span>Python</span><span>C++</span><span>DOORS NG</span><span>Bash</span><span>Fortran</span><span>3D MHD</span><span>Monte Carlo</span><span>HPC</span><span>Tecplot</span><span>JIRA</span><span>Git</span></div></div>
+
+    <div class="facts rv">
+      <div><b>2026 –</b><span>Test automation with NI TestStand and LabVIEW</span></div>
+      <div><b>2 years</b><span>System verification on assignment at Saab Dynamics</span></div>
+      <div><b>MNRAS 2024</b><span>First-author paper from 21 3D MHD simulations</span></div>
+    </div>
 
     <section class="band" id="home-what">
       <header class="band-head rv"><p class="eyebrow">What I do</p><h2>From the first requirement to the delivered system.</h2></header>
@@ -234,8 +236,8 @@
   </section>
 </main>
 
-<script src="js/data.js?v=2"></script>
-<script src="js/scene.js?v=2"></script>
-<script src="js/app.js?v=2"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/scene.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
 </body>
 </html>
