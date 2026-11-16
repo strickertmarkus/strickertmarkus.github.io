@@ -59,6 +59,8 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 
 /* ---------- views: the family app's slide, 100 ms out then 220 ms in ---------- */
 .view{position:fixed;inset:0;z-index:2;padding:118px var(--pad) 0;overflow-y:auto;overflow-x:hidden;opacity:0;visibility:hidden;pointer-events:none;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.14) transparent}
+/* Scrolling content fades out before it reaches the name, the menu and the contact button. */
+.view:not(#v-explore){-webkit-mask-image:linear-gradient(180deg,transparent 0,transparent 58px,#000 112px);mask-image:linear-gradient(180deg,transparent 0,transparent 58px,#000 112px)}
 .view.on{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:opacity .22s ease,transform .22s var(--ease)}
 .view.out-l,.view.out-r{visibility:visible;opacity:0;transition:opacity .1s ease,transform .1s ease-in}
 .view.out-l{transform:translateX(-26px)}
@@ -94,9 +96,6 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .facts div{flex:1 1 180px;padding:18px 22px 0 0;display:flex;flex-direction:column;gap:2px}
 .facts b{font-size:22px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .facts span{font-size:13px;color:var(--muted)}
-.scrollcue{position:absolute;left:0;bottom:22px;width:26px;height:44px;border:1px solid rgba(255,255,255,.22);border-radius:14px;display:block}
-.scrollcue i{position:absolute;left:50%;top:9px;width:4px;height:4px;margin-left:-2px;border-radius:2px;background:var(--amber);box-shadow:0 0 9px rgba(253,186,116,.9);animation:cue 2.2s var(--ease) infinite}
-@keyframes cue{0%{transform:translateY(0);height:4px;opacity:0}20%{opacity:1}55%{height:14px}100%{transform:translateY(20px);height:4px;opacity:0}}
 
 .ticker{margin:0 calc(var(--pad)*-1);overflow:hidden;border-block:1px solid var(--line);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 .ticker-in{display:flex;width:max-content;animation:tick 46s linear infinite}
@@ -122,8 +121,9 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .feat .go{margin-top:8px}
 .feat:hover h3{color:var(--amber)}
 .feat:hover .go svg{transform:translateX(5px)}
-.motif-wrap{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:16/9;background:radial-gradient(120% 120% at 20% 0%,rgba(255,255,255,.06),rgba(255,255,255,.015));box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .5s ease,transform .7s var(--ease)}
-.feat:hover .motif-wrap,.row:hover .motif-wrap{box-shadow:inset 0 0 0 1px rgba(253,186,116,.35),0 18px 60px -20px rgba(253,186,116,.35);transform:translateY(-3px)}
+/* The pictures float without a frame: their edges fade into the page. */
+.motif-wrap{position:relative;display:block;aspect-ratio:16/9;-webkit-mask-image:radial-gradient(ellipse 62% 66% at 50% 50%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 62% 66% at 50% 50%,#000 58%,transparent 100%);transition:transform .8s var(--ease),filter .5s ease}
+.feat:hover .motif-wrap,.row:hover .motif-wrap{transform:scale(1.05);filter:brightness(1.25)}
 canvas.motif{width:100%;height:100%;display:block}
 
 .path{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 28px;position:relative;margin-bottom:20px}
@@ -153,7 +153,6 @@ canvas.motif{width:100%;height:100%;display:block}
 .row:hover{padding-left:12px;background:linear-gradient(90deg,rgba(255,255,255,.04),transparent 70%)}
 .row.hide{display:none}
 .row .n{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
-.row .motif-wrap{border-radius:14px}
 .row .t{display:flex;flex-direction:column;gap:3px;min-width:0}
 .row .t b{font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
 .row .t span{font-size:14px;color:var(--muted)}
@@ -320,7 +319,9 @@ canvas.motif{width:100%;height:100%;display:block}
 
 /* ---------- CV: a static page ---------- */
 .cv{max-width:1040px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:56px;align-items:start}
-.cv-side{display:flex;flex-direction:column;gap:22px;position:sticky;top:0}
+.cv-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;margin-bottom:28px}
+.cv-bar .link{font-size:14px}
+.cv-side{display:flex;flex-direction:column;gap:22px;position:sticky;top:118px}
 .cv-photo{width:168px;height:168px;border-radius:28px;object-fit:cover;border:1px solid rgba(255,255,255,.14)}
 .cv-side h1{font-size:28px;font-weight:700;letter-spacing:-.025em;line-height:1.1}
 .cv-side .role{font-size:15px;color:var(--muted);margin-top:6px}
@@ -329,7 +330,6 @@ canvas.motif{width:100%;height:100%;display:block}
 .cv-meta > *:last-child{border-bottom:1px solid var(--line)}
 .cv-meta a{color:var(--ink);font-weight:500}
 .cv-meta a:hover{color:var(--amber)}
-.cv .print{font-size:14px;align-self:flex-start}
 .cv-main{display:flex;flex-direction:column;gap:40px;min-width:0}
 .cv-main section{display:flex;flex-direction:column}
 .cv h2{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
@@ -350,6 +350,16 @@ canvas.motif{width:100%;height:100%;display:block}
 .kvs span{font-size:13px;font-weight:600;color:var(--muted);padding-top:1px}
 .kvs b{font-weight:400;color:var(--soft)}
 
+/* The light sheet: shown with the Paper switch, and always used for print. */
+.cv.paper{background:#fff;color:#16181D;border-radius:6px;padding:56px 60px;max-width:900px;grid-template-columns:200px minmax(0,1fr);gap:40px;box-shadow:0 40px 120px -40px rgba(0,0,0,.85)}
+.cv.paper .cv-side{position:static}
+.cv.paper *{border-color:#E1E4EA}
+.cv.paper .summary,.cv.paper .job ul,.cv.paper .kvs b,.cv.paper .cv-meta a,.cv.paper .cv-side h1,.cv.paper .job h3{color:#16181D}
+.cv.paper .org,.cv.paper .cv-meta > *,.cv.paper .job .y,.cv.paper .kvs span,.cv.paper .role{color:#565B66}
+.cv.paper h2,.cv.paper .job.now .y,.cv.paper .job a{color:#9A5B13}
+.cv.paper .job li::before{background:#9AA0AA}
+.cv.paper .cv-more{display:none}
+
 /* ---------- phones ---------- */
 @media (max-width:760px){
   .brand{top:8px;left:20px}
@@ -363,10 +373,12 @@ canvas.motif{width:100%;height:100%;display:block}
   .tabs a.pop span{animation:none}
   .tabs .ind{bottom:calc(max(env(safe-area-inset-bottom,0px),12px) + 4px)}
   .view{padding:70px var(--pad) 84px}
+  .view:not(#v-explore){-webkit-mask-image:linear-gradient(180deg,transparent 0,transparent 30px,#000 64px);mask-image:linear-gradient(180deg,transparent 0,transparent 30px,#000 64px)}
+  .cv.paper{grid-template-columns:minmax(0,1fr);gap:28px;padding:26px 22px}
   .fx-grid{-webkit-mask-image:radial-gradient(ellipse 90% 50% at 50% 30%,#000 0,transparent 80%);mask-image:radial-gradient(ellipse 90% 50% at 50% 30%,#000 0,transparent 80%)}
   .fx-spot{display:none}
   .hero{min-height:calc(100vh - 154px);min-height:calc(100svh - 154px);justify-content:flex-start;padding-top:10px;gap:16px}
-  .facts,.scrollcue{display:none}
+  .facts{display:none}
   .what,.values{grid-template-columns:minmax(0,1fr)}
   .what li:nth-child(even){margin-top:0}
   .feat{grid-template-columns:minmax(0,1fr);gap:16px}
@@ -417,16 +429,10 @@ canvas.motif{width:100%;height:100%;display:block}
   .js .rv{opacity:1;transform:none}
 }
 
-/* The CV prints as a plain document. */
+/* Print: only the CV sheet. app.js switches it to the light sheet before printing. */
 @media print{
-  html,body{height:auto;overflow:visible;background:#fff;color:#111}
-  #scene,.fx,.tabs,.brand,.reach,.foot,.print,.view:not(#v-cv){display:none!important}
-  .view{position:static;opacity:1;visibility:visible;padding:0;overflow:visible}
-  .cv{grid-template-columns:200px minmax(0,1fr);gap:28px;max-width:none}
-  .cv-side{position:static}
-  .cv h2,.job.now .y,.job a{color:#9A5B13}
-  .cv *{border-color:#ddd!important}
-  .cv .summary,.job ul,.kvs b,.cv-meta a,.cv-side h1,.job h3{color:#111}
-  .cv .org,.cv-meta > *,.job .y,.kvs span,.cv .role{color:#555}
-  .cv-main > a{display:none}
+  html,body{height:auto;overflow:visible;background:#fff}
+  #scene,.fx,.tabs,.brand,.reach,.foot,.cv-bar,.view:not(#v-cv){display:none!important}
+  .view{position:static;opacity:1;visibility:visible;padding:0;overflow:visible;-webkit-mask-image:none!important;mask-image:none!important}
+  .cv.paper{box-shadow:none;padding:0;max-width:none;border-radius:0}
 }

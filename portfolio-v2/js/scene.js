@@ -39,7 +39,7 @@
   /* ---------- state ---------- */
   var W = 0, H = 0, dpr = 1, narrow = false, D = 900;
   var view = 'home', cat = 'all', sel = byId.cme, hover = null, onSelect = null, onHover = null;
-  var t = 0, last = 0, t0 = -1, dimK = 0;
+  var t = 0, last = 0, t0 = -1, scrollY = 0, homeLeft = 0;
   var cam = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0 }, tgt = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0 };
   var userYaw = 0, userPitch = 0, userZoom = 1, first = true, mx = .5, my = .5, pmx = .5, pmy = .5;
   /* drifting light: [colour, x, y, radius, alpha] per view, as fractions of the screen */
@@ -57,7 +57,7 @@
     var LX = narrow ? [-118, 0, 118] : [-300, 0, 290], sStep = narrow ? 32 : 40, pStep = narrow ? 40 : 50, dStep = narrow ? 110 : 132, zs = narrow ? 70 : 150;
     var si = 0, pi = 0, di = 0, ns = S.SKILLS.length, np = S.PROJECTS.length;
     nodes.forEach(function (n) {
-      if (n.type === 's') { n.net = [LX[0], (si - (ns - 1) / 2) * sStep, n.jz * zs]; si++; }
+      if (n.type === 's') { n.net = [LX[0], (si - (ns - 1) / 2) * sStep, n.jz * zs * .35]; si++; }
       else if (n.type === 'p') { n.net = [LX[1], (pi - (np - 1) / 2) * pStep, n.jz * zs * .8]; pi++; }
       else { n.net = [LX[2], (di - 1) * dStep, 0]; di++; }
     });
@@ -70,27 +70,34 @@
       tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 112 + ah / 2 : H / 2 + 24; tgt.bright = 1; tgt.labels = 1;
     } else if (view === 'home') {
       if (narrow) { tgt.zoom = clamp(Math.min(W / sw, (H * .4) / sh), .3, 1); tgt.cx = W / 2; tgt.cy = H * .72; tgt.labels = 0; }
-      else { tgt.zoom = clamp(Math.min(W * .46 / sw, H * .74 / sh), .3, 1.3); tgt.cx = W * .73; tgt.cy = H * .52; tgt.labels = .45; }
+      else {
+        /* The network gets the space to the right of the hero text. Too little room: it sits behind, dimmed and unlabelled. */
+        var left = homeLeft || W * .5, room = W - left - 28, fits = room >= 430;
+        var labelled = Math.min(room / (sw + 190), H * .7 / sh), named = fits && labelled >= .66; /* names only when they have room to be read */
+        tgt.zoom = !fits ? .8 : clamp(named ? labelled : Math.min(room / (sw + 40), H * .7 / sh), .3, 1.3);
+        tgt.cx = fits ? left + room / 2 : W * .8; tgt.cy = H * .5; tgt.labels = named ? .45 : 0; tgt.bright = fits ? 1 : .22; return done();
+      }
       tgt.bright = 1;
     } else {
-      tgt.zoom = narrow ? .8 : 1.2; tgt.cx = narrow ? W * .5 : W * .9; tgt.cy = narrow ? H * .24 : H * .46; tgt.labels = 0;
-      tgt.bright = view === 'cv' ? .08 : (narrow ? .1 : .2);
+      tgt.zoom = narrow ? .8 : 1.2; tgt.cx = narrow ? W * .5 : W * 1.02; tgt.cy = narrow ? H * .24 : H * .46; tgt.labels = 0; /* wide: mostly past the right edge, clear of the text */
+      tgt.bright = view === 'cv' ? .06 : (narrow ? .09 : .14);
     }
-    if (first) { for (var k in tgt) cam[k] = tgt[k]; first = false; }
+    done();
   }
+  function done() { if (first) { for (var k in tgt) cam[k] = tgt[k]; first = false; } }
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2); W = window.innerWidth; H = window.innerHeight; narrow = W <= 760;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     layout(); aim();
   }
 
-  var cyw = 1, syw = 0, cpt = 1, spt = 0;
+  var cyw = 1, syw = 0, cpt = 1, spt = 0, liftY = 0;
   function pr(p) {
     var x = p[0] * cyw - p[2] * syw, z = p[0] * syw + p[2] * cyw;
     var y = p[1] * cpt - z * spt, z2 = p[1] * spt + z * cpt;
     var dep = D + z2; if (dep < 160) return null;
     var s = cam.zoom * userZoom * D / dep;
-    return [cam.cx + x * s, cam.cy + y * s, s, z2];
+    return [cam.cx + x * s, cam.cy - liftY + y * s, s, z2];
   }
   function bez(A, B, mxp, u) { var v = 1 - u; return [v * v * v * A[0] + 3 * v * v * u * mxp + 3 * v * u * u * mxp + u * u * u * B[0], v * v * v * A[1] + 3 * v * v * u * A[1] + 3 * v * u * u * B[1] + u * u * u * B[1]]; }
 
@@ -108,7 +115,9 @@
     var yaw = userYaw + Math.sin(t * .23) * .26 + (1 - me) * 1.2 + (explore ? 0 : (pmx - .5) * .22);
     var pitch = clamp(.1 + userPitch + (1 - me) * .4 + (explore ? 0 : (pmy - .5) * .12), -.5, 1.1);
     cyw = Math.cos(yaw); syw = Math.sin(yaw); cpt = Math.cos(pitch); spt = Math.sin(pitch);
-    var B = cam.bright * (1 - dimK * .8), i, p, n;
+    /* On Home the network belongs to the hero: it scrolls away with it and fades out. */
+    var home = view === 'home', fade = home ? 1 - clamp(scrollY / (H * .5), 0, 1) : 1, lift = home ? scrollY * .9 : 0;
+    var B = cam.bright * fade, i, p, n;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.clearRect(0, 0, W, H);
 
@@ -126,10 +135,11 @@
     }
 
     /* stars */
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = '#FFFFFF'; liftY = 0;
     for (i = 0; i < stars.length; i++) { var st = stars[i]; p = pr(st); if (!p) continue; ctx.globalAlpha = st[3] * (.55 + .45 * Math.sin(t * st[6] + st[5])) * (.45 + .55 * B); ctx.beginPath(); ctx.arc(p[0], p[1], st[4] * Math.min(1.4, p[2] * 1.6), 0, 6.283); ctx.fill(); }
 
     /* node positions */
+    liftY = lift;
     var focus = cam.labels > .5 ? (hover || sel) : null;
     for (i = 0; i < nodes.length; i++) {
       n = nodes[i];
@@ -180,7 +190,7 @@
       }
       if (n === hover && n !== sel) { ctx.strokeStyle = c; ctx.globalAlpha = .6; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p[0], p[1], r + 5, 0, 6.283); ctx.stroke(); }
       if (me > .8) hits.push(n);
-      var la = cam.labels * lab * clamp(n.vis * 1.1, .3, 1);
+      var la = cam.labels * lab * fade * clamp(n.vis * 1.1, .3, 1);
       if (la < .03) continue;
       var strong = focus && (n === sel || n === hover || adj[focus.id][n.id]);
       ctx.globalCompositeOperation = 'source-over'; ctx.textBaseline = 'middle'; ctx.globalAlpha = la;
@@ -227,7 +237,8 @@
 
   var api = {
     setView: function (v) { view = v; hover = null; aim(); cv.style.cursor = v === 'explore' ? 'grab' : 'default'; },
-    setDim: function (k) { dimK = clamp(k, 0, 1); },
+    setScroll: function (px) { scrollY = Math.max(0, px); },
+    setHomeLeft: function (px) { homeLeft = px; if (view === 'home') aim(); },
     setFilter: function (c) { cat = c; },
     select: function (id) { var n = byId[id]; if (!n) return; sel = n; n.flare = 1; if (onSelect) onSelect(id); },
     selected: function () { return sel.id; },

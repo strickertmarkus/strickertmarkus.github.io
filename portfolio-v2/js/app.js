@@ -26,6 +26,7 @@
   if (!CanvasRenderingContext2D.prototype.roundRect) CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h) { this.rect(x, y, w, h); };
   var cache = {};
   function pts(key, n, seed, fn) { if (!cache[key]) { var r = rng(seed), a = []; for (var i = 0; i < n; i++) a.push(fn(r, i)); cache[key] = a; } return cache[key]; }
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
   function dot(c, x, y, r, col, a) { c.globalAlpha = a * .18; c.fillStyle = col; c.beginPath(); c.arc(x, y, r * 3.2, 0, 6.283); c.fill(); c.globalAlpha = a; c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill(); }
   var MOTIF = {
     loops: function (c, w, h, t, col) { /* magnetic loops on a stellar limb, one of them erupting */
@@ -69,17 +70,31 @@
         var u2 = (t * .08 + i * .137) % 1; dot(c, u2 * w, y0 + Math.sin(u2 * 5 + t * .5 + i * .45) * h * .09 * Math.sin(u2 * Math.PI) + Math.sin(u2 * 11 - t * .3 + i) * h * .02, 1.5, '#FFFFFF', Math.sin(u2 * Math.PI));
       }
     },
-    signal: function (c, w, h, t, col) { /* measured signals passing a test cursor */
-      var rows = [function (u) { return Math.sin(u * 26) > 0 ? 1 : -1; }, function (u) { return Math.sin(u * 14) * Math.exp(-((u * 3) % 1) * 1.5); }, function (u) { return ((u * 9) % 1) < .18 ? 1 : -.6; }, function (u) { return Math.sin(u * 40) * .5 + Math.sin(u * 7) * .5; }];
-      var cur = ((t * .12) % 1.1) * w;
-      rows.forEach(function (f, i) {
-        var y0 = h * (.2 + i * .2), amp = h * .06, tr = new Path2D(); c.lineWidth = 1.3; c.strokeStyle = col;
-        for (var x = 0; x <= w; x += 3) { var y = y0 - f(x / w + t * .03 * (i % 2 ? 1 : -1)) * amp; if (x === 0) tr.moveTo(x, y); else tr.lineTo(x, y); }
-        c.globalAlpha = .28; c.stroke(tr);
-        c.save(); c.beginPath(); c.rect(0, 0, cur, h); c.clip(); c.globalAlpha = .95; c.stroke(tr); c.restore();
-        if (cur > w * .9) dot(c, w * .93, y0, 3, '#86EFAC', Math.min(1, (cur - w * .9) / 30));
-      });
-      c.globalAlpha = .7; c.strokeStyle = '#FFFFFF'; c.lineWidth = 1; c.beginPath(); c.moveTo(cur, h * .06); c.lineTo(cur, h * .94); c.stroke();
+    vmodel: function (c, w, h, t, col) { /* the V-model: requirements down the left arm, each verified by a test on the right */
+      var n = 4, mx = w * .5, top = h * .16, bot = h * .84, sp = Math.min(w * .34, h * 1.1), P2 = [], i, ph = (t * .08) % 1, prog = Math.min(1, ph / .78) * (2 * n - 1);
+      for (i = 0; i < n; i++) P2.push([mx - sp * (1 - i / (n - 1) * .84), top + (bot - top) * i / (n - 1)]);
+      for (i = n - 1; i >= 0; i--) P2.push([mx + sp * (1 - i / (n - 1) * .84), top + (bot - top) * i / (n - 1)]);
+      c.lineWidth = 1.2; c.strokeStyle = '#DCE3EC'; c.globalAlpha = .26; c.beginPath(); P2.forEach(function (q, k) { if (k) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.stroke();
+      for (i = 0; i < n; i++) { /* a level is verified once the head has climbed back up to it */
+        var a = P2[i], b = P2[2 * n - 1 - i], done = clamp01(prog - (2 * n - 1 - i) + 1);
+        c.setLineDash([3, 6]); c.strokeStyle = col; c.globalAlpha = .12 + done * .5; c.beginPath(); c.moveTo(a[0], a[1]); c.lineTo(a[0] + (b[0] - a[0]) * (done || 1), a[1]); c.stroke(); c.setLineDash([]);
+        if (done > .98) dot(c, (a[0] + b[0]) / 2, a[1], 2.6, '#86EFAC', 1);
+      }
+      P2.forEach(function (q, k) { var on = prog >= k; dot(c, q[0], q[1], on ? 3.6 : 2.6, on ? (k < n ? '#FDBA74' : col) : '#DCE3EC', on ? 1 : .4); });
+      var k0 = Math.min(2 * n - 2, Math.floor(prog)), f = Math.min(1, prog - k0), A = P2[k0], Bq = P2[k0 + 1];
+      if (ph < .8) dot(c, A[0] + (Bq[0] - A[0]) * f, A[1] + (Bq[1] - A[1]) * f, 3, '#FFFFFF', 1);
+    },
+    matrix: function (c, w, h, t, col) { /* a switch matrix closing one route at a time, beside a test sequence ticking off its steps */
+      var rows = 5, cols = 8, x0 = w * .12, x1 = w * .58, y0 = h * .2, y1 = h * .76, dx = (x1 - x0) / (cols - 1), dy = (y1 - y0) / (rows - 1), i, j;
+      var R2 = pts('matrix', 48, 23, function (r) { return [Math.floor(r() * rows), 1 + Math.floor(r() * (cols - 1))]; }), step = Math.floor(t * .55), ph = (t * .55) % 1, cur = R2[step % R2.length];
+      c.lineWidth = 1; c.strokeStyle = '#DCE3EC'; c.globalAlpha = .1; c.beginPath();
+      for (i = 0; i < rows; i++) { c.moveTo(x0 - 18, y0 + i * dy); c.lineTo(x1, y0 + i * dy); } for (j = 0; j < cols; j++) { c.moveTo(x0 + j * dx, y0); c.lineTo(x0 + j * dx, y1 + 18); } c.stroke();
+      for (i = 0; i < rows; i++) for (j = 0; j < cols; j++) dot(c, x0 + j * dx, y0 + i * dy, 1.4, '#DCE3EC', .3);
+      var ry = y0 + cur[0] * dy, cx2 = x0 + cur[1] * dx, la = cx2 - (x0 - 18), lb = y1 + 18 - ry, d = Math.min(1, ph * 1.5) * (la + lb);
+      c.strokeStyle = col; c.lineWidth = 1.8; c.globalAlpha = .95; c.beginPath(); c.moveTo(x0 - 18, ry); c.lineTo(x0 - 18 + Math.min(d, la), ry); if (d > la) c.lineTo(cx2, ry + (d - la)); c.stroke();
+      dot(c, x0 - 18, ry, 3, '#FDBA74', 1); if (d > la) dot(c, cx2, ry, 3.4, '#FFFFFF', 1); if (d >= la + lb - 1) dot(c, cx2, y1 + 18, 3, '#86EFAC', 1);
+      var steps = 6, sx = w * .68, sw2 = w * .22, at = step % steps;
+      for (i = 0; i < steps; i++) { var sy = h * (.2 + i * .112), passed = i < at, now = i === at; c.globalAlpha = passed ? .5 : now ? .95 : .16; c.fillStyle = now ? col : '#DCE3EC'; c.beginPath(); c.roundRect(sx, sy, sw2 * (now ? Math.min(1, ph * 1.5) : 1) * (.55 + ((i * 37) % 5) * .09), 5, 2.5); c.fill(); if (passed) dot(c, sx - 12, sy + 2.5, 2.4, '#86EFAC', 1); else if (now) dot(c, sx - 12, sy + 2.5, 2.4, '#FDBA74', .5 + .5 * Math.sin(t * 8)); }
     },
     grid: function (c, w, h, t, col) { /* a month of cells and a row of budget bars */
       var cols = 7, rowsN = 4, gw = w * .5, cell = gw / cols, x0 = w * .08, y0 = h * .16, hot = pts('grid', 28, 17, function (r) { return r(); });
@@ -245,6 +260,11 @@
       .catch(function () { note.textContent = 'That did not go through. Please email me instead.'; })
       .then(function () { btn.disabled = false; });
   });
+  /* ---------- CV: dark on screen, or the light sheet that also prints ---------- */
+  var cvEl = document.querySelector('.cv'), printing = false, wasPaper = false;
+  chips($('cv-mode'), [['dark', 'Dark'], ['paper', 'Paper']], function (v) { cvEl.classList.toggle('paper', v === 'paper'); });
+  window.addEventListener('beforeprint', function () { if (printing) return; printing = true; wasPaper = cvEl.classList.contains('paper'); cvEl.classList.add('paper'); });
+  window.addEventListener('afterprint', function () { printing = false; cvEl.classList.toggle('paper', wasPaper); });
   $('print').addEventListener('click', function () { window.print(); });
 
   /* ---------- the travelling dot, ported from budget/pulse-bottom-nav-v1.js ---------- */
@@ -307,7 +327,7 @@
     }
     current = { view: r.view, id: r.id || null };
     mark(r.view === 'project' ? 'work' : r.view, !instant);
-    Scene.setView(r.view); Scene.setDim(r.view === 'home' ? newEl.scrollTop / (window.innerHeight * .7) : 0);
+    Scene.setView(r.view); Scene.setScroll(r.view === 'home' ? newEl.scrollTop : 0);
     if (instant || same || !oldEl) { enter(); return; }
     if (oldEl === newEl) { oldEl.classList.add(dir > 0 ? 'out-l' : 'out-r'); oldEl.classList.remove('on'); setTimeout(enter, 100); return; }
     oldEl.classList.remove('on'); oldEl.classList.add(dir > 0 ? 'out-l' : 'out-r'); setTimeout(enter, 100);
@@ -321,7 +341,10 @@
   });
 
   /* ---------- scroll- and pointer-driven light ---------- */
-  viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') Scene.setDim(this.scrollTop / (window.innerHeight * .7)); }, { passive: true });
+  viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') Scene.setScroll(this.scrollTop); }, { passive: true });
+  var heroText = document.querySelector('.hero h1');
+  function heroEdge() { Scene.setHomeLeft(heroText.getBoundingClientRect().right + 36); }
+  window.addEventListener('resize', heroEdge);
   var journey = $('journey');
   function trace() { var r = journey.getBoundingClientRect(); journey.style.setProperty('--p', Math.max(0, Math.min(1, (window.innerHeight * .62 - r.top) / Math.max(1, r.height))).toFixed(3)); }
   viewEl('about').addEventListener('scroll', trace, { passive: true });
@@ -331,8 +354,8 @@
   /* ---------- start ---------- */
   document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('on'); });
   renderPanel(Scene.selected());
-  show(parse() || { view: 'home' }, true); Scene.snap();
+  heroEdge(); show(parse() || { view: 'home' }, true); Scene.snap();
   requestAnimationFrame(function () { place(centre(currentTab), 4); requestAnimationFrame(function () { document.body.classList.remove('boot'); }); });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!running) place(centre(currentTab), 4); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!running) place(centre(currentTab), 4); heroEdge(); });
   requestAnimationFrame(drawMotifs);
 })();

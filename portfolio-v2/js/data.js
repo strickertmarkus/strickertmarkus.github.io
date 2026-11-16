@@ -167,7 +167,7 @@
       links: []
     },
     {
-      id: 'sv', cat: 'engineering', motif: 'signal',
+      id: 'sv', cat: 'engineering', motif: 'vmodel',
       short: 'System verification',
       title: 'System verification',
       kind: 'Test and verification engineer', where: 'BerDiz, on assignment at Saab Dynamics', period: '2024–2026',
@@ -192,7 +192,7 @@
       links: []
     },
     {
-      id: 'ta', cat: 'engineering', motif: 'signal',
+      id: 'ta', cat: 'engineering', motif: 'matrix',
       short: 'Test automation',
       title: 'Test automation',
       kind: 'Consultant', where: 'Sigma Technology Tech House', period: '2026 – now',
