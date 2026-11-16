@@ -238,7 +238,12 @@
     }
     lastSel = id; renderPanel(id);
   });
-  chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
+  /* Desktop filter: a text row with a glowing line that slides under the chosen area. */
+  var segEl = $('net-chips'), segBar = h('span', 'seg-bar');
+  function segMove() { var b = segEl.querySelector('[aria-pressed="true"]'); if (!b || !b.offsetWidth) return; segBar.style.width = (b.offsetWidth - 24) + 'px'; segBar.style.transform = 'translateX(' + (b.offsetLeft + 12) + 'px)'; segBar.style.setProperty('--c', b.firstChild && b.firstChild.style ? b.firstChild.style.color || '#F0F6FC' : '#F0F6FC'); }
+  window.addEventListener('resize', segMove);
+  chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); segMove(); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
+  segEl.appendChild(segBar);
   document.addEventListener('keydown', function (e) { if (current.view !== 'explore' || /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'ArrowRight') { stepProject(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { stepProject(-1); e.preventDefault(); } });
 
   /* ---------- about: competence ring and experience ---------- */
@@ -348,7 +353,7 @@
       if (r.view === 'project' && !same) { renderProject(P[r.id]); newEl.scrollTop = 0; }
       if (oldEl && oldEl !== newEl) oldEl.classList.remove('on', 'out-l', 'out-r');
       if (!instant && !same) { newEl.classList.remove('out-l', 'out-r'); newEl.classList.add('on', dir > 0 ? 'from-r' : 'from-l'); void newEl.offsetWidth; newEl.classList.remove('from-r', 'from-l'); } else newEl.classList.add('on');
-      reveal(newEl); if (r.view === 'about') trace(); if (r.view === 'home') whatLines();
+      reveal(newEl); if (r.view === 'about') trace(); if (r.view === 'home') whatLines(); if (r.view === 'explore') segMove();
       document.body.classList.toggle('scrolled', newEl.scrollTop > 10);
       if (r.anchor) { var t = $(r.anchor); if (t) setTimeout(function () { t.scrollIntoView({ behavior: instant || reducedMotion() ? 'auto' : 'smooth', block: 'start' }); }, instant ? 0 : 240); }
     }
