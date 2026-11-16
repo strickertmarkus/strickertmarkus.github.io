@@ -194,28 +194,38 @@
   /* ---------- explore panel ---------- */
   var panel = $('panel');
   function stepProject(d) { var id = Scene.selected(), i = P[id] ? PROJECTS.indexOf(P[id]) : -1; i = (i + d + PROJECTS.length) % PROJECTS.length; Scene.select(PROJECTS[i].id); }
+  /* On phones the sheet starts as a short summary so the network keeps the screen; the grip or the title opens the rest. */
+  var sheetEl = panel.parentNode, phone = window.matchMedia('(max-width: 760px)');
+  function toggleSheet() {
+    if (!phone.matches) return;
+    var open = sheetEl.classList.toggle('open'), g = panel.querySelector('.grip'); if (g) g.setAttribute('aria-expanded', open ? 'true' : 'false');
+    requestAnimationFrame(sheet);
+  }
   function renderPanel(id) {
     panel.textContent = '';
-    var p = P[id];
+    var p = P[id], grip = h('button', 'grip'), head = h('div', 'sheet-head', grip), more = h('div', 'more');
+    grip.type = 'button'; grip.setAttribute('aria-label', 'Show or hide details'); grip.setAttribute('aria-expanded', sheetEl.classList.contains('open') ? 'true' : 'false');
+    head.addEventListener('click', toggleSheet); panel.appendChild(head); panel.appendChild(more);
     if (p) {
-      var eb = h('p', 'eyebrow', meta(p)); eb.style.color = COLOR[p.cat]; panel.appendChild(eb);
-      panel.appendChild(h('h3', null, p.title)); panel.appendChild(h('p', 'd', p.desc));
-      var kv = h('div', 'kv'); p.facts.forEach(function (f) { kv.appendChild(h('div', null, [h('span', null, f[0]), h('b', null, f[1])])); }); panel.appendChild(kv);
-      panel.appendChild(h('p', 'used', ['Built with ', h('b', null, p.skills.join(' · '))]));
+      var eb = h('p', 'eyebrow', meta(p)); eb.style.color = COLOR[p.cat]; head.appendChild(eb); head.appendChild(h('h3', null, p.title));
+      more.appendChild(h('p', 'd', p.desc));
+      var kv = h('div', 'kv'); p.facts.forEach(function (f) { kv.appendChild(h('div', null, [h('span', null, f[0]), h('b', null, f[1])])); }); more.appendChild(kv);
+      more.appendChild(h('p', 'used', ['Built with ', h('b', null, p.skills.join(' · '))]));
       var b1 = h('button', null, arrow(-1)), b2 = h('button', null, arrow(1)); b1.type = b2.type = 'button'; b1.setAttribute('aria-label', 'Previous project'); b2.setAttribute('aria-label', 'Next project');
       b1.addEventListener('click', function () { stepProject(-1); }); b2.addEventListener('click', function () { stepProject(1); });
       panel.appendChild(h('div', 'acts', [linkTo('#work/' + p.id, 'Open project'), h('div', 'pager', [b1, h('span', null, (PROJECTS.indexOf(p) + 1) + ' / ' + PROJECTS.length), b2])]));
     } else {
       var isSkill = id.indexOf('s:') === 0, label = isSkill ? id.slice(2) : S.AREAS.filter(function (a) { return a.id === id; })[0].label;
       var list = PROJECTS.filter(function (q) { return Scene.linked(id, q.id); });
-      panel.appendChild(h('p', 'eyebrow', isSkill ? 'Skill' : 'Area')); panel.appendChild(h('h3', null, label));
-      panel.appendChild(h('p', 'd', list.length === 1 ? 'Used in one project.' : 'Used in ' + list.length + ' projects.'));
-      var pl = h('div', 'plist'); list.forEach(function (q) { var b = h('button', null, [q.short, h('span', null, CATNAME[q.cat])]); b.type = 'button'; b.addEventListener('click', function () { Scene.select(q.id); }); pl.appendChild(b); }); panel.appendChild(pl);
+      head.appendChild(h('p', 'eyebrow', isSkill ? 'Skill' : 'Area')); head.appendChild(h('h3', null, label));
+      head.appendChild(h('p', 'd', list.length === 1 ? 'Used in one project.' : 'Used in ' + list.length + ' projects.'));
+      var pl = h('div', 'plist'); list.forEach(function (q) { var b = h('button', null, [q.short, h('span', null, CATNAME[q.cat])]); b.type = 'button'; b.addEventListener('click', function () { Scene.select(q.id); }); pl.appendChild(b); }); more.appendChild(pl);
     }
     panel.classList.remove('swap'); if (!document.body.classList.contains('boot')) { void panel.offsetWidth; panel.classList.add('swap'); }
     requestAnimationFrame(sheet);
   }
-  function sheet() { Scene.setSheetTop(panel.parentNode.getBoundingClientRect().top); }
+  /* The network is laid out against the short sheet; an opened sheet slides over it instead of squeezing it. */
+  function sheet() { if (!sheetEl.classList.contains('open')) Scene.setSheetTop(sheetEl.getBoundingClientRect().top); }
   window.addEventListener('resize', sheet);
   Scene.onSelect(renderPanel);
   chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });

@@ -230,7 +230,8 @@ canvas.motif{width:100%;height:100%;display:block}
 #v-explore .chips{position:absolute;left:32px;top:94px}
 .hint{position:absolute;left:32px;bottom:34px;font-size:12px;color:var(--dim);white-space:nowrap}
 .panel{position:absolute;right:32px;top:94px;width:372px;max-height:calc(100% - 126px);overflow:auto;border-radius:28px;padding:28px;box-shadow:0 30px 90px -40px rgba(0,0,0,.9)}
-.panel-in{display:flex;flex-direction:column;gap:16px}
+.panel-in,.sheet-head,.more{display:flex;flex-direction:column;gap:16px}
+.more:empty,.grip{display:none}
 .panel-in.swap{animation:swap .5s var(--ease)}
 @keyframes swap{from{opacity:0;transform:translateY(10px)}}
 .panel h3{font-size:27px;line-height:1.14;font-weight:700;letter-spacing:-.025em}
@@ -404,11 +405,18 @@ canvas.motif{width:100%;height:100%;display:block}
   #v-explore .chips{top:66px;left:16px;right:16px}
   .chips button{padding:0 10px;gap:6px;font-size:12.5px}
   .hint{display:none}
-  .panel{left:8px;right:8px;top:auto;bottom:calc(max(env(safe-area-inset-bottom,0px),12px) + 74px);width:auto;max-height:44%;padding:20px 22px 12px;border-radius:26px}
-  .panel-in{gap:10px}
-  .panel h3{font-size:22px}
+  /* The sheet: a short summary by default so the network keeps the screen; .open shows the rest. */
+  .panel{left:8px;right:8px;top:auto;bottom:calc(max(env(safe-area-inset-bottom,0px),12px) + 74px);width:auto;max-height:64%;padding:4px 22px 6px;border-radius:26px}
+  .panel-in,.sheet-head,.more{gap:8px}
+  .sheet-head{cursor:pointer}
+  .grip{display:block;position:relative;width:56px;height:22px;margin:0 auto -2px}
+  .grip::before{content:"";position:absolute;left:10px;right:10px;top:9px;height:4px;border-radius:2px;background:rgba(255,255,255,.28)}
+  .panel h3{font-size:20px}
   .panel p.d{font-size:14px}
-  .kv{display:none}
+  .panel:not(.open) .more{display:none}
+  .panel:not(.open) .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .panel:not(.open) h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .panel.open .more{padding-bottom:4px}
   .about-top{grid-template-columns:minmax(0,1fr);min-height:0;gap:26px}
   .portrait{width:150px;border-radius:28px}
   .portrait img{border-radius:28px}

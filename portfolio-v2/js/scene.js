@@ -54,7 +54,7 @@
   var lights = LIGHT.home.map(function (l) { return { col: rgb(l[0]), x: l[1], y: l[2], r: l[3], a: l[4] }; });
 
   function layout() {
-    var LX = narrow ? [-118, 0, 118] : [-300, 0, 290], sStep = narrow ? 32 : 40, pStep = narrow ? 40 : 50, dStep = narrow ? 110 : 132, zs = narrow ? 70 : 150;
+    var LX = narrow ? [-135, 0, 135] : [-300, 0, 290], sStep = narrow ? 32 : 40, pStep = narrow ? 40 : 50, dStep = narrow ? 110 : 132, zs = narrow ? 70 : 150;
     var si = 0, pi = 0, di = 0, ns = S.SKILLS.length, np = S.PROJECTS.length;
     nodes.forEach(function (n) {
       if (n.type === 's') { n.net = [LX[0], (si - (ns - 1) / 2) * sStep, n.jz * zs * .35]; si++; }
@@ -63,13 +63,13 @@
     });
   }
   function aim() {
-    var sw = narrow ? 340 : 860, sh = narrow ? 420 : 540;
+    var sw = narrow ? 380 : 860, sh = narrow ? 440 : 540;
     tgt.hx = 1; projNames = true;
     if (view === 'explore') {
       /* Phones: the network gets what is left between the filter row and the sheet with the selected project. */
-      var aw = narrow ? W : W - 372 - 64 - 40, ah = narrow ? (sheetTop || H * .56) - 134 : H - 250;
+      var aw = narrow ? W : W - 372 - 64 - 40, ah = narrow ? (sheetTop || H * .7) - 146 : H - 250;
       tgt.zoom = clamp(Math.min(aw / sw, ah / sh), .3, 1.5);
-      tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 122 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
+      tgt.cx = narrow ? W / 2 : 32 + aw / 2 + 20; tgt.cy = narrow ? 130 + ah / 2 : H / 2 + 44; tgt.bright = 1; tgt.labels = 1;
     } else if (view === 'home') {
       if (narrow) { /* between the hero text and the ticker; on a short phone with no room there, it is left out */
         var room2 = (homeBottom || H * .8) - (homeTop || H * .46) - 28;
@@ -115,7 +115,7 @@
     var dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
     if (!reduced) t += dt;
     var k = reduced ? 1 : 1 - Math.exp(-dt * 4.2), kl = reduced ? 1 : 1 - Math.exp(-dt * 1.4);
-    for (var key in cam) cam[key] += (tgt[key] - cam[key]) * k;
+    for (var key in cam) { cam[key] += (tgt[key] - cam[key]) * k; if (Math.abs(tgt[key] - cam[key]) < .0005) cam[key] = tgt[key]; }
     pmx += (mx - pmx) * k; pmy += (my - pmy) * k;
     var clock = performance.now(); if (t0 < 0) t0 = clock;
     var m = reduced ? 1 : clamp((clock - t0) / 1900, 0, 1), me = 1 - Math.pow(1 - m, 3);
@@ -145,6 +145,9 @@
     /* stars */
     ctx.fillStyle = '#FFFFFF'; liftY = 0;
     for (i = 0; i < stars.length; i++) { var st = stars[i]; p = pr(st); if (!p) continue; ctx.globalAlpha = st[3] * (.55 + .45 * Math.sin(t * st[6] + st[5])) * (.45 + .55 * B); ctx.beginPath(); ctx.arc(p[0], p[1], st[4] * Math.min(1.4, p[2] * 1.6), 0, 6.283); ctx.fill(); }
+
+    /* A hidden network is not drawn at all. Safari paints wide additive strokes at near-zero opacity as solid white. */
+    if (B < .01) { hits = []; ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; requestAnimationFrame(frame); return; }
 
     /* node positions */
     liftY = lift;
