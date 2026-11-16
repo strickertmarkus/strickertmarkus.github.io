@@ -222,8 +222,13 @@
       title: 'Family app',
       kind: 'Side project', where: 'Built at home', period: 'ongoing',
       desc: 'A private web app my family uses every day: budget, shared calendar, lists and training, synced live between phones.',
-      lead: 'The app my family runs on. It started as a budget and grew into a shared calendar, shopping lists and notes, and a training section. It is private, so the screens below come from the real app filled with invented data.',
-      video: { src: 'video/family-app.mp4', poster: 'img/family-app.jpg', label: 'The app in use, with invented data', phone: true },
+      lead: 'The app my family runs on. It started as a budget and grew into a shared calendar, shopping lists and notes, and a training section. It is private, so the screens below come from the real app filled with invented names and numbers.',
+      gallery: [
+        { title: 'Calendar and lists', shots: [['hem', 'Shared month calendar'], ['handelser', 'Upcoming events'], ['inkop', 'Shopping list by store'], ['att-gora', 'To-dos with owner and due date']] },
+        { title: 'Budget', shots: [['budget', 'Posts against what was spent'], ['analys', 'Six months against budget'], ['analys-pengar', 'Where the money goes']] },
+        { title: 'Training', shots: [['traning', 'Training overview'], ['utveckling', 'Rhythm and log over time'], ['utforskare', 'Exercise explorer'], ['ovningar', '80 exercises by muscle group'], ['passbyggare', 'Workout builder'], ['exercise-mode', 'Exercise mode, next exercise ahead'], ['vila', 'Rest timer between sets']] },
+        { title: 'Stretch and meditation', shots: [['stretch', 'Stretch sessions'], ['meditation', 'Breathing and meditation']] }
+      ],
       skills: ['JavaScript'],
       stats: [],
       facts: [['Stack', 'Vanilla JavaScript, Firebase'], ['Installed as', 'Home-screen web app']],
@@ -231,7 +236,8 @@
         { type: 'list', title: 'What is in it', items: [
           'Budget with monthly views, shared costs and savings goals, and an analysis of the last months against budget.',
           'A family calendar, lists and notes.',
-          'Training with a log, progress charts, a workout builder and a session mode that guides each set.',
+          'Training with a log, progress charts, an exercise explorer with 80 exercises, a workout builder and a session mode with rest timers.',
+          'Stretch and meditation sessions with guided breathing.',
           'Live sync between phones through Firebase.',
           'Installed on the home screen as a web app, with app-like navigation and transitions.'
         ] },
