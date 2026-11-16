@@ -222,16 +222,16 @@
       title: 'Family app',
       kind: 'Side project', where: 'Built at home', period: 'ongoing',
       desc: 'A private web app my family uses every day: budget, shared calendar, lists and training, synced live between phones.',
-      lead: 'The app my family runs on. It started as a budget and grew into a shared calendar, shopping lists and notes, and a training section. It is private, so the recording below runs the real app filled with invented data.',
+      lead: 'The app my family runs on. It started as a budget and grew into a shared calendar, shopping lists and notes, and a training section. It is private, so the screens below come from the real app filled with invented data.',
       video: { src: 'video/family-app.mp4', poster: 'img/family-app.jpg', label: 'The app in use, with invented data', phone: true },
       skills: ['JavaScript'],
       stats: [],
       facts: [['Stack', 'Vanilla JavaScript, Firebase'], ['Installed as', 'Home-screen web app']],
       blocks: [
         { type: 'list', title: 'What is in it', items: [
-          'Budget with monthly views, shared costs and savings goals.',
+          'Budget with monthly views, shared costs and savings goals, and an analysis of the last months against budget.',
           'A family calendar, lists and notes.',
-          'Training with a workout builder and a session mode.',
+          'Training with a log, progress charts, a workout builder and a session mode that guides each set.',
           'Live sync between phones through Firebase.',
           'Installed on the home screen as a web app, with app-like navigation and transitions.'
         ] },
