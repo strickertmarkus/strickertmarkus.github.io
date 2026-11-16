@@ -4,8 +4,6 @@
   if (!/\/exercise\.html$/i.test(window.location.pathname) || window.__exerciseTimerFocusInstalled) return;
   window.__exerciseTimerFocusInstalled = true;
 
-  var audioContext = null;
-  var audioBus = null;
   var lastCardioToken = '';
   var collapsedCardioToken = '';
   var lastRestKey = '';
@@ -755,76 +753,16 @@
     else expandFocus();
   }
 
-  function getAudioContext() {
-    // External music takes priority. Never request exclusive playback.
-    try {
-      if (!navigator.audioSession) return null;
-      navigator.audioSession.type = 'ambient';
-      if (navigator.audioSession.type !== 'ambient') return null;
-    } catch (_) { return null; }
-    if (audioContext) return audioContext;
-    var Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return null;
-    try {
-      audioContext = new Ctx({latencyHint:'interactive'});
-      var compressor = audioContext.createDynamicsCompressor();
-      compressor.threshold.value = -18;
-      compressor.knee.value = 12;
-      compressor.ratio.value = 5;
-      compressor.attack.value = 0.002;
-      compressor.release.value = 0.12;
-      compressor.connect(audioContext.destination);
-      audioBus = compressor;
-    } catch (_) {
-      audioContext = null;
-      audioBus = null;
-    }
-    return audioContext;
-  }
+  function unlockAudio() { if (window.SessionSound) window.SessionSound.unlock(); }
 
-  function unlockAudio() {
-    var ctx = getAudioContext();
-    if (!ctx) return;
-    try {
-      var resumed = ctx.state === 'suspended' ? ctx.resume() : null;
-      if (resumed && typeof resumed.catch === 'function') resumed.catch(function () {});
-    } catch (_) {}
-  }
-
-  function beep(finalBeat) {
-    var ctx = getAudioContext();
-    if (!ctx) return;
-    try { if (ctx.state === 'suspended') { var resumed=ctx.resume(); if(resumed&&resumed.catch)resumed.catch(function(){}); } } catch (_) {}
-    if (ctx.state !== 'running') return;
-    try {
-      var now = ctx.currentTime;
-      var duration = finalBeat ? 0.17 : 0.095;
-      var master = ctx.createGain();
-      master.gain.setValueAtTime(0.0001,now);
-      master.gain.exponentialRampToValueAtTime(finalBeat ? 0.22 : 0.16,now + 0.007);
-      master.gain.exponentialRampToValueAtTime(0.0001,now + duration);
-      master.connect(audioBus || ctx.destination);
-      [finalBeat ? 1080 : 820, finalBeat ? 1620 : 1230].forEach(function (frequency,index) {
-        var oscillator = ctx.createOscillator();
-        var voice = ctx.createGain();
-        oscillator.type = index ? 'sine' : 'square';
-        oscillator.frequency.setValueAtTime(frequency,now);
-        voice.gain.value = index ? 0.42 : 0.78;
-        oscillator.connect(voice);
-        voice.connect(master);
-        oscillator.start(now);
-        oscillator.stop(now + duration + 0.015);
-      });
-    } catch (_) {}
-  }
-
+  // Ticks when 4, 3, 2, 1 seconds remain and the chime at 0 (exercise-session-sound-v1.js).
   function beepOnce(key,second) {
-    if (second < 1 || second > 5) return;
+    if (second < 0 || second > 4) return;
     var ledgerKey = key + '|' + second;
     if (beeped[ledgerKey]) return;
     beeped[ledgerKey] = true;
-    unlockAudio();
-    beep(second === 1);
+    if (!window.SessionSound) return;
+    if (second === 0) window.SessionSound.go(); else window.SessionSound.tick();
   }
 
   function elapsedForState(state,now) {
@@ -864,7 +802,8 @@
     var elapsed = elapsedForState(state,now);
     var remainingRaw = total - elapsed;
     var second = Math.ceil(remainingRaw);
-    if (second >= 1 && second <= 5) beepOnce('cardio|' + token,second);
+    if (second >= 1 && second <= 4) beepOnce('cardio|' + token,second);
+    else if (remainingRaw <= 0 && remainingRaw > -1.5) beepOnce('cardio|' + token,0);
 
     var name = document.getElementById('cardio-focus-name');
     if (name && name.textContent !== (exercise.name || 'Kondition')) name.textContent = exercise.name || 'Kondition';
@@ -1117,7 +1056,7 @@
       collapse:collapseFocus,
       toggle:toggleFocus,
       unlockAudio:unlockAudio,
-      beep:function () { unlockAudio();beep(false); },
+      beep:function () { if (window.SessionSound) window.SessionSound.tick(); },
       sync:scheduleReactiveSync
     };
   }

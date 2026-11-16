@@ -515,6 +515,8 @@
     if (!unifiedPretimer) return;
     var pending = unifiedPretimer;
     unifiedPretimer = null;
+    // The start chime lands at 0, when the set really starts (exercise-session-sound-v1.js).
+    if (window.SessionSound) window.SessionSound.go();
     if (typeof pending.done === 'function') pending.done();
     closePretimerSurface(false);
   }
@@ -529,6 +531,11 @@
     var elapsed = Math.max(0, now - unifiedPretimer.startedAt);
     var remaining = Math.max(0, unifiedPretimer.duration - elapsed);
     var value = Math.max(1, Math.ceil(remaining / 1000));
+    // A soft tick when 4, 3, 2 and 1 appear; the chime follows at 0 in finishUnifiedPretimer.
+    if (value !== unifiedPretimer.lastValue) {
+      if (unifiedPretimer.lastValue && value <= 4 && window.SessionSound) window.SessionSound.tick();
+      unifiedPretimer.lastValue = value;
+    }
     setText('session-pre-timer-value', String(value));
     var ring = document.getElementById('session-pre-timer-ring');
     if (ring) ring.style.setProperty('--pre-smooth-progress', (Math.min(1, elapsed / unifiedPretimer.duration) * 360).toFixed(3) + 'deg');

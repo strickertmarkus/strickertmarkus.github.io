@@ -7,7 +7,10 @@
  * 2. "Exercise Mode" title on the left of the top bar, and the bar moved down a little so the
  *    buttons clear the status bar / Dynamic Island.
  * 3. Like the stretch session: about 20 s into a set a small card slides up at the bottom with
- *    the next exercise and its animated 3D figure. The figure is pulse-exercise-guide.html in
+ *    the next exercise and its animated 3D figure, for about 7 s, then slides away again. It
+ *    only comes when something else is next: on the last set (the next exercise or a rest
+ *    before it) or before a between exercise such as Hopprep; between two sets of the same
+ *    exercise it stays away. The figure is pulse-exercise-guide.html in
  *    figure-only mode (?figure=<name>) inside a small iframe that is created on first use and
  *    then reused (the exercise is switched with postMessage).
  */
@@ -17,6 +20,7 @@
   window.__sessionNextPreviewV1 = true;
 
   var SHOW_AFTER_MS = 20000;
+  var VISIBLE_MS = 7000;
   var PRELOAD_AFTER_MS = 6000;
 
   function getState() {
@@ -187,12 +191,14 @@
     var elapsed = running ? Date.now() - Number(state.setStartedAt) : 0;
     var up = running ? window.__sessionUpcomingV1(state) : null;
 
+    // Another set of the same exercise is next: nothing to preview.
+    if (up && up.kind === 'exercise' && up.afterSets) up = null;
     if (!up || blocked(modal)) {
       if (card) card.classList.remove('show');
       return;
     }
     if (elapsed >= PRELOAD_AFTER_MS) showFigure(up.kind === 'rest' ? up.exercise : up.name);
-    if (elapsed < SHOW_AFTER_MS) { if (card) card.classList.remove('show'); return; }
+    if (elapsed < SHOW_AFTER_MS || elapsed > SHOW_AFTER_MS + VISIBLE_MS) { if (card) card.classList.remove('show'); return; }
 
     ensureCard();
     var key = up.kind + '|' + up.name + '|' + up.seconds;

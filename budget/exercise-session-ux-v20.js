@@ -5,7 +5,6 @@
   if (window.__exerciseSessionUxV20Installed) return;
   window.__exerciseSessionUxV20Installed = true;
 
-  var audioContext = null;
   var lastPretimerValue = '';
   var pretimerWasVisible = false;
   var pretimerShownAt = 0;
@@ -169,46 +168,8 @@
     document.head.appendChild(style);
   }
 
-  function getAudioContext() {
-    // External music takes priority. Never request exclusive playback.
-    try {
-      if (!navigator.audioSession) return null;
-      navigator.audioSession.type = 'ambient';
-      if (navigator.audioSession.type !== 'ambient') return null;
-    } catch (_) { return null; }
-    if (audioContext) return audioContext;
-    var Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return null;
-    try { audioContext = new Ctx(); }
-    catch (_) { audioContext = null; }
-    return audioContext;
-  }
-
-  function unlockAudio() {
-    var ctx = getAudioContext();
-    if (!ctx) return;
-    try { if (ctx.state === 'suspended') { var resumed=ctx.resume(); if(resumed&&resumed.catch)resumed.catch(function(){}); } } catch (_) {}
-  }
-
-  function beep(second) {
-    var ctx = getAudioContext();
-    if (!ctx || ctx.state !== 'running') return;
-    try {
-      var oscillator = ctx.createOscillator();
-      var gain = ctx.createGain();
-      var now = ctx.currentTime;
-      var last = Number(second) === 1;
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(last ? 1040 : 760, now);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(last ? 0.075 : 0.045, now + 0.008);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + (last ? 0.16 : 0.085));
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      oscillator.start(now);
-      oscillator.stop(now + (last ? 0.18 : 0.10));
-    } catch (_) {}
-  }
+  // Sounds live in exercise-session-sound-v1.js.
+  function unlockAudio() { if (window.SessionSound) window.SessionSound.unlock(); }
 
   function pretimerElement() {
     return document.getElementById('session-pre-timer');
@@ -249,10 +210,9 @@
     if (visible) {
       var valueEl = document.getElementById('session-pre-timer-value');
       var value = valueEl ? String(valueEl.textContent || '').trim() : '';
-      if (/^[1-5]$/.test(value) && value !== lastPretimerValue) {
-        lastPretimerValue = value;
-        beep(Number(value));
-      }
+      // The ticks themselves are played by the controller (exercise-hype-timer-layout-v1.js
+      // paintPretimer) on exact timing; this only tracks the value.
+      if (/^[1-5]$/.test(value) && value !== lastPretimerValue) lastPretimerValue = value;
     }
 
     if (!visible && pretimerWasVisible) {
