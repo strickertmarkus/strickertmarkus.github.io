@@ -105,11 +105,6 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .ticker span::before{content:"";position:absolute;left:-3px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--c,#DCE3EC);box-shadow:0 0 10px 1px var(--c,rgba(220,227,236,.75)),0 0 22px var(--c,rgba(220,227,236,.3))}
 @keyframes tick{to{transform:translateX(-50%)}}
 
-.what{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 clamp(20px,3vw,44px)}
-.what li{position:relative;padding:24px 0 8px;border-top:1px solid var(--line)}
-.what li::before{content:"";position:absolute;left:0;top:-1px;width:calc(var(--w,0)*100%);height:1px;background:linear-gradient(90deg,var(--amber),rgba(253,186,116,.25));box-shadow:0 0 14px rgba(253,186,116,.9);transition:width .2s linear}
-.what h3{font-size:20px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
-.what p{color:var(--muted);max-width:28em}
 
 .feature{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,44px);margin-bottom:28px}
 .feat{display:flex;flex-direction:column;gap:18px;padding:22px 0 0;border-top:1px solid var(--line);text-align:left;width:100%}
@@ -310,13 +305,15 @@ canvas.motif{width:100%;height:100%;display:block}
 .values h3{font-size:clamp(22px,2.6vw,34px);font-weight:700;letter-spacing:-.03em;margin-bottom:8px}
 .values p{color:var(--muted);max-width:28em}
 
-.comp{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:clamp(28px,6vw,88px);align-items:center;max-width:1040px}
+.comp{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:start;max-width:1040px}
+.comp .comp-items li{padding:10px 0 10px 22px;font-size:15px}
+.comp .comp-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}
 .ring{position:relative;aspect-ratio:1}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
 .ring circle{fill:none;stroke-linecap:round;stroke-width:14;cursor:pointer;opacity:.5;transition:stroke-width .5s var(--ease),opacity .4s ease,filter .4s ease,stroke-dasharray .5s var(--ease),stroke-dashoffset .5s var(--ease)}
 .ring circle.on{stroke-width:22;opacity:1;filter:drop-shadow(0 0 10px currentColor)}
 .ring-mid{position:absolute;inset:26%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;pointer-events:none}
-.ring-mid b{font-size:clamp(28px,3.4vw,44px);font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.ring-mid b{font-size:clamp(26px,2.6vw,36px);font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
 .ring-mid span{font-size:13px;color:var(--muted);max-width:11em}
 .comp-list{display:flex;flex-direction:column;gap:18px;min-width:0}
 .comp-tabs{display:flex;flex-wrap:wrap;gap:4px 6px}
@@ -326,9 +323,6 @@ canvas.motif{width:100%;height:100%;display:block}
 .comp-items.swap{animation:swap .5s var(--ease)}
 
 .exp{display:flex;flex-direction:column;margin-top:26px;max-width:980px}
-/* Work: the competence ring as an overview above the list. */
-.work-comp{max-width:1040px;margin:8px 0 56px}
-.work-comp > h2{margin-bottom:22px}
 /* CV: the full history folds out under the sheet. */
 .history{max-width:1040px;margin-top:72px;border-top:1px solid var(--line)}
 .history summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 0;min-height:44px}
@@ -423,9 +417,7 @@ canvas.motif{width:100%;height:100%;display:block}
   .hero{min-height:0;max-width:none;justify-content:flex-start;padding:6px 0 236px;gap:16px}
   /* Phones: the network takes the links' place. */
   .hero .cta{display:none}
-  .what,.values{grid-template-columns:minmax(0,1fr)}
-  .what li{padding:16px 0 14px}
-  .what h3{font-size:18px;margin-bottom:4px}
+  .values{grid-template-columns:minmax(0,1fr)}
   .facts{flex-wrap:nowrap;gap:14px;padding-top:24px}
   .facts div{flex:1 1 0;min-width:0;padding:6px 0}
   .facts b{font-size:20px}
@@ -470,8 +462,6 @@ canvas.motif{width:100%;height:100%;display:block}
   .about-top{grid-template-columns:minmax(0,1fr);min-height:0;gap:26px}
   .portrait{width:150px;border-radius:28px}
   .portrait img{border-radius:28px}
-  .comp{grid-template-columns:minmax(0,1fr)}
-  .ring{max-width:280px;margin:0 auto;width:100%}
   .xp{grid-template-columns:minmax(0,1fr)}
   .contact{grid-template-columns:minmax(0,1fr)}
   .cv{grid-template-columns:minmax(0,1fr);gap:32px}
@@ -543,4 +533,18 @@ canvas.motif{width:100%;height:100%;display:block}
   .flow li i{left:-26px;top:3px}
   .contact-card .who img{width:52px;height:52px}
   .pdf-view{display:none}
+}
+
+/* CV: the compact ring, areas with their share beside it */
+.comp.mini{grid-template-columns:minmax(0,1fr);gap:14px;margin-top:4px}
+.comp.mini .ring{width:150px;margin:0}
+.comp.mini .ring-mid b{font-size:24px}
+.comp.mini .comp-tabs{flex-direction:column;gap:0}
+.comp.mini .comp-tabs button{justify-content:flex-start;min-height:30px;padding:0 4px;border-radius:8px;font-size:13px;width:100%;text-align:left}
+.comp.mini .comp-tabs button b{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
+.comp.mini .comp-tabs button[aria-pressed="true"]{background:rgba(255,255,255,.06)}
+@media (max-width:760px){
+  .comp{grid-template-columns:minmax(0,1fr)}
+  .comp:not(.mini) .ring{max-width:220px;margin:0 auto;width:100%}
+  .comp .comp-items{grid-template-columns:minmax(0,1fr)}
 }

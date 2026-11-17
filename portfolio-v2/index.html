@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=19">
+<link rel="stylesheet" href="css/site.css?v=20">
 </head>
 <body class="boot">
 <canvas id="scene" tabindex="-1" aria-hidden="true"></canvas>
@@ -56,13 +56,8 @@
     </div>
 
     <section class="band" id="home-what">
-      <header class="band-head rv"><h2>What I do</h2></header>
-      <ul class="what">
-        <li class="rv" style="--d:0"><h3>System verification</h3><p>Test strategies for hardware, firmware and software, from early development to customer delivery.</p></li>
-        <li class="rv" style="--d:1"><h3>Test automation</h3><p>Automated test suites in NI TestStand, LabVIEW, C++ and Python.</p></li>
-        <li class="rv" style="--d:2"><h3>Scientific computing</h3><p>Modelling, large simulations on supercomputers and the data analysis that follows.</p></li>
-        <li class="rv" style="--d:3"><h3>Leadership</h3><p>Team-lead duties, agile retrospectives and work with customers.</p></li>
-      </ul>
+      <header class="band-head rv"><h2>What I do</h2><p class="sub">Where the time goes, across roles and projects. Pick an area to see what it covers.</p></header>
+      <div class="comp rv" id="comp"></div>
     </section>
 
     <section class="band">
@@ -100,7 +95,6 @@
     <header class="page-head"><h1>Work</h1><p class="sub">Engineering, research and side projects.</p></header>
     <div class="chips seg" role="group" aria-label="Filter work" id="work-chips"></div>
     <div class="rows" id="rows"></div>
-    <section class="work-comp" aria-label="Competence"><h2 class="rv">Where the time goes</h2><div class="comp rv" id="comp"></div></section>
     <footer class="foot">Markus Frick Strickert · Motala, Sweden</footer>
   </section>
 
@@ -174,6 +168,10 @@
           <h2>Licences</h2>
           <p>B driver's licence<br>Leadership licence<br>Electrical safety certification</p>
         </div>
+        <div class="cv-side-block">
+          <h2>Where the time goes</h2>
+          <div class="comp mini" id="comp-cv"></div>
+        </div>
       </div>
       <div class="cv-main">
         <section>
@@ -241,6 +239,6 @@
 
 <script src="js/data.js?v=14"></script>
 <script src="js/scene.js?v=11"></script>
-<script src="js/app.js?v=23"></script>
+<script src="js/app.js?v=24"></script>
 </body>
 </html>

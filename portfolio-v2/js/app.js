@@ -351,17 +351,18 @@
   chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
   document.addEventListener('keydown', function (e) { if (current.view !== 'explore' || /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'ArrowRight') { stepProject(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { stepProject(-1); e.preventDefault(); } });
 
-  /* ---------- about: competence ring and experience ---------- */
-  (function () {
-    var C = S.COMPETENCE, box = $('comp'), NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg'), R = 80, CIRC = 2 * Math.PI * R, GAP = 5, total = 0, start = 0, arcs = [];
+  /* ---------- competence ring: full on Home (areas and what each covers), compact in the CV (areas with shares) ---------- */
+  function ringWidget(box, mini) {
+    var C = S.COMPETENCE, NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg'), R = 80, CIRC = 2 * Math.PI * R, GAP = 5, total = 0, start = 0, arcs = [];
     var W_OFF = 14, W_ON = 22; /* stroke widths; rounded ends reach half a width past the dash, so each dash is shortened by that */
-    function shape(k, on) { var a = arcs[k], wd = on ? W_ON : W_OFF, len = Math.max(.1, a.len - GAP - wd); segs[k].style.strokeDasharray = len + ' ' + (CIRC - len); segs[k].style.strokeDashoffset = -(a.start + (GAP + wd) / 2); }
     C.forEach(function (c) { total += c.weight; });
     svg.setAttribute('viewBox', '0 0 200 200'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Competence areas by share');
     var mid = h('div', 'ring-mid', [h('b'), h('span')]), tabs = h('div', 'comp-tabs'), items = h('ul', 'lines comp-items'), segs = [], btns = [];
+    function shape(k, on) { var a = arcs[k], wd = on ? W_ON : W_OFF, len = Math.max(.1, a.len - GAP - wd); segs[k].style.strokeDasharray = len + ' ' + (CIRC - len); segs[k].style.strokeDashoffset = -(a.start + (GAP + wd) / 2); }
     function pick(i, quiet) {
       segs.forEach(function (s, k) { s.classList.toggle('on', k === i); shape(k, k === i); }); btns.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
-      mid.firstChild.textContent = Math.round(C[i].weight / total * 100) + '%'; mid.lastChild.textContent = C[i].name; mid.firstChild.style.color = C[i].color;
+      mid.firstChild.textContent = Math.round(C[i].weight / total * 100) + '%'; mid.lastChild.textContent = mini ? '' : C[i].name; mid.firstChild.style.color = C[i].color;
+      if (mini) return;
       items.textContent = ''; items.style.setProperty('--c', C[i].color); C[i].items.forEach(function (t) { items.appendChild(h('li', null, t)); });
       if (!quiet) { items.classList.remove('swap'); void items.offsetWidth; items.classList.add('swap'); }
     }
@@ -370,10 +371,21 @@
       s.setAttribute('cx', 100); s.setAttribute('cy', 100); s.setAttribute('r', R); s.setAttribute('stroke', c.color); s.style.color = c.color;
       arcs.push({ start: start, len: c.weight / total * CIRC }); start += c.weight / total * CIRC;
       s.addEventListener('click', function () { pick(i); }); s.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') pick(i); }); svg.appendChild(s); segs.push(s);
-      var dotEl = h('i'); dotEl.style.setProperty('--c', c.color); var b = h('button', null, [dotEl, c.name]); b.type = 'button'; b.addEventListener('click', function () { pick(i); }); tabs.appendChild(b); btns.push(b);
+      var dotEl = h('i'); dotEl.style.setProperty('--c', c.color);
+      var b = h('button', null, mini ? [dotEl, c.name, h('b', null, Math.round(c.weight / total * 100) + '%')] : [dotEl, c.name]); b.type = 'button';
+      b.addEventListener('click', function () { pick(i); }); b.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') pick(i); }); tabs.appendChild(b); btns.push(b);
     });
-    box.appendChild(h('div', 'ring', [svg, mid])); box.appendChild(h('div', 'comp-list', [tabs, items])); pick(0, true);
+    box.appendChild(h('div', 'ring', [svg, mid])); box.appendChild(h('div', 'comp-list', mini ? [tabs] : [tabs, items])); pick(0, true);
+  }
+  ringWidget($('comp'), false); ringWidget($('comp-cv'), true);
+  /* The CV's side column stays in view while the page scrolls; when it is taller than the screen it sticks by its bottom edge,
+     so its last part (the ring) is reached instead of hidden. */
+  var cvSide = document.querySelector('.cv-side');
+  function sideStick() { if (!cvSide.offsetHeight) return; cvSide.style.top = Math.min(100, window.innerHeight - cvSide.offsetHeight - 24) + 'px'; }
+  window.addEventListener('resize', sideStick);
 
+  /* ---------- CV: the full history ---------- */
+  (function () {
     var exp = $('exp');
     S.GROUPS.forEach(function (g) {
       var head = h('h3', 'exp-g rv', g[1]); head.setAttribute('data-g', g[0]); exp.appendChild(head);
@@ -479,7 +491,7 @@
       if (r.view === 'project' && !same) { renderProject(P[r.id]); newEl.scrollTop = 0; }
       if (oldEl && oldEl !== newEl) oldEl.classList.remove('on', 'out-l', 'out-r');
       if (!instant && !same) { newEl.classList.remove('out-l', 'out-r'); newEl.classList.add('on', dir > 0 ? 'from-r' : 'from-l'); void newEl.offsetWidth; newEl.classList.remove('from-r', 'from-l'); } else newEl.classList.add('on');
-      reveal(newEl); if (r.view === 'home') whatLines(); segAll();
+      reveal(newEl); if (r.view === 'home') whatLines(); if (r.view === 'cv') sideStick(); segAll();
       document.body.classList.toggle('scrolled', newEl.scrollTop > 10);
       if (r.anchor) { var t = $(r.anchor); if (t) setTimeout(function () { t.scrollIntoView({ behavior: instant || reducedMotion() ? 'auto' : 'smooth', block: 'start' }); }, instant ? 0 : 240); }
     }
@@ -501,10 +513,9 @@
   /* ---------- scroll- and pointer-driven light ---------- */
   /* The line over each "What I do" item draws itself as the item scrolls up the screen,
      and the Experience line grows with the scroll, lighting each step as it reaches it. */
-  var whatItems = [].slice.call(document.querySelectorAll('.what li')), pathEl = document.querySelector('.path'), pathSteps = [].slice.call(pathEl.querySelectorAll('li'));
+  var pathEl = document.querySelector('.path'), pathSteps = [].slice.call(pathEl.querySelectorAll('li'));
   function whatLines() {
     var vh = window.innerHeight;
-    whatItems.forEach(function (li) { var r = li.getBoundingClientRect(); li.style.setProperty('--w', Math.max(0, Math.min(1, (vh * .92 - r.top) / (vh * .4))).toFixed(3)); });
     var pr = pathEl.getBoundingClientRect(), across = pr.height < 160, p = Math.max(0, Math.min(1, (vh * .85 - pr.top) / (pr.height + vh * .3)));
     pathEl.style.setProperty('--p', p.toFixed(3));
     pathSteps.forEach(function (li) { var at = across ? li.offsetLeft / pathEl.offsetWidth : li.offsetTop / pathEl.offsetHeight; li.classList.toggle('lit', p > 0 && p >= at); });
