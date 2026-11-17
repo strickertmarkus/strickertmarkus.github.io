@@ -84,15 +84,18 @@
       var k0 = Math.min(2 * n - 2, Math.floor(prog)), f = Math.min(1, prog - k0), A = P2[k0], Bq = P2[k0 + 1];
       if (ph < .8) dot(c, A[0] + (Bq[0] - A[0]) * f, A[1] + (Bq[1] - A[1]) * f, 3, '#FFFFFF', 1);
     },
-    matrix: function (c, w, h, t, col) { /* a switch matrix closing one route at a time, beside a test sequence ticking off its steps */
+    matrix: function (c, w, h, t, col) { /* a switch matrix routing three signals at once, beside a test sequence ticking off its steps */
       var rows = 5, cols = 8, x0 = w * .12, x1 = w * .58, y0 = h * .2, y1 = h * .76, dx = (x1 - x0) / (cols - 1), dy = (y1 - y0) / (rows - 1), i, j;
-      var R2 = pts('matrix', 48, 23, function (r) { return [Math.floor(r() * rows), 1 + Math.floor(r() * (cols - 1))]; }), step = Math.floor(t * .55), ph = (t * .55) % 1, cur = R2[step % R2.length];
+      var R2 = pts('matrix', 48, 23, function (r) { return [Math.floor(r() * rows), 1 + Math.floor(r() * (cols - 1))]; }), step = Math.floor(t * .55), ph = (t * .55) % 1;
       c.lineWidth = 1; c.strokeStyle = '#DCE3EC'; c.globalAlpha = .1; c.beginPath();
       for (i = 0; i < rows; i++) { c.moveTo(x0 - 18, y0 + i * dy); c.lineTo(x1, y0 + i * dy); } for (j = 0; j < cols; j++) { c.moveTo(x0 + j * dx, y0); c.lineTo(x0 + j * dx, y1 + 18); } c.stroke();
       for (i = 0; i < rows; i++) for (j = 0; j < cols; j++) dot(c, x0 + j * dx, y0 + i * dy, 1.4, '#DCE3EC', .3);
-      var ry = y0 + cur[0] * dy, cx2 = x0 + cur[1] * dx, la = cx2 - (x0 - 18), lb = y1 + 18 - ry, d = Math.min(1, ph * 1.5) * (la + lb);
-      c.strokeStyle = col; c.lineWidth = 1.8; c.globalAlpha = .95; c.beginPath(); c.moveTo(x0 - 18, ry); c.lineTo(x0 - 18 + Math.min(d, la), ry); if (d > la) c.lineTo(cx2, ry + (d - la)); c.stroke();
-      dot(c, x0 - 18, ry, 3, '#FDBA74', 1); if (d > la) dot(c, cx2, ry, 3.4, '#FFFFFF', 1); if (d >= la + lb - 1) dot(c, cx2, y1 + 18, 3, '#86EFAC', 1);
+      for (var k = 0; k < 3; k++) { /* three routes, each a third of a cycle behind the last */
+        var tk = t * .55 + k / 3, sk = Math.floor(tk), pk = tk % 1, cur = R2[(sk * 3 + k * 7) % R2.length];
+        var ry = y0 + cur[0] * dy, cx2 = x0 + cur[1] * dx, la = cx2 - (x0 - 18), lb = y1 + 18 - ry, d = Math.min(1, pk * 1.5) * (la + lb), fade = pk > .85 ? (1 - pk) / .15 : 1;
+        c.strokeStyle = col; c.lineWidth = 1.8; c.globalAlpha = .95 * fade; c.beginPath(); c.moveTo(x0 - 18, ry); c.lineTo(x0 - 18 + Math.min(d, la), ry); if (d > la) c.lineTo(cx2, ry + (d - la)); c.stroke();
+        dot(c, x0 - 18, ry, 3, '#FDBA74', fade); if (d > la) dot(c, cx2, ry, 3.4, '#FFFFFF', fade); if (d >= la + lb - 1) dot(c, cx2, y1 + 18, 3, '#86EFAC', fade);
+      }
       var steps = 6, sx = w * .68, sw2 = w * .22, at = step % steps;
       for (i = 0; i < steps; i++) { var sy = h * (.2 + i * .112), passed = i < at, now = i === at; c.globalAlpha = passed ? .5 : now ? .95 : .16; c.fillStyle = now ? col : '#DCE3EC'; c.beginPath(); c.roundRect(sx, sy, sw2 * (now ? Math.min(1, ph * 1.5) : 1) * (.55 + ((i * 37) % 5) * .09), 5, 2.5); c.fill(); if (passed) dot(c, sx - 12, sy + 2.5, 2.4, '#86EFAC', 1); else if (now) dot(c, sx - 12, sy + 2.5, 2.4, '#FDBA74', .5 + .5 * Math.sin(t * 8)); }
     },
@@ -494,9 +497,16 @@
   });
 
   /* ---------- scroll- and pointer-driven light ---------- */
-  /* The line over each "What I do" item draws itself as the item scrolls up the screen. */
-  var whatItems = [].slice.call(document.querySelectorAll('.what li'));
-  function whatLines() { var vh = window.innerHeight; whatItems.forEach(function (li) { var r = li.getBoundingClientRect(); li.style.setProperty('--w', Math.max(0, Math.min(1, (vh * .92 - r.top) / (vh * .4))).toFixed(3)); }); }
+  /* The line over each "What I do" item draws itself as the item scrolls up the screen,
+     and the Experience line grows with the scroll, lighting each step as it reaches it. */
+  var whatItems = [].slice.call(document.querySelectorAll('.what li')), pathEl = document.querySelector('.path'), pathSteps = [].slice.call(pathEl.querySelectorAll('li'));
+  function whatLines() {
+    var vh = window.innerHeight;
+    whatItems.forEach(function (li) { var r = li.getBoundingClientRect(); li.style.setProperty('--w', Math.max(0, Math.min(1, (vh * .92 - r.top) / (vh * .4))).toFixed(3)); });
+    var pr = pathEl.getBoundingClientRect(), across = pr.height < 160, p = Math.max(0, Math.min(1, (vh * .85 - pr.top) / (pr.height + vh * .3)));
+    pathEl.style.setProperty('--p', p.toFixed(3));
+    pathSteps.forEach(function (li) { var at = across ? li.offsetLeft / pathEl.offsetWidth : li.offsetTop / pathEl.offsetHeight; li.classList.toggle('lit', p > 0 && p >= at); });
+  }
   viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') { Scene.setScroll(this.scrollTop); whatLines(); } }, { passive: true });
   window.addEventListener('resize', whatLines);
   var heroText = document.querySelector('.hero h1'), heroEl = document.querySelector('.hero'), tickerEl = document.querySelector('.ticker'), homeEl = viewEl('home');

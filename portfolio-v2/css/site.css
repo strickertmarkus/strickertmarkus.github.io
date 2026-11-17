@@ -125,11 +125,11 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 canvas.motif{width:100%;height:100%;display:block}
 
 .path{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 28px;position:relative;margin-bottom:20px}
-.path::before{content:"";position:absolute;left:0;right:0;top:5px;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.2),var(--amber));transform-origin:left;transform:scaleX(0);transition:transform 1.6s var(--ease) .2s}
-.path.in::before{transform:scaleX(1)}
+.path::before{content:"";position:absolute;left:0;right:0;top:5px;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.25),var(--amber));box-shadow:0 0 12px rgba(253,186,116,.6);transform-origin:left;transform:scaleX(var(--p,0));transition:transform .2s linear}
 .path li{position:relative;padding-top:30px;display:flex;flex-direction:column;gap:3px}
-.path li::before{content:"";position:absolute;left:0;top:0;width:11px;height:11px;border-radius:50%;background:var(--bg);border:1px solid rgba(255,255,255,.4)}
-.path li.now::before{background:var(--amber);border-color:var(--amber);box-shadow:0 0 16px rgba(253,186,116,.9)}
+.path li::before{content:"";position:absolute;left:0;top:0;width:11px;height:11px;border-radius:50%;background:var(--bg);border:1px solid rgba(255,255,255,.4);transition:background .4s ease,border-color .4s ease,box-shadow .4s ease}
+.path li.lit::before{border-color:var(--amber);box-shadow:0 0 10px rgba(253,186,116,.6)}
+.path li.now.lit::before{background:var(--amber);box-shadow:0 0 16px rgba(253,186,116,.9)}
 .path span{font-size:13px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
 .path li.now span{color:var(--amber)}
 .path b{font-size:17px;font-weight:600;letter-spacing:-.01em}
@@ -434,8 +434,7 @@ canvas.motif{width:100%;height:100%;display:block}
   .feat{gap:12px;padding:18px 0 14px}
   .feat .motif-wrap{aspect-ratio:3/1}
   .path{grid-template-columns:minmax(0,1fr);gap:22px;padding-left:28px}
-  .path::before{left:5px;right:auto;top:6px;bottom:6px;width:1px;height:auto;transform-origin:top;transform:scaleY(0);background:linear-gradient(180deg,rgba(255,255,255,.2),var(--amber))}
-  .path.in::before{transform:scaleY(1)}
+  .path::before{left:5px;right:auto;top:6px;bottom:6px;width:1px;height:auto;transform-origin:top;transform:scaleY(var(--p,0));background:linear-gradient(180deg,rgba(255,255,255,.25),var(--amber))}
   .path li{padding-top:0}
   .path li::before{left:-28px;top:4px}
   .row{grid-template-columns:28px minmax(0,1fr) 20px;padding:18px 4px 18px 0;gap:10px 12px}
@@ -489,7 +488,9 @@ canvas.motif{width:100%;height:100%;display:block}
 }
 
 /* Home: customer feedback */
-.said{max-width:900px}
+.said{max-width:900px;margin:0}
+.band-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;max-width:none}
+.band-row .link{flex:0 0 auto;padding-bottom:6px}
 .said blockquote{font-size:clamp(22px,2.4vw,32px);line-height:1.25;font-weight:600;letter-spacing:-.025em;color:var(--ink);margin:12px 0 14px}
 .said figcaption{font-size:14px;color:var(--muted)}
 .said figcaption a{color:var(--amber)}
