@@ -297,7 +297,10 @@
 
   /* ---------- explore panel ---------- */
   var panel = $('panel');
-  function stepProject(d) { var id = Scene.selected(), i = P[id] ? PROJECTS.indexOf(P[id]) : -1; i = (i + d + PROJECTS.length) % PROJECTS.length; Scene.select(PROJECTS[i].id); }
+  /* Explore steps through the projects in the network's order: grouped by area, top to bottom. */
+  var AREA_AT = {}; S.AREAS.forEach(function (a, i) { AREA_AT[a.cat] = i; });
+  var NETP = PROJECTS.map(function (p, i) { return [p, i]; }).sort(function (x, y) { return AREA_AT[x[0].cat] - AREA_AT[y[0].cat] || x[1] - y[1]; }).map(function (x) { return x[0]; });
+  function stepProject(d) { var id = Scene.selected(), i = P[id] ? NETP.indexOf(P[id]) : -1; i = (i + d + NETP.length) % NETP.length; Scene.select(NETP[i].id); }
   /* On phones the selection starts as a short summary so the network keeps the screen; the chevron or the title opens the rest. */
   var sheetEl = panel.parentNode, phone = window.matchMedia('(max-width: 760px)');
   function toggleSheet() {
@@ -318,7 +321,7 @@
       more.appendChild(h('p', 'used', ['Built with ', h('b', null, p.skills.join(' · '))]));
       var b1 = h('button', null, arrow(-1)), b2 = h('button', null, arrow(1)); b1.type = b2.type = 'button'; b1.setAttribute('aria-label', 'Previous project'); b2.setAttribute('aria-label', 'Next project');
       b1.addEventListener('click', function () { stepProject(-1); }); b2.addEventListener('click', function () { stepProject(1); });
-      panel.appendChild(h('div', 'acts', [linkTo('#work/' + p.id, 'Open project'), h('div', 'pager', [b1, h('span', null, (PROJECTS.indexOf(p) + 1) + ' / ' + PROJECTS.length), b2])]));
+      panel.appendChild(h('div', 'acts', [linkTo('#work/' + p.id, 'Open project'), h('div', 'pager', [b1, h('span', null, (NETP.indexOf(p) + 1) + ' / ' + NETP.length), b2])]));
     } else {
       var isSkill = id.indexOf('s:') === 0, label = isSkill ? id.slice(2) : S.AREAS.filter(function (a) { return a.id === id; })[0].label;
       var list = PROJECTS.filter(function (q) { return Scene.linked(id, q.id); });

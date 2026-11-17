@@ -17,7 +17,11 @@
   var rand = rng(7);
   function farPoint() { var u = rand() * 2 - 1, th = rand() * Math.PI * 2, r = 560 + rand() * 240, q = Math.sqrt(1 - u * u); return [r * q * Math.cos(th), r * u * .7, r * q * Math.sin(th)]; }
   var nodes = [], byId = {}, edges = [], adj = {};
-  S.PROJECTS.forEach(function (p) { nodes.push({ type: 'p', id: p.id, cat: p.cat, label: p.short, far: farPoint(), net: [0, 0, 0], jz: rand() - .5, flare: 0 }); });
+  /* The project column is grouped by area, in the same order as the area column, so each colour's lines run straight across
+     instead of crossing the others. The Work list keeps its own order. */
+  var AREA_AT = {}; S.AREAS.forEach(function (d, i) { AREA_AT[d.cat] = i; });
+  var NET = S.PROJECTS.map(function (p, i) { return [p, i]; }).sort(function (x, y) { return AREA_AT[x[0].cat] - AREA_AT[y[0].cat] || x[1] - y[1]; }).map(function (x) { return x[0]; });
+  NET.forEach(function (p) { nodes.push({ type: 'p', id: p.id, cat: p.cat, label: p.short, far: farPoint(), net: [0, 0, 0], jz: rand() - .5, flare: 0 }); });
   S.SKILLS.forEach(function (s) { nodes.push({ type: 's', id: 's:' + s, label: s, far: farPoint(), net: [0, 0, 0], jz: rand() - .5, flare: 0 }); });
   S.AREAS.forEach(function (d) { nodes.push({ type: 'd', id: d.id, cat: d.cat, label: d.label, far: farPoint(), net: [0, 0, 0], jz: 0, flare: 0 }); });
   nodes.forEach(function (n) { byId[n.id] = n; adj[n.id] = {}; });
