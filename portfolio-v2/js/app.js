@@ -487,7 +487,7 @@
   document.querySelectorAll('.cv-more').forEach(function (a) { a.addEventListener('click', function () { hist.open = true; }); });
 
   /* ---------- the travelling dot, ported from budget/pulse-bottom-nav-v1.js ---------- */
-  var tabs = document.querySelector('.tabs'), ind = tabs.querySelector('.ind'), TABS = ['home', 'work', 'explore', 'about', 'cv'];
+  var tabs = document.querySelector('.tabs'), ind = tabs.querySelector('.ind');
   var currentTab = null, running = null;
   function tabEl(name) { return tabs.querySelector('[data-go="' + name + '"]'); }
   function centre(name) { var a = tabEl(name); if (!a) return 0; var r = a.getBoundingClientRect(), n = tabs.getBoundingClientRect(); return r.left - n.left - tabs.clientLeft + r.width / 2; }
@@ -546,7 +546,7 @@
       if (r.anchor) { var t = $(r.anchor); if (t) setTimeout(function () { t.scrollIntoView({ behavior: instant || reducedMotion() ? 'auto' : 'smooth', block: 'start' }); }, instant ? 0 : 240); }
     }
     current = { view: r.view, id: r.id || null };
-    mark(r.view === 'project' ? 'work' : r.view, !instant);
+    mark(r.view === 'project' ? 'work' : r.view === 'explore' ? 'home' : r.view, !instant); /* Explore is reached from Home, not the menu */
     Scene.setView(r.view); Scene.setScroll(r.view === 'home' ? newEl.scrollTop : 0);
     if (instant || same || !oldEl) { enter(); return; }
     if (oldEl === newEl) { oldEl.classList.add(dir > 0 ? 'out-l' : 'out-r'); oldEl.classList.remove('on'); setTimeout(enter, 100); return; }
@@ -577,8 +577,17 @@
   function heroEdge() {
     var st = homeEl.scrollTop, bottom = 0; /* the lowest visible part of the hero: the links on wide screens, the caption on phones */
     [].forEach.call(heroEl.children, function (c) { if (c.offsetParent) bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
-    Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, bottom + st, tickerEl.getBoundingClientRect().top + st);
+    var hintTop = tickerEl.getBoundingClientRect().top + st - netHint.offsetHeight - 14; /* the hint sits just above the ticker, the network above the hint */
+    netHint.style.top = hintTop + 'px';
+    Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, bottom + st, hintTop - 4);
   }
+  /* Home's network answers the pointer where nothing else on the page is under it: the empty part of the view or the hero. */
+  var netHint = $('net-hint');
+  if (window.matchMedia('(hover: none)').matches) netHint.firstChild.textContent = 'Tap a point to follow its paths';
+  function onNet(e) { return e.target === homeEl || e.target === heroEl; }
+  homeEl.addEventListener('pointermove', function (e) { var hit = Scene.hoverAt(onNet(e) ? e.clientX : null, e.clientY); homeEl.style.cursor = hit ? 'pointer' : ''; }, { passive: true });
+  homeEl.addEventListener('pointerleave', function () { Scene.hoverAt(null); homeEl.style.cursor = ''; });
+  homeEl.addEventListener('click', function (e) { if (!onNet(e)) return; var r = Scene.tapAt(e.clientX, e.clientY); if (r && r.open) location.hash = 'work/' + r.id; });
   window.addEventListener('resize', heroEdge);
   /* The top bar turns denser once the view in front has scrolled under it. */
   document.addEventListener('scroll', function (e) { var v = e.target; if (v && v.id === 'v-' + current.view) document.body.classList.toggle('scrolled', v.scrollTop > 10); }, true);

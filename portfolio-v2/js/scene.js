@@ -42,7 +42,7 @@
 
   /* ---------- state ---------- */
   var W = 0, H = 0, dpr = 1, narrow = false, D = 900;
-  var view = 'home', cat = 'all', sel = byId.cme, hover = null, onSelect = null, onHover = null;
+  var view = 'home', cat = 'all', sel = byId.cme, hover = null, onSelect = null, onHover = null, homeHover = null, homePin = null;
   var t = 0, last = 0, t0 = -1, scrollY = 0, homeLeft = 0, homeTop = 0, homeBottom = 0, sheetTop = 0;
   var cam = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, tgt = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, projNames = true;
   var userYaw = 0, userPitch = 0, userZoom = 1, first = true, mx = .5, my = .5, pmx = .5, pmy = .5;
@@ -96,7 +96,7 @@
       tgt.bright = 1;
     } else {
       tgt.zoom = narrow ? .8 : 1.2; tgt.cx = narrow ? W * .5 : W * 1.02; tgt.cy = narrow ? H * .24 : H * .46; tgt.labels = 0; /* wide: mostly past the right edge, clear of the text */
-      tgt.bright = narrow ? 0 : (view === 'cv' ? .06 : .14); /* phones: text takes the whole width, so no network behind it */
+      tgt.bright = 0; /* reading pages show only the stars: a faint additive network is drawn as white streaks by Safari */
     }
     done();
   }
@@ -160,7 +160,7 @@
 
     /* node positions */
     liftY = lift;
-    var focus = explore && cam.labels > .5 ? (hover || sel) : null;
+    var focus = explore && cam.labels > .5 ? (hover || sel) : view === 'home' && cam.labels > .3 && fade > .5 ? (homeHover || homePin) : null;
     for (i = 0; i < nodes.length; i++) {
       n = nodes[i];
       n.pos = [mix(n.far[0], n.net[0], me), mix(n.far[1], n.net[1], me), mix(n.far[2], n.net[2], me)];
@@ -257,7 +257,16 @@
   cv.addEventListener('wheel', function (e) { if (view !== 'explore') return; e.preventDefault(); userZoom = clamp(userZoom * Math.exp(-e.deltaY * .0012), .6, 2.4); }, { passive: false });
 
   var api = {
-    setView: function (v) { view = v; hover = null; aim(); cv.style.cursor = v === 'explore' ? 'grab' : 'default'; },
+    setView: function (v) { view = v; hover = null; homeHover = null; homePin = null; aim(); cv.style.cursor = v === 'explore' ? 'grab' : 'default'; },
+    /* Home: the page lies over the canvas, so the page passes pointer positions in. Pointing at a node lights its paths;
+       a tap pins it (a second tap on a pinned project opens it, reported as { id, open: true }). */
+    hoverAt: function (x, y) { var h = view === 'home' && x != null && cam.labels > .3 ? pick(x, y) : null; homeHover = h; return !!h; },
+    tapAt: function (x, y) {
+      var h = view === 'home' && cam.labels > .3 ? pick(x, y) : null;
+      if (!h) { homePin = null; return null; }
+      if (h === homePin && h.type === 'p') return { id: h.id, open: true };
+      homePin = h; return { id: h.id, open: false };
+    },
     setScroll: function (px) { scrollY = Math.max(0, px); },
     setHomeBox: function (left, top, bottom) { homeLeft = left; homeTop = top; homeBottom = bottom; if (view === 'home') aim(); },
     setSheetTop: function (px) { sheetTop = px; if (view === 'explore') aim(); },

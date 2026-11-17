@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=25">
+<link rel="stylesheet" href="css/site.css?v=26">
 </head>
 <body class="boot">
 <canvas id="scene" tabindex="-1" aria-hidden="true"></canvas>
@@ -36,7 +36,6 @@
 <nav class="tabs" aria-label="Main">
   <a href="#home" data-go="home"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10h-6v-6H9v6H3z"/></svg><span>Home</span></a>
   <a href="#work" data-go="work"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg><span>Work</span></a>
-  <a href="#explore" data-go="explore"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><path d="M6.7 7.3l3.7 3.3M6.7 16.7l3.7-3.3M14 12h3"/></svg><span>Explore</span></a>
   <a href="#about" data-go="about"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-5.5 7-5.5s6 1.500 7 5.500"/></svg><span>About</span></a>
   <a href="#cv" data-go="cv"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.500"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>CV</span></a>
   <i class="ind" aria-hidden="true"></i>
@@ -54,6 +53,8 @@
         <a class="link quiet" href="#cv">Read the CV</a>
       </div>
     </div>
+
+    <p class="net-hint" id="net-hint"><span>Point at the network to follow its paths</span><a href="#explore">Explore the network <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a></p>
 
     <div class="ticker" aria-hidden="true"><div class="ticker-in" id="ticker"></div></div>
 
@@ -248,7 +249,7 @@
 </main>
 
 <script src="js/data.js?v=15"></script>
-<script src="js/scene.js?v=11"></script>
-<script src="js/app.js?v=27"></script>
+<script src="js/scene.js?v=12"></script>
+<script src="js/app.js?v=28"></script>
 </body>
 </html>
