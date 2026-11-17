@@ -25,6 +25,16 @@
       pad.textContent = 'body{padding-bottom:' + BOTTOM + '!important}.nav-dropdown-wrapper{display:none!important}';
       (document.head || document.documentElement).appendChild(pad);
       document.documentElement.classList.add('under-bottom-nav');
+      // A dialog open in the frame tells Home, which then moves its bar aside (html.pbn-modal there).
+      var lastOpen = null;
+      var report = function () {
+        var open = !!document.querySelector('.modal-overlay.show,.modal-overlay.active');
+        if (open === lastOpen) return;
+        lastOpen = open;
+        try { window.parent.document.documentElement.classList.toggle('pbn-modal', open); } catch (_) {}
+      };
+      new MutationObserver(report).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+      window.addEventListener('pagehide', function () { try { window.parent.document.documentElement.classList.remove('pbn-modal'); } catch (_) {} });
     }
     return;
   }
@@ -104,6 +114,8 @@
     // A page's own floating "+" button (Home: new event) sits just above the bar.
     'html.has-bottom-nav:not(#pbn) body .fab{bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 66px)!important}' +
     'html.pbn-typing .pbn{visibility:hidden}' +
+    // A page's own dialog (event form on Home, edit dialogs on the budget pages) owns the screen: the bar steps aside so its buttons are never covered.
+    'html:has(.modal-overlay.show) .pbn,html:has(.modal-overlay.active) .pbn,html.pbn-modal .pbn{transform:translateY(calc(100% + 8px));opacity:0;pointer-events:none}' +
     '@media (prefers-reduced-motion:reduce){.pbn-sheet,.pbn-dim{transition:none}.pbn .pop svg{animation:none}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}';
 
   function install() {
