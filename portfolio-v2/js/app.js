@@ -99,40 +99,41 @@
       var steps = 6, sx = w * .68, sw2 = w * .22, at = step % steps;
       for (i = 0; i < steps; i++) { var sy = h * (.2 + i * .112), passed = i < at, now = i === at; c.globalAlpha = passed ? .5 : now ? .95 : .16; c.fillStyle = now ? col : '#DCE3EC'; c.beginPath(); c.roundRect(sx, sy, sw2 * (now ? Math.min(1, ph * 1.5) : 1) * (.55 + ((i * 37) % 5) * .09), 5, 2.5); c.fill(); if (passed) dot(c, sx - 12, sy + 2.5, 2.4, '#86EFAC', 1); else if (now) dot(c, sx - 12, sy + 2.5, 2.4, '#FDBA74', .5 + .5 * Math.sin(t * 8)); }
     },
-    /* About: one small picture per way of working */
+    /* About: one small picture per way of working. These play once (t = seconds since the item came into view)
+       and then hold their last frame, so the page is still while it is read. */
     trace: function (c, w, h, t, col) { /* requirements on the left, each traced across to a test that turns green */
       for (var i = 0; i < 3; i++) {
-        var y = h * (.24 + i * .26), ph = ((t * .35 - i * .33) % 1 + 1) % 1, x0 = w * .04, x1 = w * .3, x2 = w * .86, k = Math.min(1, ph * 1.6);
+        var y = h * (.24 + i * .26), k = Math.max(0, Math.min(1, (t - .2 - i * .45) / .8)), e = 1 - Math.pow(1 - k, 3), x0 = w * .04, x1 = w * .3, x2 = w * .86;
         c.globalAlpha = .55; c.fillStyle = '#DCE3EC'; c.beginPath(); c.roundRect(x0, y - 3, (x1 - x0) * (.7 + (i % 2) * .3), 6, 3); c.fill();
-        c.strokeStyle = col; c.lineWidth = 1.5; c.globalAlpha = .9 * (ph > .9 ? (1 - ph) * 10 : 1); c.beginPath(); c.moveTo(x1 + 8, y); c.lineTo(x1 + 8 + (x2 - x1 - 22) * k, y); c.stroke();
-        if (k > 0) dot(c, x1 + 8 + (x2 - x1 - 22) * k, y, 2.4, col, k < 1 ? 1 : .4);
+        c.strokeStyle = col; c.lineWidth = 1.5; c.globalAlpha = k >= 1 ? .45 : .9; c.beginPath(); c.moveTo(x1 + 8, y); c.lineTo(x1 + 8 + (x2 - x1 - 22) * e, y); c.stroke();
+        if (k > 0 && k < 1) dot(c, x1 + 8 + (x2 - x1 - 22) * e, y, 2.4, col, 1);
         c.globalAlpha = 1; c.lineWidth = 1.4; c.strokeStyle = k >= 1 ? '#86EFAC' : 'rgba(220,227,236,.35)'; c.beginPath(); c.arc(x2, y, 6, 0, 6.283); c.stroke();
-        if (k >= 1) { c.beginPath(); c.moveTo(x2 - 3, y); c.lineTo(x2 - .5, y + 2.6); c.lineTo(x2 + 3.4, y - 2.6); c.stroke(); dot(c, x2, y, 1, '#86EFAC', .6); }
+        if (k >= 1) { c.beginPath(); c.moveTo(x2 - 3, y); c.lineTo(x2 - .5, y + 2.6); c.lineTo(x2 + 3.4, y - 2.6); c.stroke(); }
       }
     },
-    cycle: function (c, w, h, t, col) { /* a loop that keeps running, a tick added each lap */
-      var cx = w * .3, cy = h * .5, rx = w * .2, ry = h * .32, i;
-      c.globalAlpha = .18; c.strokeStyle = '#DCE3EC'; c.lineWidth = 1; c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, 6.283); c.stroke();
-      for (i = 0; i < 3; i++) { var a = t * 1.3 + i * 2.094;
-        for (var k = 0; k < 14; k++) { var b = a - k * .07; dot(c, cx + Math.cos(b) * rx, cy + Math.sin(b) * ry, 2.2 - k * .13, col, (1 - k / 14) * .9); } }
-      var laps = Math.floor(t * 1.3 / 6.283) % 9;
-      for (i = 0; i < 8; i++) { c.globalAlpha = i < laps ? .9 : .15; c.fillStyle = i < laps ? col : '#DCE3EC'; c.beginPath(); c.roundRect(w * .6 + i * w * .045, h * .38, w * .028, h * .24, 2); c.fill(); }
+    cycle: function (c, w, h, t, col) { /* a loop runs lap after lap, one tick per lap, then comes to rest */
+      var cx = w * .3, cy = h * .5, rx = w * .22, ry = h * .32, run = Math.min(1, t / 3), a = -1.571 + 6.283 * 8 * (1 - Math.pow(1 - run, 2.2)) / 8 * 3, laps = Math.min(8, Math.floor(t / .34)), trail = Math.round(14 * (1 - run)), i;
+      c.globalAlpha = .2; c.strokeStyle = '#DCE3EC'; c.lineWidth = 1; c.beginPath(); c.ellipse(cx, cy, rx, ry, 0, 0, 6.283); c.stroke();
+      for (var k = 0; k <= trail; k++) { var b = a - k * .08; dot(c, cx + Math.cos(b) * rx, cy + Math.sin(b) * ry, 2.4 - k * .12, col, 1 - k / 15); }
+      for (i = 0; i < 8; i++) { c.globalAlpha = i < laps ? .9 : .15; c.fillStyle = i < laps ? col : '#DCE3EC'; c.beginPath(); c.roundRect(w * .62 + i * w * .045, h * .38, w * .028, h * .24, 2); c.fill(); }
     },
     fit: function (c, w, h, t, col) { /* scattered measurements, and a line that settles on them */
-      var P2 = pts('fit', 16, 41, function (r) { var x = r(); return [x, .25 + x * .5 + (r() - .5) * .22]; }), ph = (t * .16) % 1, s = Math.max(0, 1 - ph * 1.6);
-      P2.forEach(function (p) { dot(c, w * (.06 + p[0] * .88), h * (1 - p[1]), 1.8, '#DCE3EC', .7); });
-      var tilt = Math.sin(t * 2.3) * .5 * s, y0 = .25 + tilt * .4, y1 = .75 - tilt * .4;
+      var P2 = pts('fit', 16, 41, function (r) { var x = r(); return [x, .25 + x * .5 + (r() - .5) * .22]; }), s = Math.max(0, 1 - t / 2.4);
+      P2.forEach(function (p, i) { dot(c, w * (.06 + p[0] * .88), h * (1 - p[1]), 1.8, '#DCE3EC', Math.min(.7, Math.max(0, t * 3 - i * .12))); });
+      var tilt = Math.sin(t * 4.2) * .55 * s * s, y0 = .25 + tilt * .4, y1 = .75 - tilt * .4;
       c.strokeStyle = col; c.lineWidth = 1.8; c.globalAlpha = .95; c.beginPath(); c.moveTo(w * .06, h * (1 - y0)); c.lineTo(w * .94, h * (1 - y1)); c.stroke();
-      if (s === 0) { c.globalAlpha = .12; c.fillStyle = col; c.beginPath(); c.moveTo(w * .06, h * (1 - y0 - .12)); c.lineTo(w * .94, h * (1 - y1 - .12)); c.lineTo(w * .94, h * (1 - y1 + .12)); c.lineTo(w * .06, h * (1 - y0 + .12)); c.fill(); }
+      var band = Math.max(0, Math.min(1, (t - 2.2) / .6));
+      if (band) { c.globalAlpha = .14 * band; c.fillStyle = col; c.beginPath(); c.moveTo(w * .06, h * (1 - y0 - .12)); c.lineTo(w * .94, h * (1 - y1 - .12)); c.lineTo(w * .94, h * (1 - y1 + .12)); c.lineTo(w * .06, h * (1 - y0 + .12)); c.fill(); }
     },
-    write: function (c, w, h, t, col) { /* lines of a document being written, then filed */
-      var ph = (t * .14) % 1, L = [.82, .64, .9, .5], fade = ph > .86 ? (1 - ph) / .14 : 1, i;
-      c.globalAlpha = .14 * fade; c.strokeStyle = '#DCE3EC'; c.lineWidth = 1; c.beginPath(); c.roundRect(w * .04, h * .1, w * .4, h * .8, 6); c.stroke();
-      var done = ph * 1.25 * L.length;
-      for (i = 0; i < L.length; i++) { var k = Math.max(0, Math.min(1, done - i)), x = w * .08, y = h * (.25 + i * .17), len = w * .32 * L[i] * k;
-        c.globalAlpha = (i === 0 ? .95 : .6) * fade; c.fillStyle = i === 0 ? col : '#DCE3EC'; c.beginPath(); c.roundRect(x, y - 2.5, Math.max(.1, len), 5, 2.5); c.fill();
-        if (k > 0 && k < 1) dot(c, x + len, y, 2.2, col, fade); }
-      for (i = 0; i < 3; i++) { var a = Math.max(0, Math.min(1, ph * 3 - 1.4 - i * .3)); c.globalAlpha = .7 * a * fade; c.fillStyle = col; c.beginPath(); c.roundRect(w * (.56 + i * .13), h * .3, w * .09, h * .4, 4); c.fill(); }
+    write: function (c, w, h, t, col) { /* a document written line by line, then signed off with a tick */
+      var L = [.82, .64, .9, .5], x0 = w * .2, bw = w * .44, i;
+      c.globalAlpha = .3; c.strokeStyle = '#DCE3EC'; c.lineWidth = 1; c.beginPath(); c.roundRect(x0, h * .08, bw, h * .84, 5); c.stroke();
+      for (i = 0; i < L.length; i++) { var k = Math.max(0, Math.min(1, (t - .2 - i * .45) / .45)), x = x0 + bw * .14, y = h * (.25 + i * .17), len = bw * .72 * L[i] * k;
+        c.globalAlpha = i === 0 ? .95 : .6; c.fillStyle = i === 0 ? col : '#DCE3EC'; c.beginPath(); c.roundRect(x, y - 2.5, Math.max(.1, len), 5, 2.5); c.fill();
+        if (k > 0 && k < 1) dot(c, x + len, y, 2.2, col, 1); }
+      var tk = Math.max(0, Math.min(1, (t - 2.2) / .5)), cx = x0 + bw + w * .12, cy = h * .58;
+      if (tk) { c.globalAlpha = tk; c.strokeStyle = '#86EFAC'; c.lineWidth = 1.6; c.beginPath(); c.arc(cx, cy, 9, 0, 6.283 * tk); c.stroke();
+        if (tk >= 1) { c.beginPath(); c.moveTo(cx - 4, cy); c.lineTo(cx - 1, cy + 3.4); c.lineTo(cx + 4.6, cy - 3.4); c.stroke(); } }
     },
     pulse: function (c, w, h, t, col) { /* a heart-rate line running across, and a rest ring filling up */
       var y0 = h * .55, cx = w * .78, cy = h * .45, r = Math.min(w, h) * .2, ph = (t * .12) % 1;
@@ -163,7 +164,8 @@
     }
   };
   var motifs = [];
-  function motif(kind, hex, viewId) { var c = h('canvas', 'motif'); c.setAttribute('aria-hidden', 'true'); motifs.push({ el: c, kind: kind, hex: hex, view: viewId, drawn: false }); return c; }
+  function motif(kind, hex, viewId, once) { var c = h('canvas', 'motif'); c.setAttribute('aria-hidden', 'true'); var m = { el: c, kind: kind, hex: hex, view: viewId, drawn: false, once: !!once }; motifs.push(m); c._m = m; return c; }
+  function replay(m) { m.start = performance.now(); m.settled = false; }
   function motifWrap(p, viewId) { return h('span', 'motif-wrap', motif(p.motif, COLOR[p.cat], viewId)); }
   var mt = 0, mlast = 0;
   function drawMotifs(now) {
@@ -171,11 +173,18 @@
     var vh = window.innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
     for (var i = motifs.length - 1; i >= 0; i--) {
       var m = motifs[i]; if (!m.el.isConnected) { motifs.splice(i, 1); continue; }
+      var r = m.el.getBoundingClientRect();
+      if (m.once) { /* play from the start each time it comes into view, then hold the last frame */
+        var vis = m.view === current.view && r.width > 1 && r.bottom > 0 && r.top < vh;
+        if (vis && !m.vis) replay(m); m.vis = vis;
+      }
       if (m.view !== current.view && m.drawn) continue;
-      var r = m.el.getBoundingClientRect(); if (r.width < 2 || (m.drawn && (r.bottom < 0 || r.top > vh))) continue;
+      if (r.width < 2 || (m.drawn && (r.bottom < 0 || r.top > vh))) continue;
+      var lt = m.once ? (reducedMotion() ? 99 : (now - (m.start || now)) / 1000) : 0;
+      if (m.once && m.settled && m.drawn) continue;
       var w = Math.round(r.width * dpr), hh = Math.round(r.height * dpr); if (m.el.width !== w || m.el.height !== hh) { m.el.width = w; m.el.height = hh; }
       var c = m.el.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1; c.clearRect(0, 0, r.width, r.height); c.globalCompositeOperation = 'lighter';
-      MOTIF[m.kind](c, r.width, r.height, mt + i * 1.7, m.hex); m.drawn = true;
+      MOTIF[m.kind](c, r.width, r.height, m.once ? lt : mt + i * 1.7, m.hex); m.drawn = true; if (m.once && lt > 3.5) m.settled = true;
     }
     requestAnimationFrame(drawMotifs);
   }
@@ -414,7 +423,8 @@
   }
   ringWidget($('comp'), false); ringWidget($('comp-cv'), true);
   /* About: each way of working gets its own small moving picture and colour */
-  document.querySelectorAll('.values li[data-motif]').forEach(function (li) { var col = li.getAttribute('data-c'); li.style.setProperty('--c', col); li.insertBefore(h('span', 'val-motif', motif(li.getAttribute('data-motif'), col, 'about')), li.firstChild); });
+  document.querySelectorAll('.values li[data-motif]').forEach(function (li) { var col = li.getAttribute('data-c'); li.style.setProperty('--c', col); var cv = motif(li.getAttribute('data-motif'), col, 'about', true); li.insertBefore(h('span', 'val-motif', cv), li.firstChild);
+    li.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && cv._m.settled) replay(cv._m); }); });
   /* The CV's side column stays in view while the page scrolls; when it is taller than the screen it sticks by its bottom edge,
      so its last part (the ring) is reached instead of hidden. */
   var cvSide = document.querySelector('.cv-side');
