@@ -264,7 +264,7 @@
         g.shots.forEach(function (sh) {
           var img; /* a third field 'video' plays a short loop instead of a still */
           if (sh[2] === 'video') { img = h('video'); img.src = 'img/family/' + sh[0] + '.mp4'; img.poster = 'img/family/' + sh[0] + '.jpg'; img.muted = true; img.loop = true; img.autoplay = true; img.playsInline = true; img.setAttribute('playsinline', ''); img.setAttribute('aria-label', sh[1]); img.preload = 'metadata'; }
-          else { img = h('img'); img.src = 'img/family/' + sh[0] + '.jpg'; img.alt = sh[1]; img.loading = 'lazy'; }
+          else { img = h('img'); img.src = 'img/family/' + sh[0] + '.jpg'; img.alt = sh[1]; img.decoding = 'async'; } /* not lazy: Safari leaves lazy images unloaded in a sideways-scrolling row */
           img.width = 468; img.height = 1013;
           var btn = h('button', 'gal-shot', [img, h('span', null, sh[1])]); btn.type = 'button'; var at = all.length; all.push(sh);
           btn.addEventListener('click', function () { lightbox(all, at); }); row.appendChild(btn);
