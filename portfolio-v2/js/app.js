@@ -96,6 +96,19 @@
       var steps = 6, sx = w * .68, sw2 = w * .22, at = step % steps;
       for (i = 0; i < steps; i++) { var sy = h * (.2 + i * .112), passed = i < at, now = i === at; c.globalAlpha = passed ? .5 : now ? .95 : .16; c.fillStyle = now ? col : '#DCE3EC'; c.beginPath(); c.roundRect(sx, sy, sw2 * (now ? Math.min(1, ph * 1.5) : 1) * (.55 + ((i * 37) % 5) * .09), 5, 2.5); c.fill(); if (passed) dot(c, sx - 12, sy + 2.5, 2.4, '#86EFAC', 1); else if (now) dot(c, sx - 12, sy + 2.5, 2.4, '#FDBA74', .5 + .5 * Math.sin(t * 8)); }
     },
+    pulse: function (c, w, h, t, col) { /* a heart-rate line running across, and a rest ring filling up */
+      var y0 = h * .55, cx = w * .78, cy = h * .45, r = Math.min(w, h) * .2, ph = (t * .12) % 1;
+      c.lineWidth = 1.6; c.strokeStyle = col; c.globalAlpha = .9; c.beginPath();
+      for (var x = w * .06; x < w * .6; x += 2) {
+        var u = ((x / w) * 3 - t * .6) % 1; u = u < 0 ? u + 1 : u;
+        var beat = u > .42 && u < .5 ? Math.sin((u - .42) / .08 * Math.PI * 2) * (u < .46 ? -1 : .45) : 0;
+        var y = y0 + beat * h * .28 + Math.sin(x * .05 + t) * 1.5; if (x === w * .06) c.moveTo(x, y); else c.lineTo(x, y);
+      }
+      c.stroke();
+      c.globalAlpha = .14; c.strokeStyle = '#DCE3EC'; c.lineWidth = 5; c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
+      c.globalAlpha = .95; c.strokeStyle = '#FDBA74'; c.shadowColor = '#FDBA74'; c.shadowBlur = 14; c.lineCap = 'round';
+      c.beginPath(); c.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + ph * Math.PI * 2); c.stroke(); c.shadowBlur = 0; c.lineCap = 'butt';
+    },
     grid: function (c, w, h, t, col) { /* a month of cells and a row of budget bars */
       var cols = 7, rowsN = 4, gw = w * .5, cell = gw / cols, x0 = w * .08, y0 = h * .16, hot = pts('grid', 28, 17, function (r) { return r(); });
       for (var i = 0; i < cols * rowsN; i++) { var x = x0 + (i % cols) * cell, y = y0 + Math.floor(i / cols) * cell * .82, on = hot[i] > .7, pu = .5 + .5 * Math.sin(t * 1.2 + i); c.globalAlpha = on ? .25 + pu * .5 : .1; c.fillStyle = on ? col : '#DCE3EC'; c.beginPath(); c.roundRect(x + 3, y + 3, cell - 6, cell * .82 - 6, 5); c.fill(); }
@@ -188,16 +201,17 @@
     });
     return demoReady;
   }
-  function demoBlock(start) {
+  function demoBlock(demo, back) {
+    var start = demo.src;
     var screen = h('div', 'demo-screen', h('p', 'demo-wait', 'Starting the demo…')), phoneEl = h('div', 'demo-phone', screen);
     var open = linkTo(start, 'Open the demo full screen'); open.removeAttribute('target'); open.removeAttribute('rel');
     var text = h('div', 'demo-text', [
       h('p', 'eyebrow', 'Try it'), h('h3', null, 'The real app, with invented data.'),
-      h('p', null, 'Tap through Hem, Budget, Listor and Mer › Träning in the phone. Everything runs in your browser on made-up numbers and names. Nothing is saved, and nothing reaches the app my family uses.'),
+      h('p', null, demo.tip + ' Everything runs in your browser on made-up numbers and names. Nothing is saved, and nothing reaches the app my family uses.'),
       open, h('p', 'demo-note', 'Some parts need a login in the real app and are left out. Reload the page to start over.')
     ]);
     var el = h('section', 'block wide rv demo', [phoneEl, text]);
-    open.addEventListener('click', function (e) { e.preventDefault(); demoWorker().then(function () { location.href = start; }, function () { open.textContent = 'The demo needs a newer browser.'; }); });
+    open.addEventListener('click', function (e) { e.preventDefault(); try { sessionStorage.setItem('demoBack', back); } catch (_) {} demoWorker().then(function () { location.href = start; }, function () { open.textContent = 'The demo needs a newer browser.'; }); });
     if (!window.matchMedia('(max-width: 760px)').matches) {
       demoWorker().then(function () {
         if (!el.isConnected) return;
@@ -206,7 +220,7 @@
         screen.appendChild(f);
       }, function () { screen.firstChild.textContent = 'The demo needs a browser with service workers.'; });
     } else {
-      var img = h('img'); img.src = 'img/family/hem.jpg'; img.alt = ''; screen.textContent = ''; screen.appendChild(img); screen.classList.add('ready', 'poster');
+      var img = h('img'); img.src = 'img/family/' + demo.poster + '.jpg'; img.alt = ''; screen.textContent = ''; screen.appendChild(img); screen.classList.add('ready', 'poster');
       screen.addEventListener('click', function () { open.click(); });
     }
     return el;
@@ -236,7 +250,7 @@
     if (!p.gallery) box.appendChild(h('div', 'proj-hero', motif(p.motif, COLOR[p.cat], 'project'))); /* real screens make the drawn picture unnecessary */
     if (p.stats.length) { var st = h('div', 'stats rv'); p.stats.forEach(function (s) { st.appendChild(h('div', null, [h('b', null, s[0]), h('span', null, s[1])])); }); box.appendChild(st); }
     var blocks = h('div', 'blocks');
-    if (p.demo) blocks.appendChild(demoBlock(p.demo));
+    if (p.demo) blocks.appendChild(demoBlock(p.demo, '#work/' + p.id));
     if (p.gallery) { /* rows of phone screens; one tap opens the screen large */
       var gal = h('div', 'gal'), all = [];
       p.gallery.forEach(function (g) {

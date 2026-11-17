@@ -202,7 +202,7 @@
     }, true);
     /* opened full screen on a phone: a way back to the portfolio */
     if (window.top === window) {
-      var b = document.createElement('a'); b.href = '/portfolio-v2/#work/fam'; b.textContent = '‹ Portfolio · demo';
+      var b = document.createElement('a'); var back = '#work/fam'; try { back = sessionStorage.getItem('demoBack') || back; } catch (e) {} b.href = '/portfolio-v2/' + back; b.textContent = '‹ Portfolio · demo';
       b.setAttribute('style', 'position:fixed;z-index:2147483000;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);padding:6px 14px;border-radius:999px;font:600 12px/1.4 Inter,system-ui,sans-serif;letter-spacing:.02em;color:#0B0E14;background:#FDBA74;box-shadow:0 6px 24px rgba(0,0,0,.4);text-decoration:none');
       document.body.appendChild(b);
     }
