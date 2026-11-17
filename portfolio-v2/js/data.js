@@ -221,8 +221,8 @@
       short: 'Family app',
       title: 'Family app',
       kind: 'Side project', where: 'Built at home', period: 'ongoing',
-      desc: 'A private web app my family uses every day: budget, shared calendar, lists and notes, synced live between phones.',
-      lead: 'The app my family runs on. It started as a budget and grew into a shared calendar, shopping lists and notes. It is private, so the demo and the screens below run the real app with invented names and numbers.',
+      desc: 'Budget, shared calendar, lists and notes for the family, synced live between phones.',
+      lead: 'Budget, calendar and lists for the family, synced live between phones. The demo and the screens run the real app on invented data.',
       demo: { src: 'demo/app/home.html', poster: 'hem', tip: 'Tap through Hem, Överföringar, Budget and Listor in the phone.' },
       gallery: [
         { title: 'Calendar and lists', shots: [['hem', 'Shared month calendar'], ['handelser', 'Upcoming events'], ['inkop', 'Shopping list by store'], ['att-gora', 'To-dos with owner and due date']] },
@@ -230,15 +230,24 @@
       ],
       skills: ['JavaScript'],
       stats: [],
-      facts: [['Stack', 'Vanilla JavaScript, Firebase'], ['Installed as', 'Home-screen web app']],
+      facts: [['Stack', 'Vanilla JavaScript, Firebase'], ['Runs as', 'Home-screen web app']],
       blocks: [
-        { type: 'list', title: 'What is in it', items: [
-          'Budget with monthly views, shared costs and savings goals, and an analysis of the last months against budget.',
-          'A family calendar, lists and notes.',
-          'Live sync between phones through Firebase.',
-          'Installed on the home screen as a web app, with app-like navigation and transitions.'
+        { type: 'list', title: 'Budget', items: [
+          'Monthly budget per person: posts, budget against actual, status per post.',
+          'New months created automatically, with budgets carried over.',
+          'Shared household: transfers split by income, house loan and amortisation, shared card.',
+          'Analysis over 3, 6 or 12 months: trend against budget, where the money goes, posts that run over.',
+          'Purchases from Apple Pay sorted into posts, learning each shop.'
         ] },
-        { type: 'text', title: 'Why it is here', body: ['This portfolio borrows its look and its navigation from that app. The dot that travels between the tabs is the same code.'] }
+        { type: 'list', title: 'Calendar and lists', items: [
+          'Shared month calendar with colour per person, multi-day events, reminders and holidays.',
+          'Shopping lists sorted in the order of the shop, packing lists and to-dos with owner and due date.',
+          'Notes with headings, checklists, links and formatting.'
+        ] },
+        { type: 'list', title: 'Platform', items: [
+          'Live sync between phones through Firebase, with login.',
+          'Installed on the home screen, with app-like navigation and transitions.'
+        ] }
       ],
       links: []
     },
@@ -247,26 +256,37 @@
       short: 'Training app',
       title: 'Training app',
       kind: 'Side project', where: 'Built at home', period: 'ongoing',
-      desc: 'Training, stretch and meditation in one app: a log with progress charts, an exercise explorer, a workout builder and a guided session mode.',
-      lead: 'The training side of the family app, used on its own most of the time. It plans and runs a workout, logs it, and shows the progress over weeks. Stretch and meditation sit next to it. The demo and the screens below run the real app with invented data.',
-      demo: { src: 'demo/app/exercise.html', poster: 'traning', tip: 'Switch between Träning, Stretch and Meditation at the top, and open the log, the progress charts and the exercise explorer.' },
+      desc: 'Workout log, exercise explorer with an animated 3D figure, workout builder, session mode, stretch and meditation.',
+      lead: 'Plan, run and log workouts, with stretch and meditation next to it. The demo and the screens run the real app on invented data.',
+      demo: { src: 'demo/app/exercise.html', poster: 'traning', tip: 'Switch between Träning, Stretch and Meditation at the top, and open the log, the charts and the exercise explorer.' },
       gallery: [
+        { title: 'Exercise explorer', shots: [['figur', '3D figure performing the exercise', 'video'], ['utforskare', 'Muscle map'], ['ovningar', '80 exercises by muscle group']] },
         { title: 'Training', shots: [['traning', 'Training overview'], ['utveckling', 'Rhythm and log over time'], ['passbyggare', 'Workout builder']] },
         { title: 'In the session', shots: [['exercise-mode', 'Exercise mode, next exercise ahead'], ['vila', 'Rest timer between sets']] },
-        { title: 'Exercise explorer', shots: [['utforskare', 'Exercise explorer'], ['ovningar', '80 exercises by muscle group']] },
-        { title: 'Stretch and meditation', shots: [['stretch', 'Stretch sessions'], ['meditation', 'Breathing and meditation']] }
+        { title: 'Stretch and meditation', shots: [['stretch', 'Stretch sessions'], ['stretch-pass', 'Guided stretch with timer'], ['meditation', 'Meditation start'], ['med-pass', 'Guided breathing']] }
       ],
       skills: ['JavaScript'],
       stats: [],
-      facts: [['Stack', 'Vanilla JavaScript, Three.js, Firebase'], ['Part of', 'The family app']],
+      facts: [['Stack', 'Vanilla JavaScript, Three.js, Firebase'], ['Shares', 'Login and sync with the family app']],
       blocks: [
-        { type: 'list', title: 'What is in it', items: [
-          'A training log with weekly rhythm, volume, pulse and fitness charts, including runs with pace and VO2 max.',
-          'An exercise explorer with 80 exercises, a muscle map and an animated 3D figure for each movement.',
-          'A workout builder, and a session mode with a glowing rest timer and the next exercise shown ahead.',
-          'Stretch and meditation sessions with guided breathing, milestones and statistics.'
+        { type: 'list', title: 'Training', items: [
+          'Log with weekly rhythm, volume, heart rate and fitness charts.',
+          'Runs with distance, pace and VO2 max, and goals for sessions, distance and VO2 max.',
+          'Workout builder with templates, sets, reps, weights and rest between sets.',
+          'Session mode: set timer, glowing rest timer, next exercise shown ahead, countdown sounds and an automatic mode.',
+          'Cardio with countdown or stopwatch, and distance and pace logged at the end.'
         ] },
-        { type: 'text', title: 'One app, two uses', body: ['It shares code, login and sync with the family app, and you can move between them. In practice they are used at different times, so they are shown here as two projects.'] }
+        { type: 'list', title: 'Exercise explorer', items: [
+          '80 exercises, found by muscle map, search or filter.',
+          'An animated 3D figure performing each exercise, with the working muscles highlighted.',
+          'Gym profiles that filter exercises and programmes by available equipment.',
+          'Selected exercises sent straight into the day\'s workout.'
+        ] },
+        { type: 'list', title: 'Stretch and meditation', items: [
+          'Guided stretch sessions with an animated figure, timer per movement and time to change position.',
+          'Meditation with guided breathing.',
+          'Own routines, feelings after each session, milestones and weekly, monthly and yearly statistics.'
+        ] }
       ],
       links: []
     },

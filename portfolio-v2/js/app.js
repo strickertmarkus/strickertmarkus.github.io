@@ -231,18 +231,24 @@
   function lightbox(list, at) {
     if (!lb) {
       lb = h('div', 'lb'); lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
-      var img = h('img'), cap = h('p'), prev = h('button', 'lb-nav prev', arrow(-1)), next = h('button', 'lb-nav next', arrow(1)), close = h('button', 'lb-close', '×');
+      var img = h('img'), vid = h('video'), cap = h('p'), prev = h('button', 'lb-nav prev', arrow(-1)), next = h('button', 'lb-nav next', arrow(1)), close = h('button', 'lb-close', '×');
       prev.type = next.type = close.type = 'button'; prev.setAttribute('aria-label', 'Previous screen'); next.setAttribute('aria-label', 'Next screen'); close.setAttribute('aria-label', 'Close');
-      lb.appendChild(h('figure', null, [img, cap])); lb.appendChild(prev); lb.appendChild(next); lb.appendChild(close); document.body.appendChild(lb);
-      lb.show = function (i) { lb.i = (i + lb.list.length) % lb.list.length; var sh = lb.list[lb.i]; img.src = 'img/family/' + sh[0] + '.jpg'; img.alt = sh[1]; cap.textContent = sh[1]; };
+      vid.muted = true; vid.loop = true; vid.playsInline = true; vid.setAttribute('playsinline', '');
+      lb.appendChild(h('figure', null, [img, vid, cap])); lb.appendChild(prev); lb.appendChild(next); lb.appendChild(close); document.body.appendChild(lb);
+      lb.show = function (i) {
+        lb.i = (i + lb.list.length) % lb.list.length; var sh = lb.list[lb.i], mov = sh[2] === 'video';
+        img.hidden = mov; vid.hidden = !mov; cap.textContent = sh[1];
+        if (mov) { vid.poster = 'img/family/' + sh[0] + '.jpg'; vid.src = 'img/family/' + sh[0] + '.mp4'; vid.play().catch(function () {}); } else { vid.pause(); vid.removeAttribute('src'); img.src = 'img/family/' + sh[0] + '.jpg'; img.alt = sh[1]; }
+      };
       prev.addEventListener('click', function (e) { e.stopPropagation(); lb.show(lb.i - 1); });
       next.addEventListener('click', function (e) { e.stopPropagation(); lb.show(lb.i + 1); });
-      lb.addEventListener('click', function (e) { if (e.target === lb || e.target === close) lb.classList.remove('on'); });
-      document.addEventListener('keydown', function (e) { if (!lb.classList.contains('on')) return; if (e.key === 'Escape') lb.classList.remove('on'); if (e.key === 'ArrowRight') lb.show(lb.i + 1); if (e.key === 'ArrowLeft') lb.show(lb.i - 1); });
+      lb.addEventListener('click', function (e) { if (e.target === lb || e.target === close) lb.close(); });
+      lb.close = function () { lb.classList.remove('on'); vid.pause(); };
+      document.addEventListener('keydown', function (e) { if (!lb.classList.contains('on')) return; if (e.key === 'Escape') lb.close(); if (e.key === 'ArrowRight') lb.show(lb.i + 1); if (e.key === 'ArrowLeft') lb.show(lb.i - 1); });
     }
     lb.list = list; lb.show(at); lb.classList.add('on');
   }
-  window.addEventListener('hashchange', function () { if (lb) lb.classList.remove('on'); });
+  window.addEventListener('hashchange', function () { if (lb) lb.close(); });
   function renderProject(p) {
     var box = $('project'); box.textContent = ''; box.className = 'proj';
     var eb = h('p', 'eyebrow', [CATNAME[p.cat], p.kind, p.where, p.period].filter(function (x, i, all) { return x && all.indexOf(x) === i; }).join(' · ')); /* no repeated words when kind equals the category */ eb.style.color = COLOR[p.cat];
@@ -256,7 +262,10 @@
       p.gallery.forEach(function (g) {
         var row = h('div', 'gal-row');
         g.shots.forEach(function (sh) {
-          var img = h('img'); img.src = 'img/family/' + sh[0] + '.jpg'; img.alt = sh[1]; img.loading = 'lazy'; img.width = 468; img.height = 1013;
+          var img; /* a third field 'video' plays a short loop instead of a still */
+          if (sh[2] === 'video') { img = h('video'); img.src = 'img/family/' + sh[0] + '.mp4'; img.poster = 'img/family/' + sh[0] + '.jpg'; img.muted = true; img.loop = true; img.autoplay = true; img.playsInline = true; img.setAttribute('playsinline', ''); img.setAttribute('aria-label', sh[1]); img.preload = 'metadata'; }
+          else { img = h('img'); img.src = 'img/family/' + sh[0] + '.jpg'; img.alt = sh[1]; img.loading = 'lazy'; }
+          img.width = 468; img.height = 1013;
           var btn = h('button', 'gal-shot', [img, h('span', null, sh[1])]); btn.type = 'button'; var at = all.length; all.push(sh);
           btn.addEventListener('click', function () { lightbox(all, at); }); row.appendChild(btn);
         });
