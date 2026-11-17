@@ -353,20 +353,22 @@
 
   /* ---------- about: competence ring and experience ---------- */
   (function () {
-    var C = S.COMPETENCE, box = $('comp'), NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg'), R = 80, CIRC = 2 * Math.PI * R, GAP = 3, total = 0, start = 0;
+    var C = S.COMPETENCE, box = $('comp'), NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg'), R = 80, CIRC = 2 * Math.PI * R, GAP = 5, total = 0, start = 0, arcs = [];
+    var W_OFF = 14, W_ON = 22; /* stroke widths; rounded ends reach half a width past the dash, so each dash is shortened by that */
+    function shape(k, on) { var a = arcs[k], wd = on ? W_ON : W_OFF, len = Math.max(.1, a.len - GAP - wd); segs[k].style.strokeDasharray = len + ' ' + (CIRC - len); segs[k].style.strokeDashoffset = -(a.start + (GAP + wd) / 2); }
     C.forEach(function (c) { total += c.weight; });
     svg.setAttribute('viewBox', '0 0 200 200'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Competence areas by share');
     var mid = h('div', 'ring-mid', [h('b'), h('span')]), tabs = h('div', 'comp-tabs'), items = h('ul', 'lines comp-items'), segs = [], btns = [];
     function pick(i, quiet) {
-      segs.forEach(function (s, k) { s.classList.toggle('on', k === i); }); btns.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+      segs.forEach(function (s, k) { s.classList.toggle('on', k === i); shape(k, k === i); }); btns.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
       mid.firstChild.textContent = Math.round(C[i].weight / total * 100) + '%'; mid.lastChild.textContent = C[i].name; mid.firstChild.style.color = C[i].color;
       items.textContent = ''; items.style.setProperty('--c', C[i].color); C[i].items.forEach(function (t) { items.appendChild(h('li', null, t)); });
       if (!quiet) { items.classList.remove('swap'); void items.offsetWidth; items.classList.add('swap'); }
     }
     C.forEach(function (c, i) {
-      var len = c.weight / total * CIRC - GAP, s = document.createElementNS(NS, 'circle');
+      var s = document.createElementNS(NS, 'circle');
       s.setAttribute('cx', 100); s.setAttribute('cy', 100); s.setAttribute('r', R); s.setAttribute('stroke', c.color); s.style.color = c.color;
-      s.setAttribute('stroke-dasharray', len + ' ' + (CIRC - len)); s.setAttribute('stroke-dashoffset', -start); start += c.weight / total * CIRC;
+      arcs.push({ start: start, len: c.weight / total * CIRC }); start += c.weight / total * CIRC;
       s.addEventListener('click', function () { pick(i); }); s.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') pick(i); }); svg.appendChild(s); segs.push(s);
       var dotEl = h('i'); dotEl.style.setProperty('--c', c.color); var b = h('button', null, [dotEl, c.name]); b.type = 'button'; b.addEventListener('click', function () { pick(i); }); tabs.appendChild(b); btns.push(b);
     });
