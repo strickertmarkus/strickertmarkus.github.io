@@ -507,6 +507,10 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .flow li i{position:absolute;left:0;top:4px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:1px solid var(--c);box-shadow:0 0 10px -2px var(--c)}
 .flow b{font-size:16px;font-weight:600;letter-spacing:-.01em}
 .flow span{font-size:14px;color:var(--muted)}
+.flow-fill,.flow-tail{position:absolute;pointer-events:none;transition:opacity .45s ease}
+.flow-fill{background:var(--c)}
+.flow-tail{background:linear-gradient(90deg,transparent,var(--c));box-shadow:0 0 10px var(--c);border-radius:1px}
+.flow.down .flow-tail{background:linear-gradient(180deg,transparent,var(--c))}
 .flow-dot{position:absolute;left:0;top:0;width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 14px var(--c),0 0 4px var(--c);pointer-events:none;opacity:0;z-index:1}
 .flow li i{transition:background .35s ease,box-shadow .35s ease}
 .flow li.lit i{background:var(--c);box-shadow:0 0 12px var(--c)}
