@@ -20,12 +20,12 @@
       id: 'ta', cat: 'engineering', motif: 'matrix',
       short: 'Test automation',
       title: 'Test automation',
-      kind: 'Test and verification engineer', where: 'Sigma Technology Tech House', period: '2026 – now',
-      desc: 'Automated production tests for circuit boards: instruments, hardware control and signal routing in one sequence.',
-      lead: 'I develop and automate PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, bringing measurement instruments, hardware control and signal routing together. I am also responsible for verification, requirements, documentation and test reports. The first solution was demonstrated to the customer and praised for its intuitive design, clear structure and reproducibility.',
+      kind: 'Test engineer', where: 'Sigma Technology Tech House', period: '2026 – now',
+      desc: 'Automated production tests for circuit boards made in volume: about ten minutes per board instead of days by hand.',
+      lead: 'I am responsible for the automated test sequences for circuit boards going into volume production. Tested by hand, a board would take days; with the sequences it takes about ten minutes. Instruments, hardware control and signal routing run in one sequence, and I write the documentation around it.',
       skills: ['TestStand', 'LabVIEW'],
-      stats: [],
-      facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive'], ['Scope', 'PCB production test, signal routing, measurement']],
+      stats: [['~10 min', 'per board, automated'], ['Days', 'per board by hand'], ['Hundreds', 'of boards expected in production']],
+      facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive, NI MAX'], ['Scope', 'PCB production test, signal routing, measurement']],
       split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]],
       blocks: [
         { type: 'flow', title: 'How a test runs', steps: [['Requirement', 'What the board must do'], ['Sequence', 'NI TestStand'], ['Instruments', 'LabVIEW drivers'], ['Switch matrix', 'NI Switch Executive'], ['Board under test', 'Measured pin by pin'], ['Report', 'Pass, fail and values']] },
@@ -35,8 +35,12 @@
           'Electrical measurements and filtering.',
           'Ethernet connectivity and protocol validation.'
         ] },
-        { type: 'table', title: 'Stack', rows: [['Sequencing', 'NI TestStand'], ['Instrument code', 'LabVIEW'], ['Signal routing', 'NI Switch Executive'], ['Configuration and debugging', 'NI MAX and NI debugging tools']] },
-        { type: 'quote', title: 'Outcome', body: 'An automated test solution demonstrated to the customer, who singled out its intuitive design, clear structure and reproducibility.' }
+        { type: 'list', title: 'What I deliver', items: [
+          'The automated test sequences, as the one responsible for them.',
+          'Test specification, user manual and software design descriptions.',
+          'Contributions to the interface design descriptions.',
+          'Plans for demonstrating the product to colleagues, the customer and the technical writers who produce the formal manuals.'
+        ] }
       ],
       links: []
     },
@@ -45,24 +49,34 @@
       short: 'System verification',
       title: 'System verification',
       kind: 'System verification engineer', where: 'Saab Dynamics, via BerDiz', period: '2023–2026',
-      desc: 'Verification from early development to customer delivery, across hardware, firmware and software.',
-      lead: 'Three years of system verification across software and hardware. I started, wrote and verified products from early development to customer delivery, with hands-on integration and commissioning along the way.',
+      desc: 'Test and verification of defence products across hardware, firmware and software, from requirements to customer delivery.',
+      lead: 'Three years of test and verification of defence products across hardware, firmware and software: requirements and simulated environments, test automation, lab, environmental and EMC testing, and delivery to the customer.',
       skills: ['C++', 'Python', 'Bash', 'DOORS NG'],
-      stats: [['3 years', 'system-level verification'], ['HW · FW · SW', 'tested together in the lab'], ['Top score', 'in the consultant evaluation, 2024']],
-      facts: [['Role', 'System test responsible'], ['Requirements', 'DOORS NG'], ['Way of working', 'Agile, JIRA']],
+      stats: [['3 years', 'test and verification of defence products'], ['HW · FW · SW', 'tested together in the lab'], ['Top score', 'in the consultant evaluation, 2024']],
+      facts: [['Role', 'System test responsible'], ['Domain', 'Defence, security-classified products'], ['Standards', 'IEC 61010-1, CE marking, military standards']],
       split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]],
       blocks: [
-        { type: 'flow', title: 'From requirement to delivery', steps: [['Requirements', 'DOORS NG'], ['Design review', 'Testable from the start'], ['Test specification', 'Traced to each requirement'], ['Lab tests', 'Hardware, firmware, software'], ['Verification report', 'Formal documents'], ['Customer delivery', 'Demonstrated and signed off']] },
-        { type: 'list', title: 'Responsibilities', items: [
-          'System test responsible in customer interactions, formal system analyses and customer demonstrations.',
-          'Coordinated test activities and lab spaces, and handled security-classified equipment.',
-          'Team-lead duties and agile retrospectives.',
-          'Technical and formal verification documents used across several teams.',
-          'Requirements and test specifications in DOORS NG.',
-          'Test automation and simulator improvements in C++ and Python.',
-          'Quality assurance and structured handling of secure information.'
+        { type: 'flow', title: 'From requirement to delivery', steps: [['Requirements', 'Traced and reviewed'], ['Design review', 'Testable from the start'], ['Test specification', 'Traced to each requirement'], ['Lab tests', 'Hardware, firmware, software'], ['Verification report', 'Formal documents'], ['Customer delivery', 'Demonstrated and signed off']] },
+        { type: 'list', title: 'Test and automation', items: [
+          'Test automation templates that made the in-house C++ test framework easier for other test engineers to use.',
+          'Complex sequences automating hardware tests, driven by test code and firmware-manipulating code.',
+          'Worked in and reviewed simulated environments, wrote the user manuals for the simulators and the lab, and tailored the simulator development.',
+          'Regression testing, fault handling and design changes through formal change processes.',
+          'Took down and rebuilt test equipment and military products in the lab.'
         ] },
-        { type: 'table', title: 'Working environment', rows: [['Requirements and test specifications', 'DOORS NG'], ['Programming and automation', 'C++, Python, Bash, CLI'], ['Data analysis and post-processing', 'Python'], ['Method', 'Agile workflows in JIRA'], ['Documents and information', 'IFS'], ['Standards', 'Military standards'], ['Test and verification', 'Hardware and firmware in the lab, software against hardware']] }
+        { type: 'list', title: 'Requirements and compliance', items: [
+          'Requirement documents, software requirements and traceability, with compliance matrices.',
+          'Reviewed requirement documents and system-level and environmental test specifications.',
+          'CE marking, IEC 61010-1 and risk-mitigation documents.',
+          'Took part in environmental and EMC testing.'
+        ] },
+        { type: 'list', title: 'Responsibility', items: [
+          'System test responsible in customer contact, formal system analyses and demonstrations.',
+          'Coordinated test activities and lab spaces; handled security-classified material and helped plan its transport.',
+          'Team-lead duties, Scrum and retrospectives.',
+          'Overviews of complex systems that many colleagues adopted as their daily reference.'
+        ] },
+        { type: 'table', title: 'Working environment', rows: [['Requirements and test specifications', 'DOORS NG'], ['Programming and automation', 'C++, Python, Bash, CLI'], ['Version control and tracking', 'Git, DevOps, Jira'], ['Data analysis', 'Python'], ['Method', 'Scrum']] }
       ],
       links: []
     },
@@ -78,20 +92,8 @@
       facts: [['Method', '3D MHD, BATS-R-US'], ['Compute', 'Snellius supercomputer'], ['Published', 'MNRAS 533, 2024']],
       blocks: [
         { type: 'text', title: 'Why this star', body: [
-          'A 1994 EUVE observation of AB Dor showed dimming that lasted 13.3 hours, about as long as the star\'s rotation period of 0.51 days. A source that stays in view through a whole rotation has to sit near a pole, so the eruption came from high latitude (Veronig et al. 2021).',
+          'Observations of AB Dor point to an eruption near the star\'s pole, where theory says its strong field should hold eruptions back.',
           'I was selected for one of 13 doctoral projects at Leiden Observatory from more than 500 applicants, and this study became the first paper from that work.'
-        ] },
-        { type: 'more', title: 'Technical details', blocks: [
-          { type: 'table', title: 'AB Doradus', rows: [['Spectral type', 'K0V'], ['Age', 'about 120 Myr'], ['Mass', '0.86 M☉'], ['Radius', '0.96 R☉'], ['Rotation period', '0.514 days'], ['Surface magnetic field', 'kG strength, 100–1,000 × the Sun']] },
-          { type: 'list', title: 'Method', items: [
-            'Stellar wind from the Alfvén Wave Solar Model (AWSOM) in the 3D MHD code BATS-R-US, with Alfvén wave heating.',
-            'Surface field from Zeeman-Doppler imaging of spectropolarimetric observations, December 2002 (Hussain et al. 2007).',
-            'Eruptions injected as Titov & Démoulin (1999) flux ropes with footpoints anchored to the stellar surface.',
-            'Flux ropes placed at about 60° latitude, in both open and closed magnetic field regions.',
-            '21 runs varying location, flux rope mass and field strength, analysed one hour after injection: morphology, eruption or confinement, velocity, mass and kinetic energy.',
-            'Post-processing in Python and (Py)Tecplot, compared with Hubble and EUVE observations.'
-          ] },
-          { type: 'table', title: 'Flux rope parameters', rows: [['Mass', '3.5×10¹⁴ to 3.5×10¹⁸ g'], ['Central field strength', '100 to 1,000 G'], ['Location', 'Open or closed field regions at about 60° latitude'], ['Geometry (fixed)', 'Major radius 128 Mm, minor radius 20 Mm, depth 1 Mm'], ['Wind solution', 'Domain to about 8 R☉, polar wind up to about 1,000 km/s']] }
         ] },
         { type: 'bars', title: 'Field strength needed to erupt', unit: 'G', max: 1000, rows: [['Open field region', 200, 'research'], ['Closed field region', 800, 'engineering']],
           note: 'The fourfold difference is the extra magnetic tension a flux rope has to overcome under closed field lines. Field geometry is the main control on whether an eruption gets out.' },
@@ -99,12 +101,8 @@
         { type: 'list', title: 'Results', items: [
           'Eruptions in open field regions are much more likely to escape.',
           'In closed field regions an eruption needs a free magnetic energy of at least 3×10³⁵ erg.',
-          'Erupting CMEs moved at 220 to 3,700 km/s after one hour, up to five times the background wind speed.',
-          'The most energetic model carried 4.1×10¹⁸ g and a kinetic energy of 2.9×10³⁵ erg.',
-          'For identical flux ropes, closed-region CMEs were systematically slower: magnetic tension limits their kinetic energy.',
-          'Mass, velocity and kinetic energy all rise with poloidal magnetic flux, with separate power-law fits for open and closed regions and energy differences of up to six orders of magnitude.'
+          'Erupting CMEs moved at 220 to 3,700 km/s after one hour, up to five times the background wind speed.'
         ] },
-        { type: 'quote', title: 'What it means', body: 'High-latitude active regions in open field are the natural place for energetic eruptions on AB Dor. That fits the 1994 EUVE dimming and the star\'s known polar spots.' },
         { type: 'list', title: 'Presented at', items: ['BCool Exospace Weather Workshop, Max Planck Institute, Göttingen, 2023: talk on how strong overlying magnetic fields suppress CMEs on AB Dor.', 'KISS workshop and think tank, Caltech, 2023: selected as one of a few early-career candidates to shape future space missions for extrasolar space weather.'] }
       ],
       cite: 'K. M. Strickert, D. Evensberget, A. A. Vidotto (2024). High-latitude coronal mass ejections on the young solar-like star AB Dor. Monthly Notices of the Royal Astronomical Society 533, 1156–1165.',
@@ -124,19 +122,12 @@
         { type: 'list', title: 'Approach', items: [
           'More than 1,500 globular cluster models run with the MOCCA code for Monte Carlo N-body dynamics, with population synthesis from the SSE and BSE codes.',
           'MOCCA-Survey Database II used to widen the range of initial conditions.',
-          'COCOA code for automated cluster projection and property extraction.',
-          'Mass segregation measured two ways: r₅₀ for relative distributions and A⁺ for population separation.',
-          'Main-sequence stars, blue stragglers, giants, binaries and compact objects analysed at different radii.',
-          'Simulated clusters matched against Milky Way data from the Harris catalogue and recent surveys.',
-          'Analysis written in Python with Bash and AWK scripts around it.'
+          'COCOA code for automated cluster projection and property extraction.'
         ] },
         { type: 'list', title: 'Findings', items: [
           'Mass segregation is strongly enhanced in clusters with short relaxation times that host an intermediate-mass black hole.',
           'Blue straggler formation follows the cluster\'s relaxation time and central surface brightness.',
-          'Clusters with an IMBH keep core binary fractions of about 12%, falling off as (r/r_hl)^−0.132; clusters with a black hole subsystem show a shallower decline.',
-          '64 (+158, −45) stellar-mass black holes predicted to remain in NGC 3201.',
-          '47 Tucanae is best explained by an intermediate-mass black hole of about 1,000 M☉.',
-          'Low binary fraction, bright centre and strong segregation together identify clusters that host an IMBH.'
+          'Clusters with an IMBH keep core binary fractions of about 12%, falling off as (r/r_hl)^−0.132; clusters with a black hole subsystem show a shallower decline.'
         ] },
         { type: 'list', title: 'Presented at and workshops', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Direct N-body Simulations Workshop, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'TRENDY3, Evanston, 2021: conference on triple and multiple star evolution and dynamics.'] }
       ],
@@ -157,17 +148,12 @@
         { type: 'list', title: 'Approach', items: [
           'Epicyclic motion of 200 to 1,000 stars in the solar neighbourhood from galactic dynamics.',
           'Close encounters between stars tracked with stochastic simulations.',
-          'Abiogenesis and the rise of civilisations drawn from probability distributions, with a steepness parameter N.',
-          'Scenarios with one spreading civilisation compared with many stationary ones.',
-          'Stellar dynamics followed for more than 12 billion years, in a self-contained Python model.'
+          'Abiogenesis and the rise of civilisations drawn from probability distributions, with a steepness parameter N.'
         ] },
         { type: 'list', title: 'Findings', items: [
           'The first technological civilisation appears after 270 million to 4.8 billion years, depending on N.',
           'Colonisation grows exponentially, then levels off as free planets run out.',
-          'With 1,000 stars and N = 3, a single spreading civilisation reaches 89% of all planets within 12 billion years.',
-          'With N = 0, stationary civilisations dominate and end up on 99 to 99.7% of planets.',
-          'Higher star density favours the spreading civilisation.',
-          'Fast colonisation needs both high star density and favourable evolution parameters.'
+          'With 1,000 stars and N = 3, a single spreading civilisation reaches 89% of all planets within 12 billion years.'
         ] }
       ],
       cite: 'Markus Strickert (2020). Galactic Dynamics and the Spread of Galactic Civilisations. Bachelor\'s thesis, Lund Observatory, Lund University.',
@@ -187,8 +173,7 @@
         { type: 'list', title: 'What I did', items: [
           'Set up and ran 576 stellar collisions with smoothed particle hydrodynamics.',
           'Implemented Delaunay triangulation for post-processing.',
-          'Visualised the results with matplotlib.',
-          'The results went into a paper that was in preparation at the time.'
+          'Visualised the results with matplotlib.'
         ] }
       ],
       links: []
@@ -213,9 +198,7 @@
         { type: 'list', title: 'What it produces', items: [
           '2D and 3D plots and heatmaps.',
           'Particle trajectory animations.',
-          'Magnetic field topology in 3D.',
-          'Time series analysis and rendering.',
-          'Multi-panel figures at publication quality, and video for talks.'
+          'Magnetic field topology in 3D.'
         ] }
       ],
       links: []
@@ -313,7 +296,7 @@
   /* Everything from the old "Detailed Competence Profile", with the competence split per role. */
   var GROUPS = [['current', 'Current and recent'], ['academic', 'Academic and research'], ['projects', 'Projects and other work'], ['lead', 'Leadership and volunteering'], ['edu', 'Education']];
   var EXPERIENCE = [
-    { g: 'current', y: '2026 – now', title: 'Test and verification engineer', org: 'Sigma Technology Tech House',
+    { g: 'current', y: '2026 – now', title: 'Test engineer', org: 'Sigma Technology Tech House',
       text: 'Developed and automated PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, integrating measurement instruments, hardware control and signal routing. Responsible for hardware and software verification, requirements, technical documentation and test reporting. Delivered an automated test solution demonstrated to the customer, with positive feedback for its intuitive design, clear structure and reproducibility.',
       split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]], project: 'ta' },
     { g: 'current', y: '2023 – 2026', title: 'System verification engineer', org: 'Saab Dynamics, as a consultant at BerDiz AB',
@@ -354,11 +337,11 @@
 
   /* The six areas of the old competence wheel; weight is the old segment size in degrees. */
   var COMPETENCE = [
-    { name: 'System verification and testing', weight: 75, color: '#38BDF8', items: ['Requirements in DOORS NG, with traceability', 'Reviewing design documents', 'Tests automated from requirement and design specifications', 'Test automation for product software', 'Hardware, firmware and software verified together', 'Basic electrical testing and hands-on lab work', 'NI TestStand', 'Full lifecycle, from early development through commissioning to delivery'] },
-    { name: 'Technical skills', weight: 75, color: '#FDBA74', items: ['Python for scientific computing and automation', 'C++ for systems programming', 'Fortran, Bash, AWK, VBA and MATLAB scripting', 'Git', 'Linux command line', 'VS Code, Jupyter notebooks and LaTeX', 'AI-assisted development with Claude, GPT and Cursor', 'Web design basics'] },
+    { name: 'System verification and testing', weight: 75, color: '#38BDF8', items: ['Requirements, traceability and compliance matrices', 'Hardware, firmware and software tested in the lab', 'Environmental and EMC testing', 'CE marking and IEC 61010-1', 'Regression testing and formal change processes', 'Reviewing design documents', 'Tests automated from requirement and design specifications', 'Test automation for product software', 'Hardware, firmware and software verified together', 'Basic electrical testing and hands-on lab work', 'NI TestStand', 'Full lifecycle, from early development through commissioning to delivery'] },
+    { name: 'Technical skills', weight: 75, color: '#FDBA74', items: ['Python for scientific computing and automation', 'C++ for systems programming', 'Fortran, Bash, AWK, VBA and MATLAB scripting', 'Git, DevOps and Jira', 'Linux command line', 'VS Code, Jupyter notebooks and LaTeX', 'AI-assisted development with Claude, GPT and Cursor', 'Web design basics'] },
     { name: 'Research and scientific computing', weight: 50, color: '#86EFAC', items: ['HPC simulations and computational modelling', '3D magnetohydrodynamic simulations', 'Star–planet magnetic interaction and coronal mass ejections', 'Stellar dynamics and black holes in clusters', 'Fortran code optimisation on supercomputers', 'Statistical analysis and visualisation', 'Peer-reviewed publication'] },
-    { name: 'Communication and documentation', weight: 55, color: '#F9A8B8', items: ['Technical talks at conferences and workshops', 'Academic writing', 'Agile documentation', 'Work across functions and disciplines', 'Swedish, English and basic German', 'Explaining complex things plainly'] },
-    { name: 'Problem solving', weight: 60, color: '#C4B5FD', items: ['Breaking complex systems into parts', 'Method development and prototyping', 'Automation framework design', 'Requirements engineering', 'Debugging and optimisation', 'A physicist\'s habit of checking assumptions'] },
+    { name: 'Communication and documentation', weight: 55, color: '#F9A8B8', items: ['Presenting at conferences, to colleagues and to customers', 'Test specifications, user manuals and design descriptions', 'Technical talks at conferences and workshops', 'Academic writing', 'Agile documentation', 'Work across functions and disciplines', 'Swedish, English and basic German', 'Explaining complex things plainly'] },
+    { name: 'Problem solving', weight: 60, color: '#C4B5FD', items: ['Quick to learn new tools, often the go-to person', 'Overviews of complex systems used as a team reference', 'Breaking complex systems into parts', 'Method development and prototyping', 'Automation framework design', 'Requirements engineering', 'Debugging and optimisation', 'A physicist\'s habit of checking assumptions'] },
     { name: 'Leadership', weight: 45, color: '#5EEAD4', items: ['Team-lead duties and coordination', 'Agile retrospectives and process improvement', 'Mentoring and knowledge transfer', 'Customer and stakeholder contact', 'Security-classified project work', 'Coaching and board work since my teens'] }
   ];
 

@@ -332,7 +332,7 @@
     }
     if (p.split) blocks.appendChild(h('section', 'block wide rv', [h('h2', null, 'How the work was split'), splitEl(p.split)]));
     p.blocks.forEach(function (b) { blocks.appendChild(block(b, p)); });
-    var hasStack = p.facts.some(function (f) { return /^(Stack|Tools)$/.test(f[0]); }); /* no second list of the same tools */
+    var hasStack = p.facts.some(function (f) { return /^(Stack|Tools)$/.test(f[0]); }) || p.blocks.some(function (b) { return b.type === 'table'; }); /* no second list of the same tools */
     var facts = h('div', 'tbl'); p.facts.concat(hasStack ? [] : [['Built with', p.skills.join(', ')]]).forEach(function (r) { facts.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); });
     blocks.appendChild(h('section', 'block rv', [h('h2', null, 'At a glance'), facts]));
     if (p.cite || p.links.length) { var pub = h('section', 'block wide rv', [h('h2', null, 'Publication')]); if (p.cite) pub.appendChild(h('p', 'cite', p.cite)); var ls = h('div', 'proj-links'); p.links.forEach(function (l) { ls.appendChild(linkTo(l[1], l[0])); }); pub.appendChild(ls); blocks.appendChild(pub); }
