@@ -1003,7 +1003,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="pulse-bottom-nav-v1.js?v=20261117-modal-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261112-offbudget-1">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261117-refund-1">
 </head>
 <body>
 
@@ -1050,6 +1050,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
             <div class="kpi-label">Totala inkomster</div>
             <div class="kpi-value" id="kpi-income">0 kr</div>
             <div class="kpi-sub">Mottaget denna månad</div>
+            <div id="kpi-refund-in-sub" class="kpi-refund" hidden><span>+<b id="kpi-refund-in-amount">0</b> kr väntas tillbaka</span></div>
             <div id="kpi-savings-account-sub" style="font-size:12px;color:var(--text-sec);padding:4px 0 0;display:none"><span>varav från sparkonto</span> <span id="kpi-savings-account-amount" style="color:var(--savings);font-weight:600">0 kr</span></div>
         </div>
         <div class="kpi-card kpi-budget">
@@ -1067,6 +1068,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
             <div class="kpi-label">Återstår</div>
             <div class="kpi-value" id="kpi-remain">0 kr</div>
             <div class="kpi-sub">Inkomster &minus; Utgifter</div>
+            <div id="kpi-refund-sub" class="kpi-refund" hidden><span>+<b id="kpi-refund-amount">0</b> kr tillbaka nästa månad</span></div>
         </div>
     </div>
 
@@ -1609,6 +1611,18 @@ function renderKPIs() {
         savingsAccountSub.style.display = "none";
     }
 
+    // "Få tillbaka nästa månad" (item.refund): money paid this month that comes back next month.
+    // Shown as +sum under Återstår, and next month under the income as expected back.
+    const refundOf = secs => (secs || []).reduce((sum, s) => s.isIncome ? sum : sum + s.items.filter(it => it.refund).reduce((a, it) => a + (Number(it.actual) || 0), 0), 0);
+    const refundNow = refundOf(sections);
+    const prev = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+    const prevData = monthlyData[getMonthKey(prev)];
+    const refundIn = refundOf(prevData && prevData.sections);
+    document.getElementById("kpi-refund-amount").textContent = fmt(refundNow);
+    document.getElementById("kpi-refund-sub").hidden = !refundNow;
+    document.getElementById("kpi-refund-in-amount").textContent = fmt(refundIn);
+    document.getElementById("kpi-refund-in-sub").hidden = !refundIn;
+
     const remainEl = document.getElementById("kpi-remain");
     if (t.remaining < 0) {
         remainEl.style.color = "var(--danger)";
@@ -1667,17 +1681,26 @@ function renderSections() {
         // "Räknas mot kvar" per post: a small switch for each post in this section.
         const countRows = isIncome ? '' : '<div class="sm-count-head">Räknas mot kvar</div>' + section.items.map((it, i) =>
             `<label class="sm-count"><span>${it.name}</span><input type="checkbox" data-count="${i}"${it.offBudget ? '' : ' checked'}><i aria-hidden="true"></i></label>`).join('');
-        moreMenu.innerHTML = '<button type="button" data-act="rename">Byt namn</button>' + countRows + '<button type="button" data-act="delete" class="danger">Ta bort avsnitt</button>';
+        // "Få tillbaka nästa månad" per post (item.refund), e.g. an outlay paid back next month.
+        const refundRows = isIncome ? '' : '<div class="sm-count-head">Få tillbaka nästa månad</div>' + section.items.map((it, i) =>
+            `<label class="sm-count sm-refund"><span>${it.name}</span><input type="checkbox" data-refund="${i}"${it.refund ? ' checked' : ''}><i aria-hidden="true"></i></label>`).join('');
+        moreMenu.innerHTML = '<button type="button" data-act="rename">Byt namn</button>' + countRows + refundRows + '<button type="button" data-act="delete" class="danger">Ta bort avsnitt</button>';
         moreMenu.onchange = (e) => {
-            const box = e.target.closest("input[data-count]");
+            const box = e.target.closest("input[data-count], input[data-refund]");
             if (!box) return;
-            const it = section.items[Number(box.dataset.count)];
+            const idx = box.dataset.count ?? box.dataset.refund;
+            const it = section.items[Number(idx)];
             if (!it) return;
-            if (box.checked) delete it.offBudget; else it.offBudget = true;
+            const row = container.querySelector(`tr[data-section="${sIdx}"][data-item="${idx}"]`);
+            if (box.dataset.refund != null) {
+                if (box.checked) it.refund = true; else delete it.refund;
+                if (row) row.classList.toggle("is-refund", box.checked);
+            } else {
+                if (box.checked) delete it.offBudget; else it.offBudget = true;
+                if (row) row.classList.toggle("is-off-budget", !box.checked);
+            }
             saveLocal();
             renderKPIs();
-            const row = container.querySelector(`tr[data-section="${sIdx}"][data-item="${box.dataset.count}"]`);
-            if (row) row.classList.toggle("is-off-budget", !box.checked);
         };
         moreBtn.onclick = (e) => {
             e.stopPropagation();
@@ -1787,7 +1810,7 @@ function renderSections() {
             }
 
             tableHTML += `
-                <tr class="draggable-row${item.offBudget ? ' is-off-budget' : ''}" data-section="${sIdx}" data-item="${iIdx}">
+                <tr class="draggable-row${item.offBudget ? ' is-off-budget' : ''}${item.refund ? ' is-refund' : ''}" data-section="${sIdx}" data-item="${iIdx}">
                     <td>
                         <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
                         <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
