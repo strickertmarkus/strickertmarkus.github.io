@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=16">
+<link rel="stylesheet" href="css/site.css?v=17">
 </head>
 <body class="boot">
 <canvas id="scene" tabindex="-1" aria-hidden="true"></canvas>
@@ -50,40 +50,47 @@
     <div class="ticker" aria-hidden="true"><div class="ticker-in" id="ticker"></div></div>
 
     <div class="facts rv">
-      <div><b>2026 –</b><span>Test automation with NI TestStand and LabVIEW</span></div>
-      <div><b>3 years</b><span>System verification at Saab Dynamics, as a consultant</span></div>
-      <div><b>MNRAS 2024</b><span>First-author paper from 21 3D MHD simulations</span></div>
+      <div><b>3 years</b><span>System verification at Saab Dynamics</span></div>
+      <div><b>6 years</b><span>Astrophysics research in Lund and Leiden</span></div>
+      <div><b>MNRAS 2024</b><span>First-author paper</span></div>
     </div>
 
     <section class="band" id="home-what">
-      <header class="band-head rv"><p class="eyebrow">What I do</p><h2>From the first requirement to the delivered system.</h2></header>
-      <ol class="what">
-        <li class="rv" style="--d:0"><span class="num">01</span><h3>System verification</h3><p>Test strategies for systems that mix hardware, firmware and software, carried from early development to customer delivery.</p></li>
-        <li class="rv" style="--d:1"><span class="num">02</span><h3>Test automation</h3><p>Automated test suites in NI TestStand, LabVIEW, C++ and Python that make testing repeatable and quick to run.</p></li>
-        <li class="rv" style="--d:2"><span class="num">03</span><h3>Scientific computing</h3><p>A physicist's training in modelling, large simulations on supercomputers and the data analysis that follows.</p></li>
-        <li class="rv" style="--d:3"><span class="num">04</span><h3>Leadership and collaboration</h3><p>Team-lead duties, agile retrospectives and work across functions, with customers in the room when it counts.</p></li>
-      </ol>
+      <header class="band-head rv"><h2>What I do</h2></header>
+      <ul class="what">
+        <li class="rv" style="--d:0"><h3>System verification</h3><p>Test strategies for hardware, firmware and software, from early development to customer delivery.</p></li>
+        <li class="rv" style="--d:1"><h3>Test automation</h3><p>Automated test suites in NI TestStand, LabVIEW, C++ and Python.</p></li>
+        <li class="rv" style="--d:2"><h3>Scientific computing</h3><p>Modelling, large simulations on supercomputers and the data analysis that follows.</p></li>
+        <li class="rv" style="--d:3"><h3>Leadership</h3><p>Team-lead duties, agile retrospectives and work with customers.</p></li>
+      </ul>
     </section>
 
     <section class="band">
-      <header class="band-head rv"><p class="eyebrow">Selected work</p><h2>Three places to start.</h2></header>
+      <header class="band-head rv"><h2>Selected work</h2></header>
       <div class="feature" id="home-work"></div>
       <a class="link rv" href="#work">All work <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
     </section>
 
+    <figure class="band said rv">
+      <p class="eyebrow">Customer feedback</p>
+      <blockquote>An automated production test, demonstrated to the customer and praised for its intuitive design, clear structure and reproducibility.</blockquote>
+      <figcaption>PCB production test · Sigma Technology Tech House, 2026 · <a href="#work/ta">See the project</a></figcaption>
+    </figure>
+
     <section class="band">
-      <header class="band-head rv"><p class="eyebrow">Path</p><h2>Physics first, then engineering.</h2></header>
+      <header class="band-head rv"><h2>Experience</h2></header>
       <ol class="path rv">
         <li><span>2017</span><b>Lund University</b><em>BSc Physics, MSc Astrophysics</em></li>
         <li><span>2022</span><b>Leiden Observatory</b><em>Doctoral research</em></li>
         <li><span>2023</span><b>Saab Dynamics</b><em>System verification engineer, via BerDiz</em></li>
         <li class="now"><span>2026</span><b>Sigma Technology Tech House</b><em>Test and verification engineer</em></li>
       </ol>
-      <a class="link quiet rv" href="#about">The longer story</a>
+      <a class="link quiet rv" href="#cv">Full CV</a>
     </section>
 
     <section class="band closing rv">
-      <h2>Have a system that needs testing?</h2>
+      <h2>Get in touch</h2>
+      <p class="sub">For assignments, collaborations or questions about my work.</p>
       <div class="cta"><a class="link" href="#contact">Get in touch <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a><a class="link quiet" href="#explore">Explore the network</a></div>
     </section>
     <footer class="foot">Markus Frick Strickert · Motala, Sweden</footer>
@@ -91,10 +98,10 @@
 
   <!-- WORK -->
   <section class="view" id="v-work" aria-label="Work">
-    <header class="page-head"><p class="eyebrow">Work</p><h1>Engineering, research and the things I build at home.</h1></header>
-    <section class="work-comp" aria-label="Competence"><h2 class="eyebrow rv">Where the time goes</h2><div class="comp rv" id="comp"></div></section>
+    <header class="page-head"><h1>Work</h1><p class="sub">Engineering, research and side projects.</p></header>
     <div class="chips seg" role="group" aria-label="Filter work" id="work-chips"></div>
     <div class="rows" id="rows"></div>
+    <section class="work-comp" aria-label="Competence"><h2 class="rv">Where the time goes</h2><div class="comp rv" id="comp"></div></section>
     <footer class="foot">Markus Frick Strickert · Motala, Sweden</footer>
   </section>
 
@@ -113,24 +120,13 @@
     <div class="about-top">
       <div class="portrait rv"><img src="img/markus.jpg" alt="Portrait of Markus Frick Strickert" width="480" height="480"></div>
       <div class="about-intro">
-        <p class="eyebrow rv">About</p>
         <h1 class="rv" style="--d:1">Test engineer with a physicist's training.</h1>
         <p class="lead rv" style="--d:2">I design and automate tests for systems that combine hardware, firmware and software, and write the verification documentation that goes with them. Before engineering I spent six years in astrophysics, ending with doctoral research in Leiden. Based in Motala, Sweden.</p>
       </div>
     </div>
 
     <section class="band">
-      <header class="band-head rv"><p class="eyebrow">Background</p><h2>From simulations to test systems.</h2></header>
-      <ol class="journey" id="journey">
-        <li class="rv"><span class="when">Lund · 2017–2022</span><h3>Physics and astrophysics</h3><p>BSc in physics and MSc in astrophysics at Lund University. Both theses were built on large Monte Carlo simulations in Python: the spread of civilisations through the Milky Way, and black holes in globular clusters.</p></li>
-        <li class="rv"><span class="when">Leiden · 2022–2023</span><h3>Doctoral research</h3><p>3D MHD simulations of stellar eruptions on the Snellius supercomputer, published as a first-author paper in MNRAS. I left the programme before the defence when we moved home to Sweden with our children.</p></li>
-        <li class="rv"><span class="when">Saab Dynamics · 2023–2026</span><h3>System verification</h3><p>Verification from early development to customer delivery, as a consultant through BerDiz AB: test automation, simulators, lab coordination and formal verification documents. Highest possible score in the 2024 consultant evaluation.</p></li>
-        <li class="rv"><span class="when">Sigma Technology · 2026 –</span><h3>Test automation</h3><p>Automated PCB production tests in NI TestStand, LabVIEW and NI Switch Executive, from requirements to a solution demonstrated to the customer.</p></li>
-      </ol>
-    </section>
-
-    <section class="band">
-      <header class="band-head rv"><p class="eyebrow">How I work</p><h2>What I bring to a project.</h2></header>
+      <header class="band-head rv"><h2>How I work</h2></header>
       <ul class="values">
         <li class="rv" style="--d:0"><h3>Requirements before tests</h3><p>A test is only as good as the requirement it traces to, so I start by making requirements testable.</p></li>
         <li class="rv" style="--d:1"><h3>Automate what repeats</h3><p>Steps that run more than twice become a sequence, with results anyone can reproduce.</p></li>
@@ -140,17 +136,17 @@
     </section>
 
     <section class="band" id="contact">
-      <header class="band-head rv"><p class="eyebrow">Contact</p><h2>Get in touch.</h2><p class="sub">For assignments, collaborations or questions about my work.</p></header>
+      <header class="band-head rv"><h2>Contact</h2><p class="sub">For assignments, collaborations or questions about my work.</p></header>
       <div class="contact">
-        <div class="contact-links rv">
+        <div class="contact-card rv">
+          <div class="who"><img src="img/markus.jpg" alt="" width="64" height="64"><div><b>Markus Frick Strickert</b><span>Test and verification engineer · Motala, Sweden</span></div></div>
           <a class="big" href="mailto:strickertmarkus@gmail.com">strickertmarkus@gmail.com</a>
-          <a class="link quiet" href="https://www.linkedin.com/in/markus-strickert-33524b19a/" target="_blank" rel="noopener">LinkedIn</a>
-          <a class="link quiet" href="#cv">CV</a>
+          <div class="contact-links"><a class="link quiet" href="https://www.linkedin.com/in/markus-strickert-33524b19a/" target="_blank" rel="noopener">LinkedIn</a><a class="link quiet" href="#cv">CV</a></div>
         </div>
         <form class="form rv" id="contact-form" action="https://formspree.io/f/xyzwvpje" method="POST">
-          <label for="f-subject">Subject<input type="text" id="f-subject" name="subject" required autocomplete="off"></label>
-          <label for="f-message">Message<textarea id="f-message" name="message" rows="5" required></textarea></label>
+          <input type="hidden" name="_subject" value="Message from the portfolio">
           <label for="f-email">Your email<input type="email" id="f-email" name="email" required autocomplete="email"></label>
+          <label for="f-message">Message<textarea id="f-message" name="message" rows="5" required></textarea></label>
           <div class="form-foot"><button type="submit" class="send">Send message <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></button><p class="form-note" id="form-note" role="status"></p></div>
         </form>
       </div>
@@ -160,7 +156,7 @@
 
   <!-- CV: a static page -->
   <section class="view" id="v-cv" aria-label="CV">
-    <div class="cv-bar"><button type="button" class="link" id="paper" aria-expanded="false">Open as paper <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-8 8"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></button><button type="button" class="link quiet" id="print">Print or save as PDF</button></div>
+    <div class="cv-bar"><a class="link" id="paper" href="cv/Markus_Frick_Strickert_CV.pdf" target="_blank" rel="noopener">Open the PDF <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-8 8"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg></a><a class="link quiet" href="cv/Markus_Frick_Strickert_CV.pdf" download>Download PDF</a></div>
     <div class="cv">
       <div class="cv-side">
         <img class="cv-photo" src="img/markus.jpg" alt="Portrait of Markus Frick Strickert" width="168" height="168">
@@ -244,8 +240,8 @@
   </section>
 </main>
 
-<script src="js/data.js?v=13"></script>
+<script src="js/data.js?v=14"></script>
 <script src="js/scene.js?v=10"></script>
-<script src="js/app.js?v=19"></script>
+<script src="js/app.js?v=20"></script>
 </body>
 </html>

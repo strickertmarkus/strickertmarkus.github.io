@@ -17,6 +17,56 @@
 
   var PROJECTS = [
     {
+      id: 'ta', cat: 'engineering', motif: 'matrix',
+      short: 'Test automation',
+      title: 'Test automation',
+      kind: 'Test and verification engineer', where: 'Sigma Technology Tech House', period: '2026 – now',
+      desc: 'Automated production tests for circuit boards: instruments, hardware control and signal routing in one sequence.',
+      lead: 'I develop and automate PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, bringing measurement instruments, hardware control and signal routing together. I am also responsible for verification, requirements, documentation and test reports. The first solution was demonstrated to the customer and praised for its intuitive design, clear structure and reproducibility.',
+      skills: ['TestStand', 'LabVIEW'],
+      stats: [],
+      facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive'], ['Scope', 'PCB production test, signal routing, measurement']],
+      split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]],
+      blocks: [
+        { type: 'flow', title: 'How a test runs', steps: [['Requirement', 'What the board must do'], ['Sequence', 'NI TestStand'], ['Instruments', 'LabVIEW drivers'], ['Switch matrix', 'NI Switch Executive'], ['Board under test', 'Measured pin by pin'], ['Report', 'Pass, fail and values']] },
+        { type: 'list', title: 'What the tests cover', items: [
+          'MUX switch routing.',
+          'Circuit specification analysis.',
+          'Electrical measurements and filtering.',
+          'Ethernet connectivity and protocol validation.'
+        ] },
+        { type: 'table', title: 'Stack', rows: [['Sequencing', 'NI TestStand'], ['Instrument code', 'LabVIEW'], ['Signal routing', 'NI Switch Executive'], ['Configuration and debugging', 'NI MAX and NI debugging tools']] },
+        { type: 'quote', title: 'Outcome', body: 'An automated test solution demonstrated to the customer, who singled out its intuitive design, clear structure and reproducibility.' }
+      ],
+      links: []
+    },
+    {
+      id: 'sv', cat: 'engineering', motif: 'vmodel',
+      short: 'System verification',
+      title: 'System verification',
+      kind: 'System verification engineer', where: 'Saab Dynamics, via BerDiz', period: '2023–2026',
+      desc: 'Verification from early development to customer delivery, across hardware, firmware and software.',
+      lead: 'Three years of system verification across software and hardware. I started, wrote and verified products from early development to customer delivery, with hands-on integration and commissioning along the way.',
+      skills: ['C++', 'Python', 'Bash', 'DOORS NG'],
+      stats: [['3 years', 'system-level verification'], ['HW · FW · SW', 'tested together in the lab'], ['Top score', 'in the consultant evaluation, 2024']],
+      facts: [['Role', 'System test responsible'], ['Requirements', 'DOORS NG'], ['Way of working', 'Agile, JIRA']],
+      split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]],
+      blocks: [
+        { type: 'flow', title: 'From requirement to delivery', steps: [['Requirements', 'DOORS NG'], ['Design review', 'Testable from the start'], ['Test specification', 'Traced to each requirement'], ['Lab tests', 'Hardware, firmware, software'], ['Verification report', 'Formal documents'], ['Customer delivery', 'Demonstrated and signed off']] },
+        { type: 'list', title: 'Responsibilities', items: [
+          'System test responsible in customer interactions, formal system analyses and customer demonstrations.',
+          'Coordinated test activities and lab spaces, and handled security-classified equipment.',
+          'Team-lead duties and agile retrospectives.',
+          'Technical and formal verification documents used across several teams.',
+          'Requirements and test specifications in DOORS NG.',
+          'Test automation and simulator improvements in C++ and Python.',
+          'Quality assurance and structured handling of secure information.'
+        ] },
+        { type: 'table', title: 'Working environment', rows: [['Requirements and test specifications', 'DOORS NG'], ['Programming and automation', 'C++, Python, Bash, CLI'], ['Data analysis and post-processing', 'Python'], ['Method', 'Agile workflows in JIRA'], ['Documents and information', 'IFS'], ['Standards', 'Military standards'], ['Test and verification', 'Hardware and firmware in the lab, software against hardware']] }
+      ],
+      links: []
+    },
+    {
       id: 'cme', cat: 'research', motif: 'loops',
       short: 'CMEs on AB Doradus',
       title: 'Coronal mass ejections on AB Doradus',
@@ -31,16 +81,18 @@
           'A 1994 EUVE observation of AB Dor showed dimming that lasted 13.3 hours, about as long as the star\'s rotation period of 0.51 days. A source that stays in view through a whole rotation has to sit near a pole, so the eruption came from high latitude (Veronig et al. 2021).',
           'I was selected for one of 13 doctoral projects at Leiden Observatory from more than 500 applicants, and this study became the first paper from that work.'
         ] },
-        { type: 'table', title: 'AB Doradus', rows: [['Spectral type', 'K0V'], ['Age', 'about 120 Myr'], ['Mass', '0.86 M☉'], ['Radius', '0.96 R☉'], ['Rotation period', '0.514 days'], ['Surface magnetic field', 'kG strength, 100–1,000 × the Sun']] },
-        { type: 'list', title: 'Method', items: [
-          'Stellar wind from the Alfvén Wave Solar Model (AWSOM) in the 3D MHD code BATS-R-US, with Alfvén wave heating.',
-          'Surface field from Zeeman-Doppler imaging of spectropolarimetric observations, December 2002 (Hussain et al. 2007).',
-          'Eruptions injected as Titov & Démoulin (1999) flux ropes with footpoints anchored to the stellar surface.',
-          'Flux ropes placed at about 60° latitude, in both open and closed magnetic field regions.',
-          '21 runs varying location, flux rope mass and field strength, analysed one hour after injection: morphology, eruption or confinement, velocity, mass and kinetic energy.',
-          'Post-processing in Python and (Py)Tecplot, compared with Hubble and EUVE observations.'
+        { type: 'more', title: 'Technical details', blocks: [
+          { type: 'table', title: 'AB Doradus', rows: [['Spectral type', 'K0V'], ['Age', 'about 120 Myr'], ['Mass', '0.86 M☉'], ['Radius', '0.96 R☉'], ['Rotation period', '0.514 days'], ['Surface magnetic field', 'kG strength, 100–1,000 × the Sun']] },
+          { type: 'list', title: 'Method', items: [
+            'Stellar wind from the Alfvén Wave Solar Model (AWSOM) in the 3D MHD code BATS-R-US, with Alfvén wave heating.',
+            'Surface field from Zeeman-Doppler imaging of spectropolarimetric observations, December 2002 (Hussain et al. 2007).',
+            'Eruptions injected as Titov & Démoulin (1999) flux ropes with footpoints anchored to the stellar surface.',
+            'Flux ropes placed at about 60° latitude, in both open and closed magnetic field regions.',
+            '21 runs varying location, flux rope mass and field strength, analysed one hour after injection: morphology, eruption or confinement, velocity, mass and kinetic energy.',
+            'Post-processing in Python and (Py)Tecplot, compared with Hubble and EUVE observations.'
+          ] },
+          { type: 'table', title: 'Flux rope parameters', rows: [['Mass', '3.5×10¹⁴ to 3.5×10¹⁸ g'], ['Central field strength', '100 to 1,000 G'], ['Location', 'Open or closed field regions at about 60° latitude'], ['Geometry (fixed)', 'Major radius 128 Mm, minor radius 20 Mm, depth 1 Mm'], ['Wind solution', 'Domain to about 8 R☉, polar wind up to about 1,000 km/s']] }
         ] },
-        { type: 'table', title: 'Flux rope parameters', rows: [['Mass', '3.5×10¹⁴ to 3.5×10¹⁸ g'], ['Central field strength', '100 to 1,000 G'], ['Location', 'Open or closed field regions at about 60° latitude'], ['Geometry (fixed)', 'Major radius 128 Mm, minor radius 20 Mm, depth 1 Mm'], ['Wind solution', 'Domain to about 8 R☉, polar wind up to about 1,000 km/s']] },
         { type: 'bars', title: 'Field strength needed to erupt', unit: 'G', max: 1000, rows: [['Open field region', 200, 'research'], ['Closed field region', 800, 'engineering']],
           note: 'The fourfold difference is the extra magnetic tension a flux rope has to overcome under closed field lines. Field geometry is the main control on whether an eruption gets out.' },
         { type: 'dots', title: 'Outcome of the 21 runs', groups: [[11, 'erupted', 'research'], [10, 'confined', 'engineering']] },
@@ -165,54 +217,6 @@
           'Time series analysis and rendering.',
           'Multi-panel figures at publication quality, and video for talks.'
         ] }
-      ],
-      links: []
-    },
-    {
-      id: 'sv', cat: 'engineering', motif: 'vmodel',
-      short: 'System verification',
-      title: 'System verification',
-      kind: 'System verification engineer', where: 'Saab Dynamics, via BerDiz', period: '2023–2026',
-      desc: 'Verification from early development to customer delivery, across hardware, firmware and software.',
-      lead: 'Three years of system verification across software and hardware. I started, wrote and verified products from early development to customer delivery, with hands-on integration and commissioning along the way.',
-      skills: ['C++', 'Python', 'Bash', 'DOORS NG'],
-      stats: [['3 years', 'system-level verification'], ['HW · FW · SW', 'tested together in the lab'], ['Top score', 'in the consultant evaluation, 2024']],
-      facts: [['Role', 'System test responsible'], ['Requirements', 'DOORS NG'], ['Way of working', 'Agile, JIRA']],
-      split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]],
-      blocks: [
-        { type: 'list', title: 'Responsibilities', items: [
-          'System test responsible in customer interactions, formal system analyses and customer demonstrations.',
-          'Coordinated test activities and lab spaces, and handled security-classified equipment.',
-          'Team-lead duties and agile retrospectives.',
-          'Technical and formal verification documents used across several teams.',
-          'Requirements and test specifications in DOORS NG.',
-          'Test automation and simulator improvements in C++ and Python.',
-          'Quality assurance and structured handling of secure information.'
-        ] },
-        { type: 'table', title: 'Working environment', rows: [['Requirements and test specifications', 'DOORS NG'], ['Programming and automation', 'C++, Python, Bash, CLI'], ['Data analysis and post-processing', 'Python'], ['Method', 'Agile workflows in JIRA'], ['Documents and information', 'IFS'], ['Standards', 'Military standards'], ['Test and verification', 'Hardware and firmware in the lab, software against hardware']] }
-      ],
-      links: []
-    },
-    {
-      id: 'ta', cat: 'engineering', motif: 'matrix',
-      short: 'Test automation',
-      title: 'Test automation',
-      kind: 'Test and verification engineer', where: 'Sigma Technology Tech House', period: '2026 – now',
-      desc: 'Automated production tests for circuit boards: instruments, hardware control and signal routing in one sequence.',
-      lead: 'I develop and automate PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, bringing measurement instruments, hardware control and signal routing together. I am also responsible for verification, requirements, documentation and test reports. The first solution was demonstrated to the customer and praised for its intuitive design, clear structure and reproducibility.',
-      skills: ['TestStand', 'LabVIEW'],
-      stats: [],
-      facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive'], ['Scope', 'PCB production test, signal routing, measurement']],
-      split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]],
-      blocks: [
-        { type: 'list', title: 'What the tests cover', items: [
-          'MUX switch routing.',
-          'Circuit specification analysis.',
-          'Electrical measurements and filtering.',
-          'Ethernet connectivity and protocol validation.'
-        ] },
-        { type: 'table', title: 'Stack', rows: [['Sequencing', 'NI TestStand'], ['Instrument code', 'LabVIEW'], ['Signal routing', 'NI Switch Executive'], ['Configuration and debugging', 'NI MAX and NI debugging tools']] },
-        { type: 'quote', title: 'Outcome', body: 'An automated test solution demonstrated to the customer, who singled out its intuitive design, clear structure and reproducibility.' }
       ],
       links: []
     },

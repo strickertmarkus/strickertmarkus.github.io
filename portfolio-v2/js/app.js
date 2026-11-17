@@ -158,13 +158,13 @@
     if (el.classList.contains('seg')) el.appendChild(h('span', 'seg-bar'));
     el.addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; el.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); segPlace(el); onPick(b.getAttribute('data-v')); });
   }
-  var CATCHIPS = [['all', 'All'], ['research', 'Research', COLOR.research], ['engineering', 'Engineering', COLOR.engineering], ['side', 'Side projects', COLOR.side]];
+  var CATCHIPS = [['all', 'All'], ['engineering', 'Engineering', COLOR.engineering], ['research', 'Research', COLOR.research], ['side', 'Side projects', COLOR.side]];
 
   /* ---------- home: the ticker, twice over so it loops without a seam ---------- */
   [0, 1].forEach(function () { S.TICKER.forEach(function (it) { var sp = h('span', null, it[0]); if (it[1]) sp.style.setProperty('--c', COLOR[it[1]]); $('ticker').appendChild(sp); }); });
 
-  /* ---------- home: featured work ---------- */
-  ['sv', 'cme', 'fam'].forEach(function (id, i) {
+  /* ---------- home: featured work, three side by side on wide screens ---------- */
+  ['ta', 'sv', 'cme'].forEach(function (id, i) {
     var p = P[id], a = h('a', 'feat rv', [motifWrap(p, 'home'), h('span', 'feat-t', [h('span', 'eyebrow', meta(p)), h('h3', null, p.title), h('p', null, p.desc), h('span', 'link go', ['Open project', arrow(1)])])]);
     a.href = '#work/' + id; a.style.setProperty('--d', i); a.querySelector('.eyebrow').style.color = COLOR[p.cat]; a.querySelector('.eyebrow').style.display = 'block';
     $('home-work').appendChild(a);
@@ -188,6 +188,16 @@
     else if (b.type === 'bars') { var bars = h('div', 'bars'); b.rows.forEach(function (r) { var bar = h('i'); bar.style.setProperty('--c', COLOR[r[2]]); bar.style.setProperty('--w', r[1] / b.max); bars.appendChild(h('div', 'bar-row', [h('span', null, r[0]), h('b', null, r[1] + ' ' + b.unit), bar])); }); el.appendChild(bars); if (b.note) el.appendChild(h('p', 'note', b.note)); }
     else if (b.type === 'dots') { var grid = h('div', 'dot-grid'), key = h('div', 'dot-key'), k = 0; b.groups.forEach(function (g) { for (var i = 0; i < g[0]; i++) { var d = h('i'); d.style.setProperty('--c', COLOR[g[2]]); d.style.setProperty('--k', k++); grid.appendChild(d); } var kk = h('span', null, [h('i'), g[0] + ' ' + g[1]]); kk.firstChild.style.setProperty('--c', COLOR[g[2]]); key.appendChild(kk); }); el.appendChild(h('div', 'dots', [grid, key])); }
     else if (b.type === 'quote') { el.className = 'block wide quote rv'; el.appendChild(h('p', null, b.body)); }
+    else if (b.type === 'flow') { /* a chain of steps with a pulse running along it */
+      el.className = 'block wide rv'; var fl = h('ol', 'flow'); fl.style.setProperty('--c', c);
+      b.steps.forEach(function (st, i) { var li = h('li', null, [h('i'), h('b', null, st[0]), h('span', null, st[1])]); li.style.setProperty('--k', i); fl.appendChild(li); });
+      fl.style.setProperty('--n', b.steps.length); el.appendChild(fl);
+    }
+    else if (b.type === 'more') { /* detail that most readers can skip, folded */
+      el.className = 'block wide more-block rv'; el.removeChild(el.firstChild);
+      var inner = h('div', 'blocks'); b.blocks.forEach(function (x) { var e = block(x, p); e.classList.add('in'); inner.appendChild(e); });
+      el.appendChild(h('details', null, [h('summary', null, [h('span', null, b.title), h('i')]), inner]));
+    }
     return el;
   }
   /* The live demo: the real app in a phone, served by demo/sw.js with invented data and no Firebase.
@@ -206,7 +216,7 @@
     var screen = h('div', 'demo-screen', h('p', 'demo-wait', 'Starting the demo…')), phoneEl = h('div', 'demo-phone', screen);
     var open = linkTo(start, 'Open the demo full screen'); open.removeAttribute('target'); open.removeAttribute('rel');
     var text = h('div', 'demo-text', [
-      h('p', 'eyebrow', 'Try it'), h('h3', null, 'The real app, with invented data.'),
+      h('h3', null, 'Live demo'),
       h('p', null, demo.tip + ' Everything runs in your browser on made-up numbers and names. Nothing is saved, and nothing reaches the app my family uses.'),
       open, h('p', 'demo-note', 'Some parts need a login in the real app and are left out. Reload the page to start over.')
     ]);
@@ -275,7 +285,8 @@
     }
     if (p.split) blocks.appendChild(h('section', 'block wide rv', [h('h2', null, 'How the work was split'), splitEl(p.split)]));
     p.blocks.forEach(function (b) { blocks.appendChild(block(b, p)); });
-    var facts = h('div', 'tbl'); p.facts.concat([['Built with', p.skills.join(', ')]]).forEach(function (r) { facts.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); });
+    var hasStack = p.facts.some(function (f) { return /^(Stack|Tools)$/.test(f[0]); }); /* no second list of the same tools */
+    var facts = h('div', 'tbl'); p.facts.concat(hasStack ? [] : [['Built with', p.skills.join(', ')]]).forEach(function (r) { facts.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); });
     blocks.appendChild(h('section', 'block rv', [h('h2', null, 'At a glance'), facts]));
     if (p.cite || p.links.length) { var pub = h('section', 'block wide rv', [h('h2', null, 'Publication')]); if (p.cite) pub.appendChild(h('p', 'cite', p.cite)); var ls = h('div', 'proj-links'); p.links.forEach(function (l) { ls.appendChild(linkTo(l[1], l[0])); }); pub.appendChild(ls); blocks.appendChild(pub); }
     box.appendChild(blocks);
@@ -380,19 +391,26 @@
       .catch(function () { note.textContent = 'That did not go through. Please email me instead.'; })
       .then(function () { btn.disabled = false; });
   });
-  /* ---------- CV: dark on screen, or the light sheet that also prints ---------- */
-  /* "Open as paper" lays the CV out as a white sheet over the whole screen; print always uses that sheet. */
-  var cvEl = document.querySelector('.cv'), paperBtn = $('paper'), printing = false, wasPaper = false;
-  function setPaper(on) {
-    cvEl.classList.toggle('paper', on); document.body.classList.toggle('paper-open', on); paperBtn.setAttribute('aria-expanded', on ? 'true' : 'false');
-    paperBtn.firstChild.textContent = on ? 'Close paper ' : 'Open as paper '; viewEl('cv').scrollTop = 0;
-  }
-  paperBtn.addEventListener('click', function () { setPaper(!cvEl.classList.contains('paper')); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.body.classList.contains('paper-open')) setPaper(false); });
-  window.addEventListener('hashchange', function () { if (location.hash !== '#cv' && document.body.classList.contains('paper-open')) setPaper(false); });
-  window.addEventListener('beforeprint', function () { if (printing) return; printing = true; wasPaper = cvEl.classList.contains('paper'); cvEl.classList.add('paper'); });
-  window.addEventListener('afterprint', function () { printing = false; cvEl.classList.toggle('paper', wasPaper); });
-  $('print').addEventListener('click', function () { window.print(); });
+  /* ---------- CV: the PDF on screen ---------- */
+  /* Wide screens open the PDF in a full-screen viewer over the page; phones follow the link to their own PDF viewer. */
+  var pdfLink = $('paper'), pdfView = null;
+  function closePdf() { if (pdfView) { pdfView.classList.remove('on'); document.body.classList.remove('pdf-open'); } }
+  pdfLink.addEventListener('click', function (e) {
+    if (phone.matches) return;
+    e.preventDefault();
+    if (!pdfView) {
+      var close = h('button', 'pdf-close', '×'); close.type = 'button'; close.setAttribute('aria-label', 'Close');
+      var dl = h('a', 'link', 'Download'); dl.href = pdfLink.getAttribute('href'); dl.setAttribute('download', '');
+      var frame = h('iframe'); frame.title = 'CV, Markus Frick Strickert'; frame.src = pdfLink.getAttribute('href') + '#view=FitH';
+      pdfView = h('div', 'pdf-view', [h('div', 'pdf-bar', [h('b', null, 'CV · Markus Frick Strickert'), h('span', null, [dl, close])]), frame]);
+      pdfView.setAttribute('role', 'dialog'); pdfView.setAttribute('aria-modal', 'true'); document.body.appendChild(pdfView);
+      close.addEventListener('click', closePdf);
+      pdfView.addEventListener('click', function (ev) { if (ev.target === pdfView) closePdf(); });
+    }
+    void pdfView.offsetWidth; pdfView.classList.add('on'); document.body.classList.add('pdf-open');
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePdf(); });
+  window.addEventListener('hashchange', closePdf);
   /* Full history: the filter line and the reveals need the box open before they can be measured. */
   var hist = $('cv-history');
   hist.addEventListener('toggle', function () { if (hist.open) { segAll(); hist.querySelectorAll('.rv').forEach(function (r) { r.classList.add('in'); }); } });
@@ -453,7 +471,7 @@
       if (r.view === 'project' && !same) { renderProject(P[r.id]); newEl.scrollTop = 0; }
       if (oldEl && oldEl !== newEl) oldEl.classList.remove('on', 'out-l', 'out-r');
       if (!instant && !same) { newEl.classList.remove('out-l', 'out-r'); newEl.classList.add('on', dir > 0 ? 'from-r' : 'from-l'); void newEl.offsetWidth; newEl.classList.remove('from-r', 'from-l'); } else newEl.classList.add('on');
-      reveal(newEl); if (r.view === 'about') trace(); if (r.view === 'home') whatLines(); segAll();
+      reveal(newEl); if (r.view === 'home') whatLines(); segAll();
       document.body.classList.toggle('scrolled', newEl.scrollTop > 10);
       if (r.anchor) { var t = $(r.anchor); if (t) setTimeout(function () { t.scrollIntoView({ behavior: instant || reducedMotion() ? 'auto' : 'smooth', block: 'start' }); }, instant ? 0 : 240); }
     }
@@ -486,9 +504,6 @@
     Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, bottom + st, tickerEl.getBoundingClientRect().top + st);
   }
   window.addEventListener('resize', heroEdge);
-  var journey = $('journey');
-  function trace() { var r = journey.getBoundingClientRect(); journey.style.setProperty('--p', Math.max(0, Math.min(1, (window.innerHeight * .62 - r.top) / Math.max(1, r.height))).toFixed(3)); }
-  viewEl('about').addEventListener('scroll', trace, { passive: true });
   /* The top bar turns denser once the view in front has scrolled under it. */
   document.addEventListener('scroll', function (e) { var v = e.target; if (v && v.id === 'v-' + current.view) document.body.classList.toggle('scrolled', v.scrollTop > 10); }, true);
   var fx = document.querySelector('.fx');
