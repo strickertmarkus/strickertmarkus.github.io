@@ -94,10 +94,15 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .hero{min-height:calc(100vh - 204px);min-height:calc(100svh - 204px);max-width:560px;display:flex;flex-direction:column;justify-content:center;gap:22px;padding-bottom:20px}
 .hero h1{font-size:clamp(36px,min(4.6vw,9.6vh),72px);line-height:1.02;font-weight:700;letter-spacing:-.04em}
 .hero h1 em{font-style:normal;background:linear-gradient(100deg,#FFE3BE 0%,var(--amber) 55%,#FB923C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.facts{display:flex;flex-wrap:wrap;gap:0 clamp(24px,5vw,72px);max-width:1180px;padding-top:34px}
-.facts div{flex:1 1 200px;display:flex;flex-direction:column;gap:4px;padding:10px 0}
-.facts b{font-size:clamp(24px,2.6vw,34px);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.facts span{font-size:15px;color:var(--muted);max-width:22em}
+.facts{display:flex;max-width:1180px;padding-top:40px}
+/* in the hero's style: amber gradient figures, hairlines between them, a dot in the area's colour */
+.facts div{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:8px;padding:6px clamp(16px,3vw,40px)}
+.facts div:first-child{padding-left:0}
+.facts div + div{border-left:1px solid var(--line)}
+.facts b{font-size:clamp(28px,3.4vw,46px);line-height:1.05;font-weight:700;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap;background:linear-gradient(100deg,#FFE3BE 0%,var(--amber) 55%,#FB923C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.facts b small{font-size:.62em;font-weight:600;margin-right:2px}
+.facts div > span{display:flex;gap:9px;align-items:baseline;font-size:15px;line-height:1.45;color:var(--muted);max-width:22em}
+.facts div > span i{flex:0 0 6px;width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);transform:translateY(-2px)}
 
 .ticker{margin:0 calc(var(--pad)*-1);overflow:hidden;border-block:1px solid var(--line);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
 .ticker-in{display:flex;width:max-content;animation:tick 46s linear infinite}
@@ -308,8 +313,15 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 .values p{color:var(--muted);max-width:28em}
 
 .comp{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:start;max-width:1040px}
-.comp .comp-items li{padding:10px 0 10px 22px;font-size:15px}
-.comp .comp-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px}
+.comp-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px;align-content:flex-start}
+.tag{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.025);font-size:14px;color:var(--soft);white-space:nowrap;transition:background .3s ease,border-color .3s ease,color .3s ease}
+a.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+a.tag svg{width:13px;height:13px;color:var(--dim);transition:transform .35s var(--ease),color .3s ease}
+a.tag:hover{color:var(--ink);background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2)}
+a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
+.tag.more{border-style:dashed;color:var(--muted);cursor:pointer}
+.tag.more:hover{color:var(--ink);border-color:rgba(255,255,255,.3)}
+.tag[hidden]{display:none}
 .ring{position:relative;aspect-ratio:1}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
 .ring circle{fill:none;stroke-linecap:round;stroke-width:14;cursor:pointer;opacity:.5;transition:stroke-width .5s var(--ease),opacity .4s ease,stroke-dasharray .5s var(--ease),stroke-dashoffset .5s var(--ease)}
@@ -322,7 +334,7 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 .comp-tabs button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:500;color:var(--muted);transition:background .3s ease,color .3s ease}
 .comp-tabs button i{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
 .comp-tabs button[aria-pressed="true"]{background:rgba(255,255,255,.09);color:var(--ink);font-weight:600}
-.comp-items.swap{animation:swap .5s var(--ease)}
+.comp-tags.swap{animation:swap .5s var(--ease)}
 
 .exp{display:flex;flex-direction:column;margin-top:26px;max-width:980px}
 /* CV: the full history folds out under the sheet. */
@@ -420,10 +432,11 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
   /* Phones: the network takes the links' place. */
   .hero .cta{display:none}
   .values{grid-template-columns:minmax(0,1fr)}
-  .facts{flex-wrap:nowrap;gap:14px;padding-top:24px}
-  .facts div{flex:1 1 0;min-width:0;padding:6px 0}
-  .facts b{font-size:20px}
-  .facts span{font-size:12.5px;line-height:1.4}
+  .facts{padding-top:26px}
+  .facts div{padding:4px 10px;gap:6px}
+  .facts b{font-size:20px;white-space:normal}
+  .facts div > span{font-size:12px;line-height:1.4;gap:6px}
+  .facts div > span i{flex-basis:5px;width:5px;height:5px}
   .feature{grid-template-columns:minmax(0,1fr);gap:8px}
   .feat{gap:12px;padding:18px 0 14px}
   .feat .motif-wrap{aspect-ratio:3/1}
@@ -551,7 +564,7 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 @media (max-width:760px){
   .comp{grid-template-columns:minmax(0,1fr)}
   .comp:not(.mini) .ring{max-width:220px;margin:0 auto;width:100%}
-  .comp .comp-items{grid-template-columns:minmax(0,1fr)}
+  .tag{min-height:34px;padding:0 12px;font-size:13.5px}
 }
 
 /* About: colour and motion */

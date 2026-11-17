@@ -293,6 +293,7 @@
     }
   ];
 
+  /* Competence keywords: [label, project id where it was used]; the first six of an area are shown before "more". */
   /* Everything from the old "Detailed Competence Profile", with the competence split per role. */
   var GROUPS = [['current', 'Current and recent'], ['academic', 'Academic and research'], ['projects', 'Projects and other work'], ['lead', 'Leadership and volunteering'], ['edu', 'Education']];
   var EXPERIENCE = [
@@ -337,12 +338,12 @@
 
   /* The six areas of the old competence wheel; weight is the old segment size in degrees. */
   var COMPETENCE = [
-    { name: 'System verification and testing', weight: 75, color: '#38BDF8', items: ['Requirements, traceability and compliance matrices', 'Hardware, firmware and software tested in the lab', 'Environmental and EMC testing', 'CE marking and IEC 61010-1', 'Regression testing and formal change processes', 'Reviewing design documents', 'Tests automated from requirement and design specifications', 'Test automation for product software', 'Hardware, firmware and software verified together', 'Basic electrical testing and hands-on lab work', 'NI TestStand', 'Full lifecycle, from early development through commissioning to delivery'] },
-    { name: 'Technical skills', weight: 75, color: '#FDBA74', items: ['Python for scientific computing and automation', 'C++ for systems programming', 'Fortran, Bash, AWK, VBA and MATLAB scripting', 'Git, DevOps and Jira', 'Linux command line', 'VS Code, Jupyter notebooks and LaTeX', 'AI-assisted development with Claude, GPT and Cursor', 'Web design basics'] },
-    { name: 'Research and scientific computing', weight: 50, color: '#86EFAC', items: ['HPC simulations and computational modelling', '3D magnetohydrodynamic simulations', 'Star–planet magnetic interaction and coronal mass ejections', 'Stellar dynamics and black holes in clusters', 'Fortran code optimisation on supercomputers', 'Statistical analysis and visualisation', 'Peer-reviewed publication'] },
-    { name: 'Communication and documentation', weight: 55, color: '#F9A8B8', items: ['Presenting at conferences, to colleagues and to customers', 'Test specifications, user manuals and design descriptions', 'Technical talks at conferences and workshops', 'Academic writing', 'Agile documentation', 'Work across functions and disciplines', 'Swedish, English and basic German', 'Explaining complex things plainly'] },
-    { name: 'Problem solving', weight: 60, color: '#C4B5FD', items: ['Quick to learn new tools, often the go-to person', 'Overviews of complex systems used as a team reference', 'Breaking complex systems into parts', 'Method development and prototyping', 'Automation framework design', 'Requirements engineering', 'Debugging and optimisation', 'A physicist\'s habit of checking assumptions'] },
-    { name: 'Leadership', weight: 45, color: '#5EEAD4', items: ['Team-lead duties and coordination', 'Agile retrospectives and process improvement', 'Mentoring and knowledge transfer', 'Customer and stakeholder contact', 'Security-classified project work', 'Coaching and board work since my teens'] }
+    { name: 'System verification and testing', weight: 75, color: '#38BDF8', items: [['Requirements traceability', 'sv'], ['Lab testing, HW · FW · SW', 'sv'], ['Production test automation', 'ta'], ['Environmental and EMC testing', 'sv'], ['CE marking, IEC 61010-1', 'sv'], ['NI TestStand', 'ta'], ['Compliance matrices', 'sv'], ['Regression testing', 'sv'], ['Formal change processes', 'sv'], ['Design reviews', 'sv'], ['Electrical measurements', 'ta'], ['Full lifecycle to delivery', 'sv']] },
+    { name: 'Technical skills', weight: 75, color: '#FDBA74', items: [['Python', 'viz'], ['C++', 'sv'], ['LabVIEW', 'ta'], ['Git, DevOps, Jira'], ['Bash and Linux CLI', 'sv'], ['Fortran', 'cme'], ['JavaScript', 'fam'], ['MATLAB, VBA, AWK'], ['Jupyter, LaTeX'], ['AI-assisted development']] },
+    { name: 'Research and scientific computing', weight: 50, color: '#86EFAC', items: [['HPC simulations', 'cme'], ['3D MHD', 'cme'], ['Monte Carlo models', 'bh'], ['Statistical analysis', 'gal'], ['Data visualisation', 'viz'], ['Peer-reviewed paper', 'cme'], ['Supercomputer code optimisation', 'sph'], ['Stellar dynamics', 'bh']] },
+    { name: 'Communication and documentation', weight: 55, color: '#F9A8B8', items: [['Presenting to customers'], ['Conference talks', 'cme'], ['Test specifications', 'ta'], ['User manuals', 'ta'], ['Design descriptions', 'ta'], ['Academic writing', 'cme'], ['Cross-functional work'], ['Swedish, English, German']] },
+    { name: 'Problem solving', weight: 60, color: '#C4B5FD', items: [['Quick to learn new tools'], ['System overviews'], ['Breaking systems into parts'], ['Prototyping'], ['Automation frameworks', 'sv'], ['Debugging and optimisation'], ['Checking assumptions']] },
+    { name: 'Leadership', weight: 45, color: '#5EEAD4', items: [['Team lead', 'sv'], ['Scrum retrospectives', 'sv'], ['Customer contact', 'sv'], ['Security-classified work', 'sv'], ['Mentoring'], ['Coaching since my teens']] }
   ];
 
   window.SITE = { COLOR: COLOR, CATNAME: CATNAME, SKILLS: SKILLS, TICKER: TICKER, AREAS: AREAS, PROJECTS: PROJECTS, GROUPS: GROUPS, EXPERIENCE: EXPERIENCE, COMPETENCE: COMPETENCE };

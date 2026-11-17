@@ -430,6 +430,16 @@
   chips($('net-chips'), CATCHIPS, function (v) { Scene.setFilter(v); var p = P[Scene.selected()]; if (v !== 'all' && (!p || p.cat !== v)) Scene.select(PROJECTS.filter(function (q) { return q.cat === v; })[0].id); });
   document.addEventListener('keydown', function (e) { if (current.view !== 'explore' || /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'ArrowRight') { stepProject(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { stepProject(-1); e.preventDefault(); } });
 
+  /* ---------- Home facts: the number counts up the first time it comes into view ---------- */
+  document.querySelectorAll('.facts [data-to]').forEach(function (el) {
+    var to = +el.getAttribute('data-to'), done = false, n = el.querySelector('.n');
+    function run() {
+      if (done) return; done = true; if (reducedMotion()) { n.textContent = to; return; }
+      var t0 = performance.now(); (function step(now) { var k = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - k, 3); n.textContent = Math.round(to * e); if (k < 1) requestAnimationFrame(step); })(t0);
+    }
+    if ('IntersectionObserver' in window) { var o = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { run(); o.disconnect(); } }, { threshold: .6 }); o.observe(el); } else run();
+  });
+
   /* ---------- competence ring: full on Home (areas and what each covers), compact in the CV (areas with shares) ---------- */
   var ringCount = 0;
   function ringWidget(box, mini) {
@@ -443,13 +453,20 @@
     blur.setAttribute('stdDeviation', '5'); blur.setAttribute('result', 'glow'); flt.appendChild(blur);
     ['glow', 'SourceGraphic'].forEach(function (src) { var n = document.createElementNS(NS, 'feMergeNode'); n.setAttribute('in', src); merge.appendChild(n); });
     flt.appendChild(merge); defs.appendChild(flt); svg.appendChild(defs);
-    var mid = h('div', 'ring-mid', [h('b'), h('span')]), tabs = h('div', 'comp-tabs'), items = h('ul', 'lines comp-items'), segs = [], btns = [];
+    var mid = h('div', 'ring-mid', [h('b'), h('span')]), tabs = h('div', 'comp-tabs'), items = h('div', 'comp-tags'), segs = [], btns = [], SHOW = 6;
     function shape(k, on) { var a = arcs[k], wd = on ? W_ON : W_OFF, len = Math.max(.1, a.len - GAP - wd); segs[k].style.strokeDasharray = len + ' ' + (CIRC - len); segs[k].style.strokeDashoffset = -(a.start + (GAP + wd) / 2); }
     function pick(i, quiet) {
       segs.forEach(function (s, k) { s.classList.toggle('on', k === i); shape(k, k === i); if (k === i) s.setAttribute('filter', 'url(#' + fid + ')'); else s.removeAttribute('filter'); }); btns.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
       mid.firstChild.textContent = Math.round(C[i].weight / total * 100) + '%'; mid.lastChild.textContent = mini ? '' : C[i].name; mid.firstChild.style.color = C[i].color;
       if (mini) return;
-      items.textContent = ''; items.style.setProperty('--c', C[i].color); C[i].items.forEach(function (t) { items.appendChild(h('li', null, t)); });
+      items.textContent = ''; items.style.setProperty('--c', C[i].color);
+      var tags = C[i].items.map(function (it, k) { /* a keyword that was used in a project links to it */
+        var t = it[1] && P[it[1]] ? h('a', 'tag', [it[0], arrow(1)]) : h('span', 'tag', it[0]);
+        if (it[1] && P[it[1]]) { t.href = '#work/' + it[1]; t.title = P[it[1]].title; }
+        if (k >= SHOW) t.hidden = true; items.appendChild(t); return t;
+      });
+      if (tags.length > SHOW) { var more = h('button', 'tag more', '+' + (tags.length - SHOW) + ' more'); more.type = 'button';
+        more.addEventListener('click', function () { tags.forEach(function (t) { t.hidden = false; }); more.remove(); }); items.appendChild(more); }
       if (!quiet) { items.classList.remove('swap'); void items.offsetWidth; items.classList.add('swap'); }
     }
     C.forEach(function (c, i) {
