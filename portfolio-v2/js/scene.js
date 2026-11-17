@@ -43,7 +43,7 @@
   /* ---------- state ---------- */
   var W = 0, H = 0, dpr = 1, narrow = false, D = 900;
   var view = 'home', cat = 'all', sel = byId.cme, hover = null, onSelect = null, onHover = null, homeHover = null, homePin = null;
-  var t = 0, last = 0, t0 = -1, scrollY = 0, homeLeft = 0, homeTop = 0, homeBottom = 0, sheetTop = 0;
+  var t = 0, last = 0, t0 = -1, scrollY = 0, scrollSrc = null, homeLeft = 0, homeTop = 0, homeBottom = 0, sheetTop = 0;
   var cam = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, tgt = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, projNames = true;
   var userYaw = 0, userPitch = 0, userZoom = 1, first = true, mx = .5, my = .5, pmx = .5, pmy = .5;
   /* drifting light: [colour, x, y, radius, alpha] per view, as fractions of the screen */
@@ -133,6 +133,7 @@
     var pitch = clamp(.1 + userPitch + (1 - me) * .4 + (explore ? 0 : (pmy - .5) * .12), -.5, 1.1);
     cyw = Math.cos(yaw); syw = Math.sin(yaw); cpt = Math.cos(pitch); spt = Math.sin(pitch);
     /* On Home the network belongs to the hero: it scrolls away with it and fades out. */
+    if (scrollSrc) scrollY = view === 'home' ? scrollSrc() : 0;
     var home = view === 'home', fade = home ? 1 - clamp(scrollY / (H * .5), 0, 1) : 1, lift = home ? scrollY * (narrow ? 1 : .9) : 0;
     var B = cam.bright * fade, i, p, n;
 
@@ -267,7 +268,7 @@
       if (h === homePin && h.type === 'p') return { id: h.id, open: true };
       homePin = h; return { id: h.id, open: false };
     },
-    setScroll: function (px) { scrollY = Math.max(0, px); },
+    setScrollSource: function (fn) { scrollSrc = fn; }, /* Home's scroll position, negative during the rubber band at the top */
     setHomeBox: function (left, top, bottom) { homeLeft = left; homeTop = top; homeBottom = bottom; if (view === 'home') aim(); },
     setSheetTop: function (px) { sheetTop = px; if (view === 'explore') aim(); },
     setFilter: function (c) { cat = c; },

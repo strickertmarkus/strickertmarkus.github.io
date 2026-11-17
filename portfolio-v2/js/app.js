@@ -135,15 +135,27 @@
       if (tk) { c.globalAlpha = tk; c.strokeStyle = '#86EFAC'; c.lineWidth = 1.6; c.beginPath(); c.arc(cx, cy, 9, 0, 6.283 * tk); c.stroke();
         if (tk >= 1) { c.beginPath(); c.moveTo(cx - 4, cy); c.lineTo(cx - 1, cy + 3.4); c.lineTo(cx + 4.6, cy - 3.4); c.stroke(); } }
     },
-    pulse: function (c, w, h, t, col) { /* a heart-rate line running across, and a rest ring filling up */
-      var y0 = h * .55, cx = w * .78, cy = h * .45, r = Math.min(w, h) * .2, ph = (t * .12) % 1;
-      c.lineWidth = 1.6; c.strokeStyle = col; c.globalAlpha = .9; c.beginPath();
-      for (var x = w * .06; x < w * .6; x += 2) {
-        var u = ((x / w) * 3 - t * .6) % 1; u = u < 0 ? u + 1 : u;
-        var beat = u > .42 && u < .5 ? Math.sin((u - .42) / .08 * Math.PI * 2) * (u < .46 ? -1 : .45) : 0;
-        var y = y0 + beat * h * .28 + Math.sin(x * .05 + t) * 1.5; if (x === w * .06) c.moveTo(x, y); else c.lineTo(x, y);
+    pulse: function (c, w, h, t, col) { /* an ECG trace swept across like a heart monitor, and a rest ring filling up */
+      var y0 = h * .58, cx = w * .78, cy = h * .45, r = Math.min(w, h) * .2, ph = (t * .12) % 1;
+      var x0 = w * .05, x1 = w * .6, span = x1 - x0, beatW = span / 2.6, amp = h * .34, sweep = (t * span * .32) % span;
+      function ecg(u) { /* one heartbeat: P wave, the sharp QRS spike, T wave */
+        return u > .08 && u < .2 ? Math.sin((u - .08) / .12 * Math.PI) * .12
+          : u > .26 && u < .29 ? -(u - .26) / .03 * .18
+          : u > .29 && u < .33 ? -.18 + (u - .29) / .04 * 1.18
+          : u > .33 && u < .37 ? 1 - (u - .33) / .04 * 1.32
+          : u > .37 && u < .4 ? -.32 + (u - .37) / .03 * .32
+          : u > .5 && u < .7 ? Math.sin((u - .5) / .2 * Math.PI) * .22 : 0;
       }
-      c.stroke();
+      c.lineWidth = 1.6; c.strokeStyle = col; c.lineJoin = 'round';
+      for (var k = 0; k < 6; k++) { /* six bands from oldest to newest, so the trace fades out ahead of the sweep */
+        c.globalAlpha = .08 + k * .17; c.beginPath(); var started = false;
+        for (var d = span * k / 6; d <= span * (k + 1) / 6 + 1; d += 1.5) {
+          if (d > span - 10) break; var x = x0 + ((sweep + 10 + d) % span), y = y0 - ecg(((x - x0) / beatW) % 1) * amp;
+          if (!started || x < x0 + 2) { c.moveTo(x, y); started = true; } else c.lineTo(x, y);
+        }
+        c.stroke();
+      }
+      var hy = y0 - ecg(((sweep) / beatW) % 1) * amp; dot(c, x0 + sweep, hy, 2.6, col, 1); c.lineJoin = 'miter';
       c.globalAlpha = .14; c.strokeStyle = '#DCE3EC'; c.lineWidth = 5; c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
       c.globalAlpha = .95; c.strokeStyle = '#FDBA74'; c.shadowColor = '#FDBA74'; c.shadowBlur = 14; c.lineCap = 'round';
       c.beginPath(); c.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + ph * Math.PI * 2); c.stroke(); c.shadowBlur = 0; c.lineCap = 'butt';
@@ -167,8 +179,27 @@
   function motif(kind, hex, viewId, once) { var c = h('canvas', 'motif'); c.setAttribute('aria-hidden', 'true'); var m = { el: c, kind: kind, hex: hex, view: viewId, drawn: false, once: !!once }; motifs.push(m); c._m = m; return c; }
   function replay(m) { m.start = performance.now(); m.settled = false; }
   function motifWrap(p, viewId) { return h('span', 'motif-wrap', motif(p.motif, COLOR[p.cat], viewId)); }
-  var mt = 0, mlast = 0;
+  var mt = 0, mlast = 0, flows = [];
+  /* Flow diagrams: one cycle is 5.2 s; the pulse travels for 70 % of it, then the last step ripples and all steps stay lit until the end. */
+  function flowTick(now) {
+    var vh = window.innerHeight;
+    for (var i = flows.length - 1; i >= 0; i--) {
+      var f = flows[i]; if (!f.el.isConnected) { flows.splice(i, 1); continue; }
+      var r = f.el.getBoundingClientRect(); if (!r.width || r.bottom < 0 || r.top > vh) continue;
+      var pts2 = f.lis.map(function (li) { var q = li.firstChild.getBoundingClientRect(); return [q.left - r.left + q.width / 2, q.top - r.top + q.height / 2]; });
+      var a = pts2[0], z = pts2[pts2.length - 1], down = Math.abs(z[1] - a[1]) > Math.abs(z[0] - a[0]), last = f.lis[f.lis.length - 1];
+      if (reducedMotion()) { f.lis.forEach(function (li) { li.classList.add('lit'); }); f.dot.style.opacity = 0; continue; }
+      var p = ((now - f.t0) % 5200) / 5200, u = Math.min(1, p / .7), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+      var x = a[0] + (z[0] - a[0]) * e, y = a[1] + (z[1] - a[1]) * e, along = down ? y : x;
+      f.dot.style.transform = 'translate(' + (x - 4) + 'px,' + (y - 4) + 'px)';
+      f.dot.style.opacity = p < .03 ? p / .03 : u >= 1 ? 0 : 1;
+      f.lis.forEach(function (li, k) { li.classList.toggle('lit', p < .95 && along >= (down ? pts2[k][1] : pts2[k][0]) - 1); });
+      if (u >= 1 && !f.rippled) { last.classList.remove('ripple'); void last.offsetWidth; last.classList.add('ripple'); f.rippled = true; }
+      if (u < 1) f.rippled = false;
+    }
+  }
   function drawMotifs(now) {
+    flowTick(now);
     var dt = Math.min(.05, (now - mlast) / 1000 || 0); mlast = now; if (!reducedMotion()) mt += dt;
     var vh = window.innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
     for (var i = motifs.length - 1; i >= 0; i--) {
@@ -235,10 +266,11 @@
     else if (b.type === 'bars') { var bars = h('div', 'bars'); b.rows.forEach(function (r) { var bar = h('i'); bar.style.setProperty('--c', COLOR[r[2]]); bar.style.setProperty('--w', r[1] / b.max); bars.appendChild(h('div', 'bar-row', [h('span', null, r[0]), h('b', null, r[1] + ' ' + b.unit), bar])); }); el.appendChild(bars); if (b.note) el.appendChild(h('p', 'note', b.note)); }
     else if (b.type === 'dots') { var grid = h('div', 'dot-grid'), key = h('div', 'dot-key'), k = 0; b.groups.forEach(function (g) { for (var i = 0; i < g[0]; i++) { var d = h('i'); d.style.setProperty('--c', COLOR[g[2]]); d.style.setProperty('--k', k++); grid.appendChild(d); } var kk = h('span', null, [h('i'), g[0] + ' ' + g[1]]); kk.firstChild.style.setProperty('--c', COLOR[g[2]]); key.appendChild(kk); }); el.appendChild(h('div', 'dots', [grid, key])); }
     else if (b.type === 'quote') { el.className = 'block wide quote rv'; el.appendChild(h('p', null, b.body)); }
-    else if (b.type === 'flow') { /* a chain of steps with a pulse running along it */
-      el.className = 'block wide rv'; var fl = h('ol', 'flow'); fl.style.setProperty('--c', c);
+    else if (b.type === 'flow') { /* a chain of steps; a pulse runs along it, filling each step it passes, and ripples at the end */
+      el.className = 'block wide rv'; var fl = h('ol', 'flow'), fdot = h('i', 'flow-dot'); fl.style.setProperty('--c', c);
       b.steps.forEach(function (st, i) { var li = h('li', null, [h('i'), h('b', null, st[0]), h('span', null, st[1])]); li.style.setProperty('--k', i); fl.appendChild(li); });
-      fl.style.setProperty('--n', b.steps.length); el.appendChild(fl);
+      fl.style.setProperty('--n', b.steps.length); fl.appendChild(fdot); el.appendChild(fl);
+      flows.push({ el: fl, dot: fdot, lis: [].slice.call(fl.querySelectorAll('li')), t0: performance.now(), rippled: false });
     }
     else if (b.type === 'more') { /* detail that most readers can skip, folded */
       el.className = 'block wide more-block rv'; el.removeChild(el.firstChild);
@@ -310,7 +342,10 @@
     var box = $('project'); box.textContent = ''; box.className = 'proj';
     var eb = h('p', 'eyebrow', [CATNAME[p.cat], p.kind, p.where, p.period].filter(function (x, i, all) { return x && all.indexOf(x) === i; }).join(' · ')); /* no repeated words when kind equals the category */ eb.style.color = COLOR[p.cat];
     box.appendChild(linkTo('#work', 'All work', 'link quiet back', -1)); box.appendChild(eb); box.appendChild(h('h1', null, p.title)); box.appendChild(h('p', 'lead', p.lead));
-    if (!p.gallery) box.appendChild(h('div', 'proj-hero', motif(p.motif, COLOR[p.cat], 'project'))); /* real screens make the drawn picture unnecessary */
+    if (p.video) { /* the project's own film stands where the drawn picture would be */
+      var v = h('video'); v.src = p.video.src; v.poster = p.video.poster; v.controls = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'metadata'; v.setAttribute('aria-label', p.video.label);
+      box.appendChild(h('div', 'vid proj-vid', v));
+    } else if (!p.gallery) box.appendChild(h('div', 'proj-hero', motif(p.motif, COLOR[p.cat], 'project'))); /* real screens make the drawn picture unnecessary */
     if (p.stats.length) { var st = h('div', 'stats rv'); p.stats.forEach(function (s) { st.appendChild(h('div', null, [h('b', null, s[0]), h('span', null, s[1])])); }); box.appendChild(st); }
     var blocks = h('div', 'blocks');
     if (p.demo) blocks.appendChild(demoBlock(p.demo, '#work/' + p.id));
@@ -554,7 +589,7 @@
     }
     current = { view: r.view, id: r.id || null };
     mark(r.view === 'project' ? 'work' : r.view === 'explore' ? 'home' : r.view, !instant); /* Explore is reached from Home, not the menu */
-    Scene.setView(r.view); Scene.setScroll(r.view === 'home' ? newEl.scrollTop : 0);
+    Scene.setView(r.view);
     if (instant || same || !oldEl) { enter(); return; }
     if (oldEl === newEl) { oldEl.classList.add(dir > 0 ? 'out-l' : 'out-r'); oldEl.classList.remove('on'); setTimeout(enter, 100); return; }
     oldEl.classList.remove('on'); oldEl.classList.add(dir > 0 ? 'out-l' : 'out-r'); setTimeout(enter, 100);
@@ -577,19 +612,25 @@
     pathEl.style.setProperty('--p', p.toFixed(3));
     pathSteps.forEach(function (li) { var at = across ? li.offsetLeft / pathEl.offsetWidth : li.offsetTop / pathEl.offsetHeight; li.classList.toggle('lit', p > 0 && p >= at); });
   }
-  viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') { Scene.setScroll(this.scrollTop); whatLines(); } }, { passive: true });
+  viewEl('home').addEventListener('scroll', function () { if (current.view === 'home') whatLines(); }, { passive: true });
+  Scene.setScrollSource(function () { return viewEl('home').scrollTop; }); /* read in the network's own frame, so it moves with the page in the same frame */
   window.addEventListener('resize', whatLines);
   var heroText = document.querySelector('.hero h1'), heroEl = document.querySelector('.hero'), tickerEl = document.querySelector('.ticker'), homeEl = viewEl('home');
   /* Where the network may sit on Home: right of the headline on wide screens, between the text and the ticker on phones. */
   function heroEdge() {
     var st = homeEl.scrollTop, bottom = 0; /* the lowest visible part of the hero: the links on wide screens, the caption on phones */
     [].forEach.call(heroEl.children, function (c) { if (c.offsetParent) bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
+    if (window.innerWidth <= 760 && window.innerWidth !== heroW) { /* phones: the whole ticker in view above the bottom bar, the network taking what is left */
+      heroW = window.innerWidth; heroEl.style.paddingBottom = '';
+      var gap = document.querySelector('.tabs').getBoundingClientRect().top - (tickerEl.getBoundingClientRect().bottom + st);
+      heroEl.style.paddingBottom = Math.max(150, parseFloat(getComputedStyle(heroEl).paddingBottom) + gap) + 'px';
+    } else if (window.innerWidth > 760 && heroW) { heroW = 0; heroEl.style.paddingBottom = ''; }
     var hintTop = tickerEl.getBoundingClientRect().top + st - netHint.offsetHeight - 14; /* the hint sits just above the ticker, the network above the hint */
     netHint.style.top = hintTop + 'px';
     Scene.setHomeBox(heroText.getBoundingClientRect().right + 28, bottom + st, hintTop - 4);
   }
   /* Home's network answers the pointer where nothing else on the page is under it: the empty part of the view or the hero. */
-  var netHint = $('net-hint');
+  var netHint = $('net-hint'), heroW = 0;
   if (window.matchMedia('(hover: none)').matches) netHint.firstChild.textContent = 'Tap a point to follow its paths';
   function onNet(e) { return e.target === homeEl || e.target === heroEl; }
   homeEl.addEventListener('pointermove', function (e) { var hit = Scene.hoverAt(onNet(e) ? e.clientX : null, e.clientY); homeEl.style.cursor = hit ? 'pointer' : ''; }, { passive: true });
@@ -606,6 +647,6 @@
   renderPanel(Scene.selected());
   heroEdge(); show(parse() || { view: 'home' }, true); Scene.snap();
   requestAnimationFrame(function () { place(centre(currentTab), 4); requestAnimationFrame(function () { document.body.classList.remove('boot'); }); });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!running) place(centre(currentTab), 4); heroEdge(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!running) place(centre(currentTab), 4); heroW = 0; heroEdge(); }); /* the text may have changed height */
   requestAnimationFrame(drawMotifs);
 })();
