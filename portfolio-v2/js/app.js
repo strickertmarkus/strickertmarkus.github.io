@@ -396,15 +396,22 @@
   document.addEventListener('keydown', function (e) { if (current.view !== 'explore' || /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'ArrowRight') { stepProject(1); e.preventDefault(); } else if (e.key === 'ArrowLeft') { stepProject(-1); e.preventDefault(); } });
 
   /* ---------- competence ring: full on Home (areas and what each covers), compact in the CV (areas with shares) ---------- */
+  var ringCount = 0;
   function ringWidget(box, mini) {
     var C = S.COMPETENCE, NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg'), R = 80, CIRC = 2 * Math.PI * R, GAP = 5, total = 0, start = 0, arcs = [];
     var W_OFF = 14, W_ON = 22; /* stroke widths; rounded ends reach half a width past the dash, so each dash is shortened by that */
     C.forEach(function (c) { total += c.weight; });
     svg.setAttribute('viewBox', '0 0 200 200'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Competence areas by share');
+    /* The selected segment's glow: a blurred copy of itself under it, as an SVG filter (works in Safari, unlike CSS drop-shadow on SVG). */
+    var fid = 'ring-glow-' + (ringCount++), defs = document.createElementNS(NS, 'defs'), flt = document.createElementNS(NS, 'filter'), blur = document.createElementNS(NS, 'feGaussianBlur'), merge = document.createElementNS(NS, 'feMerge');
+    flt.setAttribute('id', fid); flt.setAttribute('x', '-50%'); flt.setAttribute('y', '-50%'); flt.setAttribute('width', '200%'); flt.setAttribute('height', '200%');
+    blur.setAttribute('stdDeviation', '5'); blur.setAttribute('result', 'glow'); flt.appendChild(blur);
+    ['glow', 'SourceGraphic'].forEach(function (src) { var n = document.createElementNS(NS, 'feMergeNode'); n.setAttribute('in', src); merge.appendChild(n); });
+    flt.appendChild(merge); defs.appendChild(flt); svg.appendChild(defs);
     var mid = h('div', 'ring-mid', [h('b'), h('span')]), tabs = h('div', 'comp-tabs'), items = h('ul', 'lines comp-items'), segs = [], btns = [];
     function shape(k, on) { var a = arcs[k], wd = on ? W_ON : W_OFF, len = Math.max(.1, a.len - GAP - wd); segs[k].style.strokeDasharray = len + ' ' + (CIRC - len); segs[k].style.strokeDashoffset = -(a.start + (GAP + wd) / 2); }
     function pick(i, quiet) {
-      segs.forEach(function (s, k) { s.classList.toggle('on', k === i); shape(k, k === i); }); btns.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+      segs.forEach(function (s, k) { s.classList.toggle('on', k === i); shape(k, k === i); if (k === i) s.setAttribute('filter', 'url(#' + fid + ')'); else s.removeAttribute('filter'); }); btns.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
       mid.firstChild.textContent = Math.round(C[i].weight / total * 100) + '%'; mid.lastChild.textContent = mini ? '' : C[i].name; mid.firstChild.style.color = C[i].color;
       if (mini) return;
       items.textContent = ''; items.style.setProperty('--c', C[i].color); C[i].items.forEach(function (t) { items.appendChild(h('li', null, t)); });
