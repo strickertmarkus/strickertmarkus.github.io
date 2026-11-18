@@ -611,3 +611,12 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .courses h3{font-size:15px;font-weight:600}
 .courses p{font-size:14.5px;line-height:1.6;color:var(--muted)}
 .courses p b{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:2px}
+
+/* Research figures and simulation clips: a masonry of their own shapes */
+.figs{columns:3 240px;column-gap:20px}
+.fig{display:flex;flex-direction:column;gap:9px;width:100%;margin:0 0 22px;break-inside:avoid;text-align:left;cursor:zoom-in}
+.fig img,.fig video{display:block;width:100%;height:auto;border-radius:14px;border:1px solid rgba(255,255,255,.09);background:#0E1219;box-shadow:0 22px 50px -30px rgba(0,0,0,.9);transition:transform .5s var(--ease),border-color .3s ease}
+.fig span{font-size:13px;line-height:1.45;color:var(--muted);transition:color .3s ease}
+@media (hover:hover){.fig:hover img,.fig:hover video{transform:translateY(-4px);border-color:rgba(253,186,116,.35)}.fig:hover span{color:var(--ink)}}
+.lb.free img,.lb.free video{height:auto;width:auto;max-height:82vh;max-width:min(92vw,1300px);border-radius:16px;background:#0E1219}
+@media (max-width:760px){.figs{columns:2 140px;column-gap:12px}.fig{margin-bottom:16px}.lb.free img,.lb.free video{width:92vw;max-height:76vh;object-fit:contain}}

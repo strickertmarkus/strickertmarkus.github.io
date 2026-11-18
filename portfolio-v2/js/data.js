@@ -103,6 +103,17 @@
           'In closed field regions an eruption needs a free magnetic energy of at least 3×10³⁵ erg.',
           'Erupting CMEs moved at 220 to 3,700 km/s after one hour, up to five times the background wind speed.'
         ] },
+        { type: 'figures', title: 'From the simulations', items: [
+          ['cme-field', 'Magnetic field lines and stellar wind around AB Doradus', 'video'],
+          ['cme-erupt', 'A flux rope erupting through the corona', 'video'],
+          ['cme-fluxrope', 'The flux rope placed in the star\'s surface field'],
+          ['cme-magnetogram', 'Surface magnetic map with the eruption sites'],
+          ['cme-emission', 'Synthetic 170–180 nm emission from an eruption'],
+          ['cme-grid', 'Fifteen eruptions, by flux rope mass and field strength'],
+          ['cme-speed', 'CME speed against the flux rope\'s free energy'],
+          ['cme-radio', 'Speed, density and plasma frequency against a radio telescope\'s range', 'video'],
+          ['cme-euv', 'Synthetic extreme-ultraviolet views of the star', 'video']
+        ] },
         { type: 'list', title: 'Presented at', items: ['BCool Exospace Weather Workshop, Max Planck Institute, Göttingen, 2023: talk on how strong overlying magnetic fields suppress CMEs on AB Dor.', 'KISS workshop and think tank, Caltech, 2023: selected as one of a few early-career candidates to shape future space missions for extrasolar space weather.'] }
       ],
       cite: 'K. M. Strickert, D. Evensberget, A. A. Vidotto (2024). High-latitude coronal mass ejections on the young solar-like star AB Dor. Monthly Notices of the Royal Astronomical Society 533, 1156–1165.',
@@ -128,6 +139,12 @@
           'Mass segregation is strongly enhanced in clusters with short relaxation times that host an intermediate-mass black hole.',
           'Blue straggler formation follows the cluster\'s relaxation time and central surface brightness.',
           'Clusters with an IMBH keep core binary fractions of about 12%, falling off as (r/r_hl)^−0.132; clusters with a black hole subsystem show a shallower decline.'
+        ] },
+        { type: 'figures', title: 'From the thesis', items: [
+          ['bh-surface', 'Central surface brightness against mass segregation, models and observed clusters'],
+          ['bh-number', 'Predicted number of stellar-mass black holes in Milky Way clusters'],
+          ['bh-imbh', 'Estimated intermediate-mass black hole masses per cluster'],
+          ['bh-cmd', 'Colour–magnitude diagram split into luminosity populations']
         ] },
         { type: 'list', title: 'Presented at and workshops', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Direct N-body Simulations Workshop, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'TRENDY3, Evanston, 2021: conference on triple and multiple star evolution and dynamics.', 'Presentations to research groups in Germany, Poland and China.'] },
         { type: 'quote', title: 'From my supervisor', body: '“Markus was an exceptional master\'s student and I would rank him as the best student that I have supervised so far.”', by: 'Master\'s thesis supervisor, Lund Observatory, in a reference letter (2023)' }

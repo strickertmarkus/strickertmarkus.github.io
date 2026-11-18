@@ -278,6 +278,16 @@
     else if (b.type === 'table') { var tb = h('div', 'tbl'); b.rows.forEach(function (r) { tb.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); }); el.appendChild(tb); }
     else if (b.type === 'bars') { var bars = h('div', 'bars'); b.rows.forEach(function (r) { var bar = h('i'); bar.style.setProperty('--c', COLOR[r[2]]); bar.style.setProperty('--w', r[1] / b.max); bars.appendChild(h('div', 'bar-row', [h('span', null, r[0]), h('b', null, r[1] + ' ' + b.unit), bar])); }); el.appendChild(bars); if (b.note) el.appendChild(h('p', 'note', b.note)); }
     else if (b.type === 'dots') { var grid = h('div', 'dot-grid'), key = h('div', 'dot-key'), k = 0; b.groups.forEach(function (g) { for (var i = 0; i < g[0]; i++) { var d = h('i'); d.style.setProperty('--c', COLOR[g[2]]); d.style.setProperty('--k', k++); grid.appendChild(d); } var kk = h('span', null, [h('i'), g[0] + ' ' + g[1]]); kk.firstChild.style.setProperty('--c', COLOR[g[2]]); key.appendChild(kk); }); el.appendChild(h('div', 'dots', [grid, key])); }
+    else if (b.type === 'figures') { /* the project's own figures and simulation clips; a tap opens them large */
+      el.className = 'block wide rv'; var figs = h('div', 'figs'), list = b.items.map(function (it) { return [it[0], it[1], it[2], 'img/research/']; });
+      b.items.forEach(function (it, k) {
+        var m;
+        if (it[2] === 'video') { m = h('video'); m.src = 'img/research/' + it[0] + '.mp4'; m.poster = 'img/research/' + it[0] + '.jpg'; m.muted = true; m.loop = true; m.autoplay = true; m.playsInline = true; m.setAttribute('playsinline', ''); m.preload = 'metadata'; m.setAttribute('aria-label', it[1]); }
+        else { m = h('img'); m.src = 'img/research/' + it[0] + '.jpg'; m.alt = it[1]; m.loading = 'lazy'; m.decoding = 'async'; }
+        var fig = h('button', 'fig', [m, h('span', null, it[1])]); fig.type = 'button'; fig.addEventListener('click', function () { lightbox(list, k); }); figs.appendChild(fig);
+      });
+      el.appendChild(figs);
+    }
     else if (b.type === 'quote') { el.className = 'block wide quote rv'; el.appendChild(h('p', null, b.body)); if (b.by) el.appendChild(h('p', 'quote-by', b.by)); }
     else if (b.type === 'flow') { /* a chain of steps; a pulse runs along it, filling each step it passes, and ripples at the end */
       el.className = 'block wide rv'; var fl = h('ol', 'flow'), ftrack = h('i', 'flow-track'), ffill = h('i', 'flow-fill'); fl.style.setProperty('--c', c);
@@ -339,9 +349,9 @@
       vid.muted = true; vid.loop = true; vid.playsInline = true; vid.setAttribute('playsinline', '');
       lb.appendChild(h('figure', null, [img, vid, cap])); lb.appendChild(prev); lb.appendChild(next); lb.appendChild(close); document.body.appendChild(lb);
       lb.show = function (i) {
-        lb.i = (i + lb.list.length) % lb.list.length; var sh = lb.list[lb.i], mov = sh[2] === 'video';
-        img.hidden = mov; vid.hidden = !mov; cap.textContent = sh[1];
-        if (mov) { vid.poster = 'img/family/' + sh[0] + '.jpg'; vid.src = 'img/family/' + sh[0] + '.mp4'; vid.play().catch(function () {}); } else { vid.pause(); vid.removeAttribute('src'); img.src = 'img/family/' + sh[0] + '.jpg'; img.alt = sh[1]; }
+        lb.i = (i + lb.list.length) % lb.list.length; var sh = lb.list[lb.i], mov = sh[2] === 'video', dir = sh[3] || 'img/family/'; /* sh[3]: a folder other than the app screens, shown at its own shape */
+        img.hidden = mov; vid.hidden = !mov; cap.textContent = sh[1]; lb.classList.toggle('free', !!sh[3]);
+        if (mov) { vid.poster = dir + sh[0] + '.jpg'; vid.src = dir + sh[0] + '.mp4'; vid.play().catch(function () {}); } else { vid.pause(); vid.removeAttribute('src'); img.src = dir + sh[0] + '.jpg'; img.alt = sh[1]; }
       };
       prev.addEventListener('click', function (e) { e.stopPropagation(); lb.show(lb.i - 1); });
       next.addEventListener('click', function (e) { e.stopPropagation(); lb.show(lb.i + 1); });
