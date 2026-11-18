@@ -612,11 +612,32 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .courses p{font-size:14.5px;line-height:1.6;color:var(--muted)}
 .courses p b{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:2px}
 
-/* Research figures and simulation clips: a masonry of their own shapes */
-.figs{columns:3 240px;column-gap:20px}
-.fig{display:flex;flex-direction:column;gap:9px;width:100%;margin:0 0 22px;break-inside:avoid;text-align:left;cursor:zoom-in}
-.fig img,.fig video{display:block;width:100%;height:auto;border-radius:14px;border:1px solid rgba(255,255,255,.09);background:#0E1219;box-shadow:0 22px 50px -30px rgba(0,0,0,.9);transition:transform .5s var(--ease),border-color .3s ease}
-.fig span{font-size:13px;line-height:1.45;color:var(--muted);transition:color .3s ease}
-@media (hover:hover){.fig:hover img,.fig:hover video{transform:translateY(-4px);border-color:rgba(253,186,116,.35)}.fig:hover span{color:var(--ink)}}
+/* Research figures told as a story: one large clip, then figure and text side by side, alternating.
+   No frames: plots are dark with transparent backgrounds, renders float or fade out at their edges. */
+.story{display:flex;flex-direction:column;gap:clamp(56px,8vw,112px);margin-top:10px}
+.story-media{display:block;width:100%;padding:0;background:none;border:0;cursor:zoom-in;text-align:left}
+.story-media img,.story-media video{display:block;width:100%;height:auto;margin:0 auto;transition:transform 1.4s var(--ease),filter .5s ease}
+.story-media.fade img,.story-media.fade video{-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent),linear-gradient(180deg,transparent,#000 10%,#000 90%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent),linear-gradient(180deg,transparent,#000 10%,#000 90%,transparent);mask-composite:intersect}
+@media (hover:hover){.story-media:hover img,.story-media:hover video{filter:brightness(1.12)}}
+.story-hero{display:flex;flex-direction:column;align-items:center;gap:6px}
+.story-hero .story-media img,.story-hero .story-media video{width:auto;max-width:100%;max-height:min(68vh,600px)}
+.story-cap{font-size:13px;line-height:1.45;color:var(--muted);text-align:center;max-width:34em}
+.story-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(28px,6vw,80px);align-items:center}
+.story-row.flip .story-media{order:2}
+.story-row .story-media img,.story-row .story-media video{max-height:480px;width:auto;max-width:100%}
+.story-text h3{font-size:clamp(19px,2vw,23px);font-weight:600;letter-spacing:-.01em;color:var(--ink);margin-bottom:10px}
+.story-text h3 i{display:block;font-style:normal;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--amber);margin-bottom:8px;font-variant-numeric:tabular-nums}
+.story-text p{font-size:15.5px;line-height:1.65;color:var(--soft);max-width:30em}
+.story-all{align-self:center;display:inline-flex;align-items:center;gap:10px;padding:10px 0;background:none;border:0;font:inherit;font-size:14.5px;color:var(--soft);cursor:pointer;transition:color .3s ease}
+.story-all b{font-weight:500;color:var(--amber)}
+.story-all span{display:inline-block;transition:transform .4s var(--ease)}
+@media (hover:hover){.story-all:hover{color:var(--ink)}.story-all:hover span{transform:translateX(4px)}}
+/* calm reveal: a slow fade with a little rise, and the picture settling from a hair larger */
+.js .story .rv{transform:translateY(14px);transition:opacity 1.1s ease,transform 1.3s var(--ease)}
+.js .story .rv .story-media img,.js .story .rv .story-media video{transform:scale(1.035)}
+.js .story .rv.in{transform:none}
+.js .story .rv.in .story-media img,.js .story .rv.in .story-media video{transform:none}
+.lb [hidden]{display:none}
 .lb.free img,.lb.free video{height:auto;width:auto;max-height:82vh;max-width:min(92vw,1300px);border-radius:16px;background:#0E1219}
-@media (max-width:760px){.figs{columns:2 140px;column-gap:12px}.fig{margin-bottom:16px}.lb.free img,.lb.free video{width:92vw;max-height:76vh;object-fit:contain}}
+@media (max-width:760px){.story-row{grid-template-columns:minmax(0,1fr);gap:20px}.story-row.flip .story-media{order:0}.story-row .story-media img,.story-row .story-media video{max-height:380px}.lb.free img,.lb.free video{width:92vw;max-height:76vh;object-fit:contain}}
+@media (prefers-reduced-motion:reduce){.js .story .rv,.js .story .rv .story-media img,.js .story .rv .story-media video{transform:none;transition:opacity .4s ease}}
