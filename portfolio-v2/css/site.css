@@ -513,7 +513,11 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .flow li.lit i{background:var(--c);box-shadow:0 0 12px var(--c)}
 .flow li i::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:1px solid var(--c);opacity:0;pointer-events:none}
 .flow li.ripple i::after{animation:flow-ripple 1.4s cubic-bezier(.2,.6,.3,1) forwards}
-.flow b{transition:color .4s ease,text-shadow .4s ease}
+/* steps ahead are dimmed; a step the run has passed is bright, the running one brightest */
+.flow b{color:var(--dim);transition:color .4s ease,text-shadow .4s ease}
+.flow span{transition:color .4s ease}
+.flow li:not(.lit) span{color:#7A828C}
+.flow li.lit b{color:var(--ink)}
 .flow li.active b{color:#fff;text-shadow:0 0 18px var(--c)}
 /* the result: the last step turns green with a ripple, and a small label appears */
 .flow li.pass{--c:#86EFAC}
