@@ -104,18 +104,18 @@
           'Erupting CMEs moved at 220 to 3,700 km/s after one hour, up to five times the background wind speed.'
         ] },
         { type: 'story', title: 'From the simulations',
-          hero: ['cme-erupt', 'A flux rope erupting through the corona of AB Dor', 'webp', 'An eruption breaking out', 'A flux rope rises from the star\'s surface and pushes out through the corona, in one of the 21 runs.'],
           rows: [
             ['cme-field', 'Magnetic field lines and stellar wind around AB Dor', 'video', 'The star and its wind', 'Every run starts from a steady 3D model of the corona and stellar wind, built from a map of the star\'s surface magnetic field.'],
-            ['cme-magnetogram', 'Surface magnetic map with the eruption sites', 'webp', 'Where the eruptions start', 'Flux ropes were placed at high latitudes, both in closed field regions and in open regions near the pole, where the observed dimming points.'],
+            ['cme-magnetogram', 'Surface magnetic map with the eruption sites', 'webp', 'Where the eruptions start', 'Two sites at high latitudes, where the observed dimming points: one in a closed field region and one in an open region near the pole.'],
+            ['cme-fluxrope', 'The flux rope placed in the star\'s surface field', 'webp', 'Setting off an eruption', 'A twisted magnetic flux rope is placed in the surface field at each site. Its mass and field strength are varied from run to run.'],
+            ['cme-erupt', 'A flux rope erupting through the corona of AB Dor', 'webp', 'An eruption breaking out', 'The flux rope rises from the surface and pushes out through the corona. In other runs the overlying field holds it back.'],
             ['cme-speed', 'CME speed against the flux rope\'s free energy', 'webp', 'What decides the outcome', 'Speed after one hour against the free magnetic energy and field strength of each flux rope. In closed regions an eruption needs about four times the field to escape.'],
+            ['cme-radio', 'Speed, density and plasma frequency along the eruption', 'video', 'Could it be heard in radio?', 'Along the eruption\'s path, the dense front has a plasma frequency inside the LOFAR radio telescope\'s range, a possible way to detect such events.', 'plot'],
             ['cme-emission', 'Synthetic 170–180 nm emission from an eruption', '', 'What a telescope would see', 'Synthetic emission from the erupting plasma, so the models can be held up against the dimming seen in EUV and X-ray data.']
           ],
           more: [
-            ['cme-fluxrope', 'The flux rope placed in the star\'s surface field', 'webp'],
             ['cme-grid', 'Fifteen eruptions, by flux rope mass and field strength'],
-            ['cme-radio', 'Speed, density and plasma frequency against a radio telescope\'s range', 'video'],
-            ['cme-euv', 'Synthetic extreme-ultraviolet views of the star', 'video']
+            ['cme-euv', 'Synthetic extreme-ultraviolet and X-ray views of an eruption', 'video']
           ] },
         { type: 'list', title: 'Presented at', items: ['BCool Exospace Weather Workshop, Max Planck Institute, Göttingen, 2023: talk on how strong overlying magnetic fields suppress CMEs on AB Dor.', 'KISS workshop and think tank, Caltech, 2023: selected as one of a few early-career candidates to shape future space missions for extrasolar space weather.'] }
       ],
@@ -145,12 +145,10 @@
         ] },
         { type: 'story', title: 'From the thesis',
           rows: [
+            ['bh-cmd', 'Colour–magnitude diagram of a model cluster, split into luminosity populations', 'webp', 'Sorting the stars', 'The stars in each model cluster are split into luminosity populations. How differently those populations are spread out measures the cluster\'s mass segregation.'],
             ['bh-surface', 'Central surface brightness against mass segregation, models and observed clusters', 'webp', 'Reading black holes from the stars', 'Black holes change how bright a cluster\'s centre is and how its stars sort by mass. Placing observed clusters among the models shows what each one is likely to hide.'],
-            ['bh-number', 'Predicted number of stellar-mass black holes in Milky Way clusters', 'webp', 'A prediction for each cluster', 'The comparison gives an estimated number of stellar-mass black holes for each Milky Way cluster, such as 64 in NGC 3201.']
-          ],
-          more: [
-            ['bh-imbh', 'Estimated intermediate-mass black hole masses per cluster', 'webp'],
-            ['bh-cmd', 'Colour–magnitude diagram of a model cluster, split into luminosity populations', 'webp']
+            ['bh-number', 'Predicted number of stellar-mass black holes in Milky Way clusters', 'webp', 'A prediction for each cluster', 'The comparison gives an estimated number of stellar-mass black holes for each Milky Way cluster, such as 64 in NGC 3201.'],
+            ['bh-imbh', 'Estimated intermediate-mass black hole masses per cluster', 'webp', 'Room for a bigger one?', 'The same comparison puts a mass on a possible intermediate-mass black hole at the centre of each cluster.']
           ] },
         { type: 'list', title: 'Presented at and workshops', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Direct N-body Simulations Workshop, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'TRENDY3, Evanston, 2021: conference on triple and multiple star evolution and dynamics.', 'Presentations to research groups in Germany, Poland and China.'] },
         { type: 'quote', title: 'From my supervisor', body: '“Markus was an exceptional master\'s student and I would rank him as the best student that I have supervised so far.”', by: 'Master\'s thesis supervisor, Lund Observatory, in a reference letter (2023)' }

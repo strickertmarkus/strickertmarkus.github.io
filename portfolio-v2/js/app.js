@@ -284,7 +284,7 @@
         var m, R = 'img/research/' + it[0];
         if (it[2] === 'video') { m = h('video'); m.src = R + '.mp4'; m.poster = R + '.jpg'; m.muted = true; m.loop = true; m.autoplay = true; m.playsInline = true; m.setAttribute('playsinline', ''); m.preload = 'metadata'; m.setAttribute('aria-label', it[1]); }
         else { m = h('img'); m.src = R + (it[2] === 'webp' ? '.webp' : '.jpg'); m.alt = it[1]; m.decoding = 'async'; }
-        var btn = h('button', 'story-media' + (hero || it[2] === 'webp' ? '' : ' fade'), [m]); /* the hero is an animated WebP with its own transparency */ btn.type = 'button'; btn.setAttribute('aria-label', 'Open larger: ' + it[1]);
+        var btn = h('button', 'story-media' + (hero || it[2] === 'webp' || it[5] === 'plot' ? '' : ' fade'), [m]); /* a plot keeps its axis labels: no edge fade */ /* the hero is an animated WebP with its own transparency */ btn.type = 'button'; btn.setAttribute('aria-label', 'Open larger: ' + it[1]);
         btn.addEventListener('click', function () { lightbox(list, k); }); return btn;
       };
       /* one horizontal rail of slides, figure above text, that scrolls sideways and snaps; it keeps the block about one screen tall */
