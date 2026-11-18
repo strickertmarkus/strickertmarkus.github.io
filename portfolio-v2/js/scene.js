@@ -5,6 +5,10 @@
   'use strict';
   var S = window.SITE, COLOR = S.COLOR;
   var cv = document.getElementById('scene'), ctx = cv.getContext('2d');
+  /* The drifting light is soft by nature, so it lives on its own small canvas behind this one and the browser scales it up.
+     Three full-screen gradients per frame at full Retina resolution were the heaviest work in desktop Safari. */
+  var lc = document.createElement('canvas'), lx2 = lc.getContext('2d'), LQ = 6, lastDraw = -1e9;
+  lc.id = 'scene-light'; lc.setAttribute('aria-hidden', 'true'); cv.parentNode.insertBefore(lc, cv);
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function mix(a, b, k) { return a + (b - a) * k; }
   function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -105,6 +109,7 @@
     /* The canvas is as tall as the largest viewport (100lvh), so Safari's toolbar showing and hiding while you scroll does not move the network. */
     dpr = Math.min(window.devicePixelRatio || 1, 2); W = window.innerWidth; H = cv.clientHeight || window.innerHeight; narrow = W <= 760;
     var pw = Math.round(W * dpr), ph = Math.round(H * dpr); if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+    var lw = Math.ceil(W / LQ), lh = Math.ceil(H / LQ); if (lc.width !== lw || lc.height !== lh) { lc.width = lw; lc.height = lh; }
     layout(); aim();
   }
 
@@ -119,8 +124,13 @@
   function bez(A, B, mxp, u) { var v = 1 - u; return [v * v * v * A[0] + 3 * v * v * u * mxp + 3 * v * u * u * mxp + u * u * u * B[0], v * v * v * A[1] + 3 * v * v * u * A[1] + 3 * v * u * u * B[1] + u * u * u * B[1]]; }
 
   /* ---------- frame ---------- */
-  var hits = [];
+  var hits = [], calm = false;
+  function settled() { for (var key in cam) if (cam[key] !== tgt[key]) return false; return true; }
   function frame(now) {
+    /* With the network hidden only the stars twinkle and the light drifts, which looks the same at 30 frames a second.
+       Fewer canvas updates also spare the blurred bars above it, which Safari redraws for every one. */
+    if (calm && settled() && now - lastDraw < 31) { requestAnimationFrame(frame); return; }
+    lastDraw = now;
     var dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
     if (!reduced) t += dt;
     var k = reduced ? 1 : 1 - Math.exp(-dt * 4.2), kl = reduced ? 1 : 1 - Math.exp(-dt * 1.4);
@@ -136,21 +146,23 @@
     if (scrollSrc) scrollY = view === 'home' ? scrollSrc() : 0;
     var home = view === 'home', fade = home ? 1 - clamp(scrollY / (H * .5), 0, 1) : 1, lift = home ? scrollY * (narrow ? 1 : .9) : 0;
     var B = cam.bright * fade, i, p, n;
+    calm = B < .01;
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.clearRect(0, 0, W, H);
 
-    /* drifting light */
+    /* drifting light, on the small canvas */
     var L = LIGHT[view] || LIGHT.cv, base = Math.max(W, H);
-    ctx.globalCompositeOperation = 'lighter';
+    lx2.setTransform(lc.width / W, 0, 0, lc.height / H, 0, 0); lx2.globalCompositeOperation = 'source-over'; lx2.clearRect(0, 0, W, H); lx2.globalCompositeOperation = 'lighter';
     for (i = 0; i < lights.length; i++) {
       var l = lights[i], tc = rgb(L[i][0]);
       l.col[0] += (tc[0] - l.col[0]) * kl; l.col[1] += (tc[1] - l.col[1]) * kl; l.col[2] += (tc[2] - l.col[2]) * kl;
       l.x += (L[i][1] - l.x) * kl; l.y += (L[i][2] - l.y) * kl; l.r += (L[i][3] - l.r) * kl; l.a += (L[i][4] - l.a) * kl;
       var lx = (l.x + Math.sin(t * .11 + i * 2.1) * .05 + (pmx - .5) * .04) * W, ly = (l.y + Math.cos(t * .09 + i * 1.7) * .05 + (pmy - .5) * .04) * H, lr = l.r * base;
-      var g = ctx.createRadialGradient(lx, ly, 0, lx, ly, lr), kc = Math.round(l.col[0]) + ',' + Math.round(l.col[1]) + ',' + Math.round(l.col[2]);
+      var g = lx2.createRadialGradient(lx, ly, 0, lx, ly, lr), kc = Math.round(l.col[0]) + ',' + Math.round(l.col[1]) + ',' + Math.round(l.col[2]);
       g.addColorStop(0, 'rgba(' + kc + ',' + l.a + ')'); g.addColorStop(.45, 'rgba(' + kc + ',' + l.a * .35 + ')'); g.addColorStop(1, 'rgba(' + kc + ',0)');
-      ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      lx2.fillStyle = g; lx2.fillRect(0, 0, W, H);
     }
+    ctx.globalCompositeOperation = 'lighter';
 
     /* stars */
     ctx.fillStyle = '#FFFFFF'; liftY = 0;

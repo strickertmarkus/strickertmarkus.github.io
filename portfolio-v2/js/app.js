@@ -28,6 +28,8 @@
   function pts(key, n, seed, fn) { if (!cache[key]) { var r = rng(seed), a = []; for (var i = 0; i < n; i++) a.push(fn(r, i)); cache[key] = a; } return cache[key]; }
   function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
   function dot(c, x, y, r, col, a) { c.globalAlpha = a * .18; c.fillStyle = col; c.beginPath(); c.arc(x, y, r * 3.2, 0, 6.283); c.fill(); c.globalAlpha = a; c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill(); }
+  /* desktop and phone Safari, not Chrome or Firefox on iOS, which report Safari too */
+  var SAFARI = /^((?!chrome|chromium|crios|fxios|android|edg).)*safari/i.test(navigator.userAgent);
   var MOTIF = {
     loops: function (c, w, h, t, col) { /* magnetic loops on a stellar limb, one of them erupting */
       var R = h * 1.5, cx = w * .5, cy = h * 2.12, g = c.createRadialGradient(cx, cy, R * .86, cx, cy, R * 1.1);
@@ -211,8 +213,12 @@
       if (!pass) f.rippled = false;
     }
   }
+  var mDrawn = -1e9;
   function drawMotifs(now) {
     flowTick(now);
+    /* Safari paints these small canvases far slower than Chrome; at 30 frames a second the Work list stays smooth there */
+    if (SAFARI && now - mDrawn < 31) { requestAnimationFrame(drawMotifs); return; }
+    mDrawn = now;
     var dt = Math.min(.05, (now - mlast) / 1000 || 0); mlast = now; if (!reducedMotion()) mt += dt;
     var vh = window.innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
     for (var i = motifs.length - 1; i >= 0; i--) {
@@ -709,7 +715,12 @@
   /* The top bar turns denser once the view in front has scrolled under it. */
   document.addEventListener('scroll', function (e) { var v = e.target; if (v && v.id === 'v-' + current.view) document.body.classList.toggle('scrolled', v.scrollTop > 10); }, true);
   var fx = document.querySelector('.fx');
-  window.addEventListener('pointermove', function (e) { if (e.pointerType === 'mouse') { fx.style.setProperty('--mx', e.clientX + 'px'); fx.style.setProperty('--my', e.clientY + 'px'); } }, { passive: true });
+  var spot = fx.querySelector('.fx-spot'), spX = 0, spY = 0, spQ = false;
+  window.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse') return; spX = e.clientX; spY = e.clientY;
+    if (!spQ) { spQ = true; requestAnimationFrame(function () { spQ = false; spot.style.transform = 'translate3d(' + spX + 'px,' + spY + 'px,0)'; }); }
+  }, { passive: true });
+  if (SAFARI) document.documentElement.classList.add('safari');
 
   /* ---------- start ---------- */
   document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('on'); });
