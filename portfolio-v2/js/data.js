@@ -28,7 +28,7 @@
       facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive, NI MAX'], ['Scope', 'PCB production test, signal routing, measurement']],
       split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]],
       blocks: [
-        { type: 'flow', title: 'How a test runs', steps: [['Requirement', 'What the board must do'], ['Sequence', 'NI TestStand'], ['Instruments', 'LabVIEW drivers'], ['Switch matrix', 'NI Switch Executive'], ['Board under test', 'Measured pin by pin'], ['Report', 'Pass, fail and values']] },
+        { type: 'flow', title: 'How a test runs', steps: [['Requirement', 'What the board must do'], ['Sequence', 'NI TestStand'], ['Instruments', 'LabVIEW drivers'], ['Switch matrix', 'NI Switch Executive'], ['Board under test', 'Measured pin by pin'], ['Report', 'Pass, fail and values']], result: 'Pass' },
         { type: 'list', title: 'What the tests cover', items: [
           'MUX switch routing.',
           'Circuit specification analysis.',
@@ -56,7 +56,7 @@
       facts: [['Role', 'System test responsible'], ['Domain', 'Defence, security-classified products'], ['Standards', 'IEC 61010-1, CE marking, military standards']],
       split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]],
       blocks: [
-        { type: 'flow', title: 'From requirement to delivery', steps: [['Requirements', 'Traced and reviewed'], ['Design review', 'Testable from the start'], ['Test specification', 'Traced to each requirement'], ['Lab tests', 'Hardware, firmware, software'], ['Verification report', 'Formal documents'], ['Customer delivery', 'Demonstrated and signed off']] },
+        { type: 'flow', title: 'From requirement to delivery', steps: [['Requirements', 'Traced and reviewed'], ['Design review', 'Testable from the start'], ['Test specification', 'Traced to each requirement'], ['Lab tests', 'Hardware, firmware, software'], ['Verification report', 'Formal documents'], ['Customer delivery', 'Demonstrated and signed off']], result: 'Signed off' },
         { type: 'list', title: 'Test and automation', items: [
           'Test automation templates that made the in-house C++ test framework easier for other test engineers to use.',
           'Complex sequences automating hardware tests, driven by test code and firmware-manipulating code.',

@@ -180,27 +180,36 @@
   function replay(m) { m.start = performance.now(); m.settled = false; }
   function motifWrap(p, viewId) { return h('span', 'motif-wrap', motif(p.motif, COLOR[p.cat], viewId)); }
   var mt = 0, mlast = 0, flows = [];
-  /* Flow diagrams: one cycle is 5.2 s; the pulse travels for 70 % of it, then the last step ripples and all steps stay lit until the end. */
+  /* Flow diagrams run like a test sequence: the line travels to a step, the step fills and its title lights up, a short pause,
+     on to the next. At the last step the result shows (green tick, ripple, "Pass"), then all fades and it waits before the next run.
+     A run starts when the diagram comes into view; off screen nothing is drawn. */
+  var F_SEG = 520, F_HOLD = 420, F_RESULT = 1900, F_FADE = 500, F_WAIT = 2600;
   function flowTick(now) {
     var vh = window.innerHeight;
     for (var i = flows.length - 1; i >= 0; i--) {
       var f = flows[i]; if (!f.el.isConnected) { flows.splice(i, 1); continue; }
-      var r = f.el.getBoundingClientRect(); if (!r.width || r.bottom < 0 || r.top > vh) continue;
+      var r = f.el.getBoundingClientRect(), vis = r.width > 0 && r.bottom > 0 && r.top < vh;
+      if (vis && !f.vis) f.t0 = now; f.vis = vis; if (!vis) continue;
       var pts2 = f.lis.map(function (li) { var q = li.firstChild.getBoundingClientRect(); return [q.left - r.left + q.width / 2, q.top - r.top + q.height / 2]; });
-      var a = pts2[0], z = pts2[pts2.length - 1], down = Math.abs(z[1] - a[1]) > Math.abs(z[0] - a[0]), last = f.lis[f.lis.length - 1];
+      var n = pts2.length, a = pts2[0], z = pts2[n - 1], down = Math.abs(z[1] - a[1]) > Math.abs(z[0] - a[0]), last = f.lis[n - 1];
+      f.el.classList.toggle('down', down);
       /* the grey track runs exactly through the step centres, under the filled line */
       f.track.style.cssText = down ? 'left:' + (a[0] - .5) + 'px;top:' + a[1] + 'px;width:1px;height:' + (z[1] - a[1]) + 'px' : 'left:' + a[0] + 'px;top:' + (a[1] - .5) + 'px;height:1px;width:' + (z[0] - a[0]) + 'px';
-      if (reducedMotion()) { f.lis.forEach(function (li) { li.classList.add('lit'); }); continue; }
-      var p = ((now - f.t0) % 5200) / 5200, u = Math.min(1, p / .7), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
-      var x = a[0] + (z[0] - a[0]) * e, y = a[1] + (z[1] - a[1]) * e, along = down ? y : x;
-      /* the line itself draws forward: a faint filled part from the start and a bright head that fades out behind it; steps fill as it reaches them */
-      var len = down ? y - a[1] : x - a[0], tl = Math.min(len, 150), on = p < .95 ? 1 : 0;
+      if (reducedMotion()) { f.lis.forEach(function (li) { li.classList.add('lit'); }); last.classList.add('pass'); continue; }
+      var step = F_SEG + F_HOLD, end = (n - 1) * step, cycle = end + F_RESULT + F_FADE + F_WAIT, e = (now - f.t0) % cycle;
+      var k = Math.min(n - 1, Math.floor(e / step)), into = e - k * step, moving = k < n - 1 && into >= F_HOLD, x = pts2[k][0], y = pts2[k][1];
+      if (moving) { var u = (into - F_HOLD) / F_SEG, ez = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; x += (pts2[k + 1][0] - x) * ez; y += (pts2[k + 1][1] - y) * ez; }
+      var shown = e < end + F_RESULT ? 1 : 0, len = down ? y - a[1] : x - a[0], tl = Math.min(len, 150);
       if (down) { f.fill.style.cssText = 'left:' + (a[0] - .5) + 'px;top:' + a[1] + 'px;width:1px;height:' + len + 'px'; f.tail.style.cssText = 'left:' + (a[0] - 1) + 'px;top:' + (y - tl) + 'px;width:2px;height:' + tl + 'px'; }
       else { f.fill.style.cssText = 'left:' + a[0] + 'px;top:' + (a[1] - .5) + 'px;height:1px;width:' + len + 'px'; f.tail.style.cssText = 'left:' + (x - tl) + 'px;top:' + (a[1] - 1) + 'px;height:2px;width:' + tl + 'px'; }
-      f.fill.style.opacity = on * .55; f.tail.style.opacity = on * (u >= 1 ? 0 : 1); f.el.classList.toggle('down', down);
-      f.lis.forEach(function (li, k) { li.classList.toggle('lit', p < .95 && along >= (down ? pts2[k][1] : pts2[k][0]) - 1); });
-      if (u >= 1 && !f.rippled) { last.classList.remove('ripple'); void last.offsetWidth; last.classList.add('ripple'); f.rippled = true; }
-      if (u < 1) f.rippled = false;
+      f.fill.style.opacity = shown * .55; f.tail.style.opacity = moving ? 1 : 0;
+      f.lis.forEach(function (li, j) {
+        var at = j * step; li.classList.toggle('lit', shown && e >= at);
+        li.classList.toggle('active', shown && j < n - 1 && e >= at && e < at + F_HOLD + F_SEG * .5); /* its title lights while the step runs */
+      });
+      var pass = e >= end && e < end + F_RESULT; last.classList.toggle('pass', pass);
+      if (pass && !f.rippled) { last.classList.remove('ripple'); void last.offsetWidth; last.classList.add('ripple'); f.rippled = true; }
+      if (!pass) f.rippled = false;
     }
   }
   function drawMotifs(now) {
@@ -274,6 +283,7 @@
     else if (b.type === 'flow') { /* a chain of steps; a pulse runs along it, filling each step it passes, and ripples at the end */
       el.className = 'block wide rv'; var fl = h('ol', 'flow'), ftrack = h('i', 'flow-track'), ffill = h('i', 'flow-fill'), ftail = h('i', 'flow-tail'); fl.style.setProperty('--c', c);
       b.steps.forEach(function (st, i) { var li = h('li', null, [h('i'), h('b', null, st[0]), h('span', null, st[1])]); li.style.setProperty('--k', i); fl.appendChild(li); });
+      fl.lastChild.querySelector('b').appendChild(h('em', 'flow-result', b.result || 'Pass')); /* shown when the run reaches the end */
       fl.style.setProperty('--n', b.steps.length); fl.insertBefore(ftail, fl.firstChild); fl.insertBefore(ffill, ftail); fl.insertBefore(ftrack, ffill); el.appendChild(fl);
       flows.push({ el: fl, track: ftrack, fill: ffill, tail: ftail, lis: [].slice.call(fl.querySelectorAll('li')), t0: performance.now(), rippled: false });
     }
