@@ -181,9 +181,9 @@
   function motifWrap(p, viewId) { return h('span', 'motif-wrap', motif(p.motif, COLOR[p.cat], viewId)); }
   var mt = 0, mlast = 0, flows = [];
   /* Flow diagrams run like a test sequence: the line travels to a step, the step fills and its title lights up, a short pause,
-     on to the next. At the last step the result shows (green tick, ripple, "Pass"), then all fades and it waits before the next run.
+     on to the next. At the last step the result shows (green, ripple, "Pass"), then all fades and it waits before the next run.
      A run starts when the diagram comes into view; off screen nothing is drawn. */
-  var F_SEG = 520, F_HOLD = 420, F_RESULT = 1900, F_FADE = 500, F_WAIT = 2600;
+  var F_SEG = 560, F_HOLD = 140, F_RESULT = 1700, F_FADE = 500, F_WAIT = 1500;
   function flowTick(now) {
     var vh = window.innerHeight;
     for (var i = flows.length - 1; i >= 0; i--) {
@@ -198,11 +198,10 @@
       if (reducedMotion()) { f.lis.forEach(function (li) { li.classList.add('lit'); }); last.classList.add('pass'); continue; }
       var step = F_SEG + F_HOLD, end = (n - 1) * step, cycle = end + F_RESULT + F_FADE + F_WAIT, e = (now - f.t0) % cycle;
       var k = Math.min(n - 1, Math.floor(e / step)), into = e - k * step, moving = k < n - 1 && into >= F_HOLD, x = pts2[k][0], y = pts2[k][1];
-      if (moving) { var u = (into - F_HOLD) / F_SEG, ez = u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2; x += (pts2[k + 1][0] - x) * ez; y += (pts2[k + 1][1] - y) * ez; }
-      var shown = e < end + F_RESULT ? 1 : 0, len = down ? y - a[1] : x - a[0], tl = Math.min(len, 150);
-      if (down) { f.fill.style.cssText = 'left:' + (a[0] - .5) + 'px;top:' + a[1] + 'px;width:1px;height:' + len + 'px'; f.tail.style.cssText = 'left:' + (a[0] - 1) + 'px;top:' + (y - tl) + 'px;width:2px;height:' + tl + 'px'; }
-      else { f.fill.style.cssText = 'left:' + a[0] + 'px;top:' + (a[1] - .5) + 'px;height:1px;width:' + len + 'px'; f.tail.style.cssText = 'left:' + (x - tl) + 'px;top:' + (a[1] - 1) + 'px;height:2px;width:' + tl + 'px'; }
-      f.fill.style.opacity = shown * .55; f.tail.style.opacity = moving ? 1 : 0;
+      if (moving) { var u = (into - F_HOLD) / F_SEG, ez = u * u * (3 - 2 * u) * .5 + u * .5; x += (pts2[k + 1][0] - x) * ez; y += (pts2[k + 1][1] - y) * ez; } /* half linear, half smooth: keeps going without stopping hard */
+      var shown = e < end + F_RESULT ? 1 : 0, len = down ? y - a[1] : x - a[0];
+      f.fill.style.cssText = down ? 'left:' + (a[0] - .5) + 'px;top:' + a[1] + 'px;width:1px;height:' + len + 'px' : 'left:' + a[0] + 'px;top:' + (a[1] - .5) + 'px;height:1px;width:' + len + 'px';
+      f.fill.style.opacity = shown;
       f.lis.forEach(function (li, j) {
         var at = j * step; li.classList.toggle('lit', shown && e >= at);
         li.classList.toggle('active', shown && j < n - 1 && e >= at && e < at + F_HOLD + F_SEG * .5); /* its title lights while the step runs */
@@ -281,11 +280,11 @@
     else if (b.type === 'dots') { var grid = h('div', 'dot-grid'), key = h('div', 'dot-key'), k = 0; b.groups.forEach(function (g) { for (var i = 0; i < g[0]; i++) { var d = h('i'); d.style.setProperty('--c', COLOR[g[2]]); d.style.setProperty('--k', k++); grid.appendChild(d); } var kk = h('span', null, [h('i'), g[0] + ' ' + g[1]]); kk.firstChild.style.setProperty('--c', COLOR[g[2]]); key.appendChild(kk); }); el.appendChild(h('div', 'dots', [grid, key])); }
     else if (b.type === 'quote') { el.className = 'block wide quote rv'; el.appendChild(h('p', null, b.body)); }
     else if (b.type === 'flow') { /* a chain of steps; a pulse runs along it, filling each step it passes, and ripples at the end */
-      el.className = 'block wide rv'; var fl = h('ol', 'flow'), ftrack = h('i', 'flow-track'), ffill = h('i', 'flow-fill'), ftail = h('i', 'flow-tail'); fl.style.setProperty('--c', c);
+      el.className = 'block wide rv'; var fl = h('ol', 'flow'), ftrack = h('i', 'flow-track'), ffill = h('i', 'flow-fill'); fl.style.setProperty('--c', c);
       b.steps.forEach(function (st, i) { var li = h('li', null, [h('i'), h('b', null, st[0]), h('span', null, st[1])]); li.style.setProperty('--k', i); fl.appendChild(li); });
       fl.lastChild.querySelector('b').appendChild(h('em', 'flow-result', b.result || 'Pass')); /* shown when the run reaches the end */
-      fl.style.setProperty('--n', b.steps.length); fl.insertBefore(ftail, fl.firstChild); fl.insertBefore(ffill, ftail); fl.insertBefore(ftrack, ffill); el.appendChild(fl);
-      flows.push({ el: fl, track: ftrack, fill: ffill, tail: ftail, lis: [].slice.call(fl.querySelectorAll('li')), t0: performance.now(), rippled: false });
+      fl.style.setProperty('--n', b.steps.length); fl.insertBefore(ffill, fl.firstChild); fl.insertBefore(ftrack, ffill); el.appendChild(fl);
+      flows.push({ el: fl, track: ftrack, fill: ffill, lis: [].slice.call(fl.querySelectorAll('li')), t0: performance.now(), rippled: false });
     }
     else if (b.type === 'more') { /* detail that most readers can skip, folded */
       el.className = 'block wide more-block rv'; el.removeChild(el.firstChild);
