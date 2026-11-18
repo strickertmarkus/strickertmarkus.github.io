@@ -201,6 +201,7 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 .dot-key span{display:inline-flex;align-items:center;gap:8px}
 .dot-key i{width:9px;height:9px;border-radius:50%;background:var(--c)}
 .quote p{font-size:clamp(22px,2.6vw,34px);line-height:1.22;font-weight:600;letter-spacing:-.025em;color:var(--ink);max-width:24em}
+.quote p.quote-by{font-size:14px;line-height:1.5;font-weight:500;letter-spacing:0;color:var(--muted);margin-top:14px}
 .split{display:flex;flex-direction:column;gap:12px}
 .split-bar{display:flex;gap:3px;height:8px}
 .split-bar i{height:100%;border-radius:4px;background:var(--c);box-shadow:0 0 12px -2px var(--c);transform-origin:left;transform:scaleX(0);transition:transform 1s var(--ease);transition-delay:calc(var(--k)*90ms)}
@@ -605,3 +606,8 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 @media (max-width:760px){
   .net-hint{left:var(--pad);right:var(--pad);justify-content:space-between;font-size:12px}
 }
+/* CV: courses from the degrees, grouped, no grades */
+.courses{margin-top:6px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.courses h3{font-size:15px;font-weight:600}
+.courses p{font-size:14.5px;line-height:1.6;color:var(--muted)}
+.courses p b{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:2px}

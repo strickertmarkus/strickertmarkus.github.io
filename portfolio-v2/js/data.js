@@ -121,7 +121,7 @@
       blocks: [
         { type: 'list', title: 'Approach', items: [
           'More than 1,500 globular cluster models run with the MOCCA code for Monte Carlo N-body dynamics, with population synthesis from the SSE and BSE codes.',
-          'MOCCA-Survey Database II used to widen the range of initial conditions.',
+          'Automated analysis pipelines in Python and Bash that searched terabytes of simulation output, and code that compared the models with observed clusters.',
           'COCOA code for automated cluster projection and property extraction.'
         ] },
         { type: 'list', title: 'Findings', items: [
@@ -129,7 +129,8 @@
           'Blue straggler formation follows the cluster\'s relaxation time and central surface brightness.',
           'Clusters with an IMBH keep core binary fractions of about 12%, falling off as (r/r_hl)^−0.132; clusters with a black hole subsystem show a shallower decline.'
         ] },
-        { type: 'list', title: 'Presented at and workshops', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Direct N-body Simulations Workshop, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'TRENDY3, Evanston, 2021: conference on triple and multiple star evolution and dynamics.'] }
+        { type: 'list', title: 'Presented at and workshops', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Direct N-body Simulations Workshop, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'TRENDY3, Evanston, 2021: conference on triple and multiple star evolution and dynamics.', 'Presentations to research groups in Germany, Poland and China.'] },
+        { type: 'quote', title: 'From my supervisor', body: '“Markus was an exceptional master\'s student and I would rank him as the best student that I have supervised so far.”', by: 'Master\'s thesis supervisor, Lund Observatory, in a reference letter (2023)' }
       ],
       cite: 'Markus Strickert (2022). Black Hole Dynamics in Stellar Clusters. Master\'s thesis, Lund Observatory, Lund University.',
       links: [['Lund University publication', 'https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=9095211&fileOId=9095212'], ['PDF', '../2022-EXA196_Strickert-Markus.pdf']]
