@@ -104,7 +104,7 @@
           'Erupting CMEs moved at 220 to 3,700 km/s after one hour, up to five times the background wind speed.'
         ] },
         { type: 'story', title: 'From the simulations',
-          hero: ['cme-erupt', 'A flux rope erupting through the corona of AB Dor', 'webp'],
+          hero: ['cme-erupt', 'A flux rope erupting through the corona of AB Dor', 'webp', 'An eruption breaking out', 'A flux rope rises from the star\'s surface and pushes out through the corona, in one of the 21 runs.'],
           rows: [
             ['cme-field', 'Magnetic field lines and stellar wind around AB Dor', 'video', 'The star and its wind', 'Every run starts from a steady 3D model of the corona and stellar wind, built from a map of the star\'s surface magnetic field.'],
             ['cme-magnetogram', 'Surface magnetic map with the eruption sites', 'webp', 'Where the eruptions start', 'Flux ropes were placed at high latitudes, both in closed field regions and in open regions near the pole, where the observed dimming points.'],

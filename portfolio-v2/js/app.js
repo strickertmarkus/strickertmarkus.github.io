@@ -278,7 +278,7 @@
     else if (b.type === 'table') { var tb = h('div', 'tbl'); b.rows.forEach(function (r) { tb.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); }); el.appendChild(tb); }
     else if (b.type === 'bars') { var bars = h('div', 'bars'); b.rows.forEach(function (r) { var bar = h('i'); bar.style.setProperty('--c', COLOR[r[2]]); bar.style.setProperty('--w', r[1] / b.max); bars.appendChild(h('div', 'bar-row', [h('span', null, r[0]), h('b', null, r[1] + ' ' + b.unit), bar])); }); el.appendChild(bars); if (b.note) el.appendChild(h('p', 'note', b.note)); }
     else if (b.type === 'dots') { var grid = h('div', 'dot-grid'), key = h('div', 'dot-key'), k = 0; b.groups.forEach(function (g) { for (var i = 0; i < g[0]; i++) { var d = h('i'); d.style.setProperty('--c', COLOR[g[2]]); d.style.setProperty('--k', k++); grid.appendChild(d); } var kk = h('span', null, [h('i'), g[0] + ' ' + g[1]]); kk.firstChild.style.setProperty('--c', COLOR[g[2]]); key.appendChild(kk); }); el.appendChild(h('div', 'dots', [grid, key])); }
-    else if (b.type === 'story') { /* research figures as a story: a large clip, rows of figure and text that alternate sides, the rest in the lightbox */
+    else if (b.type === 'story') { /* research figures as a story: the eruption, then figure-and-text slides on a sideways rail, the rest in the lightbox */
       el.className = 'block wide'; var story = h('div', 'story'), H = b.hero ? 1 : 0, all = (b.hero ? [b.hero] : []).concat(b.rows, b.more || []), list = all.map(function (it) { return [it[0], it[1], it[2], 'img/research/']; });
       var media = function (it, k, hero) { /* it: [file, caption, 'video' | 'webp' (a dark plot with transparent background) | jpg] */
         var m, R = 'img/research/' + it[0];
@@ -287,13 +287,25 @@
         var btn = h('button', 'story-media' + (hero || it[2] === 'webp' ? '' : ' fade'), [m]); /* the hero is an animated WebP with its own transparency */ btn.type = 'button'; btn.setAttribute('aria-label', 'Open larger: ' + it[1]);
         btn.addEventListener('click', function () { lightbox(list, k); }); return btn;
       };
-      if (H) story.appendChild(h('div', 'story-hero rv', [media(b.hero, 0, true), h('p', 'story-cap', b.hero[1])]));
-      b.rows.forEach(function (r, i) {
-        var t = h('h3', null, [h('i', null, ('0' + (i + 1)).slice(-2)), r[3]]);
-        story.appendChild(h('div', 'story-row rv' + (i % 2 ? ' flip' : ''), [media(r, i + H), h('div', 'story-text', [t, h('p', null, r[4])])]));
-      });
+      /* one horizontal rail of slides, figure above text, that scrolls sideways and snaps; it keeps the block about one screen tall */
+      var rail = h('div', 'story-rail'), slide = function (it, k, num, title, text, hero) {
+        rail.appendChild(h('div', 'story-slide' + (hero ? ' first' : ''), [media(it, k, hero), h('div', 'story-text', [h('h3', null, [num ? h('i', null, num) : null, title]), h('p', null, text)])]));
+      };
+      if (H) slide(b.hero, 0, '01', b.hero[3], b.hero[4] || b.hero[1], true);
+      b.rows.forEach(function (r, i) { slide(r, i + H, ('0' + (i + 1 + H)).slice(-2), r[3], r[4]); });
       var more = h('button', 'story-all', [h('b', null, 'All ' + all.length + ' figures' + (all.some(function (it) { return it[2] === 'video'; }) ? ' and clips' : '')), h('span', null, '→')]); more.type = 'button';
-      more.addEventListener('click', function () { lightbox(list, b.rows.length + H < all.length ? b.rows.length + H : 0); }); story.appendChild(more);
+      more.addEventListener('click', function () { lightbox(list, b.rows.length + H < all.length ? b.rows.length + H : 0); });
+      var back = h('button', 'story-nav', arrow(-1)), fwd = h('button', 'story-nav', arrow(1)); back.type = fwd.type = 'button'; back.setAttribute('aria-label', 'Previous figure'); fwd.setAttribute('aria-label', 'Next figure');
+      var step = function (d) { var s = rail.children[0], w = s ? s.getBoundingClientRect().width + parseFloat(getComputedStyle(rail).columnGap || 0) : 300; rail.scrollBy({ left: d * w, behavior: 'smooth' }); };
+      back.addEventListener('click', function () { step(-1); }); fwd.addEventListener('click', function () { step(1); });
+      var ends = function () { /* fade only the side that has more to show, and hide the arrows when everything fits */
+        var max = rail.scrollWidth - rail.clientWidth, x = rail.scrollLeft;
+        story.classList.toggle('more-l', x > 4); story.classList.toggle('more-r', x < max - 4); story.classList.toggle('fits', max <= 4);
+        back.disabled = x <= 4; fwd.disabled = x >= max - 4;
+      };
+      rail.addEventListener('scroll', ends, { passive: true }); window.addEventListener('resize', ends); setTimeout(ends, 60);
+      [].forEach.call(rail.querySelectorAll('img'), function (im) { im.addEventListener('load', ends); });
+      story.appendChild(rail); story.appendChild(h('div', 'story-bar', [more, h('div', 'story-navs', [back, fwd])])); story.classList.add('rv');
       el.appendChild(story);
     }
     else if (b.type === 'quote') { el.className = 'block wide quote rv'; el.appendChild(h('p', null, b.body)); if (b.by) el.appendChild(h('p', 'quote-by', b.by)); }
