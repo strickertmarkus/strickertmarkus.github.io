@@ -106,8 +106,7 @@
         { type: 'story', title: 'From the simulations',
           rows: [
             ['cme-field', 'Magnetic field lines and stellar wind around AB Dor', 'video', 'The star and its wind', 'Every run starts from a steady 3D model of the corona and stellar wind, built from a map of the star\'s surface magnetic field.'],
-            ['cme-magnetogram', 'Surface magnetic map with the eruption sites', 'webp', 'Where the eruptions start', 'Two sites at high latitudes, where the observed dimming points: one in a closed field region and one in an open region near the pole.'],
-            ['cme-fluxrope', 'The flux rope placed in the star\'s surface field', 'webp', 'Setting off an eruption', 'A twisted magnetic flux rope is placed in the surface field at each site. Its mass and field strength are varied from run to run.'],
+            ['cme-magnetogram', 'Surface magnetic map with the eruption sites', 'webp', 'Where and how they start', 'Two sites at high latitudes, where the observed dimming points: one in a closed field region, one in an open region near the pole. At each, a twisted magnetic flux rope is placed in the surface field, its mass and field strength varied from run to run.', null, ['cme-fluxrope', 'The flux rope placed in the star\'s surface field', 'webp']],
             ['cme-erupt', 'A flux rope erupting through the corona of AB Dor', 'webp', 'An eruption breaking out', 'The flux rope rises from the surface and pushes out through the corona. In other runs the overlying field holds it back.'],
             ['cme-speed', 'CME speed against the flux rope\'s free energy', 'webp', 'What decides the outcome', 'Speed after one hour against the free magnetic energy and field strength of each flux rope. In closed regions an eruption needs about four times the field to escape.'],
             ['cme-radio', 'Speed, density and plasma frequency along the eruption', 'video', 'Could it be heard in radio?', 'Along the eruption\'s path, the dense front has a plasma frequency inside the LOFAR radio telescope\'s range, a possible way to detect such events.', 'plot'],
@@ -117,7 +116,7 @@
             ['cme-grid', 'Fifteen eruptions, by flux rope mass and field strength'],
             ['cme-euv', 'Synthetic extreme-ultraviolet and X-ray views of an eruption', 'video']
           ] },
-        { type: 'list', title: 'Presented at', items: ['BCool Exospace Weather Workshop, Max Planck Institute, Göttingen, 2023: talk on how strong overlying magnetic fields suppress CMEs on AB Dor.', 'KISS workshop and think tank, Caltech, 2023: selected as one of a few early-career candidates to shape future space missions for extrasolar space weather.'] }
+        { type: 'list', title: 'Presented at', items: ['BCool Exospace Weather Workshop, Max Planck Institute, Göttingen, 2023: talk on how strong overlying magnetic fields suppress CMEs on AB Dor.'] }
       ],
       cite: 'K. M. Strickert, D. Evensberget, A. A. Vidotto (2024). High-latitude coronal mass ejections on the young solar-like star AB Dor. Monthly Notices of the Royal Astronomical Society 533, 1156–1165.',
       links: [['Read on MNRAS', 'https://academic.oup.com/mnras/article/533/1/1156/7729277'], ['DOI 10.1093/mnras/stae1884', 'https://doi.org/10.1093/mnras/stae1884'], ['arXiv:2408.00637', 'https://arxiv.org/abs/2408.00637'], ['PDF', '../Paper_PhD.pdf']]

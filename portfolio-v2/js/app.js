@@ -279,13 +279,15 @@
     else if (b.type === 'bars') { var bars = h('div', 'bars'); b.rows.forEach(function (r) { var bar = h('i'); bar.style.setProperty('--c', COLOR[r[2]]); bar.style.setProperty('--w', r[1] / b.max); bars.appendChild(h('div', 'bar-row', [h('span', null, r[0]), h('b', null, r[1] + ' ' + b.unit), bar])); }); el.appendChild(bars); if (b.note) el.appendChild(h('p', 'note', b.note)); }
     else if (b.type === 'dots') { var grid = h('div', 'dot-grid'), key = h('div', 'dot-key'), k = 0; b.groups.forEach(function (g) { for (var i = 0; i < g[0]; i++) { var d = h('i'); d.style.setProperty('--c', COLOR[g[2]]); d.style.setProperty('--k', k++); grid.appendChild(d); } var kk = h('span', null, [h('i'), g[0] + ' ' + g[1]]); kk.firstChild.style.setProperty('--c', COLOR[g[2]]); key.appendChild(kk); }); el.appendChild(h('div', 'dots', [grid, key])); }
     else if (b.type === 'story') { /* research figures as a story: the eruption, then figure-and-text slides on a sideways rail, the rest in the lightbox */
-      el.className = 'block wide'; var story = h('div', 'story'), H = b.hero ? 1 : 0, all = (b.hero ? [b.hero] : []).concat(b.rows, b.more || []), list = all.map(function (it) { return [it[0], it[1], it[2], 'img/research/']; });
-      var media = function (it, k, hero) { /* it: [file, caption, 'video' | 'webp' (a dark plot with transparent background) | jpg] */
+      el.className = 'block wide'; var story = h('div', 'story'), H = b.hero ? 1 : 0, all = (b.hero ? [b.hero] : []).concat(b.rows, b.more || []), list = [], at = []; all.forEach(function (it) { at.push(list.length); [it].concat(it[6] ? [it[6]] : []).forEach(function (x) { list.push([x[0], x[1], x[2], 'img/research/']); }); });
+      var media = function (it, k, hero, sub) { /* it: [file, caption, 'video' | 'webp' (a dark plot with transparent background) | jpg] */
         var m, R = 'img/research/' + it[0];
         if (it[2] === 'video') { m = h('video'); m.src = R + '.mp4'; m.poster = R + '.jpg'; m.muted = true; m.loop = true; m.autoplay = true; m.playsInline = true; m.setAttribute('playsinline', ''); m.preload = 'metadata'; m.setAttribute('aria-label', it[1]); }
         else { m = h('img'); m.src = R + (it[2] === 'webp' ? '.webp' : '.jpg'); m.alt = it[1]; m.decoding = 'async'; }
         var btn = h('button', 'story-media' + (hero || it[2] === 'webp' || it[5] === 'plot' ? '' : ' fade'), [m]); /* a plot keeps its axis labels: no edge fade */ /* the hero is an animated WebP with its own transparency */ btn.type = 'button'; btn.setAttribute('aria-label', 'Open larger: ' + it[1]);
-        btn.addEventListener('click', function () { lightbox(list, k); }); return btn;
+        btn.addEventListener('click', function () { lightbox(list, at[k] + (sub ? 1 : 0)); });
+        if (sub || !it[6]) return btn;
+        var two = media(it[6], k, false, true); btn.className = two.className = 'story-sub'; return h('div', 'story-media pair', [btn, two]); /* two pictures in one slide, one above the other */
       };
       /* one horizontal rail of slides, figure above text, that scrolls sideways and snaps; it keeps the block about one screen tall */
       var rail = h('div', 'story-rail'), slide = function (it, k, num, title, text, hero) {
@@ -293,8 +295,8 @@
       };
       if (H) slide(b.hero, 0, '01', b.hero[3], b.hero[4] || b.hero[1], true);
       b.rows.forEach(function (r, i) { slide(r, i + H, ('0' + (i + 1 + H)).slice(-2), r[3], r[4]); });
-      var more = h('button', 'story-all', [h('b', null, 'All ' + all.length + ' figures' + (all.some(function (it) { return it[2] === 'video'; }) ? ' and clips' : '')), h('span', null, '→')]); more.type = 'button';
-      more.addEventListener('click', function () { lightbox(list, b.rows.length + H < all.length ? b.rows.length + H : 0); });
+      var more = h('button', 'story-all', [h('b', null, 'All ' + list.length + ' figures' + (all.some(function (it) { return it[2] === 'video'; }) ? ' and clips' : '')), h('span', null, '→')]); more.type = 'button';
+      more.addEventListener('click', function () { lightbox(list, b.rows.length + H < all.length ? at[b.rows.length + H] : 0); });
       var back = h('button', 'story-nav', arrow(-1)), fwd = h('button', 'story-nav', arrow(1)); back.type = fwd.type = 'button'; back.setAttribute('aria-label', 'Previous figure'); fwd.setAttribute('aria-label', 'Next figure');
       var step = function (d) { var s = rail.children[0], w = s ? s.getBoundingClientRect().width + parseFloat(getComputedStyle(rail).columnGap || 0) : 300; rail.scrollBy({ left: d * w, behavior: 'smooth' }); };
       back.addEventListener('click', function () { step(-1); }); fwd.addEventListener('click', function () { step(1); });
@@ -345,6 +347,12 @@
     ]);
     var el = h('section', 'block wide rv demo', [phoneEl, text]);
     open.addEventListener('click', function (e) { e.preventDefault(); try { sessionStorage.setItem('demoBack', back); } catch (_) {} demoWorker().then(function () { location.href = start; }, function () { open.textContent = 'The demo needs a newer browser.'; }); });
+    var fit = function () { /* on desktop the whole phone fits the window height, below the top bar */
+      if (!el.isConnected && fit.done) { window.removeEventListener('resize', fit); return; } fit.done = true;
+      if (window.matchMedia('(max-width: 760px)').matches) { phoneEl.style.removeProperty('--s'); return; }
+      phoneEl.style.setProperty('--s', Math.max(.5, Math.min(.72, (window.innerHeight - 190) / 864)).toFixed(3));
+    };
+    fit(); window.addEventListener('resize', fit);
     if (!window.matchMedia('(max-width: 760px)').matches) {
       demoWorker().then(function () {
         if (!el.isConnected) return;
