@@ -149,7 +149,7 @@
             ['bh-number', 'Predicted number of stellar-mass black holes in Milky Way clusters', 'webp', 'A prediction for each cluster', 'The comparison gives an estimated number of stellar-mass black holes for each Milky Way cluster, such as 64 in NGC 3201.'],
             ['bh-imbh', 'Estimated intermediate-mass black hole masses per cluster', 'webp', 'Room for a bigger one?', 'The same comparison puts a mass on a possible intermediate-mass black hole at the centre of each cluster.']
           ] },
-        { type: 'list', title: 'Presented at and workshops', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Direct N-body Simulations Workshop, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'TRENDY3, Evanston, 2021: conference on triple and multiple star evolution and dynamics.', 'Presentations to research groups in Germany, Poland and China.'] },
+        { type: 'list', title: 'Talks and courses', items: ['Astroflow Workshop, Leiden Observatory, 2022: presented the thesis research.', 'Presentations to research groups in Germany and Poland.', 'Course: Direct N-body Simulations, Heidelberg (online), 2021: Nbody6++GPU and supercomputer use on Kepler.', 'Course: TRENDY3, Evanston, 2021: triple and multiple star evolution and dynamics.'] },
         { type: 'quote', title: 'From my supervisor', body: '“Markus was an exceptional master\'s student and I would rank him as the best student that I have supervised so far.”', by: 'Master\'s thesis supervisor, Lund Observatory, in a reference letter (2023)' }
       ],
       cite: 'Markus Strickert (2022). Black Hole Dynamics in Stellar Clusters. Master\'s thesis, Lund Observatory, Lund University.',
