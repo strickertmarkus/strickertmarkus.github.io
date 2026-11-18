@@ -188,16 +188,16 @@
       var r = f.el.getBoundingClientRect(); if (!r.width || r.bottom < 0 || r.top > vh) continue;
       var pts2 = f.lis.map(function (li) { var q = li.firstChild.getBoundingClientRect(); return [q.left - r.left + q.width / 2, q.top - r.top + q.height / 2]; });
       var a = pts2[0], z = pts2[pts2.length - 1], down = Math.abs(z[1] - a[1]) > Math.abs(z[0] - a[0]), last = f.lis[f.lis.length - 1];
-      if (reducedMotion()) { f.lis.forEach(function (li) { li.classList.add('lit'); }); f.dot.style.opacity = 0; continue; }
+      /* the grey track runs exactly through the step centres, under the filled line */
+      f.track.style.cssText = down ? 'left:' + (a[0] - .5) + 'px;top:' + a[1] + 'px;width:1px;height:' + (z[1] - a[1]) + 'px' : 'left:' + a[0] + 'px;top:' + (a[1] - .5) + 'px;height:1px;width:' + (z[0] - a[0]) + 'px';
+      if (reducedMotion()) { f.lis.forEach(function (li) { li.classList.add('lit'); }); continue; }
       var p = ((now - f.t0) % 5200) / 5200, u = Math.min(1, p / .7), e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
       var x = a[0] + (z[0] - a[0]) * e, y = a[1] + (z[1] - a[1]) * e, along = down ? y : x;
-      f.dot.style.transform = 'translate(' + (x - 4) + 'px,' + (y - 4) + 'px)';
-      /* the line fills behind the pulse: a faint filled part from the start, and a brighter tail that fades out behind it */
+      /* the line itself draws forward: a faint filled part from the start and a bright head that fades out behind it; steps fill as it reaches them */
       var len = down ? y - a[1] : x - a[0], tl = Math.min(len, 150), on = p < .95 ? 1 : 0;
       if (down) { f.fill.style.cssText = 'left:' + (a[0] - .5) + 'px;top:' + a[1] + 'px;width:1px;height:' + len + 'px'; f.tail.style.cssText = 'left:' + (a[0] - 1) + 'px;top:' + (y - tl) + 'px;width:2px;height:' + tl + 'px'; }
       else { f.fill.style.cssText = 'left:' + a[0] + 'px;top:' + (a[1] - .5) + 'px;height:1px;width:' + len + 'px'; f.tail.style.cssText = 'left:' + (x - tl) + 'px;top:' + (a[1] - 1) + 'px;height:2px;width:' + tl + 'px'; }
       f.fill.style.opacity = on * .55; f.tail.style.opacity = on * (u >= 1 ? 0 : 1); f.el.classList.toggle('down', down);
-      f.dot.style.opacity = p < .03 ? p / .03 : u >= 1 ? 0 : 1;
       f.lis.forEach(function (li, k) { li.classList.toggle('lit', p < .95 && along >= (down ? pts2[k][1] : pts2[k][0]) - 1); });
       if (u >= 1 && !f.rippled) { last.classList.remove('ripple'); void last.offsetWidth; last.classList.add('ripple'); f.rippled = true; }
       if (u < 1) f.rippled = false;
@@ -272,10 +272,10 @@
     else if (b.type === 'dots') { var grid = h('div', 'dot-grid'), key = h('div', 'dot-key'), k = 0; b.groups.forEach(function (g) { for (var i = 0; i < g[0]; i++) { var d = h('i'); d.style.setProperty('--c', COLOR[g[2]]); d.style.setProperty('--k', k++); grid.appendChild(d); } var kk = h('span', null, [h('i'), g[0] + ' ' + g[1]]); kk.firstChild.style.setProperty('--c', COLOR[g[2]]); key.appendChild(kk); }); el.appendChild(h('div', 'dots', [grid, key])); }
     else if (b.type === 'quote') { el.className = 'block wide quote rv'; el.appendChild(h('p', null, b.body)); }
     else if (b.type === 'flow') { /* a chain of steps; a pulse runs along it, filling each step it passes, and ripples at the end */
-      el.className = 'block wide rv'; var fl = h('ol', 'flow'), fdot = h('i', 'flow-dot'), ffill = h('i', 'flow-fill'), ftail = h('i', 'flow-tail'); fl.style.setProperty('--c', c);
+      el.className = 'block wide rv'; var fl = h('ol', 'flow'), ftrack = h('i', 'flow-track'), ffill = h('i', 'flow-fill'), ftail = h('i', 'flow-tail'); fl.style.setProperty('--c', c);
       b.steps.forEach(function (st, i) { var li = h('li', null, [h('i'), h('b', null, st[0]), h('span', null, st[1])]); li.style.setProperty('--k', i); fl.appendChild(li); });
-      fl.style.setProperty('--n', b.steps.length); fl.appendChild(ffill); fl.appendChild(ftail); fl.appendChild(fdot); el.appendChild(fl);
-      flows.push({ el: fl, dot: fdot, fill: ffill, tail: ftail, lis: [].slice.call(fl.querySelectorAll('li')), t0: performance.now(), rippled: false });
+      fl.style.setProperty('--n', b.steps.length); fl.insertBefore(ftail, fl.firstChild); fl.insertBefore(ffill, ftail); fl.insertBefore(ftrack, ffill); el.appendChild(fl);
+      flows.push({ el: fl, track: ftrack, fill: ffill, tail: ftail, lis: [].slice.call(fl.querySelectorAll('li')), t0: performance.now(), rippled: false });
     }
     else if (b.type === 'more') { /* detail that most readers can skip, folded */
       el.className = 'block wide more-block rv'; el.removeChild(el.firstChild);

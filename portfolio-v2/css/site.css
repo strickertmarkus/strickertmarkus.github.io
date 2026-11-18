@@ -502,16 +502,15 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 
 /* Project: a chain of steps with a pulse running along it */
 .flow{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:18px;padding-top:4px}
-.flow::before{content:"";position:absolute;left:6px;right:6px;top:10px;height:1px;background:var(--line)}
 .flow li{position:relative;display:flex;flex-direction:column;gap:4px;padding-top:28px}
 .flow li i{position:absolute;left:0;top:4px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:1px solid var(--c);box-shadow:0 0 10px -2px var(--c)}
 .flow b{font-size:16px;font-weight:600;letter-spacing:-.01em}
 .flow span{font-size:14px;color:var(--muted)}
+.flow-track{position:absolute;background:var(--line);pointer-events:none}
 .flow-fill,.flow-tail{position:absolute;pointer-events:none;transition:opacity .45s ease}
 .flow-fill{background:var(--c)}
-.flow-tail{background:linear-gradient(90deg,transparent,var(--c));box-shadow:0 0 10px var(--c);border-radius:1px}
-.flow.down .flow-tail{background:linear-gradient(180deg,transparent,var(--c))}
-.flow-dot{position:absolute;left:0;top:0;width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 14px var(--c),0 0 4px var(--c);pointer-events:none;opacity:0;z-index:1}
+.flow-tail{background:linear-gradient(90deg,transparent,var(--c) 85%,#fff);box-shadow:0 0 10px var(--c);border-radius:1px}
+.flow.down .flow-tail{background:linear-gradient(180deg,transparent,var(--c) 85%,#fff)}
 .flow li i{transition:background .35s ease,box-shadow .35s ease}
 .flow li.lit i{background:var(--c);box-shadow:0 0 12px var(--c)}
 .flow li i::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:1px solid var(--c);opacity:0;pointer-events:none}
@@ -550,7 +549,6 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 @media (max-width:760px){
   .said blockquote{font-size:21px}
   .flow{grid-template-columns:minmax(0,1fr);gap:0;padding-left:26px}
-  .flow::before{left:5px;right:auto;top:8px;bottom:8px;width:1px;height:auto}
   .flow li{padding:0 0 22px}
   .flow li i{left:-26px;top:3px}
   .contact-card .who img{width:52px;height:52px}
