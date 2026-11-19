@@ -167,10 +167,23 @@
       document.addEventListener('click', function (e) { if (pop && !pop.hidden && !pop.contains(e.target) && e.target !== toggle) closePop(); });
     }
     var r = toggle.getBoundingClientRect();
-    pop.style.top = Math.round(r.bottom + 8) + 'px';
-    pop.style.right = Math.max(12, Math.round(window.innerWidth - r.right)) + 'px';
-    renderPop();
+    // Right edge under the button but always fully on screen (12 px margins); measured against the
+    // session modal, which is the card's containing block when it has a transform.
+    var vw = document.documentElement.clientWidth || window.innerWidth;
+    var w = Math.min(300, vw - 24);
+    var left = Math.max(12, Math.min(vw - w - 12, r.right - w));
     pop.hidden = false;
+    pop.style.width = w + 'px';
+    pop.style.right = 'auto';
+    pop.style.left = '0px';
+    pop.style.top = '0px';
+    // Where (0,0) lands is the containing block's origin (the session modal if it is transformed).
+    pop.style.transition = 'none'; pop.style.transform = 'none';
+    var origin = pop.getBoundingClientRect();
+    pop.style.transform = ''; void pop.offsetWidth; pop.style.transition = '';
+    pop.style.left = Math.round(left - origin.left) + 'px';
+    pop.style.top = Math.round(r.bottom + 8 - origin.top) + 'px';
+    renderPop();
     requestAnimationFrame(function () { pop.classList.add('show'); });
   }
   function closePop() {
