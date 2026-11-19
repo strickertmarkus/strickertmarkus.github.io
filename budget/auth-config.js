@@ -143,7 +143,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
         {src:'exercise-progress-consistency-v10.js',attr:'data-exercise-progress-consistency-v10'},
         {src:'exercise-pulse-flow-progress-marker-v92.js',attr:'data-exercise-pulse-flow-progress-marker-v92'},
         {src:'exercise-pulse-flow-completed-marker-v102.js',attr:'data-exercise-pulse-flow-completed-marker-v102'},
-        {src:'exercise-pulse-flow-ecg-glow-v104.js',version:'20261119-today-2',attr:'data-exercise-pulse-flow-ecg-glow-v104'},
+        {src:'exercise-pulse-flow-ecg-glow-v104.js',version:'20261119-nobetween-1',attr:'data-exercise-pulse-flow-ecg-glow-v104'},
         {src:'exercise-pulse-flow-canvas-glow-v130.js',attr:'data-exercise-pulse-flow-canvas-glow-v130'},
         {src:'exercise-pulse-flow-canvas-glow-v131.js',version:'20261119-today-1',attr:'data-exercise-pulse-flow-canvas-glow-v131'}
       ])

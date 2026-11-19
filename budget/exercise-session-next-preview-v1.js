@@ -8,8 +8,8 @@
  *    pass comes from under it, and the bar moved down a little so the buttons clear the status
  *    bar / Dynamic Island.
  * 3. A small card slides up at the bottom with what comes next and its animated 3D figure, before
- *    every set: the next set of the same exercise, a between exercise such as Hopprep, a rest, or
- *    the next exercise. In a set that counts down (a between exercise, cardio on Nedräkning) it
+ *    every set: the next set of the same exercise, a rest, or the next exercise. Between exercises
+ *    such as Hopprep are skipped in the card (it names what follows them). In a set that counts down (a between exercise, cardio on Nedräkning) it
  *    comes 10 s before the end and stays until the set ends; otherwise about 20 s in, for 7 s.
  * 4. A small round button next to the exercise name shows the current exercise's figure, when
  *    the exercise is in the explorer (the guide answers whether it found the name).
@@ -233,6 +233,13 @@
     if (up && up.kind === 'exercise' && up.afterSets && up.setNo) return { kind: 'set', name: up.name, setNo: up.setNo, sets: up.sets };
     var ex = state.exercises[Math.max(0, Number(state.exerciseIndex) || 0)];
     var setNo = Number(state.currentSet) || 1, sets = Number(ex && ex.plannedSets) || 1;
+    // Between exercises (Hopprep …) are left out of the card: it names what comes after them,
+    // the next set of this exercise or the next exercise.
+    if (up && up.kind === 'between') {
+      if (ex && !ex.__betweenCustomV3 && setNo < sets) return { kind: 'set', name: String(ex.name || '').trim(), setNo: setNo + 1, sets: sets };
+      var after = state.exercises[Math.max(0, Number(state.exerciseIndex) || 0) + 1];
+      return after ? { kind: 'exercise', name: String(after.name || '').trim(), seconds: 0, exercise: after.name } : null;
+    }
     if (up && up.kind !== 'exercise') return up;
     if (ex && !ex.__betweenCustomV3 && setNo < sets) return { kind: 'set', name: String(ex.name || '').trim(), setNo: setNo + 1, sets: sets };
     return up;
