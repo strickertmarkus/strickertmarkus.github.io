@@ -67,12 +67,14 @@
       '#session-auto-toggle-v1{position:relative}' +
       '#session-auto-toggle-v1[aria-pressed="true"] .am-ico{color:var(--pf-soft,#FED7AA)}' +
       '#session-modal.show .session-top > #session-energy-toggle{justify-self:end}' +
-      '#session-auto-toggle-v1 .am-ico{font:800 12px/1 Inter,system-ui,sans-serif;letter-spacing:.02em}' +
+      // The label sits centred over the whole circle (not inside the button padding) at a size that fits a 34–40 px circle; the session typography sets larger text on buttons, so this wins on specificity.
+      'html body #session-modal #session-auto-toggle-v1{padding:0!important;overflow:hidden}' +
+      'html body #session-modal #session-auto-toggle-v1 .am-ico{position:absolute;inset:0;display:grid;place-items:center;font:800 9.5px/1 Inter,system-ui,sans-serif!important;letter-spacing:.04em!important;white-space:nowrap}' +
       '#session-auto-toggle-v1 .am-ring{position:absolute;inset:-1px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .2s;' +
         'background:conic-gradient(rgb(var(--pf-rgb,251,146,60)) calc(var(--am-p,0)*1turn),transparent 0);' +
         '-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}' +
       '#session-auto-toggle-v1.is-counting .am-ring{opacity:1}' +
-      '#session-auto-toggle-v1.is-counting .am-ico{font-size:13px;font-variant-numeric:tabular-nums}' +
+      'html body #session-modal #session-auto-toggle-v1.is-counting .am-ico{font-size:13px!important;letter-spacing:0!important;font-variant-numeric:tabular-nums}' +
       '#session-auto-pop-v1{position:fixed;z-index:2147482000;width:min(300px,calc(100vw - 24px));padding:14px 14px 12px;border-radius:18px;' +
         'background:#141820;border:1px solid rgba(var(--pf-rgb,251,146,60),.28);box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 24px rgba(var(--pf-rgb,251,146,60),.10);' +
         'font-family:Inter,system-ui,sans-serif;color:#eef2f6;opacity:0;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .18s ease,transform .22s cubic-bezier(.22,1,.36,1)}' +

@@ -121,7 +121,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-pulse-flow-motion-v67.js',version:'20261111-countup-1',attr:'data-exercise-pulse-flow-motion-v67',group:'motion'},
     {src:'exercise-session-typography.js',attr:'data-exercise-session-typography',group:'pulse-presentation'},
     {src:'exercise-cardio-finish-v1.js',version:'20261112-cardio-1',attr:'data-exercise-cardio-finish-v1',group:'session-transition'},
-    {src:'exercise-auto-mode-v1.js',version:'20261119-today-1',attr:'data-exercise-auto-mode-v1',group:'session-transition'}
+    {src:'exercise-auto-mode-v1.js',version:'20261119-autofit-1',attr:'data-exercise-auto-mode-v1',group:'session-transition'}
   ];
   var exerciseAssetManifestV2 = embeddedFieldWorkspace
     ? allExerciseAssetManifestV2.filter(function (item) {
