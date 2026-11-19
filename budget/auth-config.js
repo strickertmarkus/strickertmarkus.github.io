@@ -114,7 +114,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-session-sound-v1.js',version:'20261116-auto-1',attr:'data-exercise-session-sound-v1',group:'session-ux'},
     {src:'exercise-session-ux-v20.js',version:'20261116-auto-1',attr:'data-exercise-session-ux-v20',group:'session-ux'},
     {src:'exercise-motion-v1.js',attr:'data-exercise-motion-v1',group:'motion'},
-    {src:'exercise-hype-timer-layout-v1.js',version:'20261116-auto-1',attr:'data-exercise-hype-timer-layout-v1',group:'session-presentation'},
+    {src:'exercise-hype-timer-layout-v1.js',version:'20261119-top-1',attr:'data-exercise-hype-timer-layout-v1',group:'session-presentation'},
     {src:'exercise-session-stability-v55.js',attr:'data-exercise-session-stability-v55',group:'session-stability'},
     {src:'exercise-custom-transition-atomic-v56.js',version:'20261111-countup-1',attr:'data-exercise-custom-transition-atomic-v56',group:'session-transition'},
     {src:'exercise-pulse-flow-v58.js',attr:'data-exercise-pulse-flow-v58',group:'pulse-presentation'},
@@ -143,7 +143,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
         {src:'exercise-progress-consistency-v10.js',attr:'data-exercise-progress-consistency-v10'},
         {src:'exercise-pulse-flow-progress-marker-v92.js',attr:'data-exercise-pulse-flow-progress-marker-v92'},
         {src:'exercise-pulse-flow-completed-marker-v102.js',attr:'data-exercise-pulse-flow-completed-marker-v102'},
-        {src:'exercise-pulse-flow-ecg-glow-v104.js',version:'20261116-auto-1',attr:'data-exercise-pulse-flow-ecg-glow-v104'},
+        {src:'exercise-pulse-flow-ecg-glow-v104.js',version:'20261119-every-set-1',attr:'data-exercise-pulse-flow-ecg-glow-v104'},
         {src:'exercise-pulse-flow-canvas-glow-v130.js',attr:'data-exercise-pulse-flow-canvas-glow-v130'},
         {src:'exercise-pulse-flow-canvas-glow-v131.js',attr:'data-exercise-pulse-flow-canvas-glow-v131'}
       ])

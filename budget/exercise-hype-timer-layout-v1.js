@@ -27,9 +27,13 @@
         min-width:0 !important;
         gap:10px !important;
       }
+      /* One row: the title takes the free space, every control after it gets its own column,
+         however many there are (Auto, 5 s, energy saving, Avsluta), so nothing wraps. */
       #session-modal.show .session-top {
         display:grid !important;
-        grid-template-columns:minmax(104px,1fr) repeat(4,auto) !important;
+        grid-template-columns:minmax(0,1fr) !important;
+        grid-auto-flow:column !important;
+        grid-auto-columns:auto !important;
         align-items:center !important;
         gap:7px !important;
       }
@@ -289,7 +293,6 @@
 
       @media(max-width:600px) {
         #session-modal.show .session-top {
-          grid-template-columns:1fr repeat(3,auto) !important;
           gap:5px !important;
           padding-left:12px !important;
           padding-right:12px !important;
@@ -345,9 +348,11 @@
       }
 
       @media(max-width:360px) {
-        #session-modal.show .session-top {
-          grid-template-columns:1fr repeat(3,auto) !important;
-        }
+        #session-modal.show .session-top { gap:4px !important; }
+        #session-modal.show .session-top .session-pretimer-toggle-v2,
+        #session-modal.show .session-top #session-energy-toggle { width:34px !important; height:34px !important; min-width:34px !important; }
+        #session-modal.show .session-top > .session-cta { padding:7px 8px !important; }
+        #session-modal.show .session-mode-title-v1 { font-size:15px !important; }
         #session-pre-timer-ring {
           width:146px !important;
           height:146px !important;

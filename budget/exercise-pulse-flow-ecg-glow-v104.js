@@ -344,7 +344,7 @@
 
     if (!document.querySelector('script[data-exercise-session-next-preview-v1]')) {
       var preview = document.createElement('script');
-      preview.src = 'exercise-session-next-preview-v1.js?v=20261116-auto-1';
+      preview.src = 'exercise-session-next-preview-v1.js?v=20261119-every-set-1';
       preview.async = false;
       preview.setAttribute('data-exercise-session-next-preview-v1','true');
       document.head.appendChild(preview);

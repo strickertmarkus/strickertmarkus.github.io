@@ -6,22 +6,26 @@
  *    exercise-hype-polish.js and exercise-session-theme-rest-v117.js.
  * 2. "Exercise Mode" title on the left of the top bar, and the bar moved down a little so the
  *    buttons clear the status bar / Dynamic Island.
- * 3. Like the stretch session: about 20 s into a set a small card slides up at the bottom with
- *    the next exercise and its animated 3D figure, for about 7 s, then slides away again. It
- *    only comes when something else is next: on the last set (the next exercise or a rest
- *    before it) or before a between exercise such as Hopprep; between two sets of the same
- *    exercise it stays away. The figure is pulse-exercise-guide.html in
- *    figure-only mode (?figure=<name>) inside a small iframe that is created on first use and
- *    then reused (the exercise is switched with postMessage).
+ * 3. A small card slides up at the bottom with what comes next and its animated 3D figure, before
+ *    every set: the next set of the same exercise, a between exercise such as Hopprep, a rest, or
+ *    the next exercise. In a set that counts down (a between exercise, cardio on Nedräkning) it
+ *    comes 10 s before the end and stays until the set ends; otherwise about 20 s in, for 7 s.
+ * 4. A small round button next to the exercise name shows the current exercise's figure, when
+ *    the exercise is in the explorer (the guide answers whether it found the name).
+ *    The figure is pulse-exercise-guide.html in figure-only mode (?figure=<name>) inside a small
+ *    iframe that is created once and reused (the exercise is switched with postMessage).
  */
 (function () {
   'use strict';
   if (window.__sessionNextPreviewV1 || /ingemar/i.test(location.pathname)) return;
   window.__sessionNextPreviewV1 = true;
 
-  var SHOW_AFTER_MS = 20000;
+  var SHOW_AFTER_MS = 20000;   // sets without a countdown
   var VISIBLE_MS = 7000;
   var PRELOAD_AFTER_MS = 6000;
+  var COUNTDOWN_SHOW_S = 10;    // sets that count down: this many seconds before the end
+  var COUNTDOWN_PRELOAD_S = 25;
+  var MANUAL_MS = 12000;        // the figure button keeps the card up this long
 
   function getState() {
     try { return typeof sessionState !== 'undefined' ? sessionState : null; } catch (_) { return null; }
@@ -47,6 +51,18 @@
     if (!state || !Array.isArray(state.exercises) || !state.exercises.length) return null;
     var index = Math.max(0, Number(state.exerciseIndex) || 0);
     var current = state.exercises[index];
+    // A between exercise such as Hopprep is running in the exercise's place
+    // (exercise-between-custom-exercise-v3.js): after it comes the next set, or the next exercise.
+    var runtime = state.__betweenCustomRuntimeV3;
+    if (current && current.__betweenCustomV3 && runtime && runtime.originalExercise) {
+      var original = runtime.originalExercise;
+      if (runtime.transition === 'finish') {
+        var after = state.exercises[runtime.index + 1];
+        return after ? { name: String(after.name || '').trim(), kind: 'exercise', seconds: 0, exercise: after.name } : null;
+      }
+      return { name: String(original.name || '').trim(), kind: 'exercise', seconds: 0, exercise: original.name, afterSets: true,
+        setNo: (Number(runtime.originalCurrentSet) || 1) + 1, sets: Math.max(Number(original.plannedSets) || 1, (Number(runtime.originalCurrentSet) || 1) + 1) };
+    }
     var nextExercise = state.exercises[index + 1] || null;
     var setsLeft = !!current && (Number(state.currentSet) || 1) < (Number(current.plannedSets) || 1);
     var plan = planFor(state);
@@ -92,6 +108,15 @@
       '#session-next-card-v1 .snp-kicker{color:rgb(var(--pf-rgb,52,211,153));font:700 10px/1.3 Inter,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase}',
       '#session-next-card-v1 .snp-name{margin-top:4px;color:#F1F5F9;font:650 17px/1.2 Inter,system-ui,sans-serif;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}',
       '#session-next-card-v1 .snp-sub{margin-top:3px;color:#8a96a6;font:500 12px/1.3 Inter,system-ui,sans-serif}',
+      '#session-next-card-v1.is-manual{pointer-events:auto;cursor:pointer}',
+      'html body #session-modal.show .session-main{position:relative}',
+      'html body #session-modal.show.snp-has-figure #session-current-ex{padding-right:48px}',
+      '#session-figure-btn-v1{position:absolute;right:2px;z-index:3;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;',
+      ' color:rgb(var(--pf-rgb,52,211,153));background:rgba(var(--pf-rgb,52,211,153),.08);border:1px solid rgba(var(--pf-rgb,52,211,153),.32);transition:background .2s,transform .2s}',
+      '#session-figure-btn-v1[hidden]{display:none}',
+      '#session-figure-btn-v1[aria-pressed="true"]{background:rgba(var(--pf-rgb,52,211,153),.2)}',
+      '#session-figure-btn-v1:active{transform:scale(.94)}',
+      'html body #session-modal.show.session-overview-mode #session-figure-btn-v1{display:none}',
       '@media (prefers-reduced-motion:reduce){#session-next-card-v1,#session-next-card-v1.show{transition:opacity .2s ease,visibility 0s}}'
     ].join('\n');
     document.head.appendChild(style);
@@ -123,6 +148,7 @@
         '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2.5-6 4 12 2.5-6H21"/></svg>' +
       '</span></div>' +
       '<div class="snp-copy"><div class="snp-kicker">Nästa</div><div class="snp-name"></div><div class="snp-sub"></div></div>';
+    card.addEventListener('click', function () { if (manualUntil) closeManual(); });
     var modal = document.getElementById('session-modal');
     (modal || document.body).appendChild(card);
     return card;
@@ -161,13 +187,97 @@
     if (event.origin !== location.origin || !event.data || event.data.type !== 'pulse-figure') return;
     if (!frame || event.source !== frame.contentWindow) return;
     frameReady = true;
+    known[key(event.data.name)] = !!event.data.found;
     if (card && String(event.data.name) === frameName) card.classList.toggle('no-figure', !event.data.found);
   });
+  var known = {};   // exercise name (lower case) -> found in the explorer
+  function key(name) { return String(name || '').trim().toLocaleLowerCase('sv'); }
 
   function subtitle(up) {
     if (up.kind === 'between') return 'Mellanövning · ' + up.seconds + ' s';
     if (up.kind === 'rest') return up.seconds + ' s vila, sedan ' + up.exercise;
-    return up.afterSets ? 'Efter sista setet' : 'Efter detta set';
+    if (up.kind === 'set') return 'Set ' + up.setNo + ' av ' + up.sets;
+    return 'Efter detta set';
+  }
+
+  /* What the card shows next: the upcoming between exercise / rest / exercise, or, while
+     sets remain, the next set of the same exercise. Null when the pass ends. */
+  function nextUp(state) {
+    var up = window.__sessionUpcomingV1(state);
+    if (up && up.kind === 'exercise' && up.afterSets && up.setNo) return { kind: 'set', name: up.name, setNo: up.setNo, sets: up.sets };
+    var ex = state.exercises[Math.max(0, Number(state.exerciseIndex) || 0)];
+    var setNo = Number(state.currentSet) || 1, sets = Number(ex && ex.plannedSets) || 1;
+    if (up && up.kind !== 'exercise') return up;
+    if (ex && !ex.__betweenCustomV3 && setNo < sets) return { kind: 'set', name: String(ex.name || '').trim(), setNo: setNo + 1, sets: sets };
+    return up;
+  }
+
+  /* Seconds the running set counts down from, or null when it counts up. */
+  function countdownSeconds(ex) {
+    if (!ex) return null;
+    if (ex.__betweenCustomV3) return Math.max(1, Number(ex.time) * 60);
+    if (ex.kind === 'cardio' && ex.timerMode !== 'up' && Number(ex.time) > 0) return Number(ex.time) * 60;
+    return null;
+  }
+  function elapsedSeconds(state) {
+    var end = state.__hypePaused && state.__hypePausedAt ? Number(state.__hypePausedAt) : Date.now();
+    return Math.max(0, (end - Number(state.setStartedAt)) / 1000);
+  }
+
+  /* ── the current exercise's figure, by hand ─────────────── */
+  var button = null, manualUntil = 0, manualName = '';
+  function ensureButton(modal) {
+    var main = modal.querySelector('.session-main');
+    if (!main) return null;
+    if (button && main.contains(button)) return button;
+    button = document.createElement('button');
+    button.type = 'button';
+    button.id = 'session-figure-btn-v1';
+    button.hidden = true;
+    button.setAttribute('aria-label', 'Visa övningen');
+    button.setAttribute('aria-pressed', 'false');
+    button.innerHTML = '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<circle cx="12" cy="4.6" r="2"/><path d="M12 7.5v6.5M12 14l-3 6.5M12 14l3 6.5M7 10.5l5-2 5 2"/></svg>';
+    button.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (manualUntil) { closeManual(); return; }
+      openManual();
+    });
+    main.appendChild(button);
+    return button;
+  }
+  function currentName(state) {
+    var ex = state && Array.isArray(state.exercises) ? state.exercises[Math.max(0, Number(state.exerciseIndex) || 0)] : null;
+    return ex ? String(ex.name || '').trim() : '';
+  }
+  function openManual() {
+    var name = currentName(getState());
+    if (!name) return;
+    manualName = name; manualUntil = Date.now() + MANUAL_MS;
+    ensureCard();
+    showFigure(name);
+    card.classList.toggle('no-figure', known[key(name)] !== true);
+    card.querySelector('.snp-kicker').textContent = 'Övningen';
+    card.querySelector('.snp-name').textContent = name;
+    card.querySelector('.snp-sub').textContent = 'Tryck för att stänga';
+    lastKey = '';
+    card.classList.add('show', 'is-manual');
+    if (button) button.setAttribute('aria-pressed', 'true');
+  }
+  function closeManual() {
+    manualUntil = 0; manualName = '';
+    if (card) card.classList.remove('show', 'is-manual');
+    if (button) button.setAttribute('aria-pressed', 'false');
+  }
+  function placeButton(modal, state) {
+    if (!ensureButton(modal)) return;
+    var name = currentName(state), nameEl = document.getElementById('session-current-ex');
+    var show = !!(name && known[key(name)] === true && nameEl && nameEl.offsetParent);
+    button.hidden = !show;
+    modal.classList.toggle('snp-has-figure', show);
+    if (show) button.style.top = (nameEl.offsetTop + Math.max(0, (Math.min(nameEl.offsetHeight, 44) - 38) / 2)) + 'px';
+    // Ask the guide once whether it knows this exercise (only while the card is not showing).
+    if (name && known[key(name)] === undefined && !(card && card.classList.contains('show'))) showFigure(name);
   }
 
   function blocked(modal) {
@@ -187,26 +297,38 @@
     installStyle();
     ensureTitle();
     var state = getState();
-    var running = !!(state && state.setRunning && state.setStartedAt);
-    var elapsed = running ? Date.now() - Number(state.setStartedAt) : 0;
-    var up = running ? window.__sessionUpcomingV1(state) : null;
+    var open = !!(state && Array.isArray(state.exercises) && state.exercises.length) && !blocked(modal);
+    if (open) placeButton(modal, state); else if (button) button.hidden = true;
 
-    // Another set of the same exercise is next: nothing to preview.
-    if (up && up.kind === 'exercise' && up.afterSets) up = null;
-    if (!up || blocked(modal)) {
-      if (card) card.classList.remove('show');
-      return;
+    if (manualUntil) {
+      if (open && Date.now() < manualUntil && currentName(state) === manualName) return;
+      closeManual();
     }
-    if (elapsed >= PRELOAD_AFTER_MS) showFigure(up.kind === 'rest' ? up.exercise : up.name);
-    if (elapsed < SHOW_AFTER_MS || elapsed > SHOW_AFTER_MS + VISIBLE_MS) { if (card) card.classList.remove('show'); return; }
+
+    var running = !!(open && state.setRunning && state.setStartedAt);
+    var up = running ? nextUp(state) : null;
+    if (!up) { if (card) card.classList.remove('show'); return; }
+
+    var ex = state.exercises[Math.max(0, Number(state.exerciseIndex) || 0)];
+    var limit = countdownSeconds(ex), elapsed = elapsedSeconds(state), preload, visible;
+    if (limit != null) {
+      var left = limit - elapsed;
+      preload = left <= COUNTDOWN_PRELOAD_S;
+      visible = left > 0 && left <= COUNTDOWN_SHOW_S;
+    } else {
+      preload = elapsed * 1000 >= PRELOAD_AFTER_MS;
+      visible = elapsed * 1000 >= SHOW_AFTER_MS && elapsed * 1000 <= SHOW_AFTER_MS + VISIBLE_MS;
+    }
+    if (preload) showFigure(up.kind === 'rest' ? up.exercise : up.name);
+    if (!visible) { if (card) card.classList.remove('show'); return; }
 
     ensureCard();
-    var key = up.kind + '|' + up.name + '|' + up.seconds;
-    if (key !== lastKey) {
-      lastKey = key;
+    var cardKey = up.kind + '|' + up.name + '|' + (up.setNo || up.seconds);
+    if (cardKey !== lastKey) {
+      lastKey = cardKey;
       card.querySelector('.snp-name').textContent = up.kind === 'rest' ? up.exercise : up.name;
       card.querySelector('.snp-sub').textContent = subtitle(up);
-      card.querySelector('.snp-kicker').textContent = up.kind === 'between' ? 'Nästa · mellanövning' : 'Nästa';
+      card.querySelector('.snp-kicker').textContent = up.kind === 'between' ? 'Nästa · mellanövning' : up.kind === 'set' ? 'Nästa set' : 'Nästa';
     }
     card.classList.add('show');
   }
