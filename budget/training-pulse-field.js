@@ -343,7 +343,9 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
       return;
     }
     var exercises=found.plan.exercises||[],sets=exercises.reduce(function(sum,ex){return sum+number(ex.sets);},0);
-    var when=found.offset===0?'I dag':found.offset===1?'I morgon':dayNames[(found.date.getDay()+6)%7];
+    var when=whenLabel(found.date,found.offset);
+    // Today's pass already logged: say so, so the ring pointing ahead is not read as the wrong day.
+    if(found.offset>0&&workoutsOn(today).length)when='Dagens klart · '+when;
     var detail=exercises.length?exercises.length+' övn'+(sets?' · '+sets+' set':''):'';
     byId('next-session-title').textContent=found.plan.name||found.plan.type||'Planerat pass';
     byId('next-session-meta').textContent=when+(detail?' · '+detail:'');
@@ -357,10 +359,12 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     for(var i=1;i<104;i++){if(weekPassCount(shiftDate(start,-7*i))>=goal)n++;else break;}
     return n;
   }
+  // "I dag", "I morgon", else weekday with date ("Ons 25 nov."), so a pass next week never reads like yesterday.
+  function whenLabel(date,offset){return offset===0?'I dag':offset===1?'I morgon':dayNames[(date.getDay()+6)%7]+' '+date.getDate()+' '+monthNames[date.getMonth()];}
   function nextPlanned(){
     var today=new Date();
     for(var i=0;i<14;i++){var d=shiftDate(today,i),left=i===0?remainingPassesOn(d):plannedPassesOn(d);
-      if(left.length)return (i===0?'Idag':i===1?'Imorgon':dayNames[(d.getDay()+6)%7])+' · '+String(left[0].plan.name||left[0].plan.type);}
+      if(left.length)return whenLabel(d,i)+' · '+String(left[0].plan.name||left[0].plan.type);}
     return '';
   }
   // One arc per pass toward the goal, in the pass's colour; extra passes as small sparks on an outer orbit.
