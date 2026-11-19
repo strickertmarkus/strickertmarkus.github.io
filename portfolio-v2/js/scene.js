@@ -7,14 +7,14 @@
   var cv = document.getElementById('scene'), ctx = cv.getContext('2d');
   /* The drifting light is soft by nature, so it lives on its own small canvas behind this one and the browser scales it up.
      Three full-screen gradients per frame at full Retina resolution were the heaviest work in desktop Safari. */
-  var lc = document.createElement('canvas'), lx2 = lc.getContext('2d'), LQ = 6, lastDraw = -1e9;
+  var lc = document.createElement('canvas'), lx2 = lc.getContext('2d'), LQ = 6;
   lc.id = 'scene-light'; lc.setAttribute('aria-hidden', 'true'); cv.parentNode.insertBefore(lc, cv);
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function mix(a, b, k) { return a + (b - a) * k; }
   function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
   function rgb(hex) { var n = parseInt(hex.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
   function rgba(hex, a) { var c = rgb(hex); return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
-  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var WHITE = '#DCE3EC';
 
   /* ---------- graph ---------- */
@@ -46,7 +46,7 @@
 
   /* ---------- state ---------- */
   var W = 0, H = 0, dpr = 1, narrow = false, D = 900;
-  var view = 'home', cat = 'all', sel = byId.cme, hover = null, onSelect = null, onHover = null, homeHover = null, homePin = null;
+  var view = 'home', cat = 'all', sel = byId.ta, hover = null, onSelect = null, onHover = null, homeHover = null, homePin = null;
   var t = 0, last = 0, t0 = -1, scrollY = 0, scrollSrc = null, homeLeft = 0, homeTop = 0, homeBottom = 0, sheetTop = 0;
   var cam = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, tgt = { cx: 0, cy: 0, zoom: 1, bright: 1, labels: 0, hx: 1, hy: 1 }, projNames = true;
   var userYaw = 0, userPitch = 0, userZoom = 1, first = true, mx = .5, my = .5, pmx = .5, pmy = .5;
@@ -82,7 +82,7 @@
         var half3 = (W - 98 - 104) / 2; tgt.zoom = clamp(ah / 380, .3, 1.3); tgt.hx = half3 / (135 * tgt.zoom); tgt.cx = 98 + half3;
       }
     } else if (view === 'home') {
-      if (narrow) { /* between the hero text and the ticker, with skill names on the left and area names on the right */
+      if (narrow) { /* below the hero text, with skill names on the left and area names on the right */
         var top2 = homeTop || H * .46, room2 = (homeBottom || H * .8) - top2 - 40, padL = 98, padR = 104, half = (W - padL - padR) / 2;
         tgt.zoom = 1; tgt.hx = half / 135; tgt.hy = clamp(room2 / 380, .3, 1); projNames = false;
         tgt.cx = padL + half; tgt.cy = top2 + 26 + room2 / 2; tgt.labels = room2 >= 140 ? .85 : 0; tgt.bright = room2 >= 80 ? 1 : 0; return done();
@@ -104,7 +104,7 @@
     }
     done();
   }
-  function done() { if (first) { for (var k in tgt) cam[k] = tgt[k]; first = false; } }
+  function done() { redraw(); if (first) { for (var k in tgt) cam[k] = tgt[k]; first = false; } }
   function resize() {
     /* The canvas is as tall as the largest viewport (100lvh), so Safari's toolbar showing and hiding while you scroll does not move the network. */
     dpr = Math.min(window.devicePixelRatio || 1, 2); W = window.innerWidth; H = cv.clientHeight || window.innerHeight; narrow = W <= 760;
@@ -124,20 +124,21 @@
   function bez(A, B, mxp, u) { var v = 1 - u; return [v * v * v * A[0] + 3 * v * v * u * mxp + 3 * v * u * u * mxp + u * u * u * B[0], v * v * v * A[1] + 3 * v * v * u * A[1] + 3 * v * u * u * B[1] + u * u * u * B[1]]; }
 
   /* ---------- frame ---------- */
-  var hits = [], calm = false;
-  function settled() { for (var key in cam) if (cam[key] !== tgt[key]) return false; return true; }
+  var hits = [], frameId = 0, hoverUntil = 0;
+  function redraw() {
+    if (!frameId && !document.hidden) frameId = requestAnimationFrame(frame);
+  }
   function frame(now) {
-    /* With the network hidden only the stars twinkle and the light drifts, which looks the same at 30 frames a second.
-       Fewer canvas updates also spare the blurred bars above it, which Safari redraws for every one. */
-    if (calm && settled() && now - lastDraw < 31) { requestAnimationFrame(frame); return; }
-    lastDraw = now;
+    frameId = 0;
+    var reduced = motion.matches;
+    var animate = !reduced && (view === 'explore' || (view === 'home' && now < hoverUntil));
     var dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
-    if (!reduced) t += dt;
-    var k = reduced ? 1 : 1 - Math.exp(-dt * 4.2), kl = reduced ? 1 : 1 - Math.exp(-dt * 1.4);
+    if (animate) t += dt;
+    var k = !animate ? 1 : 1 - Math.exp(-dt * 4.2), kl = !animate ? 1 : 1 - Math.exp(-dt * 1.4);
     for (var key in cam) { cam[key] += (tgt[key] - cam[key]) * k; if (Math.abs(tgt[key] - cam[key]) < .0005) cam[key] = tgt[key]; }
     pmx += (mx - pmx) * k; pmy += (my - pmy) * k;
     var clock = performance.now(); if (t0 < 0) t0 = clock;
-    var m = reduced ? 1 : clamp((clock - t0) / 1900, 0, 1), me = 1 - Math.pow(1 - m, 3);
+    var m = !animate || view !== 'explore' ? 1 : clamp((clock - t0) / 1900, 0, 1), me = 1 - Math.pow(1 - m, 3);
     var explore = view === 'explore';
     var yaw = userYaw + Math.sin(t * .23) * .26 + (1 - me) * 1.2 + (explore ? 0 : (pmx - .5) * .22);
     var pitch = clamp(.1 + userPitch + (1 - me) * .4 + (explore ? 0 : (pmy - .5) * .12), -.5, 1.1);
@@ -146,7 +147,7 @@
     if (scrollSrc) scrollY = view === 'home' ? scrollSrc() : 0;
     var home = view === 'home', fade = home ? 1 - clamp(scrollY / (H * .5), 0, 1) : 1, lift = home ? scrollY * (narrow ? 1 : .9) : 0;
     var B = cam.bright * fade, i, p, n;
-    calm = B < .01;
+    if (animate) redraw();
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.clearRect(0, 0, W, H);
 
@@ -169,7 +170,7 @@
     for (i = 0; i < stars.length; i++) { var st = stars[i]; p = pr(st); if (!p) continue; ctx.globalAlpha = st[3] * (.55 + .45 * Math.sin(t * st[6] + st[5])) * (.45 + .55 * B); ctx.beginPath(); ctx.arc(p[0], p[1], st[4] * Math.min(1.4, p[2] * 1.6), 0, 6.283); ctx.fill(); }
 
     /* A hidden network is not drawn at all. Safari paints wide additive strokes at near-zero opacity as solid white. */
-    if (B < .01) { hits = []; ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; requestAnimationFrame(frame); return; }
+    if (B < .01) { hits = []; ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; return; }
 
     /* node positions */
     liftY = lift;
@@ -179,7 +180,7 @@
       n.pos = [mix(n.far[0], n.net[0], me), mix(n.far[1], n.net[1], me), mix(n.far[2], n.net[2], me)];
       n.scr = pr(n.pos);
       var emph = !focus || n === focus || adj[focus.id][n.id];
-      var filt = cat === 'all' || !n.cat || n.cat === cat;
+      var filt = !explore || cat === 'all' || !n.cat || n.cat === cat;
       n.vis = mix(.4, 1, me) * (emph ? 1 : .5) * (filt ? 1 : .22);
       n.rad = n.type === 'p' ? mix(1.5, 6.5, me) : n.type === 's' ? mix(1.3, 4, me) : mix(1.5, 7.5, me);
       n.flare *= Math.exp(-dt * 2.6);
@@ -189,7 +190,7 @@
     for (i = 0; i < edges.length; i++) {
       var e = edges[i], A = e.a.scr, Bp = e.b.scr; if (!A || !Bp) continue;
       var hl = focus && (e.a === focus || e.b === focus);
-      var filt2 = cat === 'all' || e.a.cat === cat || e.b.cat === cat;
+      var filt2 = !explore || cat === 'all' || e.a.cat === cat || e.b.cat === cat;
       var al = me * me * (focus ? (hl ? .85 : .11) : .2) * (filt2 ? 1 : .3) * B;
       var cb = e.b.cat ? COLOR[e.b.cat] : WHITE, ca = e.a.cat ? COLOR[e.a.cat] : WHITE;
       var gr = ctx.createLinearGradient(A[0], A[1], Bp[0], Bp[1]); gr.addColorStop(0, rgba(ca, 1)); gr.addColorStop(1, rgba(cb, 1));
@@ -222,7 +223,7 @@
         var pu = reduced ? 0 : (t * .6) % 1; ctx.globalAlpha = (1 - pu) * .45 * cam.labels; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p[0], p[1], r + 6 + pu * 20, 0, 6.283); ctx.stroke();
       }
       if (n === hover && n !== sel) { ctx.strokeStyle = c; ctx.globalAlpha = .6; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p[0], p[1], r + 5, 0, 6.283); ctx.stroke(); }
-      if (me > .8) hits.push(n);
+      if (me > .8 && (!explore || filt || n.type === 'd')) hits.push(n);
       var la = cam.labels * lab * fade * clamp(n.vis * 1.1, .3, 1);
       if (la < .03) continue;
       var strong = focus && (n === sel || n === hover || adj[focus.id][n.id]);
@@ -240,13 +241,12 @@
       }
     }
     ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-    requestAnimationFrame(frame);
   }
 
   /* ---------- pointer ---------- */
   var ptrs = {}, dragged = false, downAt = null, pinch = 0;
   function pick(x, y) { var best = null, bd = 26 * 26; for (var i = 0; i < hits.length; i++) { var n = hits[i], dx = n.scr[0] - x, dy = n.scr[1] - y, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = n; } } return best; }
-  function setHover(h) { if (h === hover) return; hover = h; cv.style.cursor = h ? 'pointer' : 'grab'; if (onHover) onHover(h ? h.id : null); }
+  function setHover(h) { if (h === hover) return; hover = h; redraw(); cv.style.cursor = h ? 'pointer' : 'grab'; if (onHover) onHover(h ? h.id : null); }
   window.addEventListener('pointermove', function (e) { mx = e.clientX / Math.max(1, W); my = e.clientY / Math.max(1, H); }, { passive: true });
   cv.addEventListener('pointerdown', function (e) {
     if (view !== 'explore') return; ptrs[e.pointerId] = [e.clientX, e.clientY]; try { cv.setPointerCapture(e.pointerId); } catch (_) { }
@@ -254,7 +254,7 @@
     else if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); dragged = true; }
   });
   cv.addEventListener('pointermove', function (e) {
-    if (view !== 'explore') return; var ids = Object.keys(ptrs);
+    if (view !== 'explore') return; redraw(); var ids = Object.keys(ptrs);
     if (!ptrs[e.pointerId]) { setHover(pick(e.clientX, e.clientY)); return; }
     var prev = ptrs[e.pointerId]; ptrs[e.pointerId] = [e.clientX, e.clientY];
     if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch > 0) userZoom = clamp(userZoom * d / pinch, .6, 2.4); pinch = d; return; }
@@ -267,24 +267,29 @@
   }
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
   cv.addEventListener('pointerleave', function () { setHover(null); });
-  cv.addEventListener('wheel', function (e) { if (view !== 'explore') return; e.preventDefault(); userZoom = clamp(userZoom * Math.exp(-e.deltaY * .0012), .6, 2.4); }, { passive: false });
+  cv.addEventListener('wheel', function (e) { if (view !== 'explore') return; e.preventDefault(); redraw(); userZoom = clamp(userZoom * Math.exp(-e.deltaY * .0012), .6, 2.4); }, { passive: false });
 
   var api = {
     setView: function (v) { view = v; hover = null; homeHover = null; homePin = null; aim(); cv.style.cursor = v === 'explore' ? 'grab' : 'default'; },
     /* Home: the page lies over the canvas, so the page passes pointer positions in. Pointing at a node lights its paths;
        a tap pins it (a second tap on a pinned project opens it, reported as { id, open: true }). */
-    hoverAt: function (x, y) { var h = view === 'home' && x != null && cam.labels > .3 ? pick(x, y) : null; homeHover = h; return !!h; },
+    hoverAt: function (x, y) { var h = view === 'home' && x != null && cam.labels > .3 ? pick(x, y) : null; if (h !== homeHover) {
+      homeHover = h; hoverUntil = h ? performance.now() + 450 : 0; redraw();
+    }
+    return !!h; },
     tapAt: function (x, y) {
+      redraw();
       var h = view === 'home' && cam.labels > .3 ? pick(x, y) : null;
       if (!h) { homePin = null; return null; }
       if (h === homePin && h.type === 'p') return { id: h.id, open: true };
       homePin = h; return { id: h.id, open: false };
     },
+    redraw: redraw,
     setScrollSource: function (fn) { scrollSrc = fn; }, /* Home's scroll position, negative during the rubber band at the top */
     setHomeBox: function (left, top, bottom) { homeLeft = left; homeTop = top; homeBottom = bottom; if (view === 'home') aim(); },
     setSheetTop: function (px) { sheetTop = px; if (view === 'explore') aim(); },
-    setFilter: function (c) { cat = c; },
-    select: function (id) { var n = byId[id]; if (!n) return; sel = n; n.flare = 1; if (onSelect) onSelect(id); },
+    setFilter: function (c) { cat = c; redraw(); },
+    select: function (id) { var n = byId[id]; if (!n) return; sel = n; redraw(); n.flare = 1; if (onSelect) onSelect(id); },
     selected: function () { return sel.id; },
     linked: function (id, other) { return !!adj[id][other]; },
     onSelect: function (f) { onSelect = f; }, onHover: function (f) { onHover = f; },
@@ -292,6 +297,10 @@
   };
   window.Scene = api;
   window.addEventListener('resize', resize);
+  motion.addEventListener('change', redraw);
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { cancelAnimationFrame(frameId); frameId = 0; }
+    else redraw();
+  });
   resize();
-  requestAnimationFrame(frame);
 })();

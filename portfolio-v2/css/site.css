@@ -94,7 +94,6 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .foot{padding:72px 0 44px;font-size:13px;color:var(--dim)}
 
 /* ---------- home ---------- */
-/* The first screen is the hero plus the ticker: 108 px of bar and air above, 60 px of ticker and 36 px of air below. */
 .hero{min-height:calc(100vh - 204px);min-height:calc(100svh - 204px);max-width:560px;display:flex;flex-direction:column;justify-content:center;gap:22px;padding-bottom:20px}
 .hero h1{font-size:clamp(36px,min(4.6vw,9.6vh),72px);line-height:1.02;font-weight:700;letter-spacing:-.04em}
 .hero h1 em{font-style:normal;background:linear-gradient(100deg,#FFE3BE 0%,var(--amber) 55%,#FB923C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -108,11 +107,6 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .facts div > span{display:flex;gap:9px;align-items:baseline;font-size:15px;line-height:1.45;color:var(--muted);max-width:22em}
 .facts div > span i{flex:0 0 6px;width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);transform:translateY(-2px)}
 
-.ticker{margin:0 calc(var(--pad)*-1);overflow:hidden;border-block:1px solid var(--line);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
-.ticker-in{display:flex;width:max-content;animation:tick 46s linear infinite}
-.ticker span{padding:18px 30px;font-size:14px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);white-space:nowrap;position:relative}
-.ticker span::before{content:"";position:absolute;left:-3px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--c,#DCE3EC);box-shadow:0 0 10px 1px var(--c,rgba(220,227,236,.75)),0 0 22px var(--c,rgba(220,227,236,.3))}
-@keyframes tick{to{transform:translateX(-50%)}}
 
 
 .feature{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,44px);margin-bottom:28px}
@@ -206,14 +200,6 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 .dot-key i{width:9px;height:9px;border-radius:50%;background:var(--c)}
 .quote p{font-size:clamp(22px,2.6vw,34px);line-height:1.22;font-weight:600;letter-spacing:-.025em;color:var(--ink);max-width:24em}
 .quote p.quote-by{font-size:14px;line-height:1.5;font-weight:500;letter-spacing:0;color:var(--muted);margin-top:14px}
-.split{display:flex;flex-direction:column;gap:12px}
-.split-bar{display:flex;gap:3px;height:8px}
-.split-bar i{height:100%;border-radius:4px;background:var(--c);box-shadow:0 0 12px -2px var(--c);transform-origin:left;transform:scaleX(0);transition:transform 1s var(--ease);transition-delay:calc(var(--k)*90ms)}
-.in .split-bar i,.split.in .split-bar i{transform:scaleX(1)}
-.split-key{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:var(--muted)}
-.split-key span{display:inline-flex;align-items:center;gap:7px}
-.split-key i{width:7px;height:7px;border-radius:50%;background:var(--c)}
-.split-key b{font-weight:500;color:var(--soft);font-variant-numeric:tabular-nums}
 .vid{border-radius:22px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line),0 30px 80px -30px rgba(134,239,172,.3)}
 .vid video{width:100%;background:#000}
 /* Live demo: the app in a phone frame beside the text. The iframe is a real 390×844 phone, scaled. */
@@ -240,6 +226,9 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 .gal-shot img,.gal-shot video{width:100%;height:auto;aspect-ratio:468/1013;object-fit:cover;border-radius:20px;border:1px solid rgba(255,255,255,.09);background:#0E1219;box-shadow:0 26px 60px -34px rgba(0,0,0,.95);transition:transform .6s var(--ease),box-shadow .6s ease,border-color .4s ease}
 .gal-shot span{font-size:13px;line-height:1.4;color:var(--muted);transition:color .3s ease}
 @media (hover:hover){.gal-shot:hover img,.gal-shot:hover video{transform:translateY(-6px);border-color:rgba(253,186,116,.35);box-shadow:0 34px 70px -30px rgba(253,186,116,.3)}.gal-shot:hover span{color:var(--ink)}}
+dialog.lb,dialog.pdf-view{margin:0;padding:0;border:0;width:100%;height:100%;max-width:none;max-height:none;color:var(--ink)}
+dialog:not([open]){display:none}
+.focus-guard{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .lb{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;background:rgba(5,7,11,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility 0s linear .3s}
 .lb.on{opacity:1;visibility:visible;transition:opacity .3s ease}
 .lb figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:14px}
@@ -307,9 +296,8 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 /* ---------- about ---------- */
 .about-top{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:clamp(28px,6vw,88px);align-items:center;max-width:1100px;padding-top:clamp(8px,4vh,40px)}
 .portrait{position:relative;aspect-ratio:1;border-radius:36px}
-.portrait::before{content:"";position:absolute;inset:-22%;border-radius:50%;background:radial-gradient(closest-side,rgba(253,186,116,.34),rgba(56,189,248,.12) 60%,transparent);filter:blur(10px);animation:breathe 7s ease-in-out infinite}
+.portrait::before{content:"";position:absolute;inset:-22%;border-radius:50%;background:radial-gradient(closest-side,rgba(253,186,116,.34),rgba(56,189,248,.12) 60%,transparent);filter:blur(10px)}
 .portrait img{position:relative;width:100%;height:100%;object-fit:cover;border-radius:36px;border:1px solid rgba(255,255,255,.16)}
-@keyframes breathe{50%{transform:scale(1.08);opacity:.75}}
 .about-intro{display:flex;flex-direction:column;gap:18px}
 .about-intro h1{font-size:clamp(38px,5vw,68px);line-height:1.03;font-weight:700;letter-spacing:-.04em}
 .values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 clamp(32px,6vw,96px);max-width:1040px}
@@ -332,8 +320,7 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .ring circle{fill:none;stroke-linecap:round;stroke-width:14;cursor:pointer;opacity:.5;transition:stroke-width .5s var(--ease),opacity .4s ease,stroke-dasharray .5s var(--ease),stroke-dashoffset .5s var(--ease)}
 .ring circle.on{stroke-width:22;opacity:1} /* its glow is an SVG filter set in ringWidget: Safari ignores CSS drop-shadow on SVG shapes */
 .ring-mid{position:absolute;inset:26%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;pointer-events:none}
-.ring-mid b{font-size:clamp(26px,2.6vw,36px);font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
-.ring-mid span{font-size:13px;color:var(--muted);max-width:11em}
+.ring-mid span{font-size:clamp(13px,1.3vw,18px);font-weight:600;color:var(--muted);max-width:11em}
 .comp-list{display:flex;flex-direction:column;gap:18px;min-width:0}
 .comp-tabs{display:flex;flex-wrap:wrap;gap:4px 6px}
 .comp-tabs button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:500;color:var(--muted);transition:background .3s ease,color .3s ease}
@@ -360,7 +347,6 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .xp h3{font-size:19px;font-weight:600;letter-spacing:-.015em}
 .xp .org{font-size:14px;color:var(--muted)}
 .xp p.tx{margin-top:8px;color:var(--soft);font-size:15px;max-width:44em}
-.xp .split{margin-top:14px;max-width:560px}
 .xp .link{font-size:14px;margin-top:4px}
 
 .contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,6vw,88px);max-width:1040px;align-items:start}
@@ -423,7 +409,7 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
   .brand img{width:28px;height:28px}
   .reach{top:7px;right:14px;padding:0;width:44px;justify-content:center;background:none;border-color:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
   .reach span{display:none}
-  .tabs{top:auto;bottom:0;left:0;right:0;transform:none;border-radius:0;border-top:1px solid rgba(255,255,255,.05);align-items:center;justify-content:space-around;padding:6px max(8px,calc((100vw - 520px)/2)) calc(max(env(safe-area-inset-bottom,0px),12px) + 4px);background:linear-gradient(180deg,rgba(9,13,20,.4),rgba(9,13,20,.6));-webkit-backdrop-filter:blur(24px) saturate(150%);backdrop-filter:blur(24px) saturate(150%)}
+  .tabs{top:auto;bottom:0;left:0;right:0;transform:none;border-radius:0;border-top:1px solid rgba(255,255,255,.05);align-items:center;justify-content:space-around;padding:6px max(8px,calc((100vw - 520px)/2)) calc(max(env(safe-area-inset-bottom,0px),12px) + 4px);background:#10151d}
   .tabs a{flex:1;min-width:0;flex-direction:column;gap:3px;padding:4px 0 7px;min-height:44px;color:#7d8996;font:600 10px/1 var(--font);letter-spacing:.02em}
   .tabs a.on{color:var(--amber)}
   .tabs a svg{display:block}
@@ -432,10 +418,9 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
   .view{padding:78px var(--pad) 84px}
   .fx-grid{-webkit-mask-image:radial-gradient(ellipse 90% 50% at 50% 30%,#000 0,transparent 80%);mask-image:radial-gradient(ellipse 90% 50% at 50% 30%,#000 0,transparent 80%)}
   .fx-spot{display:none}
-  /* Phones: the hero keeps a fixed 236 px under the caption for the network, so it is large enough to carry its names; the ticker follows. */
-  .hero{min-height:0;max-width:none;justify-content:flex-start;padding:6px 0 236px;gap:16px}
-  /* Phones: the network takes the links' place. */
-  .hero .cta{display:none}
+  .hero{min-height:0;max-width:none;justify-content:flex-start;padding:6px 0 clamp(180px,32svh,300px);gap:16px}
+  .hero .cta{margin-top:0}
+  .hero .cta .quiet{display:none}
   .values{grid-template-columns:minmax(0,1fr)}
   .facts{padding-top:26px}
   .facts div{padding:4px 10px;gap:6px}
@@ -502,11 +487,12 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .said figure{margin:0;display:flex;flex-direction:column}
 .band-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;max-width:none}
 .band-row .link{flex:0 0 auto;padding-bottom:6px}
-.said blockquote{font-size:clamp(19px,1.8vw,24px);line-height:1.25;font-weight:600;letter-spacing:-.025em;color:var(--ink);margin:12px 0 14px}
+.said blockquote,.said .demonstration{font-size:clamp(19px,1.8vw,24px);line-height:1.25;font-weight:600;letter-spacing:-.025em;color:var(--ink);margin:12px 0 14px}
 .said figcaption{font-size:14px;color:var(--muted)}
 .said figcaption a{color:var(--amber)}
 
 /* Project: a chain of steps with a pulse running along it */
+.proj > .block{margin:32px 0 40px}
 .flow{position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:18px;padding-top:4px}
 .flow li{position:relative;display:flex;flex-direction:column;gap:4px;padding-top:28px}
 .flow li i{position:absolute;left:0;top:4px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:1px solid var(--c);box-shadow:0 0 10px -2px var(--c)}
@@ -562,7 +548,7 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 
 @media (max-width:760px){
   .said{grid-template-columns:minmax(0,1fr);gap:36px}
-  .said blockquote{font-size:19px}
+  .said blockquote,.said .demonstration{font-size:19px}
   .flow{grid-template-columns:minmax(0,1fr);gap:0;padding-left:26px}
   .flow li{padding:0 0 22px}
   .flow li i{left:-26px;top:3px}
@@ -570,13 +556,12 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
   .pdf-view{display:none}
 }
 
-/* CV: the compact ring, areas with their share beside it */
+/* CV: the compact ring, practice areas */
 .comp.mini{grid-template-columns:minmax(0,1fr);gap:14px;margin-top:4px}
 .comp.mini .ring{width:150px;margin:0}
-.comp.mini .ring-mid b{font-size:24px}
+.comp.mini .ring-mid span{font-size:12px;line-height:1.25}
 .comp.mini .comp-tabs{flex-direction:column;gap:0}
 .comp.mini .comp-tabs button{justify-content:flex-start;min-height:30px;padding:0 4px;border-radius:8px;font-size:13px;width:100%;text-align:left}
-.comp.mini .comp-tabs button b{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted)}
 .comp.mini .comp-tabs button[aria-pressed="true"]{background:rgba(255,255,255,.06)}
 @media (max-width:760px){
   .comp{grid-template-columns:minmax(0,1fr)}
@@ -604,17 +589,17 @@ a.tag:hover svg{transform:translateX(3px);color:var(--ink)}
 .contact-card .hire a{color:var(--ink);text-decoration:underline;text-decoration-color:rgba(255,255,255,.3);text-underline-offset:3px}
 
 /* Home: a quiet hint under the network, and the way into Explore */
-.net-hint{position:absolute;right:var(--pad);display:flex;align-items:center;gap:18px;font-size:13px;color:var(--dim);z-index:1;white-space:nowrap}
+.net-hint{position:relative;display:flex;justify-content:flex-end;align-items:center;gap:18px;font-size:13px;color:var(--dim);z-index:1;white-space:nowrap}
 .net-hint a{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:500;transition:color .3s ease}
 .net-hint a svg{width:15px;height:15px;transition:transform .4s var(--ease)}
 .net-hint a:hover{color:var(--amber)}
 .net-hint a:hover svg{transform:translateX(4px)}
 @media (max-width:760px){
-  .net-hint{left:var(--pad);right:var(--pad);justify-content:space-between;font-size:12px}
+  .net-hint{justify-content:space-between;font-size:12px}
 }
 /* CV: courses from the degrees, grouped, no grades */
 .courses{margin-top:6px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
-.courses h3{font-size:15px;font-weight:600}
+.courses summary{cursor:pointer;font-size:15px;font-weight:600}
 .courses p{font-size:14.5px;line-height:1.6;color:var(--muted)}
 .courses p b{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:2px}
 

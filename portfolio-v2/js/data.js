@@ -6,12 +6,10 @@
   var COLOR = { research: '#FDBA74', engineering: '#38BDF8', side: '#86EFAC' };
   var CATNAME = { research: 'Research', engineering: 'Engineering', side: 'Side project' };
 
-  var SKILLS = ['Fortran', '3D MHD', 'HPC', 'Tecplot', 'Monte Carlo', 'Python', 'Bash', 'C++', 'DOORS NG', 'TestStand', 'LabVIEW', 'JavaScript'];
-  /* The ticker on Home. The dot takes the colour of the area a tool belongs to in the network; shared tools stay white. */
-  var TICKER = [['NI TestStand', 'engineering'], ['LabVIEW', 'engineering'], ['Python'], ['C++', 'engineering'], ['DOORS NG', 'engineering'], ['Bash'], ['Fortran', 'research'], ['3D MHD', 'research'], ['Monte Carlo', 'research'], ['HPC', 'research'], ['Tecplot', 'research'], ['JIRA', 'engineering'], ['Git']];
+  var SKILLS = ['TestStand', 'LabVIEW', 'DOORS NG', 'C++', 'Bash', 'Python', 'Fortran', '3D MHD', 'HPC', 'Tecplot', 'Monte Carlo', 'JavaScript'];
   var AREAS = [
-    { id: 'd:research', cat: 'research', label: 'Research' },
     { id: 'd:engineering', cat: 'engineering', label: 'Engineering' },
+    { id: 'd:research', cat: 'research', label: 'Research' },
     { id: 'd:side', cat: 'side', label: 'Side projects' }
   ];
 
@@ -19,14 +17,13 @@
     {
       id: 'ta', cat: 'engineering', motif: 'matrix',
       short: 'Test automation',
-      title: 'Test automation',
+      title: 'Automating circuit-board production tests',
       kind: 'Test engineer', where: 'Sigma Technology Tech House', period: '2026 – now',
-      desc: 'Automated production tests for circuit boards made in volume: about ten minutes per board instead of days by hand.',
-      lead: 'I am responsible for the automated test sequences for circuit boards going into volume production. Tested by hand, a board would take days; with the sequences it takes about ten minutes. Instruments, hardware control and signal routing run in one sequence, and I write the documentation around it.',
+      desc: 'One NI TestStand sequence routes the signals, controls the instruments and tests a production board in about ten minutes.',
+      lead: 'I combined instrument control, signal routing and measurements into one NI TestStand sequence for production. Each run records the measured values and a pass or fail against the specification. A board takes about ten minutes.',
       skills: ['TestStand', 'LabVIEW'],
-      stats: [['~10 min', 'per board, automated'], ['Days', 'per board by hand'], ['Hundreds', 'of boards expected in production']],
+      stats: [['~10 min', 'per board, automated'], ['Hundreds', 'of boards expected in production']],
       facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive, NI MAX'], ['Scope', 'PCB production test, signal routing, measurement']],
-      split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]],
       blocks: [
         { type: 'flow', title: 'How a test runs', steps: [['Requirement', 'What the board must do'], ['Sequence', 'NI TestStand'], ['Instruments', 'LabVIEW drivers'], ['Switch matrix', 'NI Switch Executive'], ['Board under test', 'Measured pin by pin'], ['Report', 'Pass, fail and values']], result: 'Pass' },
         { type: 'list', title: 'What the tests cover', items: [
@@ -36,7 +33,7 @@
           'Ethernet connectivity and protocol validation.'
         ] },
         { type: 'list', title: 'What I deliver', items: [
-          'The automated test sequences, as the one responsible for them.',
+          'I wrote the NI TestStand sequences used to test each board.',
           'Test specification, user manual and software design descriptions.',
           'Contributions to the interface design descriptions.',
           'Plans for demonstrating the product to colleagues, the customer and the technical writers who produce the formal manuals.'
@@ -50,11 +47,10 @@
       title: 'System verification',
       kind: 'System verification engineer', where: 'Saab Dynamics, via BerDiz', period: '2023–2026',
       desc: 'Test and verification of defence products across hardware, firmware and software, from requirements to customer delivery.',
-      lead: 'Three years of test and verification of defence products across hardware, firmware and software: requirements and simulated environments, test automation, lab, environmental and EMC testing, and delivery to the customer.',
+      lead: 'I wrote reusable test templates for our C++ framework so other engineers could automate hardware checks. I ran regression tests across hardware, firmware and software, traced the results to requirements and presented them to the customer.',
       skills: ['C++', 'Python', 'Bash', 'DOORS NG'],
       stats: [['3 years', 'test and verification of defence products'], ['HW · FW · SW', 'tested together in the lab'], ['Top score', 'in the consultant evaluation, 2024']],
-      facts: [['Role', 'System test responsible'], ['Domain', 'Defence, security-classified products'], ['Standards', 'IEC 61010-1, CE marking, military standards']],
-      split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]],
+      facts: [['Role', 'System test lead'], ['Domain', 'Defence, security-classified products'], ['Standards', 'IEC 61010-1, CE marking, military standards']],
       blocks: [
         { type: 'flow', title: 'From requirement to delivery', steps: [['Requirements', 'Traced and reviewed'], ['Design review', 'Testable from the start'], ['Test specification', 'Traced to each requirement'], ['Lab tests', 'Hardware, firmware, software'], ['Verification report', 'Formal documents'], ['Customer delivery', 'Demonstrated and signed off']], result: 'Signed off' },
         { type: 'list', title: 'Test and automation', items: [
@@ -71,7 +67,7 @@
           'Took part in environmental and EMC testing.'
         ] },
         { type: 'list', title: 'Responsibility', items: [
-          'System test responsible in customer contact, formal system analyses and demonstrations.',
+          'I led system testing and presented results to the customer.',
           'Coordinated test activities and lab spaces; handled security-classified material and helped plan its transport.',
           'Team-lead duties, Scrum and retrospectives.',
           'Overviews of complex systems that many colleagues adopted as their daily reference.'
@@ -86,7 +82,7 @@
       title: 'Coronal mass ejections on AB Doradus',
       kind: 'Doctoral research', where: 'Leiden Observatory', period: '2022–2023',
       desc: 'When does a strong magnetic field hold a stellar eruption back? 21 3D MHD simulations of a young Sun-like star.',
-      lead: 'AB Dor is a young Sun-like star, about 120 million years old, with a surface magnetic field 100 to 1,000 times stronger than the Sun\'s. Theory says a field that strong should hold eruptions back. Yet dimming seen in EUV and X-ray data points to coronal mass ejections at high latitudes. I ran a parametric 3D MHD study to find out when an eruption escapes and when it stays confined.',
+      lead: 'In my simulations, eruptions escaped more readily where the magnetic field was open. AB Dor is a young Sun-like star, about 120 million years old, with a surface magnetic field 100 to 1,000 times stronger than the Sun\'s. Theory says a field that strong should hold eruptions back. Yet dimming seen in EUV and X-ray data points to coronal mass ejections at high latitudes. I ran a parametric 3D MHD study to find out when an eruption escapes and when it stays confined.',
       skills: ['Fortran', '3D MHD', 'HPC', 'Tecplot', 'Python', 'Bash'],
       stats: [['21', 'simulated eruptions'], ['11 / 10', 'erupted / stayed confined'], ['4×', 'higher field needed in closed regions'], ['3,700 km/s', 'fastest eruption after one hour']],
       facts: [['Method', '3D MHD, BATS-R-US'], ['Compute', 'Snellius supercomputer'], ['Published', 'MNRAS 533, 2024']],
@@ -178,7 +174,7 @@
         ] }
       ],
       cite: 'Markus Strickert (2020). Galactic Dynamics and the Spread of Galactic Civilisations. Bachelor\'s thesis, Lund Observatory, Lund University.',
-      links: [['Lund University publication', 'https://lup.lub.lu.se/luur/download?func=downloadFile&recordOId=8975819&fileOId=8975820'], ['PDF', '../Galactic_Dynamics_and_the_Spread_of_Galactic_Civilisations.pdf']]
+      links: [['Lund University publication', 'https://lup.lub.lu.se/student-papers/search/publication/9018128'], ['PDF', '../Galactic_Dynamics_and_the_Spread_of_Galactic_Civilisations.pdf']]
     },
     {
       id: 'sph', cat: 'research', motif: 'collide',
@@ -231,7 +227,7 @@
       kind: 'Side project', where: 'Built at home', period: 'ongoing',
       desc: 'Budget, shared calendar, lists and notes for the family, synced live between phones.',
       lead: 'Budget, calendar and lists for the family, synced live between phones. The demo and the screens run the real app on invented data.',
-      demo: { src: 'demo/app/home.html', poster: 'hem', tip: 'Tap through Hem, Överföringar, Budget and Listor in the phone.' },
+      demo: { src: 'demo/app/home.html', poster: 'hem', tip: 'Open Budget, then Analys (Analysis), to compare planned and actual spending.' },
       gallery: [
         { title: 'Calendar and lists', shots: [['hem', 'Shared month calendar'], ['handelser', 'Upcoming events'], ['inkop', 'Shopping list by store'], ['att-gora', 'To-dos with owner and due date']] },
         { title: 'Budget', shots: [['budget', 'Posts against what was spent'], ['analys', 'Six months against budget'], ['analys-pengar', 'Where the money goes']] }
@@ -320,52 +316,52 @@
   var EXPERIENCE = [
     { g: 'current', y: '2026 – now', title: 'Test engineer', org: 'Sigma Technology Tech House',
       text: 'Developed and automated PCB production test sequences in NI TestStand, LabVIEW and NI Switch Executive, integrating measurement instruments, hardware control and signal routing. Responsible for hardware and software verification, requirements, technical documentation and test reporting. Delivered an automated test solution demonstrated to the customer, with positive feedback for its intuitive design, clear structure and reproducibility.',
-      split: [['Test sequences in TestStand', 35], ['Instruments and hardware control', 25], ['Signal routing', 20], ['Verification and documentation', 20]], project: 'ta' },
+      project: 'ta' },
     { g: 'current', y: '2023 – 2026', title: 'System verification engineer', org: 'Saab Dynamics, as a consultant at BerDiz AB',
-      text: 'Started, wrote and verified products from early development to customer delivery. Led test automation through scripting, managed the customisation of simulators and coordinated lab spaces. Formal verification documents, and testing across hardware, firmware and software.',
-      split: [['Test writing and execution', 30], ['Requirement management', 20], ['Simulator development', 20], ['Test automation', 20], ['Firmware and software processing', 10]], project: 'sv' },
+      text: 'Verified systems from early development to customer delivery. Led test automation through scripting, managed the customisation of simulators and coordinated lab spaces. Formal verification documents, and testing across hardware, firmware and software.',
+      project: 'sv' },
     { g: 'academic', y: '2022 – 2023', title: 'Doctoral researcher', org: 'Leiden Observatory',
       text: 'Modelled stellar winds and coronal mass ejections with 3D MHD simulations to see how quiet wind conditions change under episodic mass ejections. Post-processed the data with (Py)Tecplot and compared it with Hubble and EUVE observations. Python and Linux/AWK for filtering and visualisation, on the Snellius supercomputer. I left the programme before the defence to move home to Sweden with my family.',
-      split: [['3D MHD simulations', 35], ['Data analysis and visualisation', 35], ['Scientific computing', 20], ['Documentation and publications', 10]], project: 'cme' },
+      project: 'cme' },
     { g: 'academic', y: '2023', title: 'Teaching assistant', org: 'Leiden Observatory',
       text: 'Lab sessions in an exoplanet course. Co-developed course material built around the MESA code for atmospheric escape modelling.',
-      split: [['MESA code development', 40], ['Course material', 35], ['Student mentoring', 25]] },
+    },
     { g: 'academic', y: '2021 – 2022', title: 'Master\'s thesis', org: 'Lund Observatory',
       text: 'The production of single and binary black holes in globular cluster models simulated with the MOCCA code. Monte Carlo methods for population synthesis (SSE and BSE) and N-body dynamics. Extensive Python code with Bash and AWK scripts for the analysis.',
-      split: [['N-body simulations', 35], ['Monte Carlo methods', 30], ['Data analysis', 20], ['Python development', 15]], project: 'bh' },
+      project: 'bh' },
     { g: 'academic', y: '2020', title: 'Bachelor\'s thesis', org: 'Lund University',
       text: 'Modelled epicyclic motion of stars in the Milky Way and simulated planetary abiogenesis with Monte Carlo methods, in a self-consistent Python model of how civilisations develop and spread across the galaxy.',
-      split: [['Python development', 40], ['Astrophysical modelling', 35], ['Simulation and analysis', 25]], project: 'gal' },
+      project: 'gal' },
     { g: 'projects', y: '2021', title: 'Summer research project', org: 'Lund University',
       text: 'Smoothed particle hydrodynamics for 576 stellar collisions. Delaunay triangulation for post-processing and matplotlib for visualisation, on the Aurora and SNIC supercomputers.',
-      split: [['SPH simulations', 40], ['Data analysis and visualisation', 35], ['Supercomputer resources', 25]], project: 'sph' },
+      project: 'sph' },
     { g: 'projects', y: '2013 – 2021', title: 'Personal assistant', org: 'Hammarstrands, Alminia Assistans and ASD, Motala and Linköping',
       text: 'Care work, mostly in the summers, alongside school and studies. Responsibility for medication and for people living with paralysis and epilepsy, including tracheostomy and respiratory equipment.',
-      split: [['Care and support', 55], ['Medical procedures', 30], ['Social support', 15]] },
+    },
     { g: 'lead', y: '2021 – 2022', title: 'ALVA, board member', org: 'Lund University',
       text: 'Student-run association for astronomy events and news. Lectures, planetarium shows and observation nights.',
-      split: [['Event organisation', 45], ['Student engagement', 35], ['Astronomy outreach', 20]] },
+    },
     { g: 'lead', y: '2019 – 2020', title: 'Associates, board member', org: 'Lund University',
       text: 'Head of the mentor committee in the science department, introducing new students to the university. Also showed physics experiments to the public at Kulturnatten in Lund.',
-      split: [['Mentoring and guidance', 60], ['Student integration', 30], ['Organisation', 10]] },
+    },
     { g: 'lead', y: '2011 – 2017', title: 'Motala Frisksportklubb and youth leadership', org: 'Motala',
       text: 'Board member 2013–2014 and instructor in trampoline, circus, freerunning and gymnastics. Helped design the freerunning park that opened in Motala in 2014. Young leader with Östergötlands Idrottsförbund and leadership training in 2015. Stipend from Bängt Bodèns Fond for leadership and commitment.',
-      split: [['Coaching', 40], ['Board work', 25], ['Facility design', 20], ['Leadership training', 15]] },
+    },
     { g: 'edu', y: '2020 – 2022', title: 'MSc Astrophysics', org: 'Lund University', text: 'Thesis: Black hole dynamics in stellar clusters.', project: 'bh' },
     { g: 'edu', y: '2017 – 2020', title: 'BSc Physics', org: 'Lund University', text: 'Thesis: Galactic dynamics and the spread of galactic civilisations.', project: 'gal' },
     { g: 'edu', y: '2015 – 2017', title: 'Upper secondary school, natural sciences', org: 'Platengymnasiet, Motala', text: '',
-      split: [['Natural sciences', 50], ['Academic foundation', 50]] }
+    }
   ];
 
-  /* The six areas of the old competence wheel; weight is the old segment size in degrees. */
+  /* Practice areas and the projects illustrating each one. */
   var COMPETENCE = [
-    { name: 'System verification and testing', weight: 75, color: '#38BDF8', items: [['Requirements traceability', 'sv'], ['Lab testing, HW · FW · SW', 'sv'], ['Production test automation', 'ta'], ['Environmental and EMC testing', 'sv'], ['CE marking, IEC 61010-1', 'sv'], ['NI TestStand', 'ta'], ['Compliance matrices', 'sv'], ['Regression testing', 'sv'], ['Formal change processes', 'sv'], ['Design reviews', 'sv'], ['Electrical measurements', 'ta'], ['Full lifecycle to delivery', 'sv']] },
-    { name: 'Technical skills', weight: 75, color: '#FDBA74', items: [['Python', 'viz'], ['C++', 'sv'], ['LabVIEW', 'ta'], ['Git, DevOps, Jira'], ['Bash and Linux CLI', 'sv'], ['Fortran', 'cme'], ['JavaScript', 'fam'], ['MATLAB, VBA, AWK'], ['Jupyter, LaTeX'], ['AI-assisted development']] },
-    { name: 'Research and scientific computing', weight: 50, color: '#86EFAC', items: [['HPC simulations', 'cme'], ['3D MHD', 'cme'], ['Monte Carlo models', 'bh'], ['Statistical analysis', 'gal'], ['Data visualisation', 'viz'], ['Peer-reviewed paper', 'cme'], ['Supercomputer code optimisation', 'sph'], ['Stellar dynamics', 'bh']] },
-    { name: 'Communication and documentation', weight: 55, color: '#F9A8B8', items: [['Presenting to customers'], ['Conference talks', 'cme'], ['Test specifications', 'ta'], ['User manuals', 'ta'], ['Design descriptions', 'ta'], ['Academic writing', 'cme'], ['Cross-functional work'], ['Swedish, English, German']] },
-    { name: 'Problem solving', weight: 60, color: '#C4B5FD', items: [['Quick to learn new tools'], ['System overviews'], ['Breaking systems into parts'], ['Prototyping'], ['Automation frameworks', 'sv'], ['Debugging and optimisation'], ['Checking assumptions']] },
-    { name: 'Leadership', weight: 45, color: '#5EEAD4', items: [['Team lead', 'sv'], ['Scrum retrospectives', 'sv'], ['Customer contact', 'sv'], ['Security-classified work', 'sv'], ['Mentoring'], ['Coaching since my teens']] }
+    { name: 'System verification and testing', color: '#38BDF8', items: [['Requirements traceability', 'sv'], ['Lab testing, HW · FW · SW', 'sv'], ['Production test automation', 'ta'], ['Environmental and EMC testing', 'sv'], ['CE marking, IEC 61010-1', 'sv'], ['NI TestStand', 'ta'], ['Compliance matrices', 'sv'], ['Regression testing', 'sv'], ['Formal change processes', 'sv'], ['Design reviews', 'sv'], ['Electrical measurements', 'ta'], ['Full lifecycle to delivery', 'sv']] },
+    { name: 'Technical skills', color: '#FDBA74', items: [['Python', 'viz'], ['C++', 'sv'], ['LabVIEW', 'ta'], ['Git, DevOps, Jira'], ['Bash and Linux CLI', 'sv'], ['Fortran', 'cme'], ['JavaScript', 'fam'], ['MATLAB, VBA, AWK'], ['Jupyter, LaTeX'], ['AI-assisted development']] },
+    { name: 'Research and scientific computing', color: '#86EFAC', items: [['HPC simulations', 'cme'], ['3D MHD', 'cme'], ['Monte Carlo models', 'bh'], ['Statistical analysis', 'gal'], ['Data visualisation', 'viz'], ['Peer-reviewed paper', 'cme'], ['Supercomputer code optimisation', 'sph'], ['Stellar dynamics', 'bh']] },
+    { name: 'Communication and documentation', color: '#F9A8B8', items: [['Presenting to customers'], ['Conference talks', 'cme'], ['Test specifications', 'ta'], ['User manuals', 'ta'], ['Design descriptions', 'ta'], ['Academic writing', 'cme'], ['Cross-functional work'], ['Swedish, English, German']] },
+    { name: 'Problem solving', color: '#C4B5FD', items: [['Quick to learn new tools'], ['System overviews'], ['Breaking systems into parts'], ['Prototyping'], ['Automation frameworks', 'sv'], ['Debugging and optimisation'], ['Checking assumptions']] },
+    { name: 'Leadership', color: '#5EEAD4', items: [['Team lead', 'sv'], ['Scrum retrospectives', 'sv'], ['Customer contact', 'sv'], ['Security-classified work', 'sv'], ['Mentoring'], ['Coaching since my teens']] }
   ];
 
-  window.SITE = { COLOR: COLOR, CATNAME: CATNAME, SKILLS: SKILLS, TICKER: TICKER, AREAS: AREAS, PROJECTS: PROJECTS, GROUPS: GROUPS, EXPERIENCE: EXPERIENCE, COMPETENCE: COMPETENCE };
+  window.SITE = { COLOR: COLOR, CATNAME: CATNAME, SKILLS: SKILLS, AREAS: AREAS, PROJECTS: PROJECTS, GROUPS: GROUPS, EXPERIENCE: EXPERIENCE, COMPETENCE: COMPETENCE };
 })();
