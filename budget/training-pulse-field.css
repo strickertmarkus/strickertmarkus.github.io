@@ -1094,10 +1094,15 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 .rhythm-zen-mark.is-stretch::before{background:#b8e99b;box-shadow:0 0 8px #b8e99b78}
 .rhythm-zen-mark.is-meditation::before{background:#f5d58c;box-shadow:0 0 8px #f5d58c75}
 .rhythm-facts dd .rhythm-zen-mark b{color:#f5efeb;font-weight:650;font-size:11px}
-.wd4 .wd-zen-pips{position:absolute;display:flex;gap:3px;left:50%;top:calc(50% + 8px);transform:translateX(-50%);pointer-events:none}
-.wd-zen-pips i{display:block;width:5px;height:5px;border-radius:50%}
-.wd-zen-pips .is-stretch{background:#b8e99b;box-shadow:0 0 6px #b8e99b}
-.wd-zen-pips .is-meditation{background:#f5d58c;box-shadow:0 0 6px #f5d58c}
+/* Week view: stretch and meditation circle the day's dot like two planets, the same orbits as
+   the rhythm chart (rm-orbit): stretch outer and slower, meditation inner; tilted, so they stay
+   beside the dot and pass behind it on the far side. */
+.wd4 .wd-node:has(.wd-zen-pips){transform-style:preserve-3d}
+.wd4 .wd-zen-pips{position:absolute;inset:0;pointer-events:none;transform-style:preserve-3d;--orb:13px;--zd:5px}
+.wd-zen-pips i{position:absolute;display:block;left:50%;top:50%;width:var(--zd,5px);height:var(--zd,5px);margin:calc(var(--zd,5px) / -2) 0 0 calc(var(--zd,5px) / -2);border-radius:50%;animation:rm-orbit var(--period) linear infinite;animation-delay:var(--phase)}
+.wd-zen-pips .is-stretch{--r:calc(var(--orb,13px) + 1.5px);--period:26s;--phase:-3s;background:#b8e99b;box-shadow:0 0 6px #b8e99b}
+.wd-zen-pips .is-meditation{--r:var(--orb,13px);--period:17s;--phase:-11s;background:#f5d58c;box-shadow:0 0 6px #f5d58c}
+@media (prefers-reduced-motion:reduce){.wd-zen-pips i{animation:none;transform:translateX(var(--r))}.wd-zen-pips .is-meditation{transform:translateX(calc(var(--r) * -1))}}
 .rmap .rm-cell{position:relative;overflow:visible}
 /* Stretch and meditation on a training day circle the day's dot slowly, like two planets:
    stretch on the outer orbit, meditation on the inner one, a little faster. The orbits are tilted
