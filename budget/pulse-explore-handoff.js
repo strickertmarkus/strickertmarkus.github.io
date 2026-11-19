@@ -124,8 +124,23 @@
       win.pulseClassicConfirmSaveAsTemplate();
       box.dataset.saved = '1';
     }
+    // The saved pass remembers which programme it came from, so training mode can show
+    // "Program · <name>" under its title (exercise-session-next-preview-v1.js).
+    var date = modal.dataset.date, extraId = modal.dataset.extraId || '';
+    function markProgramme() {
+      try {
+        var all = win.getPlannedSessions(), day = all && all[date];
+        if (!day) return;
+        var target = extraId ? (day.additionalSessions || []).find(function (e) { return e && String(e.id) === String(extraId); }) : day;
+        if (!target || target.programName === plan.name) return;
+        target.programName = plan.name;
+        win.savePlannedSessions(all);
+      } catch (e) {}
+    }
     modal.addEventListener('click', function (event) {
-      if (event.target.closest('.classic-start-pass,[onclick*="saveDayWorkoutPlan"],[onclick*="startDayWorkoutFromBuilder"]')) maybeSaveTemplate();
+      if (!event.target.closest('.classic-start-pass,[onclick*="saveDayWorkoutPlan"],[onclick*="startDayWorkoutFromBuilder"]')) return;
+      maybeSaveTemplate();
+      setTimeout(markProgramme, 60); setTimeout(markProgramme, 600);   // after the builder has saved the pass
     }, true);
     var observer = new MutationObserver(function () { if (!modal.classList.contains('show')) { observer.disconnect(); note.remove(); } });
     observer.observe(modal, { attributes: true, attributeFilter: ['class'] });

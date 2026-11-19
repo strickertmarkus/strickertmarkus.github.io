@@ -37,7 +37,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var url=new URL('archive/exercise.html',location.href);
     url.searchParams.set('overview','compact');
     url.searchParams.set('compactHost','1');
-    url.searchParams.set('v','20261119-every-set-1');
+    url.searchParams.set('v','20261119-today-2');
     if(profile==='maja')url.searchParams.set('user','maja');
     return url.href;
   }
@@ -328,11 +328,16 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var today=new Date(),found=null;
     for(var i=0;i<14;i++){
       var date=shiftDate(today,i),left=i===0?remainingPassesOn(date):plannedPassesOn(date);
-      if(left.length){found={date:date,plan:left[0].plan,offset:i};break;}
+      if(left.length){found={date:date,plan:left[0].plan,key:left[0].key,offset:i};break;}
     }
+    var link=byId('next-session-link');
+    // The ring glows when the pass is today; it starts exactly the pass it names (also an extra pass).
+    link.classList.toggle('is-today',!!found&&found.offset===0);
+    link.dataset.fieldAction=found&&found.key.indexOf('extra:')===0?'startExtra':'start';
+    if(found&&found.key.indexOf('extra:')===0)link.dataset.extraId=found.key.slice(6);else delete link.dataset.extraId;
     if(!found){
       var last=data.workouts.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))||number(b.id)-number(a.id);})[0];
-      byId('next-session-link').dataset.fieldDate=isoDate(today);
+      link.dataset.fieldDate=isoDate(today);
       byId('next-session-title').textContent='Välj pass';
       byId('next-session-meta').textContent=last?'Senast: '+workoutTitle(last):'Bygg eller välj ett';
       return;
@@ -342,7 +347,7 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     var detail=exercises.length?exercises.length+' övn'+(sets?' · '+sets+' set':''):'';
     byId('next-session-title').textContent=found.plan.name||found.plan.type||'Planerat pass';
     byId('next-session-meta').textContent=when+(detail?' · '+detail:'');
-    byId('next-session-link').dataset.fieldDate=isoDate(found.date);
+    link.dataset.fieldDate=isoDate(found.date);
   }
 
   function weekPassCount(start){var key=isoDate(start),end=isoDate(shiftDate(start,6));return data.workouts.filter(function(w){return w.date>=key&&w.date<=end;}).length;}
@@ -644,8 +649,6 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
             '" data-extra-id="'+escapeHtml(String(p.id))+'" aria-label="Starta '+label+'">Starta</button></div>';
         }).join('')+'</div>':'');
     }
-    var startLink=byId('next-session-link');
-    if(startLink)startLink.dataset.fieldDate=state.selectedDate;
   }
 
   // Totals plus the strength / cardio share of passes and minutes.
@@ -1607,8 +1610,15 @@ var monthNames = ['jan.','feb.','mars','apr.','maj','juni','juli','aug.','sep.',
     if(window.TrainingOverlay.isLocked()){renderPending=true;return;}
     renderPending=false;
     zenKindsCache=null;zenDoneCache=null;
+    renderedDay=isoDate(new Date());
     loadData();renderHero();renderRhythm();renderWeek();renderActivity();renderInsight();renderVolume();renderLog();renderRecords();
   }
+  /* A home-screen app can stay open overnight: a new day re-renders, so "I dag" and the start ring follow the date. */
+  var renderedDay='';
+  function renderIfNewDay(){if(!document.hidden&&renderedDay&&renderedDay!==isoDate(new Date()))renderAll();}
+  document.addEventListener('visibilitychange',renderIfNewDay);
+  window.addEventListener('pageshow',renderIfNewDay);
+  setInterval(renderIfNewDay,60000);
   /* Export of the chosen profile's training data: the log as CSV for a spreadsheet,
      or every training key as a JSON backup. localStorage reads are already scoped
      to the profile by firebase-sync.js, so Maja's export only holds Maja's data. */

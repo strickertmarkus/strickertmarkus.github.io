@@ -4,8 +4,9 @@
  *    such as "Hopprep" (custom betweenSets / betweenExercises) wins over the next exercise, so
  *    the "→ next" label next to the exercise name and the preview card agree. Used by
  *    exercise-hype-polish.js and exercise-session-theme-rest-v117.js.
- * 2. "Exercise Mode" title on the left of the top bar, and the bar moved down a little so the
- *    buttons clear the status bar / Dynamic Island.
+ * 2. "Exercise Mode" title on the left of the top bar, with the plan or explorer programme the
+ *    pass comes from under it, and the bar moved down a little so the buttons clear the status
+ *    bar / Dynamic Island.
  * 3. A small card slides up at the bottom with what comes next and its animated 3D figure, before
  *    every set: the next set of the same exercise, a between exercise such as Hopprep, a rest, or
  *    the next exercise. In a set that counts down (a between exercise, cardio on Nedräkning) it
@@ -92,6 +93,10 @@
       'html body #session-modal.show .session-top > div:has(> .session-title){display:none!important}',
       'html body #session-modal.show .session-mode-title-v1{display:block;grid-column:1;justify-self:start;margin-right:auto;padding-left:2px;color:#F1F5F9;font:650 17px/1.2 Inter,system-ui,sans-serif;letter-spacing:-.3px;white-space:nowrap}',
       'html body #session-modal.show .session-mode-title-v1 span{color:rgb(var(--pf-rgb,52,211,153));text-shadow:0 0 14px rgba(var(--pf-rgb,52,211,153),.45)}',
+      'html body #session-modal.show .session-mode-title-v1{min-width:0;width:auto;max-width:100%;justify-self:stretch!important;margin-right:0!important;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box}',
+      'html body #session-modal.show .session-mode-title-v1 small{display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8a96a6;font:600 10.5px/1.25 Inter,system-ui,sans-serif;letter-spacing:0}',
+      'html body #session-modal.show .session-mode-title-v1 small b{color:rgb(var(--pf-rgb,52,211,153));font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:9.5px;margin-right:5px}',
+      'html body #session-modal.show .session-mode-title-v1 small[hidden]{display:none}',
       'html body #session-modal.show.session-overview-mode .session-mode-title-v1{display:none}',
       '#session-next-card-v1{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:60;width:min(380px,calc(100vw - 28px));',
       ' display:flex;align-items:center;gap:12px;padding:8px 14px 8px 8px;border-radius:20px;border:1px solid rgba(var(--pf-rgb,52,211,153),.28);',
@@ -130,8 +135,29 @@
     // Passläge heading) keeps matching nothing new; the old heading is hidden below instead.
     var title = document.createElement('span');
     title.className = 'session-mode-title-v1';
-    title.innerHTML = 'Exercise <span>Mode</span>';
+    title.innerHTML = 'Exercise <span>Mode</span><small hidden></small>';
     top.insertBefore(title, top.firstChild);
+  }
+  /* Under the title: the plan (week n of N) or explorer programme the pass comes from. */
+  function syncPlanLine(state) {
+    var line = document.querySelector('#session-modal .session-mode-title-v1 small');
+    if (!line) return;
+    var text = '', kind = '';
+    if (state && state.date) {
+      var day = null;
+      try { day = (window.getPlannedSessions() || {})[state.date] || null; } catch (_) {}
+      var pass = day && state.sourceExtraId ? (day.additionalSessions || []).find(function (e) { return e && String(e.id) === String(state.sourceExtraId); }) : day;
+      if (pass && pass.planId) { kind = 'Plan'; text = (pass.planName || String(pass.planId).replace(/-/g, ' ')) + (pass.planWeek ? ' · v. ' + pass.planWeek + '/' + (pass.planWeeks || 4) : ''); }
+      else if (pass && pass.programName) { kind = 'Program'; text = pass.programName; }
+    }
+    var key = kind + '|' + text;
+    if (line.dataset.key === key) return;
+    line.dataset.key = key;
+    line.hidden = !text;
+    line.innerHTML = '';
+    if (!text) return;
+    var b = document.createElement('b'); b.textContent = kind;
+    line.appendChild(b); line.appendChild(document.createTextNode(text));
   }
 
   /* ── preview card ───────────────────────────────────────── */
@@ -297,6 +323,7 @@
     installStyle();
     ensureTitle();
     var state = getState();
+    syncPlanLine(state);
     var open = !!(state && Array.isArray(state.exercises) && state.exercises.length) && !blocked(modal);
     if (open) placeButton(modal, state); else if (button) button.hidden = true;
 

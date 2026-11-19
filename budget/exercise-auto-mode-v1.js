@@ -9,7 +9,8 @@
  * - the next step is then started by itself: "Starta nästa set" between sets, "Övning klar" after
  *   the last set, and the following "Starta set"; rests and between exercises (Hopprep …) run
  *   through the existing flow, a between exercise ends after its own time;
- * - after a between exercise that is not a rest, a 20 s rest card comes before the next set;
+ * - after a between exercise that is not a rest, a 20 s rest comes before the next set, in the
+ *   session's own rest timer (exercise-session-transition-stability-v142.js beginRest with onDone);
  * - the toggle shows the seconds left of the set as a ring;
  * - nothing advances while the set is paused, while the cardio distance sheet or the end of the
  *   pass is open, or before the first set of the pass has been started by hand.
@@ -94,22 +95,7 @@
       '#session-auto-pop-v1 .am-chip{flex:1;appearance:none;cursor:pointer;padding:8px 0;border-radius:999px;font:600 12px/1 Inter,sans-serif;' +
         'border:1px solid rgba(255,255,255,.1);background:transparent;color:#c8d0da}' +
       '#session-auto-pop-v1 .am-chip[aria-pressed="true"]{border-color:rgba(var(--pf-rgb,251,146,60),.6);background:rgba(var(--pf-rgb,251,146,60),.12);color:var(--pf-soft,#FED7AA)}' +
-      '#session-auto-rest-v1{--ar-rgb:52,211,153;--ar-accent:#34D399;--ar-soft:#A7F3D0;position:fixed;inset:0;z-index:2147481000;display:flex;align-items:center;justify-content:center;' +
-        'background:radial-gradient(60% 45% at 50% 42%,rgba(var(--ar-rgb),.16),transparent 70%),rgba(6,8,12,.92);' +
-        'font-family:Inter,system-ui,sans-serif;color:#eef2f6;opacity:0;transition:opacity .25s ease}' +
-      '#session-auto-rest-v1.show{opacity:1}' +
-      '#session-auto-rest-v1 .ar-card{text-align:center;padding:24px}' +
-      '#session-auto-rest-v1 .ar-kicker{font-size:12px;font-weight:800;letter-spacing:.16em;color:var(--ar-accent)}' +
-      '#session-auto-rest-v1 .ar-ring{--ar-p:0;position:relative;width:200px;height:200px;margin:18px auto 16px;border-radius:50%;display:grid;place-items:center;' +
-        'background:conic-gradient(var(--ar-accent) calc(var(--ar-p)*1turn),rgba(255,255,255,.07) 0);box-shadow:0 0 40px rgba(var(--ar-rgb),.22)}' +
-      '#session-auto-rest-v1 .ar-ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:#0c0f14}' +
-      '#session-auto-rest-v1 .ar-num{position:relative;font-size:64px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}' +
-      '#session-auto-rest-v1 .ar-next{font-size:13px;color:#8b95a3}#session-auto-rest-v1 .ar-next b{color:#eef2f6;font-weight:700}' +
-      '#session-auto-rest-v1 .ar-actions{display:flex;gap:10px;justify-content:center;margin-top:18px}' +
-      '#session-auto-rest-v1 button{appearance:none;cursor:pointer;border-radius:999px;padding:12px 18px;font:700 14px/1 Inter,sans-serif;' +
-        'border:1px solid rgba(var(--ar-rgb),.4);background:rgba(var(--ar-rgb),.08);color:var(--ar-soft)}' +
-      '#session-auto-rest-v1 button.ar-skip{background:var(--ar-accent);color:#140a04;border-color:transparent}' +
-      '@media (prefers-reduced-motion:reduce){#session-auto-pop-v1,#session-auto-rest-v1{transition:none}}';
+      '@media (prefers-reduced-motion:reduce){#session-auto-pop-v1{transition:none}}';
     document.head.appendChild(st);
   }
 
@@ -191,50 +177,25 @@
     setTimeout(function () { if (!pop.classList.contains('show')) pop.hidden = true; }, 200);
   }
 
-  /* ── 20 s rest after a between exercise ── */
-  var rest = null;
-  function nextLabel(state) {
-    var ex = current(state);
-    if (!ex) return '';
-    return (ex.name || '') + (state.currentSet > 1 ? ' · set ' + state.currentSet : '');
-  }
+  /* ── 20 s rest after a between exercise: the session's own rest timer, with the usual ticks ── */
+  var resting = null;   // { ticked: {} } while the rest runs
   function startRest(state, then) {
-    var el = document.createElement('div');
-    el.id = 'session-auto-rest-v1';
-    el.setAttribute('role', 'dialog');
-    el.setAttribute('aria-label', 'Vila');
-    el.innerHTML = '<div class="ar-card"><div class="ar-kicker">VILA</div><div class="ar-ring"><span class="ar-num"></span></div>' +
-      '<div class="ar-next">Nästa: <b></b></div><div class="ar-actions"><button type="button" data-a="more">+10 s</button><button type="button" class="ar-skip" data-a="skip">Hoppa över</button></div></div>';
-    el.querySelector('.ar-next b').textContent = nextLabel(state);
-    (document.getElementById('session-modal') || document.body).appendChild(el);
-    rest = { el: el, endAt: Date.now() + BETWEEN_REST * 1000, total: BETWEEN_REST, last: null, then: then };
-    el.addEventListener('click', function (e) {
-      var b = e.target.closest('button');
-      if (!b || !rest) return;
-      if (b.dataset.a === 'more') { rest.endAt += 10000; rest.total += 10; }
-      else endRest(true);
-    });
-    requestAnimationFrame(function () { el.classList.add('show'); });
+    var owner = window.__exerciseSessionTransitionStabilityV142;
+    if (!owner || typeof owner.beginRest !== 'function') { then(); return; }
+    resting = { ticked: {} };
+    var ok = owner.beginRest(state, 'auto-rest', { type: 'rest', seconds: BETWEEN_REST, label: 'Efter mellanövningen', onDone: function (timedOut) {
+      resting = null;
+      if (timedOut && window.SessionSound) window.SessionSound.go();
+      then();
+    } });
+    if (!ok) { resting = null; then(); }
   }
-  function paintRest() {
-    if (!rest) return;
-    var left = (rest.endAt - Date.now()) / 1000;
-    var sec = Math.max(0, Math.ceil(left));
-    if (sec !== rest.last) {
-      if (rest.last != null && sec >= 1 && sec <= 4 && window.SessionSound) window.SessionSound.tick();
-      rest.last = sec;
-      rest.el.querySelector('.ar-num').textContent = sec;
-    }
-    rest.el.querySelector('.ar-ring').style.setProperty('--ar-p', String(Math.max(0, Math.min(1, left / rest.total))));
-    if (left <= 0) endRest(false);
-  }
-  function endRest(skipped) {
-    if (!rest) return;
-    var r = rest; rest = null;
-    if (!skipped && window.SessionSound) window.SessionSound.go();
-    r.el.classList.remove('show');
-    setTimeout(function () { r.el.remove(); }, 260);
-    r.then();
+  function restTick() {
+    var overlay = document.getElementById('session-between-overlay-v2');
+    var deadline = overlay && overlay.classList.contains('show') ? Number(overlay.dataset.restDeadline) : 0;
+    if (!deadline) { resting = null; return; }   // skipped or cancelled elsewhere
+    var sec = Math.ceil((deadline - Date.now()) / 1000);
+    if (sec >= 1 && sec <= 4 && !resting.ticked[sec]) { resting.ticked[sec] = 1; if (window.SessionSound) window.SessionSound.tick(); }
   }
 
   /* ── engine ── */
@@ -266,7 +227,7 @@
     }
     var left = limit != null ? limit - elapsed(state) : null;
     paintToggle(left != null && !ex.__betweenCustomV3 ? left : null);
-    if (rest) { paintRest(); return; }
+    if (resting) { restTick(); return; }
     if (blocked() || state.__hypePaused) { waitKey = ''; return; }
 
     if (running && left != null) {

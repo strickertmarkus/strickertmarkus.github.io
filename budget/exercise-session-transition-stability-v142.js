@@ -199,7 +199,9 @@
 
     requestAnimationFrame(function () {
       try {
-        if (pending.kind === 'next' && typeof window.startNextSet === 'function') {
+        if (typeof pending.onDone === 'function') {
+          pending.onDone(Date.now() >= pending.deadline);
+        } else if (pending.kind === 'next' && typeof window.startNextSet === 'function') {
           window.startNextSet();
         } else if (pending.kind === 'extra' && typeof window.addExtraSet === 'function') {
           window.addExtraSet();
@@ -225,10 +227,16 @@
       overlay.classList.remove('show');
     }
 
-    try {
-      var controller = window.__exerciseSessionControllerV46;
-      if (controller && typeof controller.armRestTransition === 'function') controller.armRestTransition(kind);
-    } catch (_) {}
+    /* config.onDone: a rest that is not a set transition (automatic mode's rest after a between
+       exercise, exercise-auto-mode-v1.js). Same overlay; when it ends onDone(timedOut) runs
+       instead of the next-set / finish step. */
+    var custom = typeof config.onDone === 'function';
+    if (!custom) {
+      try {
+        var controller = window.__exerciseSessionControllerV46;
+        if (controller && typeof controller.armRestTransition === 'function') controller.armRestTransition(kind);
+      } catch (_) {}
+    }
 
     var totalMs = Math.max(1000,Math.round(Number(config.seconds) || 60) * 1000);
     activeRest = {
@@ -239,13 +247,14 @@
       currentSet:Math.max(1,Number(state.currentSet) || 1),
       totalMs:totalMs,
       deadline:Date.now() + totalMs,
-      timer:0
+      timer:0,
+      onDone:custom ? config.onDone : null
     };
 
     var heading = document.getElementById('bs-overlay-heading');
     if (heading) heading.textContent = 'Vila';
     var label = overlay.querySelector('.bs-label');
-    if (label) label.textContent = kind === 'finish' ? 'Mellan övningar' : 'Mellan set';
+    if (label) label.textContent = config.label || (kind === 'finish' ? 'Mellan övningar' : 'Mellan set');
 
     overlay.dataset.restDeadline=String(activeRest.deadline);
     overlay.dataset.restTotalMs=String(activeRest.totalMs);

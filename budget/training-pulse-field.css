@@ -128,6 +128,11 @@ main{position:relative;z-index:2;display:block}
 .start-orbit::before,.start-orbit::after{content:"";position:absolute;display:block;pointer-events:none;border-radius:50%}
 .start-orbit::before{inset:8px;border:1px solid rgba(var(--start-light),.25)}
 .start-orbit::after{inset:-14px;border:0;background:radial-gradient(circle,transparent 56%,rgba(var(--start-light),.27) 67%,rgba(255,101,122,.14) 78%,transparent 91%);box-shadow:0 0 15px rgba(var(--start-light),.20),0 0 28px rgba(255,101,122,.11);filter:blur(8px);opacity:.42;transform:scale(.96);transform-origin:center;animation:startHaloBreath 4.8s ease-in-out infinite}
+/* The breathing glow ring only when the pass it names is today (training-pulse-field.js renderHero sets .is-today);
+   a pass on a later day keeps the calm ring. */
+.start-orbit:not(.is-today)::after{animation:none;opacity:0}
+.start-orbit:not(.is-today){box-shadow:0 0 14px rgba(var(--start-light),.14),0 0 30px rgba(255,101,122,.07),inset 0 0 24px rgba(var(--start-light),.07);border-color:rgba(var(--start-light),.42)}
+.start-orbit.is-today{box-shadow:0 0 26px rgba(var(--start-light),.32),0 0 58px rgba(255,101,122,.18),inset 0 0 28px rgba(var(--start-light),.12)}
 .start-orbit:hover{transform:scale(1.018);border-color:rgba(var(--start-light),.8);box-shadow:0 0 24px rgba(var(--start-light),.30),0 0 52px rgba(255,101,122,.16),inset 0 0 26px rgba(var(--start-light),.11)}
 .start-orbit>span,.start-orbit>strong{position:relative;z-index:1;text-align:center}
 .start-label{margin:0;color:var(--start-text);font:600 14px/1.3 var(--field-ui);letter-spacing:0;text-transform:none}
