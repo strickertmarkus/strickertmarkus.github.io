@@ -100,8 +100,7 @@
       var steps = 6, sx = w * .68, sw2 = w * .22, at = step % steps;
       for (i = 0; i < steps; i++) { var sy = h * (.2 + i * .112), passed = i < at, now = i === at; c.globalAlpha = passed ? .5 : now ? .95 : .16; c.fillStyle = now ? col : '#DCE3EC'; c.beginPath(); c.roundRect(sx, sy, sw2 * (now ? Math.min(1, ph * 1.5) : 1) * (.55 + ((i * 37) % 5) * .09), 5, 2.5); c.fill(); if (passed) dot(c, sx - 12, sy + 2.5, 2.4, '#86EFAC', 1); else if (now) dot(c, sx - 12, sy + 2.5, 2.4, '#FDBA74', .5 + .5 * Math.sin(t * 8)); }
     },
-    /* About: one small picture per way of working. These play once (t = seconds since the item came into view)
-       and then hold their last frame, so the page is still while it is read. */
+    /* About illustrations use the elapsed time within each repeating sequence. */
     trace: function (c, w, h, t, col) { /* requirements on the left, each traced across to a test that turns green */
       for (var i = 0; i < 3; i++) {
         var y = h * (.24 + i * .26), k = Math.max(0, Math.min(1, (t - .2 - i * .45) / .8)), e = 1 - Math.pow(1 - k, 3), x0 = w * .04, x1 = w * .3, x2 = w * .86;
@@ -185,7 +184,7 @@
       var item = entry.target._drawing;
       item.visible = entry.isIntersecting;
       if (item.visible) {
-        item.start = performance.now(); item.settled = false; item.drawn = false;
+        item.start = performance.now(); item.drawn = false;
       }
     });
     queueMotifs();
@@ -211,12 +210,11 @@
       }
     });
   }
-  function motif(kind, hex, viewId, once) {
+  function motif(kind, hex, viewId, sequence) {
     var c = h('canvas', 'motif'); c.setAttribute('aria-hidden', 'true');
-    var item = { el: c, kind: kind, hex: hex, view: viewId, once: !!once };
+    var item = { el: c, kind: kind, hex: hex, view: viewId, sequence: !!sequence };
     motifs.push(item); watchDrawing(item); return c;
   }
-  function replay(m) { m.start = performance.now(); m.settled = false; m.drawn = false; queueMotifs(); }
   function motifWrap(p, viewId) { return h('span', 'motif-wrap', motif(p.motif, COLOR[p.cat], viewId)); }
 
   /* Flow diagrams run like a test sequence: the line travels to a step, the step fills and its title lights up, a short pause,
@@ -272,28 +270,19 @@
     var again = flowTick(now), reduce = reducedMotion(), dpr = Math.min(window.devicePixelRatio || 1, 2);
     motifs.forEach(function (m, i) {
       if (m.view !== current.view || !m.visible || !m.width || !m.height) return;
-      var card = m.el.closest('.row,.feat');
-      var active = card && (card.matches(':focus-within') || (window.matchMedia('(hover:hover)').matches && card.matches(':hover')));
-      var elapsed = (now - m.start) / 1000;
-      var moving = !reduce && (card ? active : !m.once || elapsed < 3.5);
-      if (moving) again = true;
-      if (!moving && m.drawn && m.settled) return;
+      if (reduce && m.drawn) return;
+      if (!reduce) again = true;
       var w = Math.round(m.width * dpr), height = Math.round(m.height * dpr);
       if (m.el.width !== w || m.el.height !== height) { m.el.width = w; m.el.height = height; }
       var c = m.el.getContext('2d');
       c.setTransform(dpr, 0, 0, dpr, 0, 0); c.globalCompositeOperation = 'source-over';
       c.globalAlpha = 1; c.clearRect(0, 0, m.width, m.height); c.globalCompositeOperation = 'lighter';
-      var time = m.once ? (moving ? elapsed : 4) : (moving ? now / 1000 : 2) + i * 1.7;
+      var time = m.sequence ? (reduce ? 4 : (now - m.start) / 1000 % 4.5) : (reduce ? 2 : now / 1000) + i * 1.7;
       MOTIF[m.kind](c, m.width, m.height, time, m.hex);
-      m.drawn = true; m.settled = !moving;
+      m.drawn = true;
     });
     if (again) queueMotifs();
   }
-  ['pointerover', 'pointerout', 'focusin', 'focusout'].forEach(function (name) {
-    document.addEventListener(name, function (e) {
-      if (e.target.closest && e.target.closest('.row,.feat')) queueMotifs();
-    });
-  });
   window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', function () {
     motifs.concat(flows).forEach(function (item) { item.drawn = false; });
     queueMotifs();
@@ -333,6 +322,20 @@
     var el = h('section', 'block rv'), c = COLOR[p.cat];
     el.appendChild(h('h2', null, b.title));
     if (b.type === 'text') b.body.forEach(function (t) { el.appendChild(h('p', null, t)); });
+    else if (b.type === 'work-areas') {
+      el.classList.add('wide');
+      var bar = h('div', 'split-bar'), key = h('div', 'split-key');
+      bar.setAttribute('aria-hidden', 'true');
+      b.areas.forEach(function (area, index) {
+        var segment = h('i'), label = h('span', null, [h('i'), area.label]);
+        segment.style.flex = area.weight;
+        segment.style.setProperty('--k', index);
+        segment.style.setProperty('--c', area.color);
+        label.style.setProperty('--c', area.color);
+        bar.appendChild(segment); key.appendChild(label);
+      });
+      el.appendChild(h('div', 'split', [bar, key]));
+    }
     else if (b.type === 'list') { var ul = h('ul', 'lines'); ul.style.setProperty('--c', c); b.items.forEach(function (t) { ul.appendChild(h('li', null, t)); }); el.appendChild(ul); }
     else if (b.type === 'table') { var tb = h('div', 'tbl'); b.rows.forEach(function (r) { tb.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); }); el.appendChild(tb); }
     else if (b.type === 'bars') { var bars = h('div', 'bars'); b.rows.forEach(function (r) { var bar = h('i'); bar.style.setProperty('--c', COLOR[r[2]]); bar.style.setProperty('--w', r[1] / b.max); bars.appendChild(h('div', 'bar-row', [h('span', null, r[0]), h('b', null, r[1] + ' ' + b.unit), bar])); }); el.appendChild(bars); if (b.note) el.appendChild(h('p', 'note', b.note)); }
@@ -630,7 +633,7 @@
   ringWidget($('comp'), false); ringWidget($('comp-cv'), true);
   /* About: each way of working gets its own small moving picture and colour */
   document.querySelectorAll('.values li[data-motif]').forEach(function (li) { var col = li.getAttribute('data-c'); li.style.setProperty('--c', col); var cv = motif(li.getAttribute('data-motif'), col, 'about', true); li.insertBefore(h('span', 'val-motif', cv), li.firstChild);
-    li.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && cv._drawing.settled) replay(cv._drawing); }); });
+  });
   /* The CV's side column stays in view while the page scrolls; when it is taller than the screen it sticks by its bottom edge,
      so its last part (the ring) is reached instead of hidden. */
   var cvSide = document.querySelector('.cv-side');

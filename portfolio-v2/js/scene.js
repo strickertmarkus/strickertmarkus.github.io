@@ -124,21 +124,23 @@
   function bez(A, B, mxp, u) { var v = 1 - u; return [v * v * v * A[0] + 3 * v * v * u * mxp + 3 * v * u * u * mxp + u * u * u * B[0], v * v * v * A[1] + 3 * v * v * u * A[1] + 3 * v * u * u * B[1] + u * u * u * B[1]]; }
 
   /* ---------- frame ---------- */
-  var hits = [], frameId = 0, hoverUntil = 0;
+  var hits = [], frameId = 0;
   function redraw() {
     if (!frameId && !document.hidden) frameId = requestAnimationFrame(frame);
   }
   function frame(now) {
     frameId = 0;
     var reduced = motion.matches;
-    var animate = !reduced && (view === 'explore' || (view === 'home' && now < hoverUntil));
+    var animate = !reduced;
+    // Ambient motion on reading pages needs fewer paints than the interactive network.
+    if (animate && view !== 'home' && view !== 'explore' && now - last < 31) { redraw(); return; }
     var dt = Math.min(.05, (now - last) / 1000 || 0); last = now;
     if (animate) t += dt;
     var k = !animate ? 1 : 1 - Math.exp(-dt * 4.2), kl = !animate ? 1 : 1 - Math.exp(-dt * 1.4);
     for (var key in cam) { cam[key] += (tgt[key] - cam[key]) * k; if (Math.abs(tgt[key] - cam[key]) < .0005) cam[key] = tgt[key]; }
     pmx += (mx - pmx) * k; pmy += (my - pmy) * k;
     var clock = performance.now(); if (t0 < 0) t0 = clock;
-    var m = !animate || view !== 'explore' ? 1 : clamp((clock - t0) / 1900, 0, 1), me = 1 - Math.pow(1 - m, 3);
+    var m = !animate ? 1 : clamp((clock - t0) / 1900, 0, 1), me = 1 - Math.pow(1 - m, 3);
     var explore = view === 'explore';
     var yaw = userYaw + Math.sin(t * .23) * .26 + (1 - me) * 1.2 + (explore ? 0 : (pmx - .5) * .22);
     var pitch = clamp(.1 + userPitch + (1 - me) * .4 + (explore ? 0 : (pmy - .5) * .12), -.5, 1.1);
@@ -274,7 +276,7 @@
     /* Home: the page lies over the canvas, so the page passes pointer positions in. Pointing at a node lights its paths;
        a tap pins it (a second tap on a pinned project opens it, reported as { id, open: true }). */
     hoverAt: function (x, y) { var h = view === 'home' && x != null && cam.labels > .3 ? pick(x, y) : null; if (h !== homeHover) {
-      homeHover = h; hoverUntil = h ? performance.now() + 450 : 0; redraw();
+      homeHover = h; redraw();
     }
     return !!h; },
     tapAt: function (x, y) {

@@ -173,6 +173,13 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 .stats span{font-size:13px;color:var(--muted)}
 .blocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:56px clamp(32px,6vw,88px);margin-top:64px}
 .block h2{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+.split{display:flex;flex-direction:column;gap:12px}
+.split-bar{display:flex;gap:3px;height:8px}
+.split-bar i{height:100%;border-radius:4px;background:var(--c);box-shadow:0 0 12px -2px var(--c);transform-origin:left;transform:scaleX(0);transition:transform 1s var(--ease);transition-delay:calc(var(--k)*90ms)}
+.in .split-bar i,.split.in .split-bar i{transform:scaleX(1)}
+.split-key{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:var(--muted)}
+.split-key span{display:inline-flex;align-items:center;gap:7px}
+.split-key i{width:7px;height:7px;border-radius:50%;background:var(--c)}
 .block.wide{grid-column:1/-1}
 .block p{color:var(--soft);max-width:40em}
 .block p + p{margin-top:12px}
@@ -296,7 +303,8 @@ dialog:not([open]){display:none}
 /* ---------- about ---------- */
 .about-top{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:clamp(28px,6vw,88px);align-items:center;max-width:1100px;padding-top:clamp(8px,4vh,40px)}
 .portrait{position:relative;aspect-ratio:1;border-radius:36px}
-.portrait::before{content:"";position:absolute;inset:-22%;border-radius:50%;background:radial-gradient(closest-side,rgba(253,186,116,.34),rgba(56,189,248,.12) 60%,transparent);filter:blur(10px)}
+.portrait::before{content:"";position:absolute;inset:-22%;border-radius:50%;background:radial-gradient(closest-side,rgba(253,186,116,.34),rgba(56,189,248,.12) 60%,transparent);filter:blur(10px);animation:breathe 7s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.08);opacity:.75}}
 .portrait img{position:relative;width:100%;height:100%;object-fit:cover;border-radius:36px;border:1px solid rgba(255,255,255,.16)}
 .about-intro{display:flex;flex-direction:column;gap:18px}
 .about-intro h1{font-size:clamp(38px,5vw,68px);line-height:1.03;font-weight:700;letter-spacing:-.04em}

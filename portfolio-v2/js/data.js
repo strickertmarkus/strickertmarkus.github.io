@@ -26,6 +26,12 @@
       facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive, NI MAX'], ['Scope', 'PCB production test, signal routing, measurement']],
       blocks: [
         { type: 'flow', title: 'How a test runs', steps: [['Requirement', 'What the board must do'], ['Sequence', 'NI TestStand'], ['Instruments', 'LabVIEW drivers'], ['Switch matrix', 'NI Switch Executive'], ['Board under test', 'Measured pin by pin'], ['Report', 'Pass, fail and values']], result: 'Pass' },
+        { type: 'work-areas', title: 'Areas of work', areas: [
+          { label: 'Test sequences in TestStand', weight: 35, color: '#FDBA74' },
+          { label: 'Instruments and hardware control', weight: 25, color: '#38BDF8' },
+          { label: 'Signal routing', weight: 20, color: '#86EFAC' },
+          { label: 'Verification and documentation', weight: 20, color: '#F9A8B8' }
+        ] },
         { type: 'list', title: 'What the tests cover', items: [
           'MUX switch routing.',
           'Circuit specification analysis.',
