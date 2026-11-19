@@ -395,7 +395,8 @@
         });
       });
 
-      return result;
+      /* the yearly occurrences join the day in start-time order (home.html compareEventStart) */
+      return typeof window.compareEventStart === 'function' ? result.sort(window.compareEventStart) : result;
     };
 
     wrapped.__calendarYearlyV4Wrapped = true;

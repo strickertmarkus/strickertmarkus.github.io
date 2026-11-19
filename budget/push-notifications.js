@@ -149,45 +149,10 @@
     group.id = 'push-reminder-group';
     group.innerHTML =
       '<label>Påminnelse</label>' +
-      '<select id="ev-reminder">' +
-        '<option value="">Ingen</option>' +
-        '<option value="0">Vid starttid</option>' +
-        '<option value="15">15 min före</option>' +
-        '<option value="60">1 timme före</option>' +
-        '<option value="180">3 timmar före</option>' +
-        '<option value="1440">1 dag före</option>' +
+      '<select id="ev-reminder">' + (window.CalendarReminders ? window.CalendarReminders.optionsHtml(true) : '') +
       '</select>' +
       '<span class="push-reminder-note">Kräver att händelsen har en starttid.</span>';
     anchor.parentNode.insertBefore(group, anchor.nextSibling);
-  }
-
-  function wrapEventModal() {
-    var originalOpen = window.openEventModal;
-    if (typeof originalOpen === 'function' && !originalOpen.__pushWrapped) {
-      var wrappedOpen = function () {
-        var result = originalOpen.apply(this, arguments);
-        var reminder = document.getElementById('ev-reminder');
-        if (reminder) reminder.value = '60';
-        return result;
-      };
-      wrappedOpen.__pushWrapped = true;
-      window.openEventModal = wrappedOpen;
-    }
-
-    var originalEdit = window.editEvent;
-    if (typeof originalEdit === 'function' && !originalEdit.__pushWrapped) {
-      var wrappedEdit = function (id) {
-        var result = originalEdit.apply(this, arguments);
-        var reminder = document.getElementById('ev-reminder');
-        if (reminder && typeof window.getEvents === 'function') {
-          var ev = (window.getEvents() || []).find(function (item) { return item && item.id === id; });
-          reminder.value = ev && ev.reminderMinutes !== undefined && ev.reminderMinutes !== null ? String(ev.reminderMinutes) : '';
-        }
-        return result;
-      };
-      wrappedEdit.__pushWrapped = true;
-      window.editEvent = wrappedEdit;
-    }
   }
 
   function collectSettings() {
@@ -406,7 +371,6 @@
     ensureStyle();
     buildPanel();
     injectReminderField();
-    wrapEventModal();
     installGlobals();
     refreshStatus();
     attachForegroundHandler();

@@ -1008,8 +1008,8 @@
 <link rel="stylesheet" href="home-calendar-base.css?v=20261015-list-tabs-home-boot-1">
 <script src="calendar-ui-v2.js?v=20261112-always-1"></script>
 <script src="calendar-picker-fix-v3.js?v=20261020-surfaces-1"></script>
-<script src="calendar-followups-v4.js?v=20261020-surfaces-1"></script>
-<script src="calendar-notification-enhancements-v1.js?v=20261015-list-tabs-home-boot-1"></script>
+<script src="calendar-followups-v4.js?v=20261119-1"></script>
+<script src="calendar-notification-enhancements-v1.js?v=20261119-1"></script>
 <script src="home-calendar-polish-v5-base-20260911.js?v=20261016-menu-notifications-1"></script>
 <script src="home-calendar-polish-v5-preview-delete-20260911.js?v=20261015-list-tabs-home-boot-1"></script>
 <script src="home-calendar-polish-v5.js?v=20261015-list-tabs-home-boot-1"></script>
@@ -1027,7 +1027,7 @@
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <link rel="stylesheet" href="home-listor-v1.css?v=20261115-nolinks-1">
 <script defer src="pulse-motion.js?v=20261029-home-1" data-surfaces=".modal-overlay,#home-day-popover,#day-panel,.fp-floating-menu"></script>
-  <script defer src="app-refresh.js?v=20261103-1"></script>
+  <script defer src="app-refresh.js?v=20261119-1"></script>
 </head>
 <body class="home-calendar-polish-v5 calendar-ui-v2" data-home-calendar-view="month" data-home-section="overview">
 <div class="app-wrap">
@@ -1368,6 +1368,21 @@ function expandEventDateRanges(events) {
   return expanded;
 }
 
+/* The order of events within a day, everywhere on Home: all-day events first (multi-day bars before
+   single-day ones, so a bar keeps its row), then by start time, then by end time and title. */
+function compareEventStart(a, b) {
+  var time = function (ev) { var t = String(ev && ev.time || '').trim(); var m = t.match(/^(\d{1,2}):(\d{2})/); return m ? (m[1].length === 1 ? '0' + m[1] : m[1]) + ':' + m[2] : ''; };
+  var da = String(a && a.date || ''), db = String(b && b.date || '');
+  if (da !== db) return da < db ? -1 : 1;
+  var ta = time(a), tb = time(b);
+  if (!ta !== !tb) return ta ? 1 : -1;
+  if (!ta) { var bar = function (ev) { return ev.endDate && (ev.__rangeContinuation || ev.endDate > ev.date) ? 0 : 1; }, ra = bar(a), rb = bar(b); if (ra !== rb) return ra - rb; }
+  if (ta !== tb) return ta < tb ? -1 : 1;
+  var ea = String(a.endTime || ''), eb = String(b.endTime || '');
+  if (ea !== eb) return ea < eb ? -1 : 1;
+  return String(a.title || '').localeCompare(String(b.title || ''), 'sv');
+}
+
 function expandRepeating(events, year, month) {
   var result = [];
   events.forEach(function(ev) {
@@ -1397,7 +1412,7 @@ function expandRepeating(events, year, month) {
       }
     }
   });
-  return expandEventDateRanges(result);
+  return expandEventDateRanges(result).sort(compareEventStart);
 }
 expandRepeating.__nativeRangeExpansion = true;
 
@@ -1606,7 +1621,7 @@ function renderUpcoming() {
   limit.setMonth(limit.getMonth() + 1);
   var limitISO = limit.toISOString().slice(0, 10);
   var events = getEvents().filter(function(ev){ return ev.date >= today && ev.date <= limitISO && isEventVisible(ev); });
-  events.sort(function(a,b){ return a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''); });
+  events.sort(compareEventStart);
   var list = document.getElementById('upcoming-list');
   if (!events.length) {
     if (list) list.innerHTML='<div class="empty-sidebar">Inga kommande händelser</div>';
@@ -3234,7 +3249,7 @@ window.addEventListener('firebase-sync', function(event) {
   });
 })();
 </script>
-<script src="push-notifications.js?v=20261016-svg-notification-2"></script>
+<script src="push-notifications.js?v=20261119-1"></script>
 </body>
 </html>
 

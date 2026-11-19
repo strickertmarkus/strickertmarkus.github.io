@@ -1,6 +1,6 @@
 /* Home-screen web apps on iPhone have no reload button and can keep serving the
    page they had. This (1) checks for a newer published version whenever the app is
-   opened or brought back, and reloads into it, and (2) adds pull-to-refresh at the top. */
+   opened or brought back, and reloads into it, and (2) adds pull-to-refresh at the top of Home's start view. */
 (function () {
   'use strict';
   var standalone = window.navigator.standalone === true ||
@@ -55,7 +55,34 @@
 
   if (!standalone) return;
 
-  // Pull to refresh: drag down from the very top.
+  // Pull to refresh: drag down from the very top, only on Home's start view with nothing open,
+  // so a drag inside a menu, sheet or dialog (or on another page) never reloads and loses an edit.
+  var OPEN = 'dialog[open],[aria-modal="true"],.show,.is-open,.flatpickr-calendar.open,[aria-expanded="true"]';
+  function shown(el) {
+    if (el.hidden || !el.getClientRects().length) return false;
+    var cs = getComputedStyle(el);
+    return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity) > 0;
+  }
+  function onStartView() {
+    if (!window.HomeHub || window.HomeHub.active()) return false; /* Home only, and not inside Budget/Listor/Resor */
+    var section = document.body.dataset.homeSection;
+    return !section || section === 'overview';
+  }
+  function somethingOpen() {
+    if (document.documentElement.classList.contains('pbn-modal')) return true;
+    return Array.prototype.some.call(document.querySelectorAll(OPEN), shown);
+  }
+  function insideOverlayOrScrolled(node) { /* a fixed panel, or a scroll box that is not at its top */
+    for (var el = node; el && el !== document.body && el.nodeType === 1; el = el.parentElement) {
+      var cs = getComputedStyle(el);
+      if (cs.position === 'fixed') return true;
+      if (el.scrollTop > 0 && /(auto|scroll)/.test(cs.overflowY)) return true;
+    }
+    return false;
+  }
+  function canPull(e) {
+    return window.scrollY <= 0 && e.touches.length === 1 && onStartView() && !somethingOpen() && !insideOverlayOrScrolled(e.target);
+  }
   var startY = null, pulled = 0, hint = null;
   function ensureHint() {
     if (hint) return hint;
@@ -67,8 +94,7 @@
     return hint;
   }
   document.addEventListener('touchstart', function (e) {
-    if (window.scrollY > 0 || e.touches.length !== 1 || document.querySelector('dialog[open]')) { startY = null; return; }
-    if (document.body.classList.contains('field-compact-active') || document.body.classList.contains('field-dock-hidden')) { startY = null; return; }
+    if (!canPull(e)) { startY = null; return; }
     startY = e.touches[0].clientY; pulled = 0;
   }, { passive: true });
   document.addEventListener('touchmove', function (e) {
