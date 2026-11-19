@@ -97,7 +97,7 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-session-enhancements.js',version:'20261111-countup-1',attr:'data-exercise-session-enhancements',group:'session-presentation'},
     {src:'exercise-session-runtime-core-v21.js',version:'20261111-countup-1',attr:'data-exercise-session-runtime-core-v21',group:'session-core'},
     {src:'exercise-session-theme-stability.js',attr:'data-exercise-session-theme-stability',group:'session-presentation'},
-    {src:'exercise-session-stable-details.js',attr:'data-exercise-session-stable-details',group:'session-presentation'},
+    {src:'exercise-session-stable-details.js',version:'20261119-liveedit-1',attr:'data-exercise-session-stable-details',group:'session-presentation'},
     {src:'exercise-reload-recovery.js',attr:'data-exercise-reload-recovery',group:'boot-recovery'},
     {src:'exercise-points-3-6-7.js',attr:'data-exercise-points-3-6-7',group:'dashboard'},
     {src:'exercise-between-routing-v7.js',version:'20261102-between-place-1',attr:'data-exercise-between-routing-v7',group:'session-transition'},

@@ -73,6 +73,8 @@
 | Order of a day's events on Home (all-day first, multi-day bars before single days, then start time) | `budget/home.html` `compareEventStart`, applied in `expandRepeating` (and after the yearly occurrences in `calendar-followups-v4.js`) |
 | Pull-to-refresh (home-screen app only): only on Home's start view (Hem) with no menu, sheet, dialog or expanded control open and not from inside a fixed panel or a scrolled box; the newer-version check on opening runs on every page that loads it | `budget/app-refresh.js` (`canPull`) |
 | Session top bar on one row (title, then Auto, 5 s, energy saving, Avsluta, each in its own auto column) | `budget/exercise-hype-timer-layout-v1.js` (`.session-top` grid) |
+| Reps and weight changed during a set in training mode: tap the Reps or Vikt value in the stat row (dashed underline) for − / field / +; the value is what the set logs and what the following sets start from | `budget/exercise-session-stable-details.js` (`openEditor`) |
+| Pass builder fills sets, reps and weight from history when a strength exercise is picked (heaviest logged time: highest weight, most reps at it, that pass's set count; bodyweight: most reps), once per picked name, typed values kept | `budget/training-exercise-history-fill-v1.js` (loaded in `budget/archive/exercise.html`) |
 | Explorer selection into today's pass | `budget/pulse-explore-handoff.js` (request `{version:1,ids}`) |
 
 ## Design iteration mode
