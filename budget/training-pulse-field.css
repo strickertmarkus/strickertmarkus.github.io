@@ -1094,9 +1094,16 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 .wd-zen-pips .is-stretch{background:#b8e99b;box-shadow:0 0 6px #b8e99b}
 .wd-zen-pips .is-meditation{background:#f5d58c;box-shadow:0 0 6px #f5d58c}
 .rmap .rm-cell{position:relative;overflow:visible}
-.rmap .rm-cell .rm-zen-dot{position:absolute;display:block;z-index:2;width:5px;height:5px;top:1px;border-radius:50%;pointer-events:none}
-.rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 11px);background:#b8e99b;box-shadow:0 0 7px #b8e99b}
-.rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 11px);background:#f5d58c;box-shadow:0 0 7px #f5d58c}
+/* Stretch and meditation on a training day circle the day's dot slowly, like two planets:
+   stretch on the outer orbit, meditation on the inner one, a little faster. The orbits are tilted
+   (seen from slightly above), so the planets stay in the day's row; the dots themselves stay round. */
+.rmap .rm-cell{--orb:11px;--zd:5px}
+.rmap .rm-cell.is-zen{transform-style:preserve-3d} /* the day's dot and its planets share one 3D space, so a planet passes behind the dot on the far side */
+.rmap .rm-cell .rm-zen-dot{position:absolute;display:block;z-index:2;left:50%;top:50%;width:var(--zd);height:var(--zd);margin:calc(var(--zd) / -2) 0 0 calc(var(--zd) / -2);border-radius:50%;pointer-events:none;animation:rm-orbit var(--period) linear infinite;animation-delay:var(--phase)}
+.rmap .rm-cell .rm-zen-dot.is-stretch{--r:calc(var(--orb) + 1.5px);--period:26s;--phase:-3s;background:#b8e99b;box-shadow:0 0 7px #b8e99b}
+.rmap .rm-cell .rm-zen-dot.is-meditation{--r:var(--orb);--period:17s;--phase:-11s;background:#f5d58c;box-shadow:0 0 7px #f5d58c}
+@keyframes rm-orbit{from{transform:rotate(-12deg) rotateX(66deg) rotate(0deg) translateX(var(--r)) rotate(0deg) rotateX(-66deg) rotate(12deg)}to{transform:rotate(-12deg) rotateX(66deg) rotate(360deg) translateX(var(--r)) rotate(-360deg) rotateX(-66deg) rotate(12deg)}}
+@media (prefers-reduced-motion:reduce){.rmap .rm-cell .rm-zen-dot{animation:none;transform:translateX(var(--r))}.rmap .rm-cell .rm-zen-dot.is-meditation{transform:translateX(calc(var(--r) * -1))}}
 .rmap .rm-cell.is-zen-only>i{
   width:10px;height:10px;background:var(--c);
   box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent),0 0 9px var(--c),0 0 16px color-mix(in srgb,var(--c) 40%,transparent)
@@ -1107,9 +1114,7 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
 }
 @media(max-width:520px){
  .rmap .rm-cell.is-zen-only>i{width:8px;height:8px}
- .rmap .rm-cell .rm-zen-dot{width:4px;height:4px}
- .rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 9px)}
- .rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 9px)}
+ .rmap .rm-cell{--orb:10px;--zd:4px}
  .rhythm-zen-facts{gap:6px 10px!important}
 }
 /* Multiple planned sessions for the selected calendar day. */
@@ -1160,9 +1165,7 @@ body{padding-bottom:calc(63px + env(safe-area-inset-bottom,0px))}
   .rmap .rm-cell{height:30px;border-radius:9px}
   .rmap .rm-cell i{width:4.5px;height:4.5px}
   .rmap .rm-cell.is-pass i,.rmap .rm-cell.is-planned i,.rmap .rm-cell.is-zen-only>i{width:12px;height:12px}
-  .rmap .rm-cell .rm-zen-dot{width:6px;height:6px}
-  .rmap .rm-cell .rm-zen-dot.is-stretch{right:calc(50% - 13px)}
-  .rmap .rm-cell .rm-zen-dot.is-meditation{left:calc(50% - 13px)}
+  .rmap .rm-cell{--orb:14px;--zd:6px}
   .rmap .rm-cell.is-today::after{width:18px;margin-left:-9px}
 }
 
