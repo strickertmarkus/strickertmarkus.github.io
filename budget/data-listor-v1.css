@@ -157,3 +157,6 @@ html.listor-theme:not(#lt) body .tr-sheet-note{margin:14px 0 12px;font-size:11.5
 html.listor-theme:not(#lt) body .tr-sheet-actions{display:flex;align-items:center;justify-content:flex-end;gap:16px}
 html.listor-theme:not(#lt) body .tr-sheet-cancel{appearance:none;border:0;background:transparent;color:#a9b1bd;font:600 14px/1 Inter,system-ui,sans-serif;padding:10px 4px;cursor:pointer}
 html.listor-theme:not(#lt) body .tr-sheet-save{appearance:none;border:0;background:var(--lt-a,#FDBA74);color:#1b1206;font:800 14px/1 Inter,system-ui,sans-serif;padding:13px 20px;border-radius:999px;cursor:pointer}
+/* Native dropdowns: dark open list on Windows/Edge too (white on white otherwise). */
+html.listor-theme select{color-scheme:dark}
+html.listor-theme select option,html.listor-theme select optgroup{background-color:#161b22;color:#f0f6fc}

@@ -354,3 +354,7 @@ html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-refund inpu
 .kpi-refund{padding:4px 0 0;font-size:12px;color:var(--lt-sec,#929ba9)}
 .kpi-refund[hidden]{display:none}
 .kpi-refund b{color:var(--lt-plus,#4ADE80);font-weight:700;font-variant-numeric:tabular-nums}
+/* Native dropdowns (Apple Pay inbox, ICA categories …): on Windows/Edge the open list uses the
+   page's colours, so give it a dark scheme and dark options instead of white on white. */
+html[data-finance-view] select,html.listor-theme select{color-scheme:dark}
+html[data-finance-view] select option,html[data-finance-view] select optgroup,html.listor-theme select option,html.listor-theme select optgroup{background-color:#161b22;color:#f0f6fc}
