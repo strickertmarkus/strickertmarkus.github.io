@@ -13,6 +13,16 @@
     { id: 'd:side', cat: 'side', label: 'Side projects' }
   ];
 
+  function workAreas(labels, weights) {
+    var colors = ['#FDBA74', '#38BDF8', '#86EFAC', '#F9A8B8', '#C4B5FD'];
+    return {
+      type: 'work-areas', title: 'Areas of work',
+      areas: labels.map(function (label, i) {
+        return { label: label, weight: weights ? weights[i] : 1, color: colors[i % colors.length] };
+      })
+    };
+  }
+
   var PROJECTS = [
     {
       id: 'ta', cat: 'engineering', motif: 'matrix',
@@ -25,13 +35,8 @@
       stats: [['~10 min', 'per board, automated'], ['Hundreds', 'of boards expected in production']],
       facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive, NI MAX'], ['Scope', 'PCB production test, signal routing, measurement']],
       blocks: [
+        workAreas(['Test sequences in TestStand', 'Instruments and hardware control', 'Signal routing', 'Verification and documentation'], [35, 25, 20, 20]),
         { type: 'flow', title: 'How a test runs', steps: [['Requirement', 'What the board must do'], ['Sequence', 'NI TestStand'], ['Instruments', 'LabVIEW drivers'], ['Switch matrix', 'NI Switch Executive'], ['Board under test', 'Measured pin by pin'], ['Report', 'Pass, fail and values']], result: 'Pass' },
-        { type: 'work-areas', title: 'Areas of work', areas: [
-          { label: 'Test sequences in TestStand', weight: 35, color: '#FDBA74' },
-          { label: 'Instruments and hardware control', weight: 25, color: '#38BDF8' },
-          { label: 'Signal routing', weight: 20, color: '#86EFAC' },
-          { label: 'Verification and documentation', weight: 20, color: '#F9A8B8' }
-        ] },
         { type: 'list', title: 'What the tests cover', items: [
           'MUX switch routing.',
           'Circuit specification analysis.',
@@ -58,6 +63,7 @@
       stats: [['3 years', 'test and verification of defence products'], ['HW · FW · SW', 'tested together in the lab'], ['Top score', 'in the consultant evaluation, 2024']],
       facts: [['Role', 'System test lead'], ['Domain', 'Defence, security-classified products'], ['Standards', 'IEC 61010-1, CE marking, military standards']],
       blocks: [
+        workAreas(['Test writing and execution', 'Requirements management', 'Simulator development', 'Test automation', 'Firmware and software processing'], [30, 20, 20, 20, 10]),
         { type: 'flow', title: 'From requirement to delivery', steps: [['Requirements', 'Traced and reviewed'], ['Design review', 'Testable from the start'], ['Test specification', 'Traced to each requirement'], ['Lab tests', 'Hardware, firmware, software'], ['Verification report', 'Formal documents'], ['Customer delivery', 'Demonstrated and signed off']], result: 'Signed off' },
         { type: 'list', title: 'Test and automation', items: [
           'Test automation templates that made the in-house C++ test framework easier for other test engineers to use.',
@@ -93,6 +99,7 @@
       stats: [['21', 'simulated eruptions'], ['11 / 10', 'erupted / stayed confined'], ['4×', 'higher field needed in closed regions'], ['3,700 km/s', 'fastest eruption after one hour']],
       facts: [['Method', '3D MHD, BATS-R-US'], ['Compute', 'Snellius supercomputer'], ['Published', 'MNRAS 533, 2024']],
       blocks: [
+        workAreas(['3D eruption simulations', 'Data analysis and visualisation', 'Scientific computing', 'Publication'], [35, 35, 20, 10]),
         { type: 'text', title: 'Why this star', body: [
           'Observations of AB Dor point to an eruption near the star\'s pole, where theory says its strong field should hold eruptions back.',
           'I was selected for one of 13 doctoral projects at Leiden Observatory from more than 500 applicants, and this study became the first paper from that work.'
@@ -134,6 +141,7 @@
       stats: [['1,500+', 'cluster models'], ['64', 'stellar-mass black holes predicted in NGC 3201'], ['~1,000 M☉', 'black hole that best explains 47 Tucanae'], ['~12%', 'core binary fraction with an IMBH']],
       facts: [['Method', 'Monte Carlo N-body, MOCCA'], ['Compared with', 'Milky Way cluster observations']],
       blocks: [
+        workAreas(['N-body dynamics', 'Monte Carlo modelling', 'Cluster data analysis', 'Python development'], [35, 30, 20, 15]),
         { type: 'list', title: 'Approach', items: [
           'More than 1,500 globular cluster models run with the MOCCA code for Monte Carlo N-body dynamics, with population synthesis from the SSE and BSE codes.',
           'Automated analysis pipelines in Python and Bash that searched terabytes of simulation output, and code that compared the models with observed clusters.',
@@ -168,6 +176,7 @@
       stats: [['200–1,000', 'Sun-like stars tracked'], ['0.27–4.8 Gyr', 'until the first civilisation'], ['89%', 'of planets colonised by one spreading civilisation'], ['36–82 pc', 'mean distance to the nearest neighbour']],
       facts: [['Model', 'Epicyclic motion of 200–1,000 stars'], ['Time span', '12 billion years']],
       blocks: [
+        workAreas(['Python development', 'Galactic orbit modelling', 'Simulation and analysis'], [40, 35, 25]),
         { type: 'list', title: 'Approach', items: [
           'Epicyclic motion of 200 to 1,000 stars in the solar neighbourhood from galactic dynamics.',
           'Close encounters between stars tracked with stochastic simulations.',
@@ -193,6 +202,7 @@
       stats: [['576', 'collisions simulated'], ['2', 'supercomputers, Aurora and SNIC']],
       facts: [['Method', 'Smoothed particle hydrodynamics'], ['Compute', 'Aurora and SNIC supercomputers']],
       blocks: [
+        workAreas(['Stellar collision simulations', 'Data analysis and visualisation', 'Supercomputing'], [40, 35, 25]),
         { type: 'list', title: 'What I did', items: [
           'Set up and ran 576 stellar collisions with smoothed particle hydrodynamics.',
           'Implemented Delaunay triangulation for post-processing.',
@@ -212,6 +222,7 @@
       stats: [],
       facts: [['Tools', 'Python, Tecplot, PyTecplot'], ['Output', 'Figures, animations, video']],
       blocks: [
+        workAreas(['Simulation data processing', '2D plots and heatmaps', '3D rendering', 'Trajectory animations']),
         { type: 'list', title: 'Tools', items: [
           'Python with Matplotlib, NumPy and SciPy.',
           'Tecplot for 3D rendering and animations, scripted through PyTecplot.',
@@ -242,6 +253,7 @@
       stats: [],
       facts: [['Stack', 'Vanilla JavaScript, Firebase'], ['Runs as', 'Home-screen web app']],
       blocks: [
+        workAreas(['Household budgeting', 'Shared calendar', 'Lists and notes', 'Live sync']),
         { type: 'list', title: 'Budget', items: [
           'Monthly budget per person: posts, budget against actual, status per post.',
           'New months created automatically, with budgets carried over.',
@@ -279,6 +291,7 @@
       stats: [],
       facts: [['Stack', 'Vanilla JavaScript, Three.js, Firebase'], ['Shares', 'Login and sync with the family app']],
       blocks: [
+        workAreas(['Workout planning', 'Exercise animations', 'Session tracking', 'Stretch and meditation']),
         { type: 'list', title: 'Training', items: [
           'Log with weekly rhythm, volume, heart rate and fitness charts.',
           'Runs with distance, pace and VO2 max, and goals for sessions, distance and VO2 max.',
@@ -311,7 +324,9 @@
       stats: [],
       facts: [['Tool', 'Manim']],
       video: { src: '../portfolio_media/Pythagoras.mp4', poster: '../portfolio_media/pythagoras.png', label: 'Pythagoras, animated with Manim' },
-      blocks: [],
+      blocks: [
+        workAreas(['Geometric construction', 'Step-by-step explanation', 'Manim animation'])
+      ],
       links: []
     }
   ];
