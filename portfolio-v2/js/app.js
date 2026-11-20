@@ -317,25 +317,29 @@
   });
   chips($('work-chips'), CATCHIPS, function (v) { $('rows').querySelectorAll('.row').forEach(function (r) { r.classList.toggle('hide', v !== 'all' && r.getAttribute('data-cat') !== v); r.classList.add('in'); }); });
 
+  /* ---------- the coloured work-area bar (project pages and the CV's full history) ---------- */
+  /* areas: [{label, weight, color}] from data.js workAreas(); weights that add up to 100 are shown as percentages. */
+  function areaBar(areas) {
+    var bar = h('div', 'split-bar'), key = h('div', 'split-key'), total = 0;
+    areas.forEach(function (a) { total += Number(a.weight) || 0; });
+    bar.setAttribute('aria-hidden', 'true');
+    areas.forEach(function (area, index) {
+      var segment = h('i'), label = h('span', null, [h('i'), area.label + (total === 100 ? ' ' : '')].concat(total === 100 ? [h('b', null, area.weight + '%')] : []));
+      segment.style.flex = area.weight;
+      segment.style.setProperty('--k', index);
+      segment.style.setProperty('--c', area.color);
+      label.style.setProperty('--c', area.color);
+      bar.appendChild(segment); key.appendChild(label);
+    });
+    return h('div', 'split', [bar, key]);
+  }
+
   /* ---------- project page ---------- */
   function block(b, p) {
     var el = h('section', 'block rv'), c = COLOR[p.cat];
     el.appendChild(h('h2', null, b.title));
     if (b.type === 'text') b.body.forEach(function (t) { el.appendChild(h('p', null, t)); });
-    else if (b.type === 'work-areas') {
-      el.classList.add('wide');
-      var bar = h('div', 'split-bar'), key = h('div', 'split-key');
-      bar.setAttribute('aria-hidden', 'true');
-      b.areas.forEach(function (area, index) {
-        var segment = h('i'), label = h('span', null, [h('i'), area.label]);
-        segment.style.flex = area.weight;
-        segment.style.setProperty('--k', index);
-        segment.style.setProperty('--c', area.color);
-        label.style.setProperty('--c', area.color);
-        bar.appendChild(segment); key.appendChild(label);
-      });
-      el.appendChild(h('div', 'split', [bar, key]));
-    }
+    else if (b.type === 'work-areas') { el.classList.add('wide'); el.appendChild(areaBar(b.areas)); }
     else if (b.type === 'list') { var ul = h('ul', 'lines'); ul.style.setProperty('--c', c); b.items.forEach(function (t) { ul.appendChild(h('li', null, t)); }); el.appendChild(ul); }
     else if (b.type === 'table') { var tb = h('div', 'tbl'); b.rows.forEach(function (r) { tb.appendChild(h('div', null, [h('span', null, r[0]), h('b', null, r[1])])); }); el.appendChild(tb); }
     else if (b.type === 'bars') { var bars = h('div', 'bars'); b.rows.forEach(function (r) { var bar = h('i'); bar.style.setProperty('--c', COLOR[r[2]]); bar.style.setProperty('--w', r[1] / b.max); bars.appendChild(h('div', 'bar-row', [h('span', null, r[0]), h('b', null, r[1] + ' ' + b.unit), bar])); }); el.appendChild(bars); if (b.note) el.appendChild(h('p', 'note', b.note)); }
@@ -651,6 +655,10 @@
       S.EXPERIENCE.filter(function (x) { return x.g === g[0]; }).forEach(function (x) {
         var body = h('div', null, [h('h3', null, x.title), h('p', 'org', x.org)]);
         if (x.text) body.appendChild(h('p', 'tx', x.text));
+        /* the role's own areas, or for a role with a project its project's bar (one source); not on degree rows */
+        var linked = x.project && x.g !== 'edu' && P[x.project] ? P[x.project].blocks.filter(function (b) { return b.type === 'work-areas'; })[0] : null;
+        var areas = x.areas || (linked && linked.areas);
+        if (areas) body.appendChild(areaBar(areas));
         if (x.project) body.appendChild(linkTo('#work/' + x.project, 'See the project', 'link quiet'));
         var row = h('div', 'xp rv' + (/now/.test(x.y) ? ' now' : ''), [h('span', 'y', x.y), body]); row.setAttribute('data-g', g[0]); exp.appendChild(row);
       });

@@ -13,6 +13,7 @@
     { id: 'd:side', cat: 'side', label: 'Side projects' }
   ];
 
+  /* Areas of work with their share: the coloured bar on a project page and in the CV's full history. */
   function workAreas(labels, weights) {
     var colors = ['#FDBA74', '#38BDF8', '#86EFAC', '#F9A8B8', '#C4B5FD'];
     return {
@@ -346,7 +347,7 @@
       project: 'cme' },
     { g: 'academic', y: '2023', title: 'Teaching assistant', org: 'Leiden Observatory',
       text: 'Lab sessions in an exoplanet course. Co-developed course material built around the MESA code for atmospheric escape modelling.',
-    },
+      areas: workAreas(['MESA code development', 'Course material', 'Student mentoring'], [40, 35, 25]).areas },
     { g: 'academic', y: '2021 – 2022', title: 'Master\'s thesis', org: 'Lund Observatory',
       text: 'The production of single and binary black holes in globular cluster models simulated with the MOCCA code. Monte Carlo methods for population synthesis (SSE and BSE) and N-body dynamics. Extensive Python code with Bash and AWK scripts for the analysis.',
       project: 'bh' },
@@ -358,20 +359,20 @@
       project: 'sph' },
     { g: 'projects', y: '2013 – 2021', title: 'Personal assistant', org: 'Hammarstrands, Alminia Assistans and ASD, Motala and Linköping',
       text: 'Care work, mostly in the summers, alongside school and studies. Responsibility for medication and for people living with paralysis and epilepsy, including tracheostomy and respiratory equipment.',
-    },
+      areas: workAreas(['Care and support', 'Medical procedures', 'Social support'], [55, 30, 15]).areas },
     { g: 'lead', y: '2021 – 2022', title: 'ALVA, board member', org: 'Lund University',
       text: 'Student-run association for astronomy events and news. Lectures, planetarium shows and observation nights.',
-    },
+      areas: workAreas(['Event organisation', 'Student engagement', 'Astronomy outreach'], [45, 35, 20]).areas },
     { g: 'lead', y: '2019 – 2020', title: 'Associates, board member', org: 'Lund University',
       text: 'Head of the mentor committee in the science department, introducing new students to the university. Also showed physics experiments to the public at Kulturnatten in Lund.',
-    },
+      areas: workAreas(['Mentoring and guidance', 'Student integration', 'Organisation'], [60, 30, 10]).areas },
     { g: 'lead', y: '2011 – 2017', title: 'Motala Frisksportklubb and youth leadership', org: 'Motala',
       text: 'Board member 2013–2014 and instructor in trampoline, circus, freerunning and gymnastics. Helped design the freerunning park that opened in Motala in 2014. Young leader with Östergötlands Idrottsförbund and leadership training in 2015. Stipend from Bängt Bodèns Fond for leadership and commitment.',
-    },
+      areas: workAreas(['Coaching', 'Board work', 'Facility design', 'Leadership training'], [40, 25, 20, 15]).areas },
     { g: 'edu', y: '2020 – 2022', title: 'MSc Astrophysics', org: 'Lund University', text: 'Thesis: Black hole dynamics in stellar clusters.', project: 'bh' },
     { g: 'edu', y: '2017 – 2020', title: 'BSc Physics', org: 'Lund University', text: 'Thesis: Galactic dynamics and the spread of galactic civilisations.', project: 'gal' },
     { g: 'edu', y: '2015 – 2017', title: 'Upper secondary school, natural sciences', org: 'Platengymnasiet, Motala', text: '',
-    }
+      areas: workAreas(['Natural sciences', 'Academic foundation'], [50, 50]).areas }
   ];
 
   /* Practice areas and the projects illustrating each one. */

@@ -180,6 +180,8 @@ canvas.motif{position:absolute;inset:0;width:100%;height:100%;display:block}
 .split-key{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:var(--muted)}
 .split-key span{display:inline-flex;align-items:center;gap:7px}
 .split-key i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.split-key b{font-weight:500;color:var(--soft);font-variant-numeric:tabular-nums}
+.xp .split{margin-top:14px;max-width:560px}
 .block.wide{grid-column:1/-1}
 .block p{color:var(--soft);max-width:40em}
 .block p + p{margin-top:12px}
