@@ -104,6 +104,7 @@ svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-lin
 .facts div + div{border-left:1px solid var(--line)}
 .facts b{font-size:clamp(28px,3.4vw,46px);line-height:1.05;font-weight:700;letter-spacing:-.035em;font-variant-numeric:tabular-nums;white-space:nowrap;background:linear-gradient(100deg,#FFE3BE 0%,var(--amber) 55%,#FB923C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .facts b small{font-size:.62em;font-weight:600;margin-right:2px}
+.facts b small.to{-webkit-text-fill-color:#FDBA74;color:#FDBA74;margin:0 .08em}
 .facts div > span{display:flex;gap:9px;align-items:baseline;font-size:15px;line-height:1.45;color:var(--muted);max-width:22em}
 .facts div > span i{flex:0 0 6px;width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c);transform:translateY(-2px)}
 
