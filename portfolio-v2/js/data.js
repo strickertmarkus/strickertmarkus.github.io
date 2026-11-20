@@ -29,10 +29,10 @@
       short: 'Test automation',
       title: 'Automating circuit-board production tests',
       kind: 'Test engineer', where: 'Sigma Technology Tech House', period: '2026 – now',
-      desc: 'One NI TestStand sequence routes the signals, controls the instruments and tests a production board in about ten minutes.',
-      lead: 'I combined instrument control, signal routing and measurements into one NI TestStand sequence for production. Each run records the measured values and a pass or fail against the specification. A board takes about ten minutes.',
+      desc: 'One NI TestStand sequence routes the signals, controls the instruments and tests a production board in about ten minutes instead of days.',
+      lead: 'I combined instrument control, signal routing and measurements into one NI TestStand sequence for production. Each run records the measured values and a pass or fail against the specification. Testing a board used to take days; now it takes about ten minutes.',
       skills: ['TestStand', 'LabVIEW'],
-      stats: [['~10 min', 'per board, automated'], ['Hundreds', 'of boards expected in production']],
+      stats: [['~10 min', 'per board, down from days'], ['Hundreds', 'of boards expected in production']],
       facts: [['Tools', 'NI TestStand, LabVIEW, NI Switch Executive, NI MAX'], ['Scope', 'PCB production test, signal routing, measurement']],
       blocks: [
         workAreas(['Test sequences in TestStand', 'Instruments and hardware control', 'Signal routing', 'Verification and documentation'], [35, 25, 20, 20]),
