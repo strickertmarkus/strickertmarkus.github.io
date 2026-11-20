@@ -26,17 +26,28 @@
 
   var profile = (new URLSearchParams(location.search).get('user') || 'markus').toLowerCase();
   var KEY = 'ex_auto_mode_v1_' + profile;
-  var BETWEEN_REST = 20;
   var PRESETS = [30, 45, 60, 90, 120];
 
-  function read() {
+  // Settings per pass (date) from exercise-auto-config-v1.js: { on, seconds, exerciseRest, betweenRest }.
+  // Read once a second at most; writes go to the pass being run.
+  function fallback() {
     var d = null;
     try { d = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (_) {}
     d = d && typeof d === 'object' ? d : {};
-    return { on: !!d.on, seconds: Math.min(600, Math.max(10, Math.round(Number(d.seconds) || 60))) };
+    return { on: !!d.on, seconds: Math.min(600, Math.max(10, Math.round(Number(d.seconds) || 60))), exerciseRest: Math.max(0, Math.round(Number(d.exerciseRest) || 0)), betweenRest: d.betweenRest == null ? 20 : Math.max(0, Math.round(Number(d.betweenRest) || 0)) };
   }
-  function write(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (_) {} }
-  var settings = read();
+  var cfgDate = null, cfgAt = 0;
+  function refresh(date) {
+    if (date === cfgDate && Date.now() - cfgAt < 1000) return;
+    cfgDate = date; cfgAt = Date.now();
+    settings = window.ExAutoConfig ? window.ExAutoConfig.get(date) : fallback();
+  }
+  function write(d) {
+    if (window.ExAutoConfig) settings = window.ExAutoConfig.set(cfgDate, d);
+    else try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (_) {}
+    cfgAt = Date.now();
+  }
+  var settings = window.ExAutoConfig ? window.ExAutoConfig.get('') : fallback();
 
   function getState() { try { return typeof sessionState !== 'undefined' ? sessionState : null; } catch (_) { return null; } }
   function current(state) { return state && Array.isArray(state.exercises) ? state.exercises[Number(state.exerciseIndex) || 0] || null : null; }
@@ -68,12 +79,19 @@
       '#session-auto-toggle-v1[aria-pressed="true"] .am-ico{color:var(--pf-soft,#FED7AA)}' +
       '#session-modal.show .session-top > #session-energy-toggle{justify-self:end}' +
       // The label sits centred over the whole circle (not inside the button padding) at a size that fits a 34–40 px circle; the session typography sets larger text on buttons, so this wins on specificity.
-      'html body #session-modal #session-auto-toggle-v1{padding:0!important;overflow:hidden}' +
+      'html body #session-modal #session-auto-toggle-v1{padding:0!important;overflow:visible}' +
       'html body #session-modal #session-auto-toggle-v1 .am-ico{position:absolute;inset:0;display:grid;place-items:center;font:800 9.5px/1 Inter,system-ui,sans-serif!important;letter-spacing:.04em!important;white-space:nowrap}' +
       '#session-auto-toggle-v1 .am-ring{position:absolute;inset:-1px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .2s;' +
         'background:conic-gradient(rgb(var(--pf-rgb,251,146,60)) calc(var(--am-p,0)*1turn),transparent 0);' +
         '-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}' +
       '#session-auto-toggle-v1.is-counting .am-ring{opacity:1}' +
+      // A small "A" low on the ring while the automatic time runs.
+      '#session-auto-toggle-v1.is-counting::after{content:"A";position:absolute;right:-2px;bottom:-2px;width:14px;height:14px;border-radius:50%;display:grid;place-items:center;' +
+        'background:rgb(var(--pf-rgb,251,146,60));color:#140a04;font:900 8px/1 Inter,system-ui,sans-serif;box-shadow:0 0 0 2px #0b0e13;pointer-events:none}' +
+      '#session-auto-pop-v1 .am-rest{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font-size:12.5px;color:#c8d0da}' +
+      '#session-auto-pop-v1 .am-rest-step{display:flex;align-items:center;gap:6px}' +
+      '#session-auto-pop-v1 .am-rest-step b{min-width:40px;text-align:center;font:700 13px/1 Inter,sans-serif;font-variant-numeric:tabular-nums;color:var(--pf-soft,#FED7AA)}' +
+      '#session-auto-pop-v1 .am-rest-step button{appearance:none;width:30px;height:30px;border-radius:50%;cursor:pointer;padding:0;font:500 17px/1 Inter,sans-serif;border:1px solid rgba(var(--pf-rgb,251,146,60),.3);background:rgba(var(--pf-rgb,251,146,60),.07);color:var(--pf-soft,#FED7AA)}' +
       'html body #session-modal #session-auto-toggle-v1.is-counting .am-ico{font-size:13px!important;letter-spacing:0!important;font-variant-numeric:tabular-nums}' +
       '#session-auto-pop-v1{position:fixed;z-index:2147482000;width:min(300px,calc(100vw - 24px));padding:14px 14px 12px;border-radius:18px;' +
         'background:#141820;border:1px solid rgba(var(--pf-rgb,251,146,60),.28);box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 24px rgba(var(--pf-rgb,251,146,60),.10);' +
@@ -140,6 +158,8 @@
     pop.querySelector('.am-switch').setAttribute('aria-checked', String(settings.on));
     pop.querySelector('.am-time b').textContent = fmt(settings.seconds);
     pop.querySelectorAll('.am-chip').forEach(function (c) { c.setAttribute('aria-pressed', String(Number(c.dataset.s) === settings.seconds)); });
+    pop.querySelector('[data-rv="exerciseRest"]').textContent = settings.exerciseRest ? fmt(settings.exerciseRest) : 'Av';
+    pop.querySelector('[data-rv="betweenRest"]').textContent = settings.betweenRest ? fmt(settings.betweenRest) : 'Av';
   }
   function save() { write(settings); renderPop(); paintToggle(null); }
   function openPop() {
@@ -150,10 +170,13 @@
       pop.setAttribute('aria-label', 'Automatläge');
       pop.hidden = true;
       pop.innerHTML = '<div class="am-row"><span class="am-title">Automatläge</span><button type="button" class="am-switch" role="switch" aria-checked="false" aria-label="Automatläge"></button></div>' +
-        '<p class="am-sub">Varje set får en egen tid och går vidare av sig självt. Efter en mellanövning blir det ' + BETWEEN_REST + ' s vila.</p>' +
+        '<p class="am-sub">Varje set får en egen tid och går vidare av sig självt. Gäller det här passet, och kan också ställas in i passbyggaren.</p>' +
         '<div class="am-label">Tid per set</div>' +
         '<div class="am-time"><button type="button" class="am-step" data-d="-5" aria-label="5 sekunder kortare">−</button><b></b><button type="button" class="am-step" data-d="5" aria-label="5 sekunder längre">+</button></div>' +
-        '<div class="am-chips">' + PRESETS.map(function (s) { return '<button type="button" class="am-chip" data-s="' + s + '">' + fmt(s) + '</button>'; }).join('') + '</div>';
+        '<div class="am-chips">' + PRESETS.map(function (s) { return '<button type="button" class="am-chip" data-s="' + s + '">' + fmt(s) + '</button>'; }).join('') + '</div>' +
+        [['exerciseRest', 'Vila mellan övningar', 10], ['betweenRest', 'Vila efter mellanövning', 5]].map(function (r) {
+          return '<div class="am-rest"><span>' + r[1] + '</span><span class="am-rest-step"><button type="button" data-rk="' + r[0] + '" data-rd="-' + r[2] + '" aria-label="' + r[1] + ' kortare">−</button><b data-rv="' + r[0] + '"></b><button type="button" data-rk="' + r[0] + '" data-rd="' + r[2] + '" aria-label="' + r[1] + ' längre">+</button></span></div>';
+        }).join('');
       (document.getElementById('session-modal') || document.body).appendChild(pop);
       pop.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -162,6 +185,7 @@
         if (b.classList.contains('am-switch')) { settings.on = !settings.on; if (settings.on) armed = true; }
         else if (b.dataset.d) settings.seconds = Math.min(600, Math.max(10, settings.seconds + Number(b.dataset.d)));
         else if (b.dataset.s) settings.seconds = Number(b.dataset.s);
+        else if (b.dataset.rk) settings[b.dataset.rk] = Math.min(600, Math.max(0, (Number(settings[b.dataset.rk]) || 0) + Number(b.dataset.rd)));
         save();
       });
       document.addEventListener('click', function (e) { if (pop && !pop.hidden && !pop.contains(e.target) && e.target !== toggle) closePop(); });
@@ -194,11 +218,11 @@
 
   /* ── 20 s rest after a between exercise: the session's own rest timer, with the usual ticks ── */
   var resting = null;   // { ticked: {} } while the rest runs
-  function startRest(state, then) {
+  function startRest(state, seconds, label, then) {
     var owner = window.__exerciseSessionTransitionStabilityV142;
     if (!owner || typeof owner.beginRest !== 'function') { then(); return; }
     resting = { ticked: {} };
-    var ok = owner.beginRest(state, 'auto-rest', { type: 'rest', seconds: BETWEEN_REST, label: 'Efter mellanövningen', onDone: function (timedOut) {
+    var ok = owner.beginRest(state, 'auto-rest', { type: 'rest', seconds: seconds, label: label, onDone: function (timedOut) {
       resting = null;
       if (timedOut && window.SessionSound) window.SessionSound.go();
       then();
@@ -216,7 +240,8 @@
   /* ── engine ── */
   var armed = false;          // the pass is under way (a set has run with Auto on)
   var sawBetween = false;     // a between exercise has been running
-  var needRest = false;       // next start waits for the 20 s rest
+  var needRest = false;       // next start waits for the rest after a between exercise
+  var lastRunIdx = -1;        // index of the last real exercise that ran a set (a higher one = new exercise)
   var doneToken = '', ticked = {}, waitSince = 0, waitKey = '';
   function setToken(state) { return [state.passStartedAt, state.exerciseIndex, state.currentSet, state.setStartedAt].join('|'); }
   function after(key, ms) {
@@ -226,10 +251,13 @@
   function tick() {
     var state = getState();
     ensureToggle();
-    if (!state) { armed = false; sawBetween = false; needRest = false; paintToggle(null); return; }
+    if (!state) { armed = false; sawBetween = false; needRest = false; lastRunIdx = -1; paintToggle(null); return; }
+    refresh(state.date || '');
     var ex = current(state);
     var running = !!(state.setRunning && state.setStartedAt);
     if (running && ex && ex.__betweenCustomV3) sawBetween = true;
+    var idx = Number(state.exerciseIndex) || 0;
+    if (running && ex && !ex.__betweenCustomV3) lastRunIdx = idx;
     if (!running && sawBetween && !(ex && ex.__betweenCustomV3) && !state.__betweenCustomRuntimeV3) { sawBetween = false; if (settings.on) needRest = true; }
     if (!settings.on) { paintToggle(null); return; }
     if (running) armed = true;
@@ -270,11 +298,18 @@
     }
     var start = controlButton(/^starta (set|nästa set|nästa övning)$/i);
     if (!start) { waitKey = ''; return; }
-    if (needRest) {
+    // Rest before this start: between two exercises (exerciseRest) and/or after a between
+    // exercise (betweenRest); when both apply the longer one.
+    var newExercise = lastRunIdx >= 0 && idx > lastRunIdx && !(ex && ex.__betweenCustomV3);
+    var restSec = Math.max(newExercise ? settings.exerciseRest : 0, needRest ? settings.betweenRest : 0);
+    if (needRest || newExercise) {
       needRest = false;
-      waitKey = '';
-      startRest(state, function () { var b = controlButton(/^starta (set|nästa set|nästa övning)$/i); if (b && settings.on) b.click(); });
-      return;
+      if (newExercise) lastRunIdx = idx;
+      if (restSec > 0) {
+        waitKey = '';
+        startRest(state, restSec, newExercise ? 'Före nästa övning' : 'Efter mellanövningen', function () { var b = controlButton(/^starta (set|nästa set|nästa övning)$/i); if (b && settings.on) b.click(); });
+        return;
+      }
     }
     if (!after('start|' + setToken(state), 700)) return;
     waitKey = '';

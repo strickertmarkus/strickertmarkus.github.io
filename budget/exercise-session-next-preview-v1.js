@@ -115,7 +115,8 @@
       '#session-next-card-v1 .snp-sub{margin-top:3px;color:#8a96a6;font:500 12px/1.3 Inter,system-ui,sans-serif}',
       '#session-next-card-v1.is-manual{pointer-events:auto;cursor:pointer}',
       'html body #session-modal.show .session-main{position:relative}',
-      'html body #session-modal.show.snp-has-figure #session-current-ex{padding-right:48px}',
+      // Room for the figure button is kept at the end of the whole heading row, not after the name, so "→ next" sits close to the name.
+      'html body #session-modal.show.snp-has-figure #session-ex-heading-row{padding-right:52px}',
       '#session-figure-btn-v1{position:absolute;right:2px;z-index:3;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;',
       ' color:rgb(var(--pf-rgb,52,211,153));background:rgba(var(--pf-rgb,52,211,153),.08);border:1px solid rgba(var(--pf-rgb,52,211,153),.32);transition:background .2s,transform .2s}',
       '#session-figure-btn-v1[hidden]{display:none}',
