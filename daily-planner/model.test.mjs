@@ -39,7 +39,7 @@ test('Overlaps are signalled; planned time does not count an overlap twice',()=>
 test('Dates and imports reject invalid or incomplete data',()=>{
  assert.equal(validTask(make({date:'2026-02-30'})),false);
  assert.equal(validTask(make({end:'07:00'})),false);
- assert.equal(validTask(make({start:'',end:'09:00'})),false);
+ assert.equal(validTask(make({start:'',end:'09:00'})),true);
  assert.equal(validTask(make({start:'25:00',end:''})),false);
  assert.equal(validTask(make({title:'   '})),false);
  assert.equal(validTask(make({start:'',end:''})),true);

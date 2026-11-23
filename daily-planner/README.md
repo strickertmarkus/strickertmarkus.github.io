@@ -6,21 +6,17 @@ Dagsplanerare för GitHub Pages med Firebase-synk. Ingen byggprocess eller exter
 
 ## Användning
 
-Appen börjar tom. Ingen exempeldag eller automatiskt skapade aktiviteter finns. Egna sparade aktiviteter behålls.
+Appen börjar tom. Inga exempelaktiviteter skapas.
 
-- **Hela dagen:** kronologisk tidslinje, nu-markör och en separat lista för aktiviteter utan tid.
-- **Nu & nästa:** aktiviteter som pågår nu och nästa starttid. Samtidiga aktiviteter visas tillsammans. Typfilter och sökning gäller även här. För andra datum finns en länk tillbaka till idag.
-- **Tider:** utan tid, enbart starttid eller start/slut samma dag. Sluttiden måste vara senare än starttiden. Ett intervall över midnatt behöver delas i två aktiviteter.
-- **Enbart starttid:** aktuell från start till nästa schemalagda start samma dag, eller till midnatt. Klarmarkering avslutar visningen tidigare. Sluttid uppskattas inte och räknas inte in i planerad tid.
-- **Typer:** Arbete, Egentid, Hälsa, Vardag och Paus. Filtrera i den horisontellt rullbara raden.
-- **Redigera:** tryck på aktiviteten. Lägg till anteckning, markera viktig, ändra datum eller kopiera till nästa dag.
-- **Återkommande:** dagligen, vardagar eller veckovis. Ändra en förekomst eller hela serien. Individuella ändringar är undantag och behålls vid serieändringar. Klarmarkering och borttagning av en förekomst påverkar bara den dagen.
-- **Ångra:** efter att du sparat, klarmarkerat eller tagit bort. Borttagning av hela serien kan också ångras.
-- **Överblick:** aktivitetsring, klara/kvar och planerad tid. Överlappande intervall räknas bara en gång i tidsmåttet. Krockar visas på aktiviteterna men hindrar inte sparning.
-- **Vecka och kalender:** byt dag eller vecka, alternativt välj datum i månadskalendern.
-- **Dagsanteckning:** sparas direkt per datum.
-- **Sökning:** söker i rubrik, anteckning och typ för vald dag.
-- **Tangentbord:** N = ny aktivitet, / = sök, Escape = stäng dialog. Genvägar aktiveras inte vid textinmatning.
+- Tryck **+** eller på en aktivitet för att öppna redigering direkt i sidan.
+- Välj **Ingen**, **Start**, **Slut** eller **Start + slut**. Enbart sluttid visas som "Senast" och räknas inte som ett tidsintervall eller en pågående aktivitet.
+- **Sätt som standard** sparar valet för nya aktiviteter. Det kan också ändras under Mer och synkas med kontot.
+- Filterikonen öppnar typfilter, sökning, avklarade och valet **Hela dagen / Nu & nästa**.
+- Återkommande aktiviteter: dagligen, vardagar eller veckovis. Ändra en dag eller hela serien.
+- Papperskorgen i redigeringen tar bort aktiviteten. Mer → Rensa kan rensa avklarade på vald dag, alla på vald dag eller all planering. Rensning av en dag behåller framtida återkommande aktiviteter. All planering exporteras innan total rensning; Ångra visas efteråt.
+- Kalender, inställningar, filter och import öppnas som integrerade sektioner, utan popup eller bakgrundsöverlägg.
+- Dagsanteckningen är hopfälld från början och har egen Rensa-knapp.
+- N = ny aktivitet, / = sök, Escape = stäng redigering och öppna paneler.
 
 ## Sparning och säkerhetskopior
 
@@ -62,7 +58,7 @@ Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker aktiver
 
 | Fil | Ansvar |
 | --- | --- |
-| `index.html` | Semantisk appstruktur, dialoger, mobilmeny |
+| `index.html` | Semantisk appstruktur, inline-redigering, mobilmeny |
 | `styles.css` | Layout, responsiva brytpunkter, färger, rörelse |
 | `app.mjs` | Rendering, inmatning, lagring, import/export |
 | `model.mjs` | Datum, återkommande aktiviteter, tidslogik, validering |
@@ -75,7 +71,7 @@ Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker aktiver
 
 ## Design och prestanda
 
-Färgerna hämtar inspiration från portfolio-v2: bakgrund `#0b0e14`, varm bärnsten, blått och mint. Systemtypsnitt, mjuka ljusfält, tunn tidslinje, aktivitetsring och en fast mobilmeny. Bottenbaren har Homes genomskinliga bakgrund, orange markering och gemensamma 300 ms-animation: framkanten leder och bakkanten följer tills punkten dras ihop igen. Mobilvyn använder dynamisk viewporthöjd och safe-area i hemskärmsläge. Baren döljs när tangentbord eller dialog är öppet. Dialoger öppnas som sheets på mindre skärmar, med scrollås och native fokusbegränsning via `<dialog>`.
+Färgerna hämtar inspiration från portfolio-v2: bakgrund `#0b0e14`, varm bärnsten, blått och mint. Systemtypsnitt, mjuka ljusfält, tunn tidslinje, aktivitetsring och en fast mobilmeny. Bottenbaren har Homes genomskinliga bakgrund, orange markering och gemensamma 300 ms-animation: framkanten leder och bakkanten följer tills punkten dras ihop igen. Mobilvyn använder dynamisk viewporthöjd och safe-area i hemskärmsläge. Baren döljs när tangentbordet används. Formulär och övriga paneler expanderar i sidans vanliga flöde, utan scrollås.
 
 Inga canvas- eller WebGL-scener. Bakgrundsrörelsen använder CSS-transformer. `prefers-reduced-motion` respekteras. Klockan kontrolleras varje sekund medan sidan är synlig, men vyn uppdateras högst en gång per minut. Kalendern följer enhetens lokala datum och tid, även över sommartidsgränser. Inmatningstext renderas med HTML-escaping.
 
@@ -98,3 +94,5 @@ Kontroller vid första implementationen:
 - Safari/WebKit och installation på fysisk iPhone är inte verifierade i denna miljö. Responsiv iframe är en layoutkontroll och emulerar inte iOS-tangentbord eller safe-area.
 
 Den senaste uppdateringen har syntaxkontrollerats. Synk mellan riktiga Firebase-konton och regler kräver verifiering med användarens inloggning. Inga regressionssviter kördes.
+
+CSS, appmodul, datamodul och delade moduler har versionsparametrar i URL:erna så att en gammal browsercache inte blandar nya HTML-element med äldre kod vid uppdatering.
