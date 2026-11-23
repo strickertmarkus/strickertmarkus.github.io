@@ -414,11 +414,15 @@
   // ── formatting ──────────────────────────────────────
   // ── links in the text ──
   // The link tool opens its own small dialog at the top of the screen (text + address) instead of
-  // a field inside the floating row: on iPhone a focused field in a fixed row makes the page jump,
-  // and the tap clears the marking. Where to put the link is noted as character offsets in the
-  // note's text (iOS predictive text swaps text nodes on the tap) at the tap itself, and if the
-  // marking is already gone, the word just before the caret is offered. On "Spara" exactly those
-  // characters become the link; nothing depends on the selection at that moment.
+  // a field inside the floating row (on iPhone a focused field in a fixed row makes the page jump).
+  // Where the link goes is taken at the tap on the tool, as a DOM range:
+  // - marked text: that text becomes the link (createLink, per line, bullets kept);
+  // - only a caret: a new link is inserted right there, with the Text field as its words;
+  // - inside an existing link: that link is edited or removed.
+  // iOS clears a marking on the tap and its predictive text may swap the word's text node, so the
+  // last marking is also kept (range + character offsets) and used when the caret now sits at its
+  // start or end. Saving puts that range back as the selection and goes through execCommand, so
+  // Ångra/Gör om (and Ctrl+Z) undo a link like any other edit.
   var wideSel = null, snap = null, snapAt = 0, linkJob = null, linkDlg = null, noteBox = null,
     keepCaretAboveBar = function () {};
   function textOffset(node, offset) {
@@ -428,47 +432,49 @@
     return r.toString().length;
   }
   function rangeAt(start, end) {
-    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null), n, pos = 0, r = document.createRange(), started = false, last = null;
+    var walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null), n, pos = 0, r = document.createRange(), started = false;
     while ((n = walker.nextNode())) {
       var len = n.nodeValue.length;
-      last = n;
       if (!started && start <= pos + len) { r.setStart(n, start - pos); started = true; }
       if (started && end <= pos + len) { r.setEnd(n, end - pos); return r; }
       pos += len;
     }
-    if (!last) { r.selectNodeContents(editor); r.collapse(false); return start === 0 && end === 0 ? r : null; }
     return null;
   }
-  function currentOffsets() {
+  // The selection in the note as { range, start, end, text }, or null when it is outside the note.
+  function capture() {
     var sel = window.getSelection();
     if (!sel || !sel.rangeCount) return null;
     var r = sel.getRangeAt(0);
     if (!editor.contains(r.startContainer) || !editor.contains(r.endContainer)) return null;
-    var start = textOffset(r.startContainer, r.startOffset), end = textOffset(r.endContainer, r.endOffset);
-    return start < 0 || end < start ? null : { start: start, end: end, text: r.toString() };
+    return { range: r.cloneRange(), start: textOffset(r.startContainer, r.startOffset), end: textOffset(r.endContainer, r.endOffset), text: r.toString() };
   }
-  function rememberSelection() {
-    var o = currentOffsets();
-    if (o && o.end > o.start) wideSel = o;
-  }
-  function snapSelection() { snap = currentOffsets(); snapAt = Date.now(); }
+  function rememberSelection() { var c = capture(); if (c && c.text) wideSel = c; }
+  function snapSelection() { snap = capture(); snapAt = Date.now(); }
   function fullText() { var r = document.createRange(); r.selectNodeContents(editor); return r.toString(); }
-  // Where the link goes: the marking at the tap, else the last marking if the caret sits at its
-  // start or end with the text unchanged, else the word right before the caret.
+  function alive(range) { return range && editor.contains(range.startContainer) && editor.contains(range.endContainer); }
+  // The range a captured selection stands for now: the DOM range while it still holds the same
+  // text, else the same characters found again by offset (iOS swapped the text node).
+  function rangeOf(c) {
+    if (!c) return null;
+    if (alive(c.range) && c.range.toString() === c.text) return c.range;
+    if (c.text && c.start >= 0) { var r = rangeAt(c.start, c.end); if (r && r.toString() === c.text) return r; }
+    return alive(c.range) ? c.range : null;
+  }
   function linkTargetNow() {
-    var o = snap && Date.now() - snapAt < 2000 ? snap : currentOffsets();
+    var c = snap && Date.now() - snapAt < 2000 ? snap : capture();
     snap = null;
-    if (!o) return null;
-    var text = fullText();
-    if (o.end === o.start && wideSel && (o.start === wideSel.start || o.start === wideSel.end) && text.slice(wideSel.start, wideSel.end) === wideSel.text) o = wideSel;
-    if (o.end === o.start) {
-      var before = text.slice(0, o.start), m = before.match(/[^\s ]+$/);
-      if (m && !/^https?:/i.test(m[0])) o = { start: o.start - m[0].length, end: o.start };
-    }
-    var r = rangeAt(o.start, o.end), n = r ? r.startContainer : null;
-    var a = n ? (n.nodeType === 1 ? n : n.parentNode).closest('a[href]') : null;
+    if (!c) return null;
+    // iOS cleared the marking on the tap: the caret sits where the marking started or ended.
+    if (!c.text && wideSel && (c.start === wideSel.start || c.start === wideSel.end) && rangeOf(wideSel) && rangeOf(wideSel).toString() === wideSel.text) c = wideSel;
+    var range = rangeOf(c);
+    if (!range) return null;
+    // Inside an existing link: the marked text, or a caret strictly inside its words.
+    var n = range.startContainer, el = n.nodeType === 1 ? n : n.parentNode;
+    var a = el && el.closest ? el.closest('a[href]') : null;
     if (a && !editor.contains(a)) a = null;
-    return { start: o.start, end: o.end, text: text.slice(o.start, o.end), anchor: a };
+    if (a && range.collapsed && n.nodeType === 3 && (range.startOffset === 0 || range.startOffset === n.nodeValue.length)) a = null;
+    return { cap: c, range: range.cloneRange(), text: range.toString(), anchor: a };
   }
   function buildLinkDialog() {
     linkDlg = document.createElement('div');
@@ -503,7 +509,11 @@
   }
   function openLinkDialog() {
     linkJob = linkTargetNow();
-    if (!linkJob) { var t = fullText(); linkJob = { start: t.length, end: t.length, text: '', anchor: null }; }
+    if (!linkJob) {
+      // No caret in the note: the link goes at the end.
+      var end = document.createRange(); end.selectNodeContents(editor); end.collapse(false);
+      linkJob = { cap: null, range: end, text: '', anchor: null };
+    }
     if (!linkDlg) buildLinkDialog();
     var a = linkJob.anchor;
     linkDlg.querySelector('.nt-ld-text').value = a ? a.textContent : linkJob.text;
@@ -524,27 +534,7 @@
     root.querySelector('.nt-bar').classList.remove('ld-open');
     if (document.activeElement && linkDlg.contains(document.activeElement)) document.activeElement.blur();
   }
-  function wrapRangeInLinks(range, url) {
-    var nodes = [], walker = document.createTreeWalker(range.commonAncestorContainer.nodeType === 3 ? range.commonAncestorContainer.parentNode : range.commonAncestorContainer, NodeFilter.SHOW_TEXT, null), n;
-    while ((n = walker.nextNode())) if (n.nodeValue && range.intersectsNode(n) && editor.contains(n)) nodes.push(n);
-    var sc = range.startContainer, so = range.startOffset, ec = range.endContainer, eo = range.endOffset;
-    var done = false;
-    nodes.forEach(function (node) {
-      var start = node === sc ? so : 0, end = node === ec ? eo : node.nodeValue.length;
-      if (end <= start) return;
-      if (end < node.nodeValue.length) node.splitText(end);
-      if (start > 0) node = node.splitText(start);
-      if (!node.nodeValue.trim()) return;
-      var old = node.parentNode.closest && node.parentNode.closest('a');
-      if (old && editor.contains(old)) { old.setAttribute('href', url); done = true; return; }
-      var a = document.createElement('a');
-      a.setAttribute('href', url);
-      node.parentNode.insertBefore(a, node);
-      a.appendChild(node);
-      done = true;
-    });
-    return done;
-  }
+  function escAttr(t) { return String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   function saveLink(remove) {
     var job = linkJob;
     if (!job) return closeLinkDialog();
@@ -553,27 +543,25 @@
     var url = raw && !/^[a-z][a-z0-9+.-]*:/i.test(raw) ? 'https://' + raw : raw;
     if (!remove && !/^https?:\/\/\S+/i.test(url)) { linkDlg.querySelector('.nt-ld-url').focus(); return; }
     var a = job.anchor && editor.contains(job.anchor) ? job.anchor : null;
-    if (remove) {
-      if (a) { while (a.firstChild) a.parentNode.insertBefore(a.firstChild, a); a.remove(); }
-    } else if (a) {
-      a.setAttribute('href', url);
-      if (label.trim() && label !== a.textContent) a.textContent = label;
-    } else {
-      var r = rangeAt(job.start, job.end);
-      if (r && job.end > job.start && (label === job.text || !label.trim()) && r.toString() === job.text) {
-        wrapRangeInLinks(r, url);
-      } else {
-        if (!r) { r = document.createRange(); r.selectNodeContents(editor); r.collapse(false); }
-        var link = document.createElement('a');
-        link.setAttribute('href', url);
-        link.textContent = label.trim() ? label : raw;
-        r.deleteContents();
-        r.insertNode(link);
-        if (job.end === job.start) link.parentNode.insertBefore(document.createTextNode(' '), link.nextSibling);
-      }
-    }
-    wideSel = null;
+    var range = (job.cap && rangeOf(job.cap)) || (alive(job.range) ? job.range : null);
+    if (a) { range = document.createRange(); range.selectNodeContents(a); }
+    if (!range) { range = document.createRange(); range.selectNodeContents(editor); range.collapse(false); }
     closeLinkDialog();
+    // Put the range back as the selection and edit through execCommand (undoable).
+    try { editor.focus({ preventScroll: true }); } catch (_) { editor.focus(); }
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    if (remove) {
+      if (a) document.execCommand('unlink');
+    } else {
+      var marked = !range.collapsed, same = marked && (!label.trim() || label === range.toString());
+      if (same) document.execCommand('createLink', false, url);
+      else document.execCommand('insertHTML', false, '<a href="' + escAttr(url) + '">' + escAttr(label.trim() ? label : raw) + '</a>' + (marked ? '' : ' '));
+    }
+    sel = window.getSelection();
+    if (sel.rangeCount) sel.collapseToEnd();
+    wideSel = null;
     decorate();
     queueSave();
   }
