@@ -1,12 +1,12 @@
 # Dayline · Daily planner
 
-Fristående dagsplanerare för GitHub Pages. Ingen byggprocess, externa typsnitt, CDN, inloggning eller databas behövs. Allt som appen behöver ligger i den här mappen.
+Dagsplanerare för GitHub Pages med Firebase-synk. Ingen byggprocess eller externa typsnitt. Firebase SDK laddas från Googles CDN; synk och bottennavigation använder familjeappens gemensamma moduler i `budget/`.
 
 Öppna: **https://strickertmarkus.github.io/daily-planner/**
 
 ## Användning
 
-Första besöket visar en uttryckligt märkt **exempeldag**. Den kan redigeras för att prova funktionerna, men ändringarna i exempelläget sparas inte. Tryck **Börja min dag** för egen planering. Exempeldagen går att öppna igen via Inställningar, utan att ändra egna aktiviteter.
+Appen börjar tom. Ingen exempeldag eller automatiskt skapade aktiviteter finns. Egna sparade aktiviteter behålls.
 
 - **Hela dagen:** kronologisk tidslinje, nu-markör och en separat lista för aktiviteter utan tid.
 - **Nu & nästa:** aktiviteter som pågår nu och nästa starttid. Samtidiga aktiviteter visas tillsammans. Typfilter och sökning gäller även här. För andra datum finns en länk tillbaka till idag.
@@ -24,19 +24,39 @@ Första besöket visar en uttryckligt märkt **exempeldag**. Den kan redigeras f
 
 ## Sparning och säkerhetskopior
 
-Egen planering sparas under `dayline.planner.v1` i `localStorage` på aktuell domän. Exempelläge har ett separat minnesobjekt och skriver aldrig över den egna planeringen.
+Logga in under **Mer → Logga in för att synka** med ditt befintliga konto i projektet `frick-budget`. Inloggningen delas med familjeappen på samma domän. Använd samma konto på båda enheterna.
 
-**Ingen synk mellan telefon och dator är implementerad.** Rensas webbplatsdata kan planeringen försvinna. Exportera en JSON-kopia under Inställningar. Import valideras och kräver bekräftelse innan den ersätter befintliga data; en export av nuvarande data initieras först. Webbläsaren behöver tillåta nedladdningen. Sparfel visas i appen. Oläsbar lagrad data skrivs inte över och kan exporteras i originalformat.
+Planeringen sparas som en JSON-sträng i Realtime Database på `daily_planner_v1/<auth.uid>`. Aktiviteter, återkommande undantag, dagsanteckningar och inställningar ingår. Varje konto har en egen planering. Lokalt lagras en cache och ej bekräftade ändringar under `dayline.firebase.v1.<uid>`; inloggade ändringar skrivs inte till gästernas data.
 
-Flikar på samma enhet uppdateras via `storage`-händelsen. Om en annan flik ändrar data medan redigering är öppen stängs dialogen och användaren informeras, så att en gammal redigering inte skrivs över den nya.
+Ändringar sparas lokalt innan de skickas. En transaction sammanfogar ändrade aktiviteter och datum med senaste serverversionen; vid ändring av samma aktivitet eller samma dagsanteckning gäller sista skrivningen. Appen väntar på första Firebase-läsningen innan den skriver. `Synkat med Firebase` visas först när inga ändringar väntar på serverbekräftelse. Åtkomstfel och offline visas separat. Lokala ändringar finns kvar efter omladdning och skickas när anslutningen återkommer. Ingen polling sker i bakgrunden.
+
+Äldre egen planering i `dayline.planner.v1` förs över en gång till det första inloggade kontot. Originalet behålls lokalt som backup och markeras med `dayline.legacy-owner` för att inte importeras till ett annat konto. Exempeldagen i föregående version sparades aldrig och migreras därför inte.
+
+Export och import finns under Mer. Import valideras, laddar först ner en kopia och ersätter därefter den aktuella planeringen; ändringen synkas. Oläsbar data ska exporteras innan den återställs. Flikuppdateringar och molnändringar uppdaterar vyn och nollställer gamla ångra-snapshots.
+
+### Firebase-regler
+
+Befintliga regler kunde inte läsas eller publiceras från arbetsmiljön. Om appen visar **Firebase nekar åtkomst**, lägg till denna gren i det befintliga `rules`-objektet i Firebase Console → Realtime Database → Rules. Behåll andra grenar:
+
+```json
+"daily_planner_v1": {
+  "$uid": {
+    ".read": "auth != null && auth.uid === $uid",
+    ".write": "auth != null && auth.uid === $uid",
+    ".validate": "newData.isString() && newData.val().length <= 5000000"
+  }
+}
+```
+
+En bredare tillåtelse på en föräldranod kan inte begränsas av en barnregel; granska befintliga regler. Efter publicering, välj **Synka igen** i appen. Ingen databas skrivs med exempelaktiviteter.
 
 ## Hemskärm och offline
 
-Manifest, PNG/SVG-ikoner och en service worker ingår. På iPhone: öppna i Safari → Dela → Lägg till på hemskärmen. Appskalet cachas efter första lyckade besöket. Service workern är avgränsad till `daily-planner/`, hämtar nätverksversionen när anslutning finns och faller tillbaka på cache offline.
+Manifest, PNG/SVG-ikoner och en service worker ingår. På iPhone: öppna i Safari → Dela → Lägg till på hemskärmen. Appskalet cachas efter första lyckade besöket. Service workern styr bara `daily-planner/`. Den cachar även de två uttryckligen listade delade modulerna och Firebase SDK. Nätversion används när anslutning finns och cache offline.
 
 Service workern skickar inga pushnotiser. Bakgrundspåminnelser och kalenderintegration ingår inte.
 
-Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker aktiveras när föregående öppna appflikar stängts.
+Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker aktiveras när föregående öppna appflikar stängts. Stäng därför öppna appfönster och öppna igen efter uppdatering.
 
 ## Filer
 
@@ -47,13 +67,15 @@ Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker aktiver
 | `app.mjs` | Rendering, inmatning, lagring, import/export |
 | `model.mjs` | Datum, återkommande aktiviteter, tidslogik, validering |
 | `model.test.mjs` | Riktade kontroller av tids- och datalogiken |
-| `sw.js` | Offlinecache, endast för appens egen sökväg |
+| `sw.js` | Offlinecache för appen och dess uttryckliga beroenden |
+| `../budget/firebase-sync.js` | Gemensam Firebase-konfiguration och kontoavgränsad Dayline-synk |
+| `../budget/pulse-bottom-nav-v1.js` | Gemensamma rörelsekurvor för Homes och Daylines bottenpunkt |
 | `manifest.webmanifest` | Installation och hemskärmsläge |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Appikoner |
 
 ## Design och prestanda
 
-Färgerna hämtar inspiration från portfolio-v2: bakgrund `#0b0e14`, varm bärnsten, blått och mint. Systemtypsnitt, mjuka ljusfält, tunn tidslinje, aktivitetsring och en fast mobilmeny. Dialoger öppnas som sheets på mindre skärmar, med scrollås och native fokusbegränsning via `<dialog>`.
+Färgerna hämtar inspiration från portfolio-v2: bakgrund `#0b0e14`, varm bärnsten, blått och mint. Systemtypsnitt, mjuka ljusfält, tunn tidslinje, aktivitetsring och en fast mobilmeny. Bottenbaren har Homes genomskinliga bakgrund, orange markering och gemensamma 300 ms-animation: framkanten leder och bakkanten följer tills punkten dras ihop igen. Mobilvyn använder dynamisk viewporthöjd och safe-area i hemskärmsläge. Baren döljs när tangentbord eller dialog är öppet. Dialoger öppnas som sheets på mindre skärmar, med scrollås och native fokusbegränsning via `<dialog>`.
 
 Inga canvas- eller WebGL-scener. Bakgrundsrörelsen använder CSS-transformer. `prefers-reduced-motion` respekteras. Klockan kontrolleras varje sekund medan sidan är synlig, men vyn uppdateras högst en gång per minut. Kalendern följer enhetens lokala datum och tid, även över sommartidsgränser. Inmatningstext renderas med HTML-escaping.
 
@@ -74,3 +96,5 @@ Kontroller vid första implementationen:
 - Verklig Chromium-förhandsvisning på desktop och i en 390 × 844 iframe, inklusive granskade screenshots av tidslinje, fokusläge och dialog.
 - Skapa med intervall respektive enbart starttid, återkommande klarmarkering per dag samt bibehållen planering efter omladdning provades i gränssnittet.
 - Safari/WebKit och installation på fysisk iPhone är inte verifierade i denna miljö. Responsiv iframe är en layoutkontroll och emulerar inte iOS-tangentbord eller safe-area.
+
+Den senaste uppdateringen har syntaxkontrollerats. Synk mellan riktiga Firebase-konton och regler kräver verifiering med användarens inloggning. Inga regressionssviter kördes.

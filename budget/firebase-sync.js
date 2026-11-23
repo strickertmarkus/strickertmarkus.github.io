@@ -26,6 +26,7 @@ const lastKnownValues = {};
 // Keys whose server value was actually read this session. A key the first load never
 // reached (e.g. the request failed) is not pushed from the local copy, which may be old.
 const remoteCheckedKeys = new Set();
+const isDailyPlannerPage = /\/daily-planner(?:\/|$)/i.test(window.location.pathname);
 const isShoppingPage = /\/(?:budget\/)?shopping\.html$/i.test(window.location.pathname);
 console.log('[Firebase] firebase-sync.js v9 loaded');
 
@@ -82,7 +83,7 @@ const firebaseConfig = window.FIREBASE_CONFIG || {
   databaseURL: "https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app"
 };
 
-const SYNC_KEYS = [
+const SYNC_KEYS = isDailyPlannerPage ? [] : [
   "budgetTracker",
   "budgetTracker_maja",
   "savingsGoals",
@@ -127,6 +128,7 @@ function safeSetLocal(key, value) {
 
 /** Initialize Firebase and start syncing */
 async function initFirebaseSync() {
+  if (isDailyPlannerPage) return; // Account-scoped planner API below owns this page.
   if (firebaseInitialized) return;
   try {
     if (typeof firebase === 'undefined') {
@@ -770,3 +772,163 @@ function applyExerciseLogDateFieldFix() {
 document.addEventListener('DOMContentLoaded', initFirebaseSync, { once: true });
 document.addEventListener('DOMContentLoaded', applyExerciseUserToggle, { once: true });
 document.addEventListener('DOMContentLoaded', applyExerciseLogDateFieldFix, { once: true });
+
+/** Dayline: account-scoped state, durable pending writes and record-level merging.
+ * This page deliberately opts out of the household key/migration/polling pipeline.
+ */
+window.createDailyPlannerSync = function ({emptyState, validateState, mergeStates, onChange, onStatus}) {
+  const legacyKey = 'dayline.planner.v1';
+  const cachePrefix = 'dayline.firebase.v1.';
+  const guestKey = () => localStorage.getItem('dayline.legacy-owner') ? 'dayline.guest.v1' : legacyKey;
+  let user = null, ref = null, connection = null, listener = null, epoch = 0;
+  let current = emptyState(), base = emptyState(), ready = false, connected = false;
+  let pending = false, writing = false, blocked = false, timer = null, initialTimer = null;
+  let migrating = false;
+  const copy = value => structuredClone(value);
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const decode = value => value == null ? emptyState() : validateState(typeof value === 'string' ? JSON.parse(value) : value);
+  function status(kind, label, detail) { onStatus({kind, label, detail, user: user?.email || user?.uid || null}); }
+  function report() {
+    if (blocked) return;
+    if (!user) return status('local', 'Logga in för synk', 'Logga in med samma konto som på dina andra sidor. Utan inloggning sparas planeringen bara här.');
+    if (!ready) return status('loading', 'Hämtar planering…', 'Hämtar din planering från Firebase. Lokala ändringar väntar tills hämtningen är klar.');
+    if (!connected) return status('offline', 'Sparat lokalt · offline', 'Ändringar sparas på enheten och synkas när anslutningen återkommer.');
+    if (pending || writing) return status('saving', 'Synkar…', 'Ändringarna är sparade på enheten och väntar på bekräftelse från Firebase.');
+    status('synced', 'Synkat med Firebase', `Inloggad som ${user.email || 'ditt konto'}. Samma konto på telefon och dator visar samma planering.`);
+  }
+  function persist() {
+    if (user) localStorage.setItem(cachePrefix + user.uid, JSON.stringify({base, current}));
+    else localStorage.setItem(guestKey(), JSON.stringify(current));
+  }
+  function fail(error) {
+    blocked = true;
+    const denied = /permission|denied/i.test(error?.code || error?.message || '');
+    status('error', denied ? 'Firebase nekar åtkomst' : 'Synkningen pausad', denied
+      ? 'Dina lokala ändringar är kvar. Firebase-reglerna behöver tillåta daily_planner_v1 för ditt konto. Välj Synka igen efter att reglerna uppdaterats.'
+      : 'Planeringen kunde inte synkas. Lokala data behålls. Kontrollera anslutningen och välj Synka igen.');
+  }
+  function queue() {
+    clearTimeout(timer);
+    if (pending && ready && connected && !blocked && !writing) timer = setTimeout(flush, 350);
+    report();
+  }
+  async function flush() {
+    if (!ref || !pending || !ready || !connected || writing || blocked) return;
+    const generation = epoch, sent = copy(current), before = copy(base), target = ref;
+    writing = true; report();
+    try {
+      // applyLocally=false: never report an optimistic Firebase event as confirmed.
+      const result = await target.transaction(value => JSON.stringify(mergeStates(before, sent, decode(value))), undefined, false);
+      if (generation !== epoch) return;
+      if (!result.committed) throw Error('Transaction aborted');
+      base = decode(result.snapshot.val());
+      current = mergeStates(sent, current, base); // retain edits made during this write
+      pending = !same(current, base);
+      persist();
+      if (migrating) {
+        // Keep the original as an exportable backup, but never import it into another account.
+        localStorage.setItem('dayline.legacy-owner', user.uid);
+        migrating = false;
+      }
+      onChange(copy(current));
+    } catch (error) { if (generation === epoch) fail(error); }
+    finally { if (generation === epoch) { writing = false; queue(); } }
+  }
+  function accept(snapshot) {
+    if (writing) return;
+    try {
+      const remote = decode(snapshot.val());
+      current = pending ? mergeStates(base, current, remote) : remote;
+      base = remote; ready = true; clearTimeout(initialTimer);
+      pending = !same(current, base);
+      persist(); onChange(copy(current)); queue();
+    } catch (error) { fail(error); }
+  }
+  function attach() {
+    if (!ref) return;
+    const generation = epoch;
+    if (listener) ref.off('value', listener);
+    listener = snapshot => { if (generation === epoch) accept(snapshot); };
+    ref.on('value', listener, error => { if (generation === epoch) fail(error); });
+    clearTimeout(initialTimer);
+    initialTimer = setTimeout(() => {
+      if (generation === epoch && !ready && !blocked) status('offline', 'Sparat lokalt · väntar', 'Firebase svarar inte ännu. Lokala ändringar behålls tills anslutningen är tillbaka.');
+    }, 12000);
+  }
+  function switchUser(next) {
+    epoch++; clearTimeout(timer); clearTimeout(initialTimer);
+    if (ref && listener) ref.off('value', listener);
+    if (connection) connection.off();
+    user = next; ref = null; listener = null; connection = null;
+    current = emptyState(); base = emptyState();
+    ready = connected = pending = writing = blocked = migrating = false;
+    try {
+      if (!user) {
+        // A claimed legacy backup belongs to its original account, not the guest session.
+        current = decode(localStorage.getItem(guestKey()));
+        onChange(copy(current)); report(); return;
+      }
+      const raw = localStorage.getItem(cachePrefix + user.uid);
+      if (raw) {
+        const cached = JSON.parse(raw);
+        current = decode(cached.current); base = decode(cached.base);
+      } else if (!localStorage.getItem('dayline.legacy-owner')) {
+        current = decode(localStorage.getItem(legacyKey));
+        migrating = !same(current, emptyState());
+        // Claim before the first write, so an account switch cannot migrate twice.
+        if (migrating) localStorage.setItem('dayline.legacy-owner', user.uid);
+      }
+      pending = !same(current, base); persist(); onChange(copy(current));
+      const database = firebase.database();
+      ref = database.ref('daily_planner_v1/' + user.uid);
+      const generation = epoch;
+      connection = database.ref('.info/connected');
+      connection.on('value', snapshot => {
+        if (generation !== epoch) return;
+        connected = snapshot.val() === true; queue();
+      });
+      attach(); report();
+    } catch (error) { fail(error); }
+  }
+  const api = {
+    save(next) {
+      current = copy(validateState(next));
+      pending = !!user && !same(current, base);
+      persist(); queue();
+    },
+    retry() {
+      if (!user) { location.href = '../budget/login.html?next=%2Fdaily-planner%2F'; return; }
+      blocked = false; attach(); queue();
+    }
+  };
+  // Re-read on resume as a fallback for suspended mobile WebSockets; no background polling.
+  function resume() {
+    if (document.hidden || !ref || blocked) return;
+    const generation = epoch;
+    ref.get().then(snapshot => { if (generation === epoch) accept(snapshot); }).catch(error => { if (generation === epoch) fail(error); });
+  }
+  window.addEventListener('online', () => { if (user) api.retry(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) resume(); else flush(); });
+  window.addEventListener('pagehide', flush);
+  window.addEventListener('storage', event => {
+    // Another tab's durable pending queue is merged with this tab's edits.
+    if (!user || event.key !== cachePrefix + user.uid || !event.newValue) return;
+    try {
+      const cached = JSON.parse(event.newValue);
+      const other = decode(cached.current), otherBase = decode(cached.base);
+      current = mergeStates(otherBase, other, current);
+      pending = !same(current, base);
+      onChange(copy(current)); queue();
+    } catch (error) { fail(error); }
+  });
+  try {
+    if (typeof firebase === 'undefined' || !firebase.auth || !firebase.database) throw Error('Firebase SDK unavailable');
+    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+    // Same default Firebase app/persistence as budget/login.html.
+    firebase.auth(app).onAuthStateChanged(switchUser, fail);
+  } catch (error) {
+    try { current = decode(localStorage.getItem(legacyKey)); } catch (_) {}
+    fail(error);
+  }
+  return api;
+};

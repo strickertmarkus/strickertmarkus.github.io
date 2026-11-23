@@ -14,6 +14,11 @@
  */
 (function () {
   'use strict';
+  if (/\/daily-planner(?:\/|$)/i.test(location.pathname)) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installDaylineDock, {once:true});
+    else installDaylineDock();
+    return;
+  }
   var BOTTOM = 'calc(max(env(safe-area-inset-bottom,0px), 24px) + 62px)';
   // Home shows Listor/Resor in a full-screen frame under the bar: give that page room at the bottom.
   if (window.self !== window.top) {
@@ -174,8 +179,6 @@
     // Position by left + width (both on the main thread): animating transform with width let iOS
     // run them out of step, so the front edge overshot the tab.
     function place(x, w) { ind.style.width = w + 'px'; ind.style.left = (x - w / 2) + 'px'; }
-    // A frame by its left and right edge.
-    function edges(l, r, easing) { var f = { width: (r - l) + 'px', left: l + 'px' }; if (easing) f.easing = easing; return f; }
     var running = null;
     // part: 'both' (same page), 'stretch' (before leaving), 'shrink' (arriving)
     function travel(from, to, part, duration) {
@@ -187,16 +190,7 @@
       // Front edge and back edge each follow their own curve: the front leads, the back starts a
       // little later and is already catching up while the front is still on its way, so the bar
       // is longest between the tabs and is a dot again exactly when it lands.
-      var front = function (t) { var x = Math.min(1, t / .78); return 1 - Math.pow(1 - x, 3); };
-      var back = function (t) { var x = Math.max(0, Math.min(1, (t - .12) / .88)); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
-      var at = function (t) {
-        var f = a + (b - a) * front(t), k = a + (b - a) * back(t);
-        return edges(Math.min(f, k) - 2, Math.max(f, k) + 2);
-      };
-      // Across pages the first half runs before leaving and the second half on the new page.
-      var t0 = part === 'shrink' ? .5 : 0, t1 = part === 'stretch' ? .5 : 1, steps = part === 'both' ? 16 : 8;
-      var frames = [];
-      for (var n = 0; n <= steps; n++) frames.push(at(t0 + (t1 - t0) * n / steps));
+      var frames = pulseNavDotFrames(a, b, part);
       var ms = duration || (part === 'both' ? 300 : 200);
       var last = frames[frames.length - 1];
       ind.style.width = last.width; ind.style.left = last.left;
@@ -333,3 +327,39 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
   else install();
 })();
+
+// Shared front/back edge curves: Home and Dayline use the same travelling dot.
+function pulseNavDotFrames(a, b, part) {
+  var front = function(t) { var x=Math.min(1,t/.78); return 1-Math.pow(1-x,3); };
+  var back = function(t) { var x=Math.max(0,Math.min(1,(t-.12)/.88)); return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2; };
+  var t0=part==='shrink'?.5:0, t1=part==='stretch'?.5:1, steps=part==='both'?16:8, frames=[];
+  for(var n=0;n<=steps;n++) {
+    var t=t0+(t1-t0)*n/steps, f=a+(b-a)*front(t), k=a+(b-a)*back(t);
+    frames.push({width:(Math.abs(f-k)+4)+'px',left:(Math.min(f,k)-2)+'px'});
+  }
+  return frames;
+}
+function installDaylineDock() {
+  var nav=document.querySelector('.mobile-dock'), ind=document.querySelector('.dock-indicator');
+  if(!nav||!ind)return;
+  var active='all', running=null;
+  function centre(name){var el=nav.querySelector('[data-action="'+name+'"]');return el?el.offsetLeft+el.offsetWidth/2:0;}
+  function mark(name,animate){
+    var prev=active, a=centre(prev), b=centre(name);
+    // Rapid taps continue from the visible position, without jumping back.
+    if(running){var rect=ind.getBoundingClientRect(),box=nav.getBoundingClientRect();a=rect.left-box.left+rect.width/2;running.cancel();running=null;}
+    active=name;
+    nav.querySelectorAll('button').forEach(function(el){el.classList.toggle('on',el.dataset.action===name);});
+    ind.style.width='4px';ind.style.left=(b-2)+'px';
+    if(animate&&prev!==name&&ind.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
+      running=ind.animate(pulseNavDotFrames(a,b,'both'),{duration:300,easing:'linear'});
+      running.finished.then(function(){running=null;}).catch(function(){});
+    }
+  }
+  window.addEventListener('dayline:view',function(e){mark(e.detail.mode,true);});
+  new ResizeObserver(function(){mark(active,false);}).observe(nav);
+  function typing(){var el=document.activeElement;document.documentElement.classList.toggle('dock-typing',matchMedia('(pointer:coarse)').matches&&!!el?.matches('input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,[contenteditable=true]'));}
+  document.addEventListener('focusin',typing);document.addEventListener('focusout',function(){setTimeout(typing,30);});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',typing);
+  mark(active,false);
+}

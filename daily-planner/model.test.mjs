@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emptyState,dayTasks,focusTasks,overlapKeys,plannedMinutes,validTask,validateState,shiftDate,occurs,sampleState} from './model.mjs';
+import {emptyState,dayTasks,focusTasks,overlapKeys,plannedMinutes,validTask,validateState,shiftDate,occurs} from './model.mjs';
 const make=(patch={})=>({id:'t1',title:'Fokus',date:'2026-11-23',type:'work',start:'08:00',end:'09:00',priority:'normal',repeat:'none',note:'',done:false,...patch});
 test('Start-only stays active until the next start; intervals use an exclusive end',()=>{
  const tasks=[make({end:'',key:'a'}),make({id:'t2',key:'b',start:'10:00',end:'11:00'})];
@@ -45,7 +45,7 @@ test('Dates and imports reject invalid or incomplete data',()=>{
  assert.equal(validTask(make({start:'',end:''})),true);
  assert.throws(()=>validateState({...emptyState(),tasks:[make(),make()]}));
  assert.throws(()=>validateState({...emptyState(),notes:{'2026-11-23':3}}));
- assert.doesNotThrow(()=>validateState(sampleState('2026-11-23')));
+ assert.doesNotThrow(()=>validateState(emptyState()));
  assert.equal(shiftDate('2026-12-31',1),'2027-01-01');
  assert.equal(shiftDate('2026-03-29',1),'2026-03-30');
 });

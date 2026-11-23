@@ -53,17 +53,22 @@ export function plannedMinutes(tasks) {
   const ranges=tasks.filter(t=>t.start&&t.end).map(t=>[minutes(t.start),minutes(t.end)]).sort((a,b)=>a[0]-b[0]);
   let end=0,total=0; for(const [a,b] of ranges){total+=Math.max(0,b-Math.max(a,end));end=Math.max(end,b);} return total;
 }
-export function sampleState(date) {
-  const state=emptyState();
-  state.tasks=[
-    ['Mjuk start på dagen','home','07:30','08:00',true,'Kaffe, frukost och en stund utan skärm.'],
-    ['Fokus på det viktigaste','work','08:15','09:45',false,'En sak i taget. Stäng av notiser och ge dagens viktigaste uppgift din fulla uppmärksamhet.'],
-    ['En paus utomhus','break','10:00','10:20',false,'Frisk luft och lite ny energi.'],
-    ['Tid för projektet','work','10:30','12:00',false,''],
-    ['Lunch i lugn och ro','home','12:00','13:00',false,''],
-    ['Rörelse & återhämtning','health','17:00','17:45',false,''],
-    ['En kväll för mig','personal','20:00','',false,''],
-    ['Boka in något att se fram emot','personal','','',false,'']
-  ].map(([title,type,start,end,done,note],i)=>({id:`sample-${i}`,title,type,start,end,done,note,date,repeat:'none',priority:i===1?'high':'normal'}));
-  return state;
+// Apply only locally changed records to the latest server state.
+// Different activities/dates merge; the last write wins for the same record.
+export function mergeStates(base, local, remote) {
+  const result=structuredClone(remote);
+  const mergeMap=(before,after,target)=>{
+    const merged=new Map(Object.entries(target));
+    for(const key of new Set([...Object.keys(before),...Object.keys(after)])) {
+      if(JSON.stringify(before[key])===JSON.stringify(after[key]))continue;
+      if(Object.hasOwn(after,key))merged.set(key,structuredClone(after[key]));else merged.delete(key);
+    }
+    return Object.fromEntries(merged);
+  };
+  const taskMap=tasks=>Object.fromEntries(tasks.map(t=>[t.id,t]));
+  result.tasks=Object.values(mergeMap(taskMap(base.tasks),taskMap(local.tasks),taskMap(remote.tasks)));
+  for(const key of ['exceptions','notes','settings'])result[key]=mergeMap(base[key],local[key],remote[key]);
+  const ids=new Set(result.tasks.map(t=>t.id));
+  result.exceptions=Object.fromEntries(Object.entries(result.exceptions).filter(([key])=>ids.has(key.slice(0,-11))));
+  return validateState(result);
 }

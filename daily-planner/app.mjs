@@ -1,4 +1,4 @@
-import {TYPES,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,sampleState} from './model.mjs';
+import {TYPES,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const paths={
   orbit:'<circle cx="12" cy="12" r="7"/><ellipse cx="12" cy="12" rx="11" ry="4" transform="rotate(-35 12 12)"/><circle cx="18" cy="5" r="1.3" fill="currentColor"/>',
@@ -28,30 +28,26 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function hydrate(root=document){root.querySelectorAll('[data-icon]').forEach(el=>{el.innerHTML=icon(el.dataset.icon);el.removeAttribute('data-icon');});}
 hydrate();
 const STORAGE='dayline.planner.v1';
-let state=emptyState(),demo=false,storageHealthy=true,unreadableRaw=null;
-try{const saved=localStorage.getItem(STORAGE);unreadableRaw=saved;if(saved)state=validateState(JSON.parse(saved));else demo=true;unreadableRaw=null;}catch(e){storageHealthy=false;$('#saveState').textContent='Lagringen kunde inte läsas';}
+let state=emptyState(),sync=null,storageHealthy=true,unreadableRaw=null;
+try{const saved=localStorage.getItem(localStorage.getItem('dayline.legacy-owner')?'dayline.guest.v1':STORAGE);unreadableRaw=saved;if(saved)state=validateState(JSON.parse(saved));unreadableRaw=null;}catch(e){storageHealthy=false;$('#saveState').textContent='Lagringen kunde inte läsas';}
 let selected=localDate(),mode='all',filter='all',query='',editing=null,editType='work',timeMode='range',monthDate=selected,pendingImport=null,undoAction=null,toastTimer=null;
-let sample=sampleState(selected),lastMinute='',lastToday=localDate();
-const currentState=()=>demo?sample:state;
+let lastMinute='',lastToday=localDate();
+const currentState=()=>state;
 const allTasks=()=>dayTasks(currentState(),selected);
 const nowMinutes=()=>{const d=new Date();return d.getHours()*60+d.getMinutes()+d.getSeconds()/60;};
 const isToday=()=>selected===localDate();
 function save(){
-  if(demo)return true;
   if(unreadableRaw!==null){toast('Originaldata är skyddad. Exportera den via Inställningar och återställ en giltig säkerhetskopia.',null,10000);return false;}
-  try{localStorage.setItem(STORAGE,JSON.stringify(state));storageHealthy=true;$('#saveState').textContent='Sparat på enheten';return true;}
+  try{if(sync)sync.save(state);else localStorage.setItem(STORAGE,JSON.stringify(state));storageHealthy=true;return true;}
   catch(e){storageHealthy=false;$('#saveState').textContent='Kunde inte spara';toast('Kunde inte spara på enheten. Exportera en säkerhetskopia via Inställningar.',null,10000);return false;}
 }
 function toast(message,undo=null,ms=5000){clearTimeout(toastTimer);undoAction=undo;$('#toastText').textContent=message;$('#undoButton').hidden=!undo;$('#toast').hidden=false;toastTimer=setTimeout(()=>{$('#toast').hidden=true;undoAction=null;},ms);}
 $('#undoButton').onclick=()=>{if(undoAction){const undo=undoAction;undoAction=null;undo();}$('#toast').hidden=true;};
-function mutate(fn,message){const snapshot=structuredClone(currentState());fn(currentState());save();render();if(message)toast(message,()=>{if(demo)sample=snapshot;else state=snapshot;save();render();});}
+function mutate(fn,message){const snapshot=structuredClone(currentState());fn(currentState());save();render();if(message)toast(message,()=>{state=snapshot;save();render();});}
 function chooseDate(date){if(!validDate(date))return;selected=date;query='';$('#searchInput').value='';render();}
-function setMode(next){mode=next;render();}
+function setMode(next){mode=next;render();window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));}
 function render(){
   const tasks=allTasks(); const done=tasks.filter(t=>t.done).length;
-  $('#demoBanner').hidden=!demo;$('#demoBanner>span').textContent='Exempeldag · sparas inte';
-  if(demo)$('#saveState').textContent='Exempelläge';else if(storageHealthy)$('#saveState').textContent='Sparat på enheten';
-  $('#demoBanner button').innerHTML=demo && state.tasks.length ? `Till min planering ${icon('check')}` : `Börja min dag ${icon('plus')}`;
   $('#dateLabel').textContent=parseDate(selected).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
   $('#greeting').innerHTML=isToday()?'Din dag, <br><em>i din takt.</em>':`${esc(parseDate(selected).toLocaleDateString('sv-SE',{weekday:'long'}).replace(/^./,c=>c.toUpperCase()))}, <br><em>på ditt sätt.</em>`;
   $('#dayCaption').textContent=tasks.length ? (done===tasks.length?'Allt är avklarat. Njut av resten av dagen.':`${tasks.length} aktiviteter. Utrymme för både fokus och pauser.`) : 'Gör plats för det som betyder något.';
@@ -107,7 +103,6 @@ function renderNext(tasks){
   const f=isToday()?focusTasks(tasks,nowMinutes()):{active:[],next:tasks.filter(t=>t.start&&!t.done).slice(0,1)};const t=f.next[0];
   $('#nextUp').innerHTML=t?`<div class="next-label">${icon('clock')}${isToday()?'På horisonten':'Först på schemat'}</div><button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><h3>${esc(t.title)}</h3><p>${TYPES[t.type].label}${f.next.length>1?` · +${f.next.length-1} samtidigt`:''}</p><span class="next-time">${t.start}${isToday()?` · om ${duration(Math.max(1,Math.ceil(minutes(t.start)-nowMinutes())))}`:''}</span></button>`:`<div class="next-label">${icon('sparkles')}Utrymme att andas</div><h3>${f.active.length?'Var här en stund.':'Resten får ta sin tid.'}</h3><p>${tasks.some(t=>!t.done&&!t.start)?'Dina otidsatta aktiviteter finns under När det passar.':'Ingen ny aktivitet väntar på klockan.'}</p>`;
 }
-function startReal(){demo=false;selected=localDate();filter='all';query='';mode='all';save();render();toast('Din dag är redo.');}
 function openDialog(id){const el=$(id);el.showModal();document.body.classList.add('modal-open');}
 function closeDialog(el){el.close();if(!$$('dialog[open]').length)document.body.classList.remove('modal-open');}
 $$('dialog').forEach(el=>{el.addEventListener('close',()=>{if(!$$('dialog[open]').length)document.body.classList.remove('modal-open');});el.addEventListener('click',e=>{if(e.target!==el)return;const r=el.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog(el);});});
@@ -140,7 +135,7 @@ $('#taskForm').addEventListener('submit',event=>{
       if(task.repeat==='none')for(const key of Object.keys(s.exceptions))if(key.startsWith(`${editing.id}@`))delete s.exceptions[key];
     }else if(task.date!==selected){s.exceptions[editing.key]={...s.exceptions[editing.key],deleted:true};s.tasks.push({...task,id:uid(),repeat:'none'});}
     else {const {title,type,start,end,note,priority}=task;patchOccurrence(s,editing,{title,type,start,end,note,priority});}
-  },demo?'Sparat i exempeldagen':'Aktiviteten är sparad');
+  },'Aktiviteten är sparad');
   closeDialog($('#editor'));selected=task.date;render();
 });
 function toggleDone(key){const task=allTasks().find(t=>t.key===key);if(!task)return;mutate(s=>patchOccurrence(s,task,{done:!task.done}),task.done?'Aktiviteten är öppen igen':'En sak mindre att tänka på');}
@@ -151,7 +146,7 @@ function openCalendar(){monthDate=selected;renderCalendar();openDialog('#calenda
 function stepMonth(n){const date=parseDate(monthDate.slice(0,7)+'-01');date.setMonth(date.getMonth()+n);monthDate=localDate(date);renderCalendar();}
 function exportData(data=state,prefix='dayline'){const blob=new Blob([(data===state&&unreadableRaw!==null?unreadableRaw:JSON.stringify(data,null,2))],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${prefix}-${localDate()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 $('#importFile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>5_000_000)throw Error('Filen är för stor (max 5 MB).');pendingImport=validateState(JSON.parse(await file.text()));$('#importSummary').textContent=`Säkerhetskopian innehåller ${pendingImport.tasks.length} aktiviteter och ${Object.keys(pendingImport.notes).length} dagsanteckningar.`;closeDialog($('#settingsDialog'));openDialog('#importDialog');}catch(err){toast(err.message||'Kunde inte läsa säkerhetskopian.',null,8000);}e.target.value='';});
-$('#dayNote').addEventListener('input',()=>{currentState().notes[selected]=$('#dayNote').value;const saved=save();$('#noteSaved').textContent=demo?'Anteckning i exempeldagen':saved?'Sparat':'Kunde inte spara';});
+$('#dayNote').addEventListener('input',()=>{currentState().notes[selected]=$('#dayNote').value;const saved=save();$('#noteSaved').textContent=saved?'Sparat på enheten':'Kunde inte spara';});
 $('#searchInput').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase('sv');renderTasks();});
 function openSearch(){$('#searchRow').hidden=false;$('#searchInput').focus();$('#searchRow').scrollIntoView({block:'nearest',behavior:'smooth'});}
 const actions={
@@ -162,8 +157,7 @@ const actions={
   'clear-filters':()=>{filter='all';query='';$('#searchInput').value='';currentState().settings.hideDone=false;save();render();},
   'prev-month':()=>stepMonth(-1),'next-month':()=>stepMonth(1),'calendar-today':()=>{chooseDate(localDate());closeDialog($('#calendarDialog'));},
   delete:deleteTask,duplicate:duplicateTask,export:()=>{exportData();toast('Säkerhetskopian laddas ner.');},
-  'confirm-import':()=>{if(!pendingImport)return;exportData(state,'dayline-innan-import');state=pendingImport;pendingImport=null;unreadableRaw=null;demo=false;save();closeDialog($('#importDialog'));render();toast('Säkerhetskopian är återställd.');},
-  start:startReal,demo:()=>{demo=true;selected=localDate();sample=sampleState(selected);filter='all';query='';mode='all';closeDialog($('#settingsDialog'));render();}
+  'confirm-import':()=>{if(!pendingImport)return;exportData(state,'dayline-innan-import');state=pendingImport;pendingImport=null;unreadableRaw=null;save();closeDialog($('#importDialog'));render();toast('Säkerhetskopian är återställd.');},
 };
 document.addEventListener('click',e=>{
   const button=e.target.closest('button,[data-close]');if(!button)return;
@@ -179,7 +173,29 @@ document.addEventListener('click',e=>{
   if(button.dataset.duration){const end=minutes($('#taskStart').value)+Number(button.dataset.duration);if(end>1439){$('#formError').textContent='Intervallet behöver sluta före midnatt.';return;}$('#taskEnd').value=timeString(end);$('#formError').textContent='';updateOverlap();}
 });
 document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.target.matches('input,textarea,select,[contenteditable]')||$$('dialog[open]').length)return;if(e.key.toLowerCase()==='n'){e.preventDefault();openEditor();}if(e.key==='/'){e.preventDefault();openSearch();}});
-window.addEventListener('storage',e=>{if(e.key===STORAGE&&e.newValue){try{state=validateState(JSON.parse(e.newValue));unreadableRaw=null;undoAction=null;$('#toast').hidden=true;if(!demo){if($('#editor').open){closeDialog($('#editor'));toast('Planeringen ändrades i en annan flik. Öppna aktiviteten igen.');}render();}}catch{toast('En ändring från en annan flik kunde inte läsas.');}}});
+// Cloud/account changes invalidate undo snapshots and open task editors.
+function receiveState(next){
+  const changed=JSON.stringify(state)!==JSON.stringify(next);
+  state=next;unreadableRaw=null;
+  if(!changed)return;
+  undoAction=null;$('#toast').hidden=true;
+  if($('#editor').open){closeDialog($('#editor'));toast('Planeringen har uppdaterats. Öppna aktiviteten igen.');}
+  render();
+}
+function syncStatus(status){
+  $('#saveState').textContent=status.label;
+  $('#saveState').dataset.status=status.kind;
+  $('#syncDetail').textContent=status.detail;
+  $('#loginLink').hidden=!!status.user;
+  $('#retrySync').hidden=!status.user;
+}
+function startSync(){
+  if(!window.createDailyPlannerSync){syncStatus({kind:'error',label:'Sparat lokalt',detail:'Synkningen kunde inte starta. Anslut till internet och ladda om sidan.'});return;}
+  sync=window.createDailyPlannerSync({emptyState,validateState,mergeStates,onChange:receiveState,onStatus:syncStatus});
+  $('#retrySync').onclick=()=>sync.retry();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startSync,{once:true});else startSync();
+
 function tick(){if(document.hidden)return;const today=localDate(),minute=`${today}-${Math.floor(nowMinutes())}`;if(lastMinute===minute)return;lastMinute=minute;if(lastToday!==today){if(selected===lastToday)selected=today;lastToday=today;render();return;}if($$('dialog[open]').length)return;renderTasks();renderSummary(allTasks());renderNext(allTasks());}
 setInterval(tick,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastMinute='';tick();}});
 render();if(!storageHealthy)toast('Sparad data kunde inte läsas. Originalet är kvar. Exportera innan du gör ändringar.',null,12000);
