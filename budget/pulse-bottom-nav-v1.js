@@ -119,8 +119,8 @@
     // A page's own floating "+" button (Home: new event) sits just above the bar.
     'html.has-bottom-nav:not(#pbn) body .fab{bottom:calc(max(env(safe-area-inset-bottom,0px), 24px) + 66px)!important}' +
     'html.pbn-typing .pbn{visibility:hidden}' +
-    // A page's own dialog (event form on Home, edit dialogs on the budget pages) owns the screen: the bar steps aside so its buttons are never covered.
-    'html:has(.modal-overlay.show) .pbn,html:has(.modal-overlay.active) .pbn,html.pbn-modal .pbn{transform:translateY(calc(100% + 8px));opacity:0;pointer-events:none}' +
+    // A page's own dialog (event form on Home, edit dialogs on the budget pages, Home's bottom sheets such as Månadens överföringar via body.home-sheet-open) owns the screen: the bar steps aside so its buttons are never covered.
+    'html:has(.modal-overlay.show) .pbn,html:has(.modal-overlay.active) .pbn,html.pbn-modal .pbn,body.home-sheet-open .pbn{transform:translateY(calc(100% + 8px));opacity:0;pointer-events:none}' +
     '@media (prefers-reduced-motion:reduce){.pbn-sheet,.pbn-dim{transition:none}.pbn .pop svg{animation:none}::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}';
 
   function install() {

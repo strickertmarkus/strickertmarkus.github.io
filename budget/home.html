@@ -413,14 +413,23 @@
     #transfer-widget .month-popup-sub:empty { display:none; }
     #transfer-widget .transfer-calculator { gap:9px; }
     #transfer-widget .transfer-calc-budget { gap:5px 13px;font-size:10px; }
+    /* Net salaries: a warm themed card so they stand out from the computed rows. */
     #transfer-widget .transfer-calc-income-grid {
       display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0;
-      margin:1px 0 3px;
+      margin:4px 0 6px;padding:4px 12px 2px;border-radius:12px;
+      background:linear-gradient(135deg,rgba(var(--home-view-rgb,253,186,116),.10),rgba(var(--home-view-rgb,253,186,116),.03));
+      border:1px solid rgba(var(--home-view-rgb,253,186,116),.26);
+      box-shadow:inset 3px 0 0 rgba(var(--home-view-rgb,253,186,116),.75);
+    }
+    #transfer-widget .transfer-calc-income-grid::before {
+      content:"Nettolön";display:block;padding:6px 0 2px;
+      font:800 9.5px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+      color:var(--home-view-accent,#FDBA74);
     }
     #transfer-widget .transfer-calc-income-field {
       display:flex;align-items:center;justify-content:space-between;gap:8px;
-      min-width:0;min-height:38px;padding:2px 0;
-      border-bottom:1px solid rgba(255,255,255,.07);
+      min-width:0;min-height:40px;padding:2px 0;
+      border-bottom:1px solid rgba(var(--home-view-rgb,253,186,116),.14);
     }
     #transfer-widget .transfer-calc-income-field:last-child { border-bottom:0; }
     #transfer-widget .transfer-calc-income-field .transfer-person-inline {
@@ -430,8 +439,8 @@
       appearance:none;display:inline-flex;align-items:center;justify-content:flex-end;
       gap:7px;flex:0 1 auto;min-width:0;max-width:100%;min-height:35px;
       border:0 !important;border-radius:5px;padding:3px 2px 3px 6px;
-      background:transparent !important;color:var(--text) !important;
-      font:500 14px/1.25 Inter,system-ui,sans-serif;white-space:nowrap;
+      background:transparent !important;color:var(--home-view-accent-soft,#FDBA74) !important;
+      font:750 16px/1.25 Inter,system-ui,sans-serif;white-space:nowrap;
       font-variant-numeric:tabular-nums;box-shadow:none !important;
       cursor:pointer;text-align:right;
     }
@@ -441,7 +450,7 @@
       color:var(--home-view-accent-soft,#FDBA74) !important;
       outline:none;
     }
-    #transfer-widget .transfer-edit-icon { color:var(--text-sec);font-size:12px;opacity:.55; }
+    #transfer-widget .transfer-edit-icon { color:var(--home-view-accent,#FDBA74);font-size:12px;opacity:.7; }
     #transfer-widget .transfer-calc-income-field input {
       flex:0 1 124px;box-sizing:border-box;width:124px;min-width:0;max-width:48%;
       min-height:35px;padding:4px 6px;background:transparent;color:var(--text);
@@ -459,7 +468,7 @@
     #transfer-widget .transfer-calc-message.is-error { color:#FCA5A5; }
     #transfer-widget .transfer-calc-results { min-width:0; }
     @media(max-width:380px) {
-      #transfer-widget .transfer-calc-income-value { font-size:13px; }
+      #transfer-widget .transfer-calc-income-value { font-size:15px; }
       #transfer-widget .transfer-calc-income-field .transfer-person-inline { font-size:11px; }
     }
     #transfer-widget .transfer-calc-next {
@@ -1020,7 +1029,7 @@
 <script defer src="home-morph-router.js?v=20261123-b11"></script>
 <script src="home-calendar-theme-v12.js?v=20261112-monthrow-1" data-home-calendar-theme-v12="true"></script>
 <script src="nav-menu-motion.js?v=20261111-keepicon-1"></script>
-<script src="pulse-bottom-nav-v1.js?v=20261117-modal-1"></script>
+<script src="pulse-bottom-nav-v1.js?v=20261123-sheet-1"></script>
 <script src="home-theme-controller-v1.js?v=20261019-orange-only-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
