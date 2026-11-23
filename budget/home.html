@@ -316,39 +316,35 @@
     }
     #transfer-widget .transfer-popup-sub:empty { display:none; }
     #transfer-widget .transfer-popup-grid { display:block;min-width:0; }
-    #transfer-widget .transfer-amount-table {
-      width:100%;table-layout:fixed;border-collapse:collapse;font-size:11px;
-      font-variant-numeric:tabular-nums;
+    /* What each person transfers: one row per person, the total large in their colour and the
+       ICA/Huskonto split small under it; hairlines only (portfolio-v2's quiet stat rows). */
+    #transfer-widget .transfer-split { display:block;min-width:0;border-top:1px solid rgba(255,255,255,.08); }
+    #transfer-widget .transfer-split-row {
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);
     }
-    #transfer-widget .transfer-amount-table th,
-    #transfer-widget .transfer-amount-table td { padding:9px 4px;min-width:0; }
-    #transfer-widget .transfer-amount-table thead th {
-      color:var(--text-sec);font-size:10px;font-weight:500;
-      text-align:right;white-space:nowrap;padding-top:3px;padding-bottom:8px;
+    #transfer-widget .transfer-split-row.maja { --person-color:var(--c-maja,#F9A8B8); }
+    #transfer-widget .transfer-split-row.markus { --person-color:var(--c-markus,#38BDF8); }
+    #transfer-widget .transfer-split-name { display:flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:var(--text); }
+    #transfer-widget .transfer-split-name i {
+      width:6px;height:6px;border-radius:50%;background:var(--person-color);box-shadow:0 0 10px var(--person-color);
     }
-    #transfer-widget .transfer-amount-table thead th:first-child { text-align:left; }
-    #transfer-widget .transfer-amount-table tbody tr {
-      border-top:1px solid rgba(255,255,255,.075);
+    #transfer-widget .transfer-split-sum { text-align:right;font-variant-numeric:tabular-nums; }
+    #transfer-widget .transfer-split-sum b {
+      display:block;font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--person-color);white-space:nowrap;
     }
-    #transfer-widget .transfer-amount-table tbody th {
-      text-align:left;font-size:11px;font-weight:500;
-    }
-    #transfer-widget .transfer-amount-table tbody td {
-      color:var(--person-color);text-align:right;font-size:11px;font-weight:500;
-      white-space:nowrap;
-    }
-    #transfer-widget .transfer-amount-row.maja { --person-color:var(--c-maja,#F9A8B8); }
-    #transfer-widget .transfer-amount-row.markus { --person-color:var(--c-markus,#38BDF8); }
-    #transfer-widget .transfer-amount-row .transfer-person-inline { color:var(--text); }
-    #transfer-widget .transfer-amount-table th:first-child { width:29%; }
-    #transfer-widget .transfer-amount-table th:nth-child(2) { width:35%; }
-    #transfer-widget .transfer-amount-table th:nth-child(3) { width:36%; }
+    #transfer-widget .transfer-split-sum small { display:block;margin-top:3px;font-size:11px;color:var(--text-sec);white-space:nowrap; }
+    #transfer-widget .transfer-split-sum small em { font-style:normal;color:var(--text); }
+    #transfer-widget .transfer-calc-results .transfer-split { border-top:0; }
+    #transfer-widget .transfer-calc-next .transfer-split-row { padding:9px 0; }
+    #transfer-widget .transfer-calc-next .transfer-split-sum b { font-size:16px; }
+    #transfer-widget .transfer-split-total { display:flex;justify-content:space-between;align-items:center;padding:10px 0 2px;font-size:12px;color:var(--text-sec);font-variant-numeric:tabular-nums; }
+    #transfer-widget .transfer-split-total > span:last-child { text-align:right; }
+    #transfer-widget .transfer-split-total b { display:block;font-size:15px;font-weight:700;color:var(--home-view-accent-soft,#FDBA74); }
+    #transfer-widget .transfer-split-total small { display:block;margin-top:2px;font-size:10.5px; }
     @media(max-width:380px) {
       #transfer-widget .transfer-popup-shell { padding:9px 8px 7px; }
-      #transfer-widget .transfer-amount-table tbody td { font-size:10px; }
-      #transfer-widget .transfer-amount-table thead th { font-size:9px; }
-      #transfer-widget .transfer-amount-table th,
-      #transfer-widget .transfer-amount-table td { padding-left:2px;padding-right:2px; }
+      #transfer-widget .transfer-split-sum b { font-size:17px; }
     }
     .transfer-empty { color: var(--text-sec); font-size: 12px; padding: 6px 2px 2px; }
     .month-popup-shell {
@@ -413,25 +409,23 @@
     #transfer-widget .month-popup-sub:empty { display:none; }
     #transfer-widget .transfer-calculator { gap:9px; }
     #transfer-widget .transfer-calc-budget { gap:5px 13px;font-size:10px; }
-    /* Net salaries: a warm themed card so they stand out from the computed rows. */
+    /* Net salaries as a facts row (inspired by portfolio-v2): two large figures side by side with a
+       hairline between, the economy view's orange as a soft gradient, the person's dot and name under
+       each; no box. A tap on a figure edits it. */
     #transfer-widget .transfer-calc-income-grid {
-      display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0;
-      margin:4px 0 6px;padding:4px 12px 2px;border-radius:12px;
-      background:linear-gradient(135deg,rgba(var(--home-view-rgb,253,186,116),.10),rgba(var(--home-view-rgb,253,186,116),.03));
-      border:1px solid rgba(var(--home-view-rgb,253,186,116),.26);
-      box-shadow:inset 3px 0 0 rgba(var(--home-view-rgb,253,186,116),.75);
+      display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;min-width:0;
+      margin:2px 0 8px;padding:0;border-bottom:1px solid rgba(255,255,255,.08);
     }
     #transfer-widget .transfer-calc-income-grid::before {
-      content:"Nettolön";display:block;padding:6px 0 2px;
-      font:800 9.5px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
-      color:var(--home-view-accent,#FDBA74);
+      content:"Nettolön";grid-column:1/-1;display:block;padding:2px 0 10px;
+      font:600 10.5px/1 Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--home-view-accent,#FDBA74);border-bottom:1px solid rgba(255,255,255,.08);
     }
     #transfer-widget .transfer-calc-income-field {
-      display:flex;align-items:center;justify-content:space-between;gap:8px;
-      min-width:0;min-height:40px;padding:2px 0;
-      border-bottom:1px solid rgba(var(--home-view-rgb,253,186,116),.14);
+      display:flex;flex-direction:column-reverse;align-items:flex-start;justify-content:flex-end;gap:4px;
+      min-width:0;padding:12px 0 12px;border:0;
     }
-    #transfer-widget .transfer-calc-income-field:last-child { border-bottom:0; }
+    #transfer-widget .transfer-calc-income-field + .transfer-calc-income-field { border-left:1px solid rgba(255,255,255,.08);padding-left:16px; }
     #transfer-widget .transfer-calc-income-field .transfer-person-inline {
       flex:1 1 auto;min-width:0;font-size:12px;color:var(--text);font-weight:500;
     }
@@ -440,7 +434,7 @@
       gap:7px;flex:0 1 auto;min-width:0;max-width:100%;min-height:35px;
       border:0 !important;border-radius:5px;padding:3px 2px 3px 6px;
       background:transparent !important;color:var(--home-view-accent-soft,#FDBA74) !important;
-      font:750 16px/1.25 Inter,system-ui,sans-serif;white-space:nowrap;
+      font:700 25px/1.1 Inter,system-ui,sans-serif;letter-spacing:-.03em;white-space:nowrap;
       font-variant-numeric:tabular-nums;box-shadow:none !important;
       cursor:pointer;text-align:right;
     }
@@ -450,7 +444,14 @@
       color:var(--home-view-accent-soft,#FDBA74) !important;
       outline:none;
     }
-    #transfer-widget .transfer-edit-icon { color:var(--home-view-accent,#FDBA74);font-size:12px;opacity:.7; }
+    /* The figure: a soft gradient in the view's own accent (lighter to the accent), not a new colour. */
+    #transfer-widget .transfer-calc-income-value > span:first-child {
+      background:linear-gradient(100deg,color-mix(in srgb,var(--home-view-accent-soft,#FDBA74) 55%,#fff) 0%,var(--home-view-accent,#FDBA74) 70%);
+      -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+    }
+    #transfer-widget .transfer-calc-income-value { justify-content:flex-start;padding:0 !important;min-height:0; }
+    #transfer-widget .transfer-edit-icon { color:var(--text-sec);font-size:11px;opacity:.45;letter-spacing:0; }
+    #transfer-widget .transfer-edit-icon svg { width:13px;height:13px; }
     #transfer-widget .transfer-calc-income-field input {
       flex:0 1 124px;box-sizing:border-box;width:124px;min-width:0;max-width:48%;
       min-height:35px;padding:4px 6px;background:transparent;color:var(--text);
@@ -468,7 +469,7 @@
     #transfer-widget .transfer-calc-message.is-error { color:#FCA5A5; }
     #transfer-widget .transfer-calc-results { min-width:0; }
     @media(max-width:380px) {
-      #transfer-widget .transfer-calc-income-value { font-size:15px; }
+      #transfer-widget .transfer-calc-income-value { font-size:22px; }
       #transfer-widget .transfer-calc-income-field .transfer-person-inline { font-size:11px; }
     }
     #transfer-widget .transfer-calc-next {
@@ -481,10 +482,6 @@
       font-size:11px;font-weight:600;letter-spacing:.02em;
     }
     #transfer-widget .transfer-calc-next small { color:var(--text-sec);font-size:10px;font-weight:400;letter-spacing:0; }
-    #transfer-widget .transfer-calc-next .transfer-amount-table td,
-    #transfer-widget .transfer-calc-next .transfer-amount-table th { padding-top:6px;padding-bottom:6px; }
-    #transfer-widget .transfer-calc-next .transfer-amount-table tbody td { font-size:10px; }
-    #transfer-widget .transfer-calc-next .transfer-amount-table tbody th { font-size:10px; }
     #transfer-widget .month-expense-section { background:rgba(255,255,255,.025) !important;border-color:rgba(var(--home-view-rgb,253,186,116),.13) !important; }
     #transfer-widget .month-summary-section-title { color:var(--home-view-accent-soft,#FDBA74);font-size:11px;font-weight:700; }
     #transfer-widget .month-list-table tr.total-row td.num { color:var(--home-view-accent-soft,#FDBA74); }
@@ -2599,15 +2596,19 @@ function transferSavedValue(row, field, base, share) {
   return Number.isFinite(Number(share)) && share !== null && share !== undefined
     ? fmtKr(Math.round(transferAmount(row[base]) * Number(share))) : '—';
 }
+// One row per person: what they transfer in total, with the ICA-kort / Huskonto split under it.
 function transferTableRows(majaIca, majaHouse, markusIca, markusHouse) {
-  return '<table class="transfer-amount-table" aria-label="Överföringsfördelning">'
-    + '<thead><tr><th scope="col">Person</th><th scope="col">ICA-kort</th><th scope="col">Huskonto</th></tr></thead>'
-    + '<tbody>'
-    + '<tr class="transfer-amount-row maja"><th scope="row"><span class="transfer-person-inline maja">Maja</span></th>'
-    + '<td>' + majaIca + '</td><td>' + majaHouse + '</td></tr>'
-    + '<tr class="transfer-amount-row markus"><th scope="row"><span class="transfer-person-inline markus">Markus</span></th>'
-    + '<td>' + markusIca + '</td><td>' + markusHouse + '</td></tr>'
-    + '</tbody></table>';
+  function num(v) { var n = Number(String(v).replace(/[^0-9-]/g, '')); return String(v).replace(/[^0-9]/g, '') ? n : null; }
+  function row(cls, name, ica, house) {
+    var a = num(ica), b = num(house);
+    var total = a === null && b === null ? '—' : fmtKr((a || 0) + (b || 0));
+    return '<div class="transfer-split-row ' + cls + '" role="row">'
+      + '<span class="transfer-split-name" role="rowheader"><i aria-hidden="true"></i>' + name + '</span>'
+      + '<span class="transfer-split-sum" role="cell"><b>' + total + '</b>'
+      + '<small>ICA-kort <em>' + ica + '</em> · Huskonto <em>' + house + '</em></small></span></div>';
+  }
+  return '<div class="transfer-split" role="table" aria-label="Överföringsfördelning">'
+    + row('markus', 'Markus', markusIca, markusHouse) + row('maja', 'Maja', majaIca, majaHouse) + '</div>';
 }
 
 // Home sections share the existing calendar and finance components.
@@ -2643,15 +2644,10 @@ function renderTransferPopup() {
   }
   title.textContent = row.month + ' ' + row.year;
   sub.textContent = '';
-  grid.innerHTML = '<table class="transfer-amount-table" aria-label="Överföringsbelopp för ' + escHtml(row.month + ' ' + row.year) + '">'
-    + '<thead><tr><th scope="col">Person</th><th scope="col">ICA-kort</th><th scope="col">Huskonto</th><th scope="col">Totalt</th></tr></thead>'
-    + '<tbody>'
-    + '<tr class="transfer-amount-row maja"><th scope="row"><span class="transfer-person-inline maja">Maja</span></th>'
-    + '<td>' + fmtKr(row.icaMaja) + '</td><td>' + fmtKr(row.huskontoMaja) + '</td><td class="transfer-total-cell">' + fmtKr(Number(row.icaMaja || 0) + Number(row.huskontoMaja || 0)) + '</td></tr>'
-    + '<tr class="transfer-amount-row markus"><th scope="row"><span class="transfer-person-inline markus">Markus</span></th>'
-    + '<td>' + fmtKr(row.icaMarkus) + '</td><td>' + fmtKr(row.huskontoMarkus) + '</td><td class="transfer-total-cell">' + fmtKr(Number(row.icaMarkus || 0) + Number(row.huskontoMarkus || 0)) + '</td></tr>'
-    + '</tbody><tfoot><tr class="transfer-amount-total"><th scope="row">Totalt</th><td>' + fmtKr(row.ica) + '</td><td>' + fmtKr(row.husutgifter) + '</td>'
-    + '<td class="transfer-total-cell">' + fmtKr(Number(row.ica || 0) + Number(row.husutgifter || 0)) + '</td></tr></tfoot></table>';
+  // Same per-person rows as the calculator, with the month's total under them.
+  grid.innerHTML = transferTableRows(fmtKr(row.icaMaja), fmtKr(row.huskontoMaja), fmtKr(row.icaMarkus), fmtKr(row.huskontoMarkus))
+    + '<div class="transfer-split-total"><span>Totalt</span><span><b>' + fmtKr(Number(row.ica || 0) + Number(row.husutgifter || 0)) + '</b>'
+    + '<small>ICA-kort ' + fmtKr(row.ica) + ' · Huskonto ' + fmtKr(row.husutgifter) + '</small></span></div>';
 }
 
 function renderMoneyRows(items) {
