@@ -65,27 +65,38 @@ function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-fi
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
 function renderTasks(){renderTaskLists();decorateLive();}
-// A comet of light runs along the inside of the current card's edge at constant speed. Stacked dashes that lag a
-// little behind each other and fade out make the tail. The phase follows the clock, so re-renders continue it.
-const ORBIT_MS=24000,ORBIT_INSET=.75,ORBIT_TAIL=Array.from({length:14},(_,i)=>+(.82**i).toFixed(2)),orbitObserver=new ResizeObserver(entries=>entries.forEach(entry=>runOrbit(entry.target)));
+// A comet of light runs along the inside of the current card's edge at constant speed. The tail is faint dashes that
+// all end at the head and get shorter, so their overlap fades evenly towards the back; a small bright head leads.
+// The phase follows the clock, so re-renders continue it.
+const ORBIT_MS=24000,ORBIT_INSET=.75,ORBIT_LAYERS=14,orbitObserver=new ResizeObserver(entries=>entries.forEach(entry=>runOrbit(entry.target)));
 function runOrbit(card){
   const svg=card.querySelector('.live-orbit');if(!svg)return;
   const w=Math.max(0,card.clientWidth-2*ORBIT_INSET),h=Math.max(0,card.clientHeight-2*ORBIT_INSET),r=Math.max(0,Math.min(15-ORBIT_INSET,w/2,h/2));
-  const len=2*(w+h)-(8-2*Math.PI)*r,dash=len*.03,lag=ORBIT_MS*.012;
+  const len=2*(w+h)-(8-2*Math.PI)*r,tail=len*.18,phase=Date.now()%ORBIT_MS;
   [...svg.children].forEach((rect,i)=>{
+    const dash=rect.classList.contains('orbit-head')?.01:tail*(i+1)/ORBIT_LAYERS;
     rect.getAnimations().forEach(a=>a.cancel());
     rect.setAttribute('width',w);rect.setAttribute('height',h);rect.setAttribute('rx',r);rect.setAttribute('stroke-dasharray',`${dash} ${len-dash}`);
-    const anim=rect.animate([{strokeDashoffset:dash},{strokeDashoffset:dash-len}],{duration:ORBIT_MS,iterations:Infinity});
-    anim.currentTime=((Date.now()-i*lag)%ORBIT_MS+ORBIT_MS)%ORBIT_MS;
+    rect.animate([{strokeDashoffset:dash},{strokeDashoffset:dash-len}],{duration:ORBIT_MS,iterations:Infinity}).currentTime=phase;
   });
 }
 function decorateLive(){
   orbitObserver.disconnect();
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const rect=cls=>`<rect class="${cls}" x="${ORBIT_INSET}" y="${ORBIT_INSET}"/>`;
   for(const card of $$('.is-current .task')){
-    card.insertAdjacentHTML('beforeend',`<svg class="live-orbit" aria-hidden="true">${ORBIT_TAIL.map((o,i)=>`<rect x="${ORBIT_INSET}" y="${ORBIT_INSET}" style="opacity:${o};stroke-width:${(1.8-i*.06).toFixed(2)}px"/>`).join('')}</svg>`);
+    card.insertAdjacentHTML('beforeend',`<svg class="live-orbit" aria-hidden="true">${Array.from({length:ORBIT_LAYERS},()=>rect('orbit-tail')).join('')}${rect('orbit-head')}</svg>`);
     runOrbit(card);orbitObserver.observe(card);
   }
+}
+// Today the timeline splits at the now line. A future task that is already done moves up into the part above it,
+// right above the current task (or last, if nothing is running).
+function timelineOrder(timed,active){
+  if(!isToday())return {before:timed,after:[]};
+  const now=nowMinutes(),at=t=>minutes(t.start||t.end),early=timed.filter(t=>t.done&&at(t)>now);
+  const past=timed.filter(t=>at(t)<=now),after=timed.filter(t=>at(t)>now&&!early.includes(t));
+  const live=past.findIndex(t=>active.has(t.key)),cut=live<0?past.length:live;
+  return {before:[...past.slice(0,cut),...early,...past.slice(cut)],after};
 }
 function renderTaskLists(){
   const tasks=allTasks(),visible=visibleTasks(tasks),f=isToday()?focusTasks(tasks,nowMinutes()):{active:[],next:[]},active=new Set(f.active.map(t=>t.key)),overlaps=overlapKeys(tasks);
@@ -99,9 +110,9 @@ function renderTaskLists(){
     $('#taskList').innerHTML=(live.length?`<div class="focus-section-label">Nu</div>${live.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')+(next.length?`<div class="focus-section-label">Nästa</div>${next.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')||emptyMarkup('Inga aktuella aktiviteter.');return;
   }
   if(!visible.length){$('#taskList').innerHTML=tasks.length?emptyMarkup('Inga träffar.','clear-filters','Återställ filter'):emptyMarkup('Inga aktiviteter ännu');return;}
-  const timed=visible.filter(t=>t.start||t.end),untimed=visible.filter(t=>!t.start&&!t.end);let html='',marker=false;
-  for(const t of timed){if(isToday()&&!marker&&minutes(t.start||t.end)>nowMinutes()){html+=`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`;marker=true;}html+=taskMarkup(t,active,overlaps);}
-  if(isToday()&&timed.length&&!marker)html+=`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`;
+  const timed=visible.filter(t=>t.start||t.end),untimed=visible.filter(t=>!t.start&&!t.end);let html='';
+  const {before,after}=timelineOrder(timed,active);
+  html=before.map(t=>taskMarkup(t,active,overlaps)).join('')+(isToday()&&timed.length?`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`:'')+after.map(t=>taskMarkup(t,active,overlaps)).join('');
   $('#taskList').innerHTML=html;
   if(untimed.length){$('#untimedSection').hidden=false;$('#untimedCount').textContent=String(untimed.length);$('#untimedList').innerHTML=untimed.map(t=>taskMarkup(t,active,overlaps)).join('');}
 }
@@ -182,7 +193,19 @@ $('#taskForm').addEventListener('submit',event=>{
   },'Sparat');
   if(!saved)return;closeEditor();selected=task.date;render();
 });
-function toggleDone(key){const task=allTasks().find(t=>t.key===key);if(!task)return;if(mutate(s=>patchOccurrence(s,task,{done:!task.done}),task.done?'Ej klar':'Klart')&&!task.done)rowFor(key)?.classList.add('just-done');}
+function toggleDone(key){
+  const task=allTasks().find(t=>t.key===key);if(!task)return;
+  const tops=timelineTops();
+  if(!mutate(s=>patchOccurrence(s,task,{done:!task.done}),task.done?'Ej klar':'Klart'))return;
+  glideTimeline(tops);if(!task.done)rowFor(key)?.classList.add('just-done');
+}
+// Rows (and the now line) that change place glide from where they were.
+const timelineItems=()=>$$('#taskList .task-row,#taskList .now-marker'),itemKey=el=>el.dataset.taskKey||'now';
+const timelineTops=()=>new Map(timelineItems().map(el=>[itemKey(el),el.getBoundingClientRect().top]));
+function glideTimeline(tops){
+  if(reducedMotion.matches)return;
+  for(const el of timelineItems()){const top=tops.get(itemKey(el));if(top==null)continue;const dy=top-el.getBoundingClientRect().top;if(Math.abs(dy)>1)el.animate([{transform:`translateY(${dy}px)`},{transform:'none'}],{duration:450,easing:EASE_OUT});}
+}
 const rowFor=key=>document.querySelector(`.task-row[data-task-key="${CSS.escape(key)}"]`);
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 function removeTask(target,all=false){
@@ -190,7 +213,7 @@ function removeTask(target,all=false){
 }
 function deleteTask(){if(editing&&removeTask(editing,$('#editScope').value==='all'))closeEditor();}
 // Horizontal intent is required so vertical scrolling remains native.
-const SWIPE_COMMIT=90,SWIPE_EASE='cubic-bezier(.22,1,.36,1)';
+const SWIPE_COMMIT=90,EASE_OUT='cubic-bezier(.22,1,.36,1)';
 let swipe=null,suppressClickUntil=0;
 document.addEventListener('pointerdown',e=>{
   const row=e.target.closest('.task-row');
@@ -224,7 +247,7 @@ function finishSwipe(e){
 }
 function settleRow({row,card,bg}){
   row.classList.remove('swiping','swipe-ready');card.style.transform='';card.style.clipPath='inset(0 0 0 0 round 16px)';setTimeout(()=>{if(!row.classList.contains('swiping'))card.style.clipPath='';},360);
-  bg.style.transition=`opacity .3s ${SWIPE_EASE}`;bg.style.opacity='0';setTimeout(()=>bg.remove(),320);
+  bg.style.transition=`opacity .3s ${EASE_OUT}`;bg.style.opacity='0';setTimeout(()=>bg.remove(),320);
 }
 // Slide the card out, then fold the row so the rows below glide up before the data changes.
 function dismissRow({row,card},task){
@@ -244,8 +267,8 @@ function dismissRow({row,card},task){
 function revealRow(key){
   const row=rowFor(key);if(!row||reducedMotion.matches)return;
   const height=row.offsetHeight,margin=getComputedStyle(row).marginBottom;
-  row.animate([{height:'0px',marginBottom:'0px',opacity:0},{height:`${height}px`,marginBottom:margin,opacity:1}],{duration:300,easing:SWIPE_EASE});
-  row.querySelector('.task')?.animate([{transform:'translate3d(-36px,0,0)',opacity:0},{transform:'none',opacity:1}],{duration:380,delay:60,easing:SWIPE_EASE,fill:'backwards'});
+  row.animate([{height:'0px',marginBottom:'0px',opacity:0},{height:`${height}px`,marginBottom:margin,opacity:1}],{duration:300,easing:EASE_OUT});
+  row.querySelector('.task')?.animate([{transform:'translate3d(-36px,0,0)',opacity:0},{transform:'none',opacity:1}],{duration:380,delay:60,easing:EASE_OUT,fill:'backwards'});
 }
 document.addEventListener('pointerup',finishSwipe);document.addEventListener('pointercancel',finishSwipe);
 document.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){e.preventDefault();e.stopImmediatePropagation();}},true);
