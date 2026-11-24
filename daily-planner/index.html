@@ -11,7 +11,8 @@
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 <script defer src="../budget/firebase-sync.js?v=dayline-3"></script>
 <script defer src="../budget/pulse-bottom-nav-v1.js?v=dayline-3"></script>
-<script type="module" src="app.mjs?v=11"></script>
+<script defer src="../budget/app-refresh.js?v=dayline-1"></script>
+<script type="module" src="app.mjs?v=12"></script>
 </head>
 <body>
 <a class="skip" href="#schedule">Till schemat</a>
@@ -31,7 +32,7 @@
 <label>Standard för nya aktiviteter<select id="defaultTimeMode"><option value="none">Ingen tid</option><option value="start">Bara starttid</option><option value="end">Bara sluttid</option><option value="range">Start- och sluttid</option></select></label>
 <p id="syncDetail" class="sync-detail">Ansluter till Firebase…</p>
 <a class="setting-row" id="loginLink" href="../budget/login.html?next=%2Fdaily-planner%2F"><span data-icon="shield"></span>Logga in</a><button class="setting-row" id="retrySync" hidden><span data-icon="repeat"></span>Synka igen</button>
-<button class="setting-row" data-action="export"><span data-icon="download"></span>Exportera</button><label class="setting-row import-label"><span data-icon="upload"></span>Importera<input type="file" id="importFile" accept="application/json,.json"></label>
+<button class="setting-row" data-action="reload-app"><span data-icon="refresh"></span>Uppdatera appen</button><button class="setting-row" data-action="export"><span data-icon="download"></span>Exportera</button><label class="setting-row import-label"><span data-icon="upload"></span>Importera<input type="file" id="importFile" accept="application/json,.json"></label>
 <div class="clear-options"><h3>Rensa</h3><button class="setting-row" data-action="clear-done">Avklarade på vald dag</button><button class="setting-row" data-action="clear-day">Alla aktiviteter på vald dag</button><button class="setting-row danger-text" data-action="clear-all">All planering</button></div>
 <div id="clearConfirm" class="inline-confirm" hidden><p id="clearSummary"></p><div class="row-actions"><button class="subtle-btn" data-action="cancel-clear">Avbryt</button><button class="subtle-btn danger-text" data-action="confirm-clear">Rensa</button></div></div>
 </div></section>

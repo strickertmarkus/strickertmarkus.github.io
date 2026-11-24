@@ -53,7 +53,9 @@ Manifest, PNG/SVG-ikoner och en service worker ingår. På iPhone: öppna i Safa
 
 Service workern skickar inga pushnotiser. Bakgrundspåminnelser och kalenderintegration ingår inte.
 
-Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker aktiveras när föregående öppna appflikar stängts. Stäng därför öppna appfönster och öppna igen efter uppdatering.
+Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker tar över direkt (`skipWaiting`), eftersom appskalet hämtas från nätet först.
+
+Uppdatering i hemskärmsläget: dra ner från toppen av sidan, eller välj **Mer → Uppdatera appen**. Appen letar också själv efter en ny publicerad version när den öppnas eller kommer tillbaka och laddar om. Det väntar så länge redigeringen, importen eller en rensningsbekräftelse är öppen (`window.AppRefreshPage` i `app.mjs`, logiken i `../budget/app-refresh.js`).
 
 ## Filer
 
@@ -66,6 +68,7 @@ Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker aktiver
 | `model.test.mjs` | Riktade kontroller av tids- och datalogiken |
 | `sw.js` | Offlinecache för appen och dess uttryckliga beroenden |
 | `../budget/firebase-sync.js` | Gemensam Firebase-konfiguration och kontoavgränsad Dayline-synk |
+| `../budget/app-refresh.js` | Ny version vid öppning, dra ner för att uppdatera, Uppdatera appen |
 | `../budget/pulse-bottom-nav-v1.js` | Gemensamma rörelsekurvor för Homes och Daylines bottenpunkt |
 | `manifest.webmanifest` | Installation och hemskärmsläge |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Appikoner |

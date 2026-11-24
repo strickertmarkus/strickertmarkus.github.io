@@ -18,6 +18,7 @@ const paths={
   home:'<path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/>',
   coffee:'<path d="M4 8h13v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4Zm13 1h2a3 3 0 0 1 0 6h-2M7 3v2m5-2v2M2 22h18"/>',
   sparkles:'<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4"/>',
+  refresh:'<path d="M20 12a8 8 0 1 1-2.4-5.7L20 8.6"/><path d="M20 3.5v5.1h-5.1"/>',
   trash:'<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   repeat:'<path d="m17 2 4 4-4 4M3 10V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14 0v2a2 2 0 0 1-2 2H3"/>',
@@ -287,6 +288,7 @@ const actions={
   'clear-note':()=>mutate(s=>{delete s.notes[selected];},'Anteckning rensad'),
   'clear-done':()=>requestClear('done'),'clear-day':()=>requestClear('day'),'clear-all':()=>requestClear('all'),
   'cancel-clear':()=>{$('#clearConfirm').hidden=true;pendingClear=null;},'confirm-clear':clearPlanning,
+  'reload-app':()=>{if(window.AppRefresh)window.AppRefresh.reload();else location.reload();},
   delete:deleteTask,duplicate:duplicateTask,export:()=>{exportData();toast('Säkerhetskopian laddas ner.');},
   'confirm-import':()=>{if(!pendingImport)return;exportData(state,'dayline-innan-import');state=pendingImport;pendingImport=null;unreadableRaw=null;save();closePanel($('#importDialog'));render();toast('Säkerhetskopian är återställd.');},
 };
@@ -330,4 +332,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 function tick(){if(document.hidden)return;const today=localDate(),minute=`${today}-${Math.floor(nowMinutes())}`;if(lastMinute===minute)return;lastMinute=minute;if(lastToday!==today){if(selected===lastToday)selected=today;lastToday=today;render();return;}if(!$('#editor').hidden)return;renderTasks();renderSummary(allTasks());renderNext(allTasks());}
 setInterval(tick,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastMinute='';tick();}});
 render();if(!storageHealthy)toast('Sparad data kunde inte läsas. Originalet är kvar. Exportera innan du gör ändringar.',null,12000);
+// Pull-to-refresh and the automatic update (budget/app-refresh.js) wait while the editor or import is open.
+window.AppRefreshPage={canReload:()=>$('#editor').hidden&&$('#importDialog').hidden&&!$('#clearConfirm').offsetParent};
 if('serviceWorker'in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});});

@@ -1,6 +1,8 @@
 /* Home-screen web apps on iPhone have no reload button and can keep serving the
    page they had. This (1) checks for a newer published version whenever the app is
-   opened or brought back, and reloads into it, and (2) adds pull-to-refresh at the top of Home's start view. */
+   opened or brought back, and reloads into it, and (2) adds pull-to-refresh at the top of Home's start view.
+   Another page opts in with window.AppRefreshPage = { canReload() }: false while an edit is open, so neither the
+   automatic reload nor a pull loses it. window.AppRefresh.reload() reloads into the latest version on demand. */
 (function () {
   'use strict';
   var standalone = window.navigator.standalone === true ||
@@ -27,6 +29,8 @@
     return url.href;
   }
   function reloadFresh() { location.replace(freshURL()); }
+  function pageAllowsReload() { var page = window.AppRefreshPage; return !page || !page.canReload || page.canReload(); }
+  window.AppRefresh = { reload: reloadFresh };
 
   var checking = false, lastCheck = 0;
   function check() {
@@ -44,6 +48,7 @@
         var key = 'appRefreshTried:' + location.pathname;
         try { if (sessionStorage.getItem(key) === latest) return; sessionStorage.setItem(key, latest); } catch (_) {}
         if (window.TrainingOverlay && window.TrainingOverlay.isLocked && window.TrainingOverlay.isLocked()) return;
+        if (!pageAllowsReload()) return;
         reloadFresh();
       })
       .catch(function () {})
@@ -64,6 +69,7 @@
     return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity) > 0;
   }
   function onStartView() {
+    if (window.AppRefreshPage) return pageAllowsReload(); /* a page that opted in decides itself */
     if (!window.HomeHub || window.HomeHub.active()) return false; /* Home only, and not inside Budget/Listor/Resor */
     var section = document.body.dataset.homeSection;
     return !section || section === 'overview';
