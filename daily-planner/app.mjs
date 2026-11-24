@@ -63,7 +63,23 @@ function renderWeek(){const day=(parseDate(selected).getDay()+6)%7;const monday=
 function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-filter="all" aria-pressed="${filter==='all'}">Alla</button>`+Object.entries(TYPES).map(([id,t])=>`<button class="filter" data-filter="${id}" aria-pressed="${filter===id}" style="--c:${t.color}"><i></i>${t.label}</button>`).join('');}
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
-function renderTasks(){
+function renderTasks(){renderTaskLists();decorateLive();}
+// A small dot circles the current card's edge at constant speed. Its phase follows the clock, so the per-minute re-render does not restart it.
+const ORBIT_MS=16000,ORBIT_INSET=3,orbitObserver=new ResizeObserver(entries=>entries.forEach(entry=>sizeOrbit(entry.target)));
+function sizeOrbit(card){
+  const rect=card.querySelector('.live-orbit rect');if(!rect)return;
+  const w=Math.max(0,card.clientWidth-2*ORBIT_INSET),h=Math.max(0,card.clientHeight-2*ORBIT_INSET),r=Math.min(13,w/2,h/2);
+  rect.setAttribute('width',w);rect.setAttribute('height',h);rect.setAttribute('rx',r);
+  rect.style.setProperty('--len',`${2*(w+h)-(8-2*Math.PI)*r}px`);
+}
+function decorateLive(){
+  orbitObserver.disconnect();
+  for(const card of $$('.is-current .task')){
+    card.insertAdjacentHTML('beforeend',`<svg class="live-orbit" aria-hidden="true"><rect x="${ORBIT_INSET}" y="${ORBIT_INSET}" style="animation-delay:-${Date.now()%ORBIT_MS}ms"/></svg>`);
+    sizeOrbit(card);orbitObserver.observe(card);
+  }
+}
+function renderTaskLists(){
   const tasks=allTasks(),visible=visibleTasks(tasks),f=isToday()?focusTasks(tasks,nowMinutes()):{active:[],next:[]},active=new Set(f.active.map(t=>t.key)),overlaps=overlapKeys(tasks);
   $('#filterToggle').classList.toggle('has-filter',filter!=='all'||!!query||mode==='focus'||state.settings.hideDone);
   $('#taskList').classList.toggle('focus-list',mode==='focus');$('#agendaTitle').textContent=mode==='focus'?'Nu & nästa':'Dagens tidslinje';$('#taskCount').textContent=String(visible.length);
