@@ -15,7 +15,7 @@ Appen börjar tom. Inga exempelaktiviteter skapas.
 - Återkommande aktiviteter: dagligen, vardagar eller veckovis. Ändra en dag eller hela serien.
 - Papperskorgen i redigeringen tar bort aktiviteten. Mer → Rensa kan rensa avklarade på vald dag, alla på vald dag eller all planering. Rensning av en dag behåller framtida återkommande aktiviteter. All planering exporteras innan total rensning; Ångra visas efteråt.
 - Kalender, inställningar, filter och import öppnas som integrerade sektioner, utan popup eller bakgrundsöverlägg.
-- Dagsanteckningen är synlig direkt, med en varm ton, skrivlinjer och egen Rensa-knapp.
+- Anteckningsdelen är synlig direkt i den öppna sidolayouten och har egen Rensa-knapp.
 - N = ny aktivitet, / = sök, Escape = stäng redigering och öppna paneler.
 
 ## Sparning och säkerhetskopior

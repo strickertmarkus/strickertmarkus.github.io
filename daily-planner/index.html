@@ -5,25 +5,25 @@
 <meta name="theme-color" content="#0b0e14"><meta name="description" content="Dayline – dagsplanering med Firebase-synk.">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Dayline · Daily planner</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=5">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=6">
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 <script defer src="../budget/firebase-sync.js?v=dayline-3"></script>
 <script defer src="../budget/pulse-bottom-nav-v1.js?v=dayline-3"></script>
-<script type="module" src="app.mjs?v=3"></script>
+<script type="module" src="app.mjs?v=6"></script>
 </head>
 <body>
 <a class="skip" href="#schedule">Till schemat</a>
-<div class="ambient" aria-hidden="true"><div class="glow one"></div><div class="glow two"></div></div>
+<div class="ambient" aria-hidden="true"><div class="glow one"></div><div class="glow two"></div><div class="starfield"></div></div>
 <aside class="rail" aria-label="Huvudmeny">
 <a class="brand" href="./"><span data-icon="orbit"></span><span>dayline<span class="brand-dot">.</span></span></a>
 <nav><button class="rail-link active" data-action="today"><span data-icon="sun"></span><span>Min dag</span></button><button class="rail-link" data-action="calendar"><span data-icon="calendar"></span><span>Kalender</span></button><button class="rail-link" data-action="focus"><span data-icon="focus"></span><span>Fokus</span></button></nav>
 <button class="rail-link rail-bottom" data-action="settings"><span data-icon="settings"></span><span>Inställningar</span></button>
 </aside>
 <main class="workspace">
-<header class="topbar"><a class="mobile-brand" href="./">dayline<span class="brand-dot">.</span></a><span class="desktop-label">DAGSPLANERING</span><div class="top-actions"><button class="save-state" id="saveState" data-action="settings" aria-label="Visa synkstatus">Ansluter…</button><button class="icon-btn" data-action="settings" aria-label="Inställningar" data-icon="settings"></button></div></header>
-<section class="page-heading"><div><div class="eyebrow" id="dateLabel"></div><h1 id="greeting">Min dag</h1></div><button class="subtle-btn" data-action="today">Idag</button></section>
+<header class="topbar"><a class="mobile-brand" href="./"><span data-icon="orbit"></span>dayline<span class="brand-dot">.</span></a><span class="desktop-label">DAGSPLANERING</span><div class="top-actions"><button class="save-state" id="saveState" data-action="settings" aria-label="Visa synkstatus">Ansluter…</button><button class="icon-btn" data-action="settings" aria-label="Inställningar" data-icon="settings"></button></div></header>
+<section class="page-heading"><div><div class="eyebrow" id="dateLabel"></div><h1 id="greeting">Dagens <em>planering.</em></h1></div><button class="subtle-btn" data-action="today">Idag</button></section>
 <section class="week-strip" aria-label="Veckonavigering"><button class="icon-btn" data-action="prev-week" aria-label="Föregående vecka" data-icon="chevron-left"></button><div id="weekDays" class="week-days"></div><button class="icon-btn" data-action="next-week" aria-label="Nästa vecka" data-icon="chevron-right"></button></section>
 <div class="utility-panels">
 <section id="calendarDialog" class="inline-panel" aria-labelledby="calendarTitle" hidden><header class="panel-head"><h2 id="calendarTitle">Kalender</h2><button class="icon-btn" data-close aria-label="Stäng kalender" data-icon="close"></button></header><div class="calendar-head"><button class="icon-btn" data-action="prev-month" aria-label="Föregående månad" data-icon="chevron-left"></button><h3 id="calendarMonth"></h3><button class="icon-btn" data-action="next-month" aria-label="Nästa månad" data-icon="chevron-right"></button></div><div id="calendarGrid" class="calendar-grid"></div></section>
@@ -54,7 +54,7 @@
 <div id="taskList" class="task-list"></div><div id="untimedSection" class="untimed-section" hidden><div class="section-heading"><h2>Utan tid</h2><span id="untimedCount"></span></div><div id="untimedList"></div></div>
 <button class="add-inline" data-action="add"><span data-icon="plus"></span>Ny aktivitet</button>
 </section>
-<aside class="day-aside"><section class="rhythm"><div class="section-heading"><h2>Översikt</h2><span id="clock" class="live-clock"></span></div><div class="orbit-wrap"><svg id="dayOrbit" viewBox="0 0 280 280" role="img" aria-label="Avklarade aktiviteter"></svg><div class="orbit-center"><div><strong id="doneNumber">0</strong><span id="totalNumber"> / 0</span></div><span id="progressLabel">klara</span></div></div><div class="day-stats"><div><strong id="plannedTime">0 min</strong><span>planerat</span></div><div><strong id="remainingCount">0</strong><span>kvar</span></div></div><div id="typeBalance" class="type-balance"></div></section><section class="next-up" id="nextUp" hidden></section><section class="day-note" aria-labelledby="noteHeading"><header class="note-heading"><span data-icon="edit"></span><h2 id="noteHeading">Dagsanteckning</h2></header><textarea id="dayNote" placeholder="Skriv en anteckning…" maxlength="5000" rows="3" aria-label="Dagsanteckning"></textarea><div class="row-actions"><span id="noteSaved" class="note-saved" aria-live="polite"></span><button class="text-btn" data-action="clear-note">Rensa</button></div></section></aside>
+<aside class="day-aside"><section class="rhythm"><div class="section-heading"><h2>Dagens översikt</h2><span id="clock" class="live-clock"></span></div><div class="orbit-wrap"><svg id="dayOrbit" viewBox="0 0 280 280" role="img" aria-label="Avklarade aktiviteter"></svg><div class="orbit-center"><div><strong id="doneNumber">0</strong><span id="totalNumber"> / 0</span></div><span id="progressLabel">klara</span></div></div><div class="day-stats"><div><strong id="plannedTime">0 min</strong><span>planerad tid</span></div><div><strong id="remainingCount">0</strong><span>kvar att göra</span></div></div><div id="typeBalance" class="type-balance"></div></section><section class="next-up" id="nextUp" hidden></section><section class="day-note" aria-labelledby="noteHeading"><header class="note-heading"><h2 id="noteHeading">Anteckningar</h2><span data-icon="edit"></span></header><textarea id="dayNote" placeholder="Skriv en anteckning…" maxlength="5000" rows="3" aria-label="Dagsanteckning"></textarea><div class="row-actions"><span id="noteSaved" class="note-saved" aria-live="polite"></span><button class="text-btn" data-action="clear-note">Rensa</button></div></section></aside>
 </div>
 </main>
 <nav class="mobile-dock" aria-label="Mobilmeny"><span class="dock-indicator" aria-hidden="true"></span><button data-action="all" id="dockDay" aria-pressed="true"><span data-icon="sun"></span><span>Min dag</span></button><button data-action="focus" id="dockFocus" aria-pressed="false"><span data-icon="focus"></span><span>Fokus</span></button><button data-action="add" aria-label="Ny aktivitet"><span data-icon="plus"></span><span>Lägg till</span></button><button data-action="calendar"><span data-icon="calendar"></span><span>Datum</span></button><button data-action="settings"><span data-icon="settings"></span><span>Mer</span></button></nav>

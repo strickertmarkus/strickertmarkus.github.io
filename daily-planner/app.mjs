@@ -50,8 +50,8 @@ function chooseDate(date){if(!validDate(date))return;closeEditor();selected=date
 function setMode(next){mode=next;closePanels();render();window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));}
 function render(){
   const tasks=allTasks(); const done=tasks.filter(t=>t.done).length;
-  $('#dateLabel').textContent=parseDate(selected).toLocaleDateString('sv-SE',{weekday:'long',year:'numeric'});
-  $('#greeting').textContent=parseDate(selected).toLocaleDateString('sv-SE',{day:'numeric',month:'long'});
+  $('#dateLabel').textContent=parseDate(selected).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
+  $('#greeting').innerHTML=isToday()?'Dagens <em>planering.</em>':'Din <em>planering.</em>';
   $('#defaultTimeMode').value=state.settings.defaultTimeMode;
   $('#allView').setAttribute('aria-pressed',mode==='all');$('#focusView').setAttribute('aria-pressed',mode==='focus');$('#dockDay').setAttribute('aria-pressed',mode==='all');$('#dockFocus').setAttribute('aria-pressed',mode==='focus');
   $$('.rail nav .rail-link').forEach(el=>el.classList.toggle('active',el.dataset.action===(mode==='focus'?'focus':'today')));
@@ -62,11 +62,11 @@ function render(){
 function renderWeek(){const day=(parseDate(selected).getDay()+6)%7;const monday=shiftDate(selected,-day);$('#weekDays').innerHTML=Array.from({length:7},(_,i)=>{const d=shiftDate(monday,i),t=dayTasks(currentState(),d),colors=[...new Set(t.map(x=>TYPES[x.type].color))].slice(0,3);return `<button class="week-day ${d===selected?'selected':''} ${d===localDate()?'today':''}" data-date="${d}" aria-label="${esc(parseDate(d).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}))}" aria-pressed="${d===selected}"><span class="weekday">${parseDate(d).toLocaleDateString('sv-SE',{weekday:'short'}).replace('.','')}</span><span class="day-number">${parseDate(d).getDate()}</span><span class="day-markers">${colors.map(c=>`<i style="--c:${c}"></i>`).join('')}</span></button>`;}).join('');}
 function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-filter="all" aria-pressed="${filter==='all'}">Alla</button>`+Object.entries(TYPES).map(([id,t])=>`<button class="filter" data-filter="${id}" aria-pressed="${filter===id}" style="--c:${t.color}"><i></i>${t.label}</button>`).join('');}
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
-function emptyMarkup(title,action='',button=''){return `<div class="empty-state"><span>${esc(title)}</span>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
+function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
 function renderTasks(){
   const tasks=allTasks(),visible=visibleTasks(tasks),f=isToday()?focusTasks(tasks,nowMinutes()):{active:[],next:[]},active=new Set(f.active.map(t=>t.key)),overlaps=overlapKeys(tasks);
   $('#filterToggle').classList.toggle('has-filter',filter!=='all'||!!query||mode==='focus'||state.settings.hideDone);
-  $('#taskList').classList.toggle('focus-list',mode==='focus');$('#agendaTitle').textContent=mode==='focus'?'Nu & nästa':'Schema';$('#taskCount').textContent=String(visible.length);
+  $('#taskList').classList.toggle('focus-list',mode==='focus');$('#agendaTitle').textContent=mode==='focus'?'Nu & nästa':'Dagens tidslinje';$('#taskCount').textContent=String(visible.length);
   $('#untimedSection').hidden=true;
   if(mode==='focus'){
     if(!isToday()){$('#taskList').innerHTML=emptyMarkup('Fokus visar idag.','today','Gå till idag');return;}
@@ -74,7 +74,7 @@ function renderTasks(){
     $('#taskCount').textContent=String(live.length+next.length);
     $('#taskList').innerHTML=(live.length?`<div class="focus-section-label">Nu</div>${live.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')+(next.length?`<div class="focus-section-label">Nästa</div>${next.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')||emptyMarkup('Inga aktuella aktiviteter.');return;
   }
-  if(!visible.length){$('#taskList').innerHTML=tasks.length?emptyMarkup('Inga träffar.','clear-filters','Återställ filter'):emptyMarkup('Inga aktiviteter.');return;}
+  if(!visible.length){$('#taskList').innerHTML=tasks.length?emptyMarkup('Inga träffar.','clear-filters','Återställ filter'):emptyMarkup('Inga aktiviteter ännu','add','Ny aktivitet');return;}
   const timed=visible.filter(t=>t.start||t.end),untimed=visible.filter(t=>!t.start&&!t.end);let html='',marker=false;
   for(const t of timed){if(isToday()&&!marker&&minutes(t.start||t.end)>nowMinutes()){html+=`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`;marker=true;}html+=taskMarkup(t,active,overlaps);}
   if(isToday()&&timed.length&&!marker)html+=`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`;
@@ -91,7 +91,7 @@ function taskMarkup(t,active,overlaps,focus=false){
 function polar(angle,r){return [140+r*Math.sin(angle),140-r*Math.cos(angle)];}
 function arc(start,end,r=103){const a=polar(start,r),b=polar(end,r);return `M${a[0]},${a[1]} A${r},${r} 0 ${end-start>Math.PI?1:0} 1 ${b[0]},${b[1]}`;}
 function renderSummary(tasks){
-  const done=tasks.filter(t=>t.done).length;$('#doneNumber').textContent=done;$('#totalNumber').textContent=` / ${tasks.length}`;$('#progressLabel').textContent='klara';$('#plannedTime').textContent=duration(plannedMinutes(tasks));$('#remainingCount').textContent=tasks.length-done;$('#clock').textContent=new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+  const done=tasks.filter(t=>t.done).length;$('#doneNumber').textContent=done;$('#totalNumber').textContent=` / ${tasks.length}`;$('#progressLabel').textContent='aktiviteter klara';$('#plannedTime').textContent=duration(plannedMinutes(tasks));$('#remainingCount').textContent=tasks.length-done;$('#clock').textContent=new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
   const start=-Math.PI*.77,extent=Math.PI*1.54;let svg='<defs><radialGradient id="orbitGlow"><stop offset="0%" stop-color="#f5bc7c" stop-opacity=".05"/><stop offset="100%" stop-color="#f5bc7c" stop-opacity="0"/></radialGradient></defs><circle cx="140" cy="140" r="134" fill="url(#orbitGlow)" stroke="none"/><circle cx="140" cy="140" r="121" stroke="#ffffff07" stroke-width="1"/>';
   for(let i=0;i<60;i++){const a=start+extent*i/59,p=polar(a,113),q=polar(a,i%5===0?118:115.5);svg+=`<path d="M${p}L${q}" stroke="#ffffff${i%5===0?'2a':'13'}" stroke-width="1"/>`;}
   svg+=`<path d="${arc(start,start+extent)}" stroke="#ffffff09" stroke-width="7"/>`;
@@ -102,8 +102,8 @@ function renderSummary(tasks){
 }
 function renderNext(tasks){
   const f=isToday()?focusTasks(tasks,nowMinutes()):{next:tasks.filter(t=>(t.start||t.end)&&!t.done).slice(0,1)},t=f.next[0];
-  $('#nextUp').hidden=!t;
-  $('#nextUp').innerHTML=t?`<div class="next-label">Nästa</div><button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><h3>${esc(t.title)}</h3><span class="next-time">${t.start||'Senast '+t.end}</span></button>`:'';
+  $('#nextUp').hidden=false;
+  $('#nextUp').innerHTML=t?`<div class="next-label">${icon('clock')}Nästa aktivitet</div><button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><h3>${esc(t.title)}</h3><span class="next-time">${t.start||'Senast '+t.end}</span></button>`:`<div class="next-label">${icon('clock')}Nästa aktivitet</div><h3>Inget mer inplanerat</h3>`;
 }
 function closePanels(){for(const panel of $$('.utility-panels>.inline-panel'))panel.hidden=true;}
 function openPanel(id){
