@@ -158,31 +158,70 @@ $('#taskForm').addEventListener('submit',event=>{
   },'Sparat');
   if(!saved)return;closeEditor();selected=task.date;render();
 });
-function toggleDone(key){const task=allTasks().find(t=>t.key===key);if(!task)return;mutate(s=>patchOccurrence(s,task,{done:!task.done}),task.done?'Ej klar':'Klart');}
+function toggleDone(key){const task=allTasks().find(t=>t.key===key);if(!task)return;if(mutate(s=>patchOccurrence(s,task,{done:!task.done}),task.done?'Ej klar':'Klart')&&!task.done)rowFor(key)?.classList.add('just-done');}
+const rowFor=key=>document.querySelector(`.task-row[data-task-key="${CSS.escape(key)}"]`);
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 function removeTask(target,all=false){
   return mutate(s=>{if(target.repeat==='none'||all){s.tasks=s.tasks.filter(t=>t.id!==target.id);for(const key of Object.keys(s.exceptions))if(key.startsWith(`${target.id}@`))delete s.exceptions[key];}else s.exceptions[target.key]={...s.exceptions[target.key],deleted:true};},all&&target.repeat!=='none'?'Serien är borttagen':'Borttagen');
 }
 function deleteTask(){if(editing&&removeTask(editing,$('#editScope').value==='all'))closeEditor();}
 // Horizontal intent is required so vertical scrolling remains native.
+const SWIPE_COMMIT=90,SWIPE_EASE='cubic-bezier(.22,1,.36,1)';
 let swipe=null,suppressClickUntil=0;
 document.addEventListener('pointerdown',e=>{
   const row=e.target.closest('.task-row');
-  if(!row||e.button!==0||e.target.closest('.task-check'))return;
-  swipe={row,card:row.querySelector('.task'),key:row.dataset.taskKey,id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,locked:false};
+  if(!row||e.button!==0||row.classList.contains('is-leaving')||e.target.closest('.task-check'))return;
+  swipe={row,card:row.querySelector('.task'),key:row.dataset.taskKey,id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,locked:false,bg:null};
 });
 document.addEventListener('pointermove',e=>{
   if(!swipe||swipe.id!==e.pointerId)return;
   const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;
-  if(!swipe.locked){if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){swipe=null;return;}if(dx>-12||Math.abs(dx)<Math.abs(dy)*1.5)return;swipe.locked=true;swipe.card.setPointerCapture(e.pointerId);swipe.row.classList.add('swiping');}
-  swipe.dx=Math.max(-160,Math.min(0,dx));swipe.card.style.transform=`translateX(${swipe.dx}px)`;
-  swipe.row.classList.toggle('swipe-ready',swipe.dx<=-90);
+  if(!swipe.locked){
+    if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){swipe=null;return;}
+    if(dx>-12||Math.abs(dx)<Math.abs(dy)*1.5)return;
+    swipe.locked=true;swipe.x=e.clientX;swipe.card.setPointerCapture(e.pointerId);swipe.row.classList.add('swiping');
+    // The action layer sits behind the card only, not behind the time column.
+    const bg=document.createElement('div');bg.className='swipe-bg';bg.innerHTML=`${icon('trash')}<span>Ta bort</span>`;bg.style.left=`${swipe.card.offsetLeft}px`;swipe.row.prepend(bg);swipe.bg=bg;
+  }
+  const raw=Math.min(0,e.clientX-swipe.x),limit=SWIPE_COMMIT*1.35;
+  // Rubber band past the commit point instead of a hard stop.
+  swipe.dx=raw<-limit?-limit+(raw+limit)*.3:raw;
+  swipe.card.style.transform=`translate3d(${swipe.dx}px,0,0)`;swipe.card.style.clipPath=`inset(0 0 0 ${-swipe.dx}px round 16px)`;
+  swipe.bg.style.setProperty('--p',Math.min(1,-swipe.dx/SWIPE_COMMIT).toFixed(3));
+  swipe.row.classList.toggle('swipe-ready',swipe.dx<=-SWIPE_COMMIT);
 });
 function finishSwipe(e){
   if(!swipe||swipe.id!==e.pointerId)return;
   const gesture=swipe;swipe=null;
-  if(gesture.locked)suppressClickUntil=Date.now()+400;
-  gesture.card.style.transform='';gesture.row.classList.remove('swiping','swipe-ready');
-  if(e.type==='pointerup'&&gesture.locked&&gesture.dx<=-90){const task=allTasks().find(t=>t.key===gesture.key);if(task){if(editing?.key===task.key)closeEditor();removeTask(task);}}
+  if(!gesture.locked)return;
+  suppressClickUntil=Date.now()+400;
+  const task=e.type==='pointerup'&&gesture.dx<=-SWIPE_COMMIT?allTasks().find(t=>t.key===gesture.key):null;
+  if(task)dismissRow(gesture,task);else settleRow(gesture);
+}
+function settleRow({row,card,bg}){
+  row.classList.remove('swiping','swipe-ready');card.style.transform='';card.style.clipPath='inset(0 0 0 0 round 16px)';setTimeout(()=>{if(!row.classList.contains('swiping'))card.style.clipPath='';},360);
+  bg.style.transition=`opacity .3s ${SWIPE_EASE}`;bg.style.opacity='0';setTimeout(()=>bg.remove(),320);
+}
+// Slide the card out, then fold the row so the rows below glide up before the data changes.
+function dismissRow({row,card},task){
+  const slide=reducedMotion.matches?0:200,fold=reducedMotion.matches?0:280;
+  row.style.height=`${row.offsetHeight}px`;row.classList.remove('swiping');row.classList.add('is-leaving');
+  const width=card.offsetWidth;card.style.transition=`transform ${slide}ms cubic-bezier(.5,0,.75,0),clip-path ${slide}ms cubic-bezier(.5,0,.75,0),opacity ${slide}ms ease-in`;
+  card.style.transform=`translate3d(${-width}px,0,0)`;card.style.clipPath=`inset(0 0 0 ${width}px round 16px)`;card.style.opacity='0';
+  setTimeout(()=>{row.style.height='0px';row.style.marginBottom='0px';row.style.opacity='0';},slide);
+  setTimeout(()=>{
+    const current=allTasks().find(t=>t.key===task.key);if(!current)return;
+    if(editing?.key===current.key)closeEditor();
+    if(!removeTask(current))return;
+    const undo=undoAction;if(undo)undoAction=()=>{undo();revealRow(current.key);};
+  },slide+fold);
+}
+// Undo grows the restored row back into place.
+function revealRow(key){
+  const row=rowFor(key);if(!row||reducedMotion.matches)return;
+  const height=row.offsetHeight,margin=getComputedStyle(row).marginBottom;
+  row.animate([{height:'0px',marginBottom:'0px',opacity:0},{height:`${height}px`,marginBottom:margin,opacity:1}],{duration:300,easing:SWIPE_EASE});
+  row.querySelector('.task')?.animate([{transform:'translate3d(-36px,0,0)',opacity:0},{transform:'none',opacity:1}],{duration:380,delay:60,easing:SWIPE_EASE,fill:'backwards'});
 }
 document.addEventListener('pointerup',finishSwipe);document.addEventListener('pointercancel',finishSwipe);
 document.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){e.preventDefault();e.stopImmediatePropagation();}},true);
