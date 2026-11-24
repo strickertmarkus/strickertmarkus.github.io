@@ -43,7 +43,7 @@ function save(){
   try{if(sync)sync.save(state);else localStorage.setItem(localStorage.getItem('dayline.legacy-owner')?'dayline.guest.v1':STORAGE,JSON.stringify(state));storageHealthy=true;return true;}
   catch(e){storageHealthy=false;$('#saveState').textContent='Kunde inte spara';toast('Kunde inte spara på enheten. Exportera en säkerhetskopia via Inställningar.',null,10000);return false;}
 }
-function toast(message,undo=null,ms=5000){clearTimeout(toastTimer);undoAction=undo;$('#toastText').textContent=message;$('#undoButton').hidden=!undo;$('#toast').hidden=false;toastTimer=setTimeout(()=>{$('#toast').hidden=true;undoAction=null;},ms);}
+function toast(message,undo=null,ms=8000){clearTimeout(toastTimer);undoAction=undo;$('#toastText').textContent=message;$('#undoButton').hidden=!undo;$('#toast').hidden=false;toastTimer=setTimeout(()=>{$('#toast').hidden=true;undoAction=null;},ms);}
 $('#undoButton').onclick=()=>{if(undoAction){const undo=undoAction;undoAction=null;undo();}$('#toast').hidden=true;};
 function mutate(fn,message){const snapshot=structuredClone(currentState());fn(currentState());if(!save()){state=snapshot;render();return false;}render();if(message)toast(message,()=>{state=snapshot;save();render();});return true;}
 function chooseDate(date){if(!validDate(date))return;closeEditor();selected=date;query='';$('#searchInput').value='';render();}
@@ -74,19 +74,25 @@ function renderTasks(){
     $('#taskCount').textContent=String(live.length+next.length);
     $('#taskList').innerHTML=(live.length?`<div class="focus-section-label">Nu</div>${live.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')+(next.length?`<div class="focus-section-label">Nästa</div>${next.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')||emptyMarkup('Inga aktuella aktiviteter.');return;
   }
-  if(!visible.length){$('#taskList').innerHTML=tasks.length?emptyMarkup('Inga träffar.','clear-filters','Återställ filter'):emptyMarkup('Inga aktiviteter ännu','add','Ny aktivitet');return;}
+  if(!visible.length){$('#taskList').innerHTML=tasks.length?emptyMarkup('Inga träffar.','clear-filters','Återställ filter'):emptyMarkup('Inga aktiviteter ännu');return;}
   const timed=visible.filter(t=>t.start||t.end),untimed=visible.filter(t=>!t.start&&!t.end);let html='',marker=false;
   for(const t of timed){if(isToday()&&!marker&&minutes(t.start||t.end)>nowMinutes()){html+=`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`;marker=true;}html+=taskMarkup(t,active,overlaps);}
   if(isToday()&&timed.length&&!marker)html+=`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`;
   $('#taskList').innerHTML=html;
   if(untimed.length){$('#untimedSection').hidden=false;$('#untimedCount').textContent=String(untimed.length);$('#untimedList').innerHTML=untimed.map(t=>taskMarkup(t,active,overlaps)).join('');}
 }
+function isOverdue(t,tasks){
+  if(t.done||selected>localDate()||(!t.start&&!t.end))return false;
+  const minute=selected<localDate()?1440:nowMinutes();
+  const next=t.start?tasks.find(x=>x.start&&minutes(x.start)>minutes(t.start)):null;
+  return !!((t.end&&minutes(t.end)<=minute)||(next&&minutes(next.start)<=minute));
+}
 function taskMarkup(t,active,overlaps,focus=false){
-  const type=TYPES[t.type],live=active.has(t.key),hasRange=t.start&&t.end,n=nowMinutes(),remaining=hasRange?Math.max(0,Math.ceil(minutes(t.end)-n)):null;
+  const late=isOverdue(t,allTasks()),type=TYPES[t.type],live=active.has(t.key)&&!late,hasRange=t.start&&t.end,n=nowMinutes(),remaining=hasRange?Math.max(0,Math.ceil(minutes(t.end)-n)):null;
   const progress=hasRange&&live?Math.max(0,Math.min(100,(n-minutes(t.start))/(minutes(t.end)-minutes(t.start))*100)):0;
-  const status=t.done?'Klart':live?(hasRange?`${duration(remaining)} kvar`:'Pågår'):isToday()&&t.end&&minutes(t.end)<=n?'Försenad':'';
+  const status=t.done?'✓ Utförd':late?'Försenad':live?(hasRange?`${duration(remaining)} kvar`:'Pågår'):isToday()&&t.end&&minutes(t.end)<=n?'Försenad':'';
   const time=t.start?(t.start+(t.end?' – '+t.end:'')):'Senast '+t.end;
-  return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''}" style="--c:${type.color}">${t.start||t.end?`<div class="time-label">${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}</div><div class="timeline-node"></div>`:''}<div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag">${icon(type.icon)}${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button>${live&&hasRange?`<span class="task-progress" style="--progress:${progress}%"></span>`:''}</div></article>`;
+  return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}">${t.start||t.end?`<div class="time-label">${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}</div><div class="timeline-node"></div>`:''}<div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag">${icon(type.icon)}${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button>${live&&hasRange?`<span class="task-progress" style="--progress:${progress}%"></span>`:''}</div></article>`;
 }
 function polar(angle,r){return [140+r*Math.sin(angle),140-r*Math.cos(angle)];}
 function arc(start,end,r=103){const a=polar(start,r),b=polar(end,r);return `M${a[0]},${a[1]} A${r},${r} 0 ${end-start>Math.PI?1:0} 1 ${b[0]},${b[1]}`;}
@@ -103,7 +109,7 @@ function renderSummary(tasks){
 function renderNext(tasks){
   const f=isToday()?focusTasks(tasks,nowMinutes()):{next:tasks.filter(t=>(t.start||t.end)&&!t.done).slice(0,1)},t=f.next[0];
   $('#nextUp').hidden=false;
-  $('#nextUp').innerHTML=t?`<div class="next-label">${icon('clock')}Nästa aktivitet</div><button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><h3>${esc(t.title)}</h3><span class="next-time">${t.start||'Senast '+t.end}</span></button>`:`<div class="next-label">${icon('clock')}Nästa aktivitet</div><h3>Inget mer inplanerat</h3>`;
+  $('#nextUp').innerHTML=t?`<div class="next-label">${icon('sparkles')}Nästa aktivitet</div><button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><h3>${esc(t.title)}</h3><span class="next-time">${t.start||'Senast '+t.end}</span></button>`:`<div class="next-label">${icon('sparkles')}Nästa aktivitet</div><h3>Inget mer inplanerat</h3>`;
 }
 function closePanels(){for(const panel of $$('.utility-panels>.inline-panel'))panel.hidden=true;}
 function openPanel(id){
@@ -121,13 +127,15 @@ function setTimeMode(value){
 }
 function renderTypePicker(){$('#typePicker').innerHTML=Object.entries(TYPES).map(([id,t])=>`<button type="button" class="type-choice" data-type="${id}" aria-pressed="${editType===id}" style="--c:${t.color}">${icon(t.icon)}${t.label}</button>`).join('');}
 function openEditor(key=null){
+  const scrollY=window.scrollY;
+  if(!key){const add=$('.add-inline');if(add.getBoundingClientRect().top<innerHeight) add.before($('#editor'));else $('#filterPanel').after($('#editor'));}else $('#filterPanel').after($('#editor'));
   editing=key?allTasks().find(t=>t.key===key):null;
   const start=Math.min(1380,Math.ceil(nowMinutes()/15)*15);
   $('#taskForm').reset();$('#formError').textContent='';$('#editorTitle').textContent=editing?'Redigera':'Ny aktivitet';
   $('#taskTitle').value=editing?.title||'';$('#taskDate').value=selected;$('#taskPriority').value=editing?.priority||'normal';$('#taskRepeat').value=editing?.repeat||'none';$('#taskNote').value=editing?.note||'';
   $('#taskStart').value=editing?.start||timeString(start);$('#taskEnd').value=editing?.end||timeString(Math.min(1439,start+60));editType=editing?.type||(filter==='all'?'work':filter);
-  $('#deleteTask').hidden=!editing;$('#duplicateTask').hidden=!editing;$('#scopeField').hidden=!(editing&&editing.repeat!=='none');$('#editScope').value='one';syncEditScope();renderTypePicker();setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):state.settings.defaultTimeMode);closePanels();$('#taskDetails').open=false;$('#editor').hidden=false;$('#editor').scrollIntoView({block:'start',behavior:'smooth'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));
-  if(matchMedia('(min-width:761px)').matches)$('#taskTitle').focus();
+  $('#deleteTask').hidden=!editing;$('#duplicateTask').hidden=!editing;$('#scopeField').hidden=!(editing&&editing.repeat!=='none');$('#editScope').value='one';syncEditScope();renderTypePicker();setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):state.settings.defaultTimeMode);closePanels();$('#taskDetails').open=false;$('#editor').hidden=false;window.scrollTo({top:scrollY,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));
+  if(matchMedia('(min-width:761px)').matches)$('#taskTitle').focus({preventScroll:true});
 }
 function syncEditScope(){const recurring=editing&&editing.repeat!=='none',series=recurring&&$('#editScope').value==='all';$('#repeatField').hidden=recurring&&!series;$('#taskDate').disabled=!!series;if(series)$('#taskDate').value=editing.seriesDate;else if(recurring)$('#taskDate').value=selected;}
 function taskFromForm(){return {id:editing?.id||uid(),title:$('#taskTitle').value.trim(),date:$('#taskDate').value,type:editType,start:['start','range'].includes(timeMode)?$('#taskStart').value:'',end:['end','range'].includes(timeMode)?$('#taskEnd').value:'',note:$('#taskNote').value.trim(),priority:$('#taskPriority').value,repeat:$('#taskRepeat').value,done:editing?.done||false};}
@@ -151,7 +159,33 @@ $('#taskForm').addEventListener('submit',event=>{
   if(!saved)return;closeEditor();selected=task.date;render();
 });
 function toggleDone(key){const task=allTasks().find(t=>t.key===key);if(!task)return;mutate(s=>patchOccurrence(s,task,{done:!task.done}),task.done?'Ej klar':'Klart');}
-function deleteTask(){if(!editing)return;const target=editing,all=$('#editScope').value==='all';mutate(s=>{if(target.repeat==='none'||all){s.tasks=s.tasks.filter(t=>t.id!==target.id);for(const key of Object.keys(s.exceptions))if(key.startsWith(`${target.id}@`))delete s.exceptions[key];}else s.exceptions[target.key]={...s.exceptions[target.key],deleted:true};},all&&target.repeat!=='none'?'Serien är borttagen':'Borttagen');closeEditor();}
+function removeTask(target,all=false){
+  return mutate(s=>{if(target.repeat==='none'||all){s.tasks=s.tasks.filter(t=>t.id!==target.id);for(const key of Object.keys(s.exceptions))if(key.startsWith(`${target.id}@`))delete s.exceptions[key];}else s.exceptions[target.key]={...s.exceptions[target.key],deleted:true};},all&&target.repeat!=='none'?'Serien är borttagen':'Borttagen');
+}
+function deleteTask(){if(editing&&removeTask(editing,$('#editScope').value==='all'))closeEditor();}
+// Horizontal intent is required so vertical scrolling remains native.
+let swipe=null,suppressClickUntil=0;
+document.addEventListener('pointerdown',e=>{
+  const row=e.target.closest('.task-row');
+  if(!row||e.button!==0||e.target.closest('.task-check'))return;
+  swipe={row,card:row.querySelector('.task'),key:row.dataset.taskKey,id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,locked:false};
+});
+document.addEventListener('pointermove',e=>{
+  if(!swipe||swipe.id!==e.pointerId)return;
+  const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;
+  if(!swipe.locked){if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){swipe=null;return;}if(dx>-12||Math.abs(dx)<Math.abs(dy)*1.5)return;swipe.locked=true;swipe.card.setPointerCapture(e.pointerId);swipe.row.classList.add('swiping');}
+  swipe.dx=Math.max(-160,Math.min(0,dx));swipe.card.style.transform=`translateX(${swipe.dx}px)`;
+  swipe.row.classList.toggle('swipe-ready',swipe.dx<=-90);
+});
+function finishSwipe(e){
+  if(!swipe||swipe.id!==e.pointerId)return;
+  const gesture=swipe;swipe=null;
+  if(gesture.locked)suppressClickUntil=Date.now()+400;
+  gesture.card.style.transform='';gesture.row.classList.remove('swiping','swipe-ready');
+  if(e.type==='pointerup'&&gesture.locked&&gesture.dx<=-90){const task=allTasks().find(t=>t.key===gesture.key);if(task){if(editing?.key===task.key)closeEditor();removeTask(task);}}
+}
+document.addEventListener('pointerup',finishSwipe);document.addEventListener('pointercancel',finishSwipe);
+document.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){e.preventDefault();e.stopImmediatePropagation();}},true);
 function duplicateTask(){if(!editing)return;$('#taskDate').disabled=false;$('#taskDate').value=shiftDate(selected,1);$('#taskRepeat').value='none';$('#editorTitle').textContent='Kopiera';editing=null;$('#scopeField').hidden=true;$('#repeatField').hidden=false;$('#deleteTask').hidden=true;$('#duplicateTask').hidden=true;$('#formError').textContent='';updateOverlap();}
 function renderCalendar(){const first=monthDate.slice(0,7)+'-01',start=shiftDate(first,-((parseDate(first).getDay()+6)%7));$('#calendarMonth').textContent=parseDate(first).toLocaleDateString('sv-SE',{month:'long',year:'numeric'});$('#calendarGrid').innerHTML=['M','T','O','T','F','L','S'].map(d=>`<span class="calendar-weekday">${d}</span>`).join('')+Array.from({length:42},(_,i)=>{const date=shiftDate(start,i);return `<button class="calendar-day ${date.slice(0,7)!==first.slice(0,7)?'outside':''} ${date===localDate()?'today':''} ${date===selected?'selected':''} ${dayTasks(currentState(),date).length?'has-tasks':''}" data-calendar-date="${date}" aria-label="${esc(parseDate(date).toLocaleDateString('sv-SE',{day:'numeric',month:'long',year:'numeric'}))}" aria-pressed="${date===selected}">${parseDate(date).getDate()}</button>`;}).join('');}
 function openCalendar(){monthDate=selected;renderCalendar();openPanel('#calendarDialog');}

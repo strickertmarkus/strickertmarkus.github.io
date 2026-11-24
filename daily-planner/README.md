@@ -13,6 +13,7 @@ Appen börjar tom. Inga exempelaktiviteter skapas.
 - **Sätt som standard** sparar valet för nya aktiviteter. Det kan också ändras under Mer och synkas med kontot.
 - Filterikonen öppnar typfilter, sökning, avklarade och valet **Hela dagen / Nu & nästa**.
 - Återkommande aktiviteter: dagligen, vardagar eller veckovis. Ändra en dag eller hela serien.
+- Svep en aktivitet åt vänster för att ta bort dagens förekomst. Ångra visas i åtta sekunder. Utförda aktiviteter markeras grönt; oavklarade tidsatta aktiviteter blir röda när sluttiden passerat eller nästa starttid har nåtts.
 - Papperskorgen i redigeringen tar bort aktiviteten. Mer → Rensa kan rensa avklarade på vald dag, alla på vald dag eller all planering. Rensning av en dag behåller framtida återkommande aktiviteter. All planering exporteras innan total rensning; Ångra visas efteråt.
 - Kalender, inställningar, filter och import öppnas som integrerade sektioner, utan popup eller bakgrundsöverlägg.
 - Anteckningsdelen är synlig direkt i den öppna sidolayouten och har egen Rensa-knapp.
