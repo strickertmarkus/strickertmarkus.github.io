@@ -205,9 +205,20 @@ function openEditor(key=null){
   setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):state.settings.defaultTimeMode);
   $('#editor').hidden=false;openMore(null);
   window.scrollTo({top:scrollY,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));
-  const box=$('#editor').getBoundingClientRect();if(box.top<70||box.bottom>innerHeight-90)$('#editor').scrollIntoView({block:'center',behavior:'smooth'});
+  keepEditorVisible();
   if(matchMedia('(min-width:761px)').matches||!editing)$('#taskTitle').focus({preventScroll:true});
 }
+// The editor is scrolled into the part of the screen the keyboard leaves free (visual viewport), when it opens and
+// whenever one of its fields gets focus, and again as the keyboard slides up.
+function keepEditorVisible(){
+  const ed=$('#editor'),vv=window.visualViewport;
+  const fit=()=>{if(ed.hidden)return;const top=(vv?vv.offsetTop:0)+70,bottom=(vv?vv.offsetTop+vv.height:innerHeight)-(document.activeElement&&ed.contains(document.activeElement)?16:96),r=ed.getBoundingClientRect(),focus=document.activeElement&&ed.contains(document.activeElement)?document.activeElement.getBoundingClientRect():r;
+    const need=r.height<=bottom-top?r.bottom-bottom:focus.bottom+60-bottom;
+    if(need>0)window.scrollBy({top:Math.min(need,r.top-top),behavior:'smooth'});else if(r.top<top)window.scrollBy({top:r.top-top,behavior:'smooth'});};
+  [40,330,650].forEach(ms=>setTimeout(fit,ms));
+  if(vv){const once=()=>{vv.removeEventListener('resize',once);setTimeout(fit,40);};vv.addEventListener('resize',once);setTimeout(()=>vv.removeEventListener('resize',once),1500);}
+}
+$('#editor').addEventListener('focusin',e=>{if(e.target.matches('input:not([type=hidden]):not([type=date]),textarea,select'))keepEditorVisible();});
 function syncEditScope(){const recurring=editing&&editing.repeat!=='none',series=recurring&&$('#editScope').value==='all';$('#repeatField').hidden=recurring&&!series;$('#taskDate').disabled=!!series;if(series)$('#taskDate').value=editing.seriesDate;else if(recurring)$('#taskDate').value=selected;}
 function taskFromForm(){return {id:editing?.id||uid(),title:$('#taskTitle').value.trim(),date:$('#taskDate').value,type:editType,start:['start','range'].includes(timeMode)?$('#taskStart').value:'',end:['end','range'].includes(timeMode)?$('#taskEnd').value:'',note:$('#taskNote').value.trim(),priority:$('#taskPriority').value,remind:Number($('#taskRemind').value),repeat:$('#taskRepeat').value,done:editing?.done||false};}
 function updateOverlap(){if(!$('#taskStart').value)return;const candidate=taskFromForm();const overlaps=dayTasks(currentState(),candidate.date).filter(t=>t.key!==editing?.key&&!t.done&&t.start&&t.end&&candidate.start&&candidate.end&&minutes(t.start)<minutes(candidate.end)&&minutes(candidate.start)<minutes(t.end));$('#overlapHint').hidden=!overlaps.length;$('#overlapHint').textContent=overlaps.length?`Överlappar: ${overlaps.map(t=>t.title).join(', ')}.`:'';}
