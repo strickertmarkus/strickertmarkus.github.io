@@ -5,14 +5,13 @@
 <meta name="theme-color" content="#0b0e14"><meta name="description" content="Dayline – dagsplanering med Firebase-synk.">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Dayline · Daily planner</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=13">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=7">
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
-<script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
 <script defer src="../budget/firebase-sync.js?v=dayline-3"></script>
 <script defer src="../budget/pulse-bottom-nav-v1.js?v=dayline-3"></script>
-<script defer src="../budget/app-refresh.js?v=dayline-1"></script>
-<script type="module" src="app.mjs?v=13"></script>
+<script type="module" src="app.mjs?v=7"></script>
 </head>
 <body>
 <a class="skip" href="#schedule">Till schemat</a>
@@ -30,9 +29,9 @@
 <section id="calendarDialog" class="inline-panel" aria-labelledby="calendarTitle" hidden><header class="panel-head"><h2 id="calendarTitle">Kalender</h2><button class="icon-btn" data-close aria-label="Stäng kalender" data-icon="close"></button></header><div class="calendar-head"><button class="icon-btn" data-action="prev-month" aria-label="Föregående månad" data-icon="chevron-left"></button><h3 id="calendarMonth"></h3><button class="icon-btn" data-action="next-month" aria-label="Nästa månad" data-icon="chevron-right"></button></div><div id="calendarGrid" class="calendar-grid"></div></section>
 <section id="settingsDialog" class="inline-panel" aria-labelledby="settingsTitle" hidden><header class="panel-head"><h2 id="settingsTitle">Inställningar</h2><button class="icon-btn" data-close aria-label="Stäng inställningar" data-icon="close"></button></header><div class="panel-body settings-body">
 <label>Standard för nya aktiviteter<select id="defaultTimeMode"><option value="none">Ingen tid</option><option value="start">Bara starttid</option><option value="end">Bara sluttid</option><option value="range">Start- och sluttid</option></select></label>
-<p id="syncDetail" class="sync-detail">Ansluter till Firebase…</p>
+<button type="button" class="setting-row" id="enablePush">Aktivera notiser</button><p id="pushStatus" class="sync-detail" aria-live="polite"></p><p id="syncDetail" class="sync-detail">Ansluter till Firebase…</p>
 <a class="setting-row" id="loginLink" href="../budget/login.html?next=%2Fdaily-planner%2F"><span data-icon="shield"></span>Logga in</a><button class="setting-row" id="retrySync" hidden><span data-icon="repeat"></span>Synka igen</button>
-<button class="setting-row" data-action="reload-app"><span data-icon="refresh"></span>Uppdatera appen</button><button class="setting-row" data-action="export"><span data-icon="download"></span>Exportera</button><label class="setting-row import-label"><span data-icon="upload"></span>Importera<input type="file" id="importFile" accept="application/json,.json"></label>
+<button class="setting-row" data-action="export"><span data-icon="download"></span>Exportera</button><label class="setting-row import-label"><span data-icon="upload"></span>Importera<input type="file" id="importFile" accept="application/json,.json"></label>
 <div class="clear-options"><h3>Rensa</h3><button class="setting-row" data-action="clear-done">Avklarade på vald dag</button><button class="setting-row" data-action="clear-day">Alla aktiviteter på vald dag</button><button class="setting-row danger-text" data-action="clear-all">All planering</button></div>
 <div id="clearConfirm" class="inline-confirm" hidden><p id="clearSummary"></p><div class="row-actions"><button class="subtle-btn" data-action="cancel-clear">Avbryt</button><button class="subtle-btn danger-text" data-action="confirm-clear">Rensa</button></div></div>
 </div></section>
@@ -61,4 +60,4 @@
 <nav class="mobile-dock" aria-label="Mobilmeny"><span class="dock-indicator" aria-hidden="true"></span><button data-action="all" id="dockDay" aria-pressed="true"><span data-icon="sun"></span><span>Min dag</span></button><button data-action="focus" id="dockFocus" aria-pressed="false"><span data-icon="focus"></span><span>Fokus</span></button><button data-action="add" aria-label="Ny aktivitet"><span data-icon="plus"></span><span>Lägg till</span></button><button data-action="calendar"><span data-icon="calendar"></span><span>Datum</span></button><button data-action="settings"><span data-icon="settings"></span><span>Mer</span></button></nav>
 <div id="toast" class="toast" role="status" hidden><span id="toastText"></span><button id="undoButton" hidden>Ångra</button></div>
 <noscript>Aktivera JavaScript för att använda planeraren.</noscript>
-</body></html>
+<script type="module" src="notifications.mjs?v=8"></script></body></html>
