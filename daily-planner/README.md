@@ -9,7 +9,7 @@ Dagsplanerare för GitHub Pages med Firebase-synk. Ingen byggprocess eller exter
 Appen börjar tom. Inga exempelaktiviteter skapas.
 
 - Tryck **+** eller på en aktivitet för att öppna redigering direkt i sidan.
-- Välj **Ingen**, **Start**, **Slut** eller **Start + slut**. Enbart sluttid visas som "Senast" och räknas inte som ett tidsintervall eller en pågående aktivitet.
+- Redigeraren öppnas i tidslinjen där aktiviteten hamnar (en redigerad aktivitet byts mot redigeraren på sin plats): tiderna står i tidskolumnen ("+ tid" / "+ slut"), kortet har typens färg, typen väljs med färgprickar och en rad små fält öppnar var sin rad med val: datum, tid (**Ingen**, **Start**, **Slut** eller **Start + slut**, längd och standard), påminnelse, Viktig, upprepning och anteckning. Enbart sluttid visas som "Senast" och räknas inte som ett tidsintervall eller en pågående aktivitet.
 - **Sätt som standard** sparar valet för nya aktiviteter. Det kan också ändras under Mer och synkas med kontot.
 - Filterikonen öppnar typfilter, sökning, avklarade och valet **Hela dagen / Nu & nästa**.
 - Återkommande aktiviteter: dagligen, vardagar eller veckovis. Ändra en dag eller hela serien.

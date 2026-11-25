@@ -5,6 +5,8 @@ const paths={
   filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
   orbit:'<circle cx="12" cy="12" r="7"/><ellipse cx="12" cy="12" rx="11" ry="4" transform="rotate(-35 12 12)"/><circle cx="18" cy="5" r="1.3" fill="currentColor"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  flag:'<path d="M5 21V4m0 0h11l-2 4 2 4H5"/>',
   calendar:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2m-8 3h2"/>',
   focus:'<path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/><circle cx="12" cy="12" r="4"/>',
   settings:'<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="#151a23"/><circle cx="16" cy="12" r="2" fill="#151a23"/><circle cx="8" cy="18" r="2" fill="#151a23"/>',
@@ -70,7 +72,8 @@ function renderWeek(){const day=(parseDate(selected).getDay()+6)%7;const monday=
 function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-filter="all" aria-pressed="${filter==='all'}">Alla</button>`+Object.entries(TYPES).map(([id,t])=>`<button class="filter" data-filter="${id}" aria-pressed="${filter===id}" style="--c:${t.color}"><i></i>${t.label}</button>`).join('');}
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
-function renderTasks(){renderTaskLists();decorateLive();}
+// The editor sits in the timeline while open (placeEditor); it is parked outside the list while the list re-renders.
+function renderTasks(){const open=!$('#editor').hidden;if(open)parkEditor();renderTaskLists();decorateLive();if(open)placeEditor();}
 // A comet of light runs along the inside of the current card's edge at constant speed. The tail is faint dashes that
 // all end at the head and get shorter, so their overlap fades evenly towards the back; a small bright head leads.
 // The phase follows the clock, so re-renders continue it.
@@ -136,7 +139,7 @@ function taskMarkup(t,active,overlaps,focus=false){
   const progress=hasRange&&live?Math.max(0,Math.min(100,(n-minutes(t.start))/(minutes(t.end)-minutes(t.start))*100)):0;
   const status=t.done?'✓ Utförd':late?'Försenad':live?(hasRange?`${duration(remaining)} kvar`:'Pågår'):isToday()&&t.end&&minutes(t.end)<=n?'Försenad':'';
   const time=t.start?(t.start+(t.end?' – '+t.end:'')):'Senast '+t.end;
-  return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}">${t.start||t.end?`<div class="time-label">${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}</div><div class="timeline-node"></div>`:''}<div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag"><i class="type-dot"></i>${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button>${live&&hasRange?`<span class="task-progress" style="--progress:${progress}%"></span>`:''}</div></article>`;
+  return `<article data-min="${minutes(t.start||t.end||'00:00')}" class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}">${t.start||t.end?`<div class="time-label">${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}</div><div class="timeline-node"></div>`:''}<div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag"><i class="type-dot"></i>${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button>${live&&hasRange?`<span class="task-progress" style="--progress:${progress}%"></span>`:''}</div></article>`;
 }
 function polar(angle,r){return [140+r*Math.sin(angle),140-r*Math.cos(angle)];}
 function arc(start,end,r=103){const a=polar(start,r),b=polar(end,r);return `M${a[0]},${a[1]} A${r},${r} 0 ${end-start>Math.PI?1:0} 1 ${b[0]},${b[1]}`;}
@@ -162,29 +165,70 @@ function openPanel(id){
   if(!wasOpen)el.scrollIntoView({block:'start',behavior:'smooth'});
 }
 function closePanel(el){el.hidden=true;window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));}
-function closeEditor(){ $('#editor').hidden=true;editing=null; }
+function closeEditor(){$('#editor').hidden=true;editing=null;$$('.task-row.is-editing').forEach(r=>r.classList.remove('is-editing'));parkEditor();}
 function setTimeMode(value){
-  timeMode=value;$$('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===value));
-  $('#timeFields').hidden=value==='none';$('#startField').hidden=value==='end';$('#endField').hidden=value==='start';
-  $('#durationPresets').hidden=value!=='range';$('#taskStart').required=value==='start'||value==='range';$('#taskEnd').required=value==='end'||value==='range';
-  $('#timeDefaultButton').textContent=value===state.settings.defaultTimeMode?'Standard':'Sätt som standard';$('#remindField').hidden=value==='none';updateOverlap();
+  timeMode=value;
+  $('#taskStart').required=value==='start'||value==='range';$('#taskEnd').required=value==='end'||value==='range';
+  $('#timeDefaultButton').textContent=value===state.settings.defaultTimeMode?'Standard':'Sätt som standard';updateOverlap();syncEditor();
 }
-function renderTypePicker(){$('#typePicker').innerHTML=Object.entries(TYPES).map(([id,t])=>`<button type="button" class="type-choice" data-type="${id}" aria-pressed="${editType===id}" style="--c:${t.color}">${icon(t.icon)}${t.label}</button>`).join('');}
+// Editor (new or edited activity): name, type as colour dots, and a row of small fields (date, time, reminder,
+// priority, repeat, note) that each open one line of choices under the row. Times sit in the timeline column.
+function renderTypePicker(){
+  $('#typePicker').innerHTML=Object.entries(TYPES).map(([id,t])=>`<button type="button" class="ed-type" data-type="${id}" aria-pressed="${editType===id}" aria-label="${t.label}" style="--c:${t.color}"></button>`).join('')+`<span class="ed-type-name">${TYPES[editType].label}</span>`;
+  $('#editor').style.setProperty('--c',TYPES[editType].color);
+}
+function openMore(name){$$('#editor .ed-more').forEach(el=>{el.hidden=el.dataset.panel!==name||!el.hidden;});$$('#editor [data-ed]').forEach(b=>b.setAttribute('aria-expanded',String(!$(`#editor .ed-more[data-panel="${b.dataset.ed}"]`).hidden)));}
+function syncEditor(){
+  const d=$('#taskDate').value,start=$('#taskStart').value,end=$('#taskEnd').value,hasStart=['start','range'].includes(timeMode),hasEnd=['end','range'].includes(timeMode);
+  $('#dateText').textContent=!d?'Datum':d===localDate()?'Idag':d===shiftDate(localDate(),1)?'I morgon':parseDate(d).toLocaleDateString('sv-SE',{weekday:'short',day:'numeric',month:'short'}).replace(/\./g,'');
+  $('#taskStart').hidden=!hasStart;$('#taskEnd').hidden=!hasEnd;
+  $('[data-add-time=start]').hidden=hasStart;$('[data-add-time=end]').hidden=hasEnd||!hasStart;
+  $('#timeText').textContent=timeMode==='none'?'Ingen tid':timeMode==='start'?'Start':timeMode==='end'?'Sluttid':start&&end&&minutes(end)>minutes(start)?duration(minutes(end)-minutes(start)):'Start + slut';
+  $$('#editor [data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===timeMode)));
+  $('#durationPresets').hidden=timeMode!=='range';
+  const remind=Number($('#taskRemind').value);$('#remindField').hidden=timeMode==='none';$('#remindText').textContent=remind<0?'Ingen':remind===0?'Vid tiden':remind===1440?'1 dag':duration(remind);
+  $('#remindField').classList.toggle('is-on',remind>=0);
+  $$('#remindChoices [data-remind]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.remind)===remind)));
+  const high=$('#taskPriority').value==='high';$('#priorityChip').setAttribute('aria-pressed',String(high));
+  const repeat=$('#taskRepeat').value;$('#repeatText').textContent={none:'',daily:'Dagligen',weekdays:'Vardagar',weekly:'Varje vecka'}[repeat];$('#repeatField').classList.toggle('is-on',repeat!=='none');
+  $$('#editor [data-repeat]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.repeat===repeat)));
+  $('#noteChip').classList.toggle('is-on',!!$('#taskNote').value.trim());
+}
+// Where the editor sits: in place of the edited row, else in the timeline at its time (untimed: before "Ny aktivitet").
+function parkEditor(){const ed=$('#editor');if(ed.parentElement!==$('#filterPanel').parentElement)$('#filterPanel').after(ed);}
+function placeEditor(){
+  const ed=$('#editor'),list=$('#taskList'),row=editing&&$$('.task-row').find(r=>r.dataset.taskKey===editing.key);
+  $$('.task-row.is-editing').forEach(r=>r.classList.remove('is-editing'));
+  if(row){row.classList.add('is-editing');row.after(ed);return;}
+  const time=timeMode==='none'?null:minutes(['start','range'].includes(timeMode)?$('#taskStart').value:$('#taskEnd').value);
+  if(mode==='all'&&time!=null&&!Number.isNaN(time)&&$('#taskDate').value===selected){
+    const next=[...list.children].find(el=>el!==ed&&(el.classList.contains('task-row')?Number(el.dataset.min)>time:el.classList.contains('now-marker')?nowMinutes()>time:false));
+    if(next)next.before(ed);else list.append(ed);return;
+  }
+  $('.add-inline').before(ed);
+}
 function openEditor(key=null){
   const scrollY=window.scrollY;
-  if(!key){const add=$('.add-inline');if(add.getBoundingClientRect().top<innerHeight) add.before($('#editor'));else $('#filterPanel').after($('#editor'));}else $('#filterPanel').after($('#editor'));
   editing=key?allTasks().find(t=>t.key===key):null;
   const start=Math.min(1380,Math.ceil(nowMinutes()/15)*15);
   $('#taskForm').reset();$('#formError').textContent='';$('#editorTitle').textContent=editing?'Redigera':'Ny aktivitet';
   $('#taskTitle').value=editing?.title||'';$('#taskDate').value=selected;$('#taskPriority').value=editing?.priority||'normal';$('#taskRepeat').value=editing?.repeat||'none';$('#taskNote').value=editing?.note||'';
   $('#taskRemind').value=String(editing?.remind??state.settings.defaultRemind);$('#taskStart').value=editing?.start||timeString(start);$('#taskEnd').value=editing?.end||timeString(Math.min(1439,start+60));editType=editing?.type||(filter==='all'?'work':filter);
-  $('#deleteTask').hidden=!editing;$('#duplicateTask').hidden=!editing;$('#scopeField').hidden=!(editing&&editing.repeat!=='none');$('#editScope').value='one';syncEditScope();renderTypePicker();setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):state.settings.defaultTimeMode);closePanels();$('#taskDetails').open=false;$('#editor').hidden=false;window.scrollTo({top:scrollY,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));
-  if(matchMedia('(min-width:761px)').matches)$('#taskTitle').focus({preventScroll:true});
+  $('#deleteTask').hidden=!editing;$('#duplicateTask').hidden=!editing;$('#scopeField').hidden=!(editing&&editing.repeat!=='none');$('#editScope').value='one';syncEditScope();renderTypePicker();closePanels();
+  $$('#editor .ed-more').forEach(el=>el.hidden=true);
+  setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):state.settings.defaultTimeMode);
+  $('#editor').hidden=false;placeEditor();openMore(null);
+  window.scrollTo({top:scrollY,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));
+  const box=$('#editor').getBoundingClientRect();if(box.top<70||box.bottom>innerHeight-90)$('#editor').scrollIntoView({block:'center',behavior:'smooth'});
+  if(matchMedia('(min-width:761px)').matches||!editing)$('#taskTitle').focus({preventScroll:true});
 }
 function syncEditScope(){const recurring=editing&&editing.repeat!=='none',series=recurring&&$('#editScope').value==='all';$('#repeatField').hidden=recurring&&!series;$('#taskDate').disabled=!!series;if(series)$('#taskDate').value=editing.seriesDate;else if(recurring)$('#taskDate').value=selected;}
 function taskFromForm(){return {id:editing?.id||uid(),title:$('#taskTitle').value.trim(),date:$('#taskDate').value,type:editType,start:['start','range'].includes(timeMode)?$('#taskStart').value:'',end:['end','range'].includes(timeMode)?$('#taskEnd').value:'',note:$('#taskNote').value.trim(),priority:$('#taskPriority').value,remind:Number($('#taskRemind').value),repeat:$('#taskRepeat').value,done:editing?.done||false};}
 function updateOverlap(){if(!$('#taskStart').value)return;const candidate=taskFromForm();const overlaps=dayTasks(currentState(),candidate.date).filter(t=>t.key!==editing?.key&&!t.done&&t.start&&t.end&&candidate.start&&candidate.end&&minutes(t.start)<minutes(candidate.end)&&minutes(candidate.start)<minutes(t.end));$('#overlapHint').hidden=!overlaps.length;$('#overlapHint').textContent=overlaps.length?`Överlappar: ${overlaps.map(t=>t.title).join(', ')}.`:'';}
-$('#taskStart').addEventListener('input',updateOverlap);$('#taskEnd').addEventListener('input',updateOverlap);$('#taskDate').addEventListener('input',updateOverlap);$('#editScope').addEventListener('change',syncEditScope);
+$('#taskStart').addEventListener('input',updateOverlap);$('#taskEnd').addEventListener('input',updateOverlap);$('#taskDate').addEventListener('input',()=>{updateOverlap();syncEditor();});
+// A changed time moves the editor to its new place in the timeline once the field is left.
+for(const id of ['#taskStart','#taskEnd'])$(id).addEventListener('change',()=>{syncEditor();if(!editing)placeEditor();});
+$('#taskNote').addEventListener('input',syncEditor);$('#editScope').addEventListener('change',syncEditScope);
 function patchOccurrence(s,t,patch){if(t.repeat==='none'){const base=s.tasks.find(x=>x.id===t.id);Object.assign(base,patch);}else s.exceptions[t.key]={...s.exceptions[t.key],...patch};}
 $('#taskForm').addEventListener('submit',event=>{
   event.preventDefault();const task=taskFromForm();
@@ -311,10 +355,11 @@ function clearPlanning(){
 }
 $('#defaultTimeMode').addEventListener('change',e=>{state.settings.defaultTimeMode=e.target.value;save();toast('Standard sparad');});
 // Reminder choices for the editor and the default under Mer.
-for(const sel of [$('#taskRemind'),$('#defaultRemind')])sel.innerHTML=REMINDERS.map(n=>`<option value="${n}">${remindLabel(n)}</option>`).join('');
+$('#defaultRemind').innerHTML=REMINDERS.map(n=>`<option value="${n}">${remindLabel(n)}</option>`).join('');
+$('#remindChoices').innerHTML=REMINDERS.map(n=>`<button type="button" data-remind="${n}">${n<0?'Ingen':n===0?'Vid tiden':n===1440?'1 dag före':duration(n)}</button>`).join('');
 $('#defaultRemind').addEventListener('change',e=>{state.settings.defaultRemind=Number(e.target.value);save();toast('Standard sparad');});
 const actions={
-  today:()=>{chooseDate(localDate());setMode('all');},all:()=>setMode('all'),focus:()=>setMode('focus'),time:()=>setMode('time'),add:()=>openEditor(),calendar:openCalendar,settings:()=>openPanel('#settingsDialog'),filters:toggleFilters,'close-editor':closeEditor,
+  today:()=>{chooseDate(localDate());setMode('all');},all:()=>setMode('all'),focus:()=>setMode('focus'),time:()=>setMode('time'),add:()=>openEditor(),calendar:openCalendar,settings:()=>openPanel('#settingsDialog'),filters:toggleFilters,'close-editor':closeEditor,'toggle-priority':()=>{$('#taskPriority').value=$('#taskPriority').value==='high'?'normal':'high';syncEditor();},
   'prev-week':()=>chooseDate(shiftDate(selected,-7)),'next-week':()=>chooseDate(shiftDate(selected,7)),
   'toggle-done':()=>{currentState().settings.hideDone=!currentState().settings.hideDone;save();render();},
   'clear-filters':()=>{filter='all';query='';$('#searchInput').value='';currentState().settings.hideDone=false;save();setMode('all');},
@@ -338,7 +383,11 @@ document.addEventListener('click',e=>{
   if(button.dataset.done){toggleDone(button.dataset.done);return;}
   if(button.dataset.mode){setTimeMode(button.dataset.mode);return;}
   if(button.dataset.type){editType=button.dataset.type;renderTypePicker();return;}
-  if(button.dataset.duration){const end=minutes($('#taskStart').value)+Number(button.dataset.duration);if(end>1439){$('#formError').textContent='Intervallet behöver sluta före midnatt.';return;}$('#taskEnd').value=timeString(end);$('#formError').textContent='';updateOverlap();}
+  if(button.dataset.ed){openMore(button.dataset.ed);return;}
+  if(button.dataset.remind!==undefined){$('#taskRemind').value=button.dataset.remind;syncEditor();return;}
+  if(button.dataset.repeat){$('#taskRepeat').value=button.dataset.repeat;syncEditor();return;}
+  if(button.dataset.addTime){setTimeMode(button.dataset.addTime==='end'||timeMode==='end'?'range':'start');const el=$(button.dataset.addTime==='end'?'#taskEnd':'#taskStart');el.focus();el.showPicker?.();return;}
+  if(button.dataset.duration){const end=minutes($('#taskStart').value)+Number(button.dataset.duration);if(end>1439){$('#formError').textContent='Intervallet behöver sluta före midnatt.';return;}$('#taskEnd').value=timeString(end);$('#formError').textContent='';updateOverlap();syncEditor();}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditor();closePanels();return;}if(e.ctrlKey||e.metaKey||e.altKey||e.target.matches('input,textarea,select,[contenteditable]')||!$('#editor').hidden||mode==='time')return;if(e.key.toLowerCase()==='n'){e.preventDefault();openEditor();}if(e.key==='/'){e.preventDefault();$('#filterPanel').hidden=false;$('#filterToggle').setAttribute('aria-expanded','true');$('#searchInput').focus();}});
 // Cloud/account changes invalidate undo snapshots and open task editors.
