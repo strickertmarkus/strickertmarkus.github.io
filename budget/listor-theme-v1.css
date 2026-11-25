@@ -375,3 +375,5 @@ html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tb
 .pay-log-e .a{font-variant-numeric:tabular-nums;color:var(--lt-text,#f0f6fc)}
 .pay-log-e .x{flex:0 0 auto;appearance:none;border:0;background:transparent;color:var(--lt-dim,#5b6472);font:400 17px/1 Inter,sans-serif;width:26px;height:26px;border-radius:8px;cursor:pointer}
 .pay-log-e .x:hover{color:var(--lt-minus,#F87171);background:rgba(248,113,113,.08)}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn.is-empty:not(.is-open){opacity:.55}
+.pay-log-none{padding:6px 0;font-size:12px;line-height:1.45;color:var(--lt-dim,#7d8996)}

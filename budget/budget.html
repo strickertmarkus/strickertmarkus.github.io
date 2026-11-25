@@ -1003,7 +1003,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="pulse-bottom-nav-v1.js?v=20261123-sheet-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261125-paylog-2">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261125-paylog-4">
 </head>
 <body>
 
@@ -1812,12 +1812,14 @@ function renderSections() {
 
             // Purchases sorted onto this post from the Apple Pay inbox (item.payments).
             const payCount = Array.isArray(item.payments) ? item.payments.length : 0;
-            const payOpen = payCount > 0 && openPayLogs.has(payLogKey(section, item));
+            // The arrow shows on every expense post with an amount, so typed or older amounts say why no purchases are listed.
+            const payArrow = payCount > 0 || (!isIncome && Number(item.actual) > 0);
+            const payOpen = payArrow && openPayLogs.has(payLogKey(section, item));
             tableHTML += `
                 <tr class="draggable-row${item.offBudget ? ' is-off-budget' : ''}${item.refund ? ' is-refund' : ''}" data-section="${sIdx}" data-item="${iIdx}">
                     <td>
                         <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
-                        ${payCount ? `<button type="button" class="pay-log-btn${payOpen ? ' is-open' : ''}" onclick="togglePayLog(${sIdx}, ${iIdx})" aria-expanded="${payOpen}" title="Visa köp" aria-label="Visa ${payCount} köp på ${item.name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>` : ''}
+                        ${payArrow ? `<button type="button" class="pay-log-btn${payOpen ? ' is-open' : ''}${payCount ? '' : ' is-empty'}" onclick="togglePayLog(${sIdx}, ${iIdx})" aria-expanded="${payOpen}" title="Visa köp" aria-label="Visa köp på ${item.name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>` : ''}
                         <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
                     </td>
                     <td>
@@ -2121,11 +2123,11 @@ function togglePayLog(sIdx, iIdx) {
 }
 function payLogRow(item, sIdx, iIdx) {
     const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    const rows = item.payments.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).map(p => {
+    const rows = (Array.isArray(item.payments) ? item.payments : []).slice().sort((a, b) => (b.time || 0) - (a.time || 0)).map(p => {
         const d = new Date(p.time || Date.now());
         const ica = /\bica\b/i.test(p.card || '');
         return `<div class="pay-log-e"><span class="m">${esc(p.merchant || 'Köp')}</span>${p.card ? `<span class="c${ica ? ' ica' : ''}">${esc(ica ? 'ICA-kort' : p.card)}</span>` : ''}<span class="d">${d.getDate()} ${PAY_MONTHS[d.getMonth()]}</span><span class="a">${fmt(p.amount)}</span><button type="button" class="x" onclick="removePayment(${sIdx}, ${iIdx}, '${esc(p.id)}')" aria-label="Ta bort ${esc(p.merchant || 'köpet')}">×</button></div>`;
-    }).join('');
+    }).join('') || '<div class="pay-log-none">Inga sparade köp. Beloppet är inskrivet för hand eller sorterat innan listan fanns; köp du sorterar från inkorgen visas här.</div>';
     return `<tr class="pay-log-row"><td colspan="4"><div class="pay-log">${rows}</div></td></tr>`;
 }
 function removePayment(sIdx, iIdx, id) {
