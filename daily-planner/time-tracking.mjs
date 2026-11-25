@@ -143,7 +143,20 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     const all=[...root.querySelectorAll('.tt-input')],next=all[all.indexOf(e.target)+1];
     if(next){next.focus();next.select();}else e.target.blur();
   });
-  root.addEventListener('focusin',e=>{if(e.target.matches('.tt-input'))setTimeout(()=>e.target.select(),0);});
+  // While typing, the field (with the week editor's quick steps) is scrolled into the part of the screen the
+  // keyboard leaves free; checked again as the keyboard slides up and the visual viewport shrinks.
+  function keepVisible(el){
+    const box=el.closest('.tt-editor')||el.closest('.tt-drow')||el,vv=window.visualViewport;
+    const fit=()=>{
+      if(document.activeElement!==el)return;
+      const top=(vv?vv.offsetTop:0)+70,bottom=(vv?vv.offsetTop+vv.height:innerHeight)-16,r=box.getBoundingClientRect();
+      if(r.bottom>bottom)window.scrollBy({top:Math.min(r.bottom-bottom,r.top-top),behavior:'smooth'});
+      else if(r.top<top)window.scrollBy({top:r.top-top,behavior:'smooth'});
+    };
+    [60,320,620].forEach(ms=>setTimeout(fit,ms));
+    if(vv){const once=()=>{vv.removeEventListener('resize',once);setTimeout(fit,40);};vv.addEventListener('resize',once);setTimeout(()=>vv.removeEventListener('resize',once),1500);}
+  }
+  root.addEventListener('focusin',e=>{if(e.target.matches('.tt-input')){setTimeout(()=>e.target.select(),0);keepVisible(e.target);}});
   root.addEventListener('submit',e=>{
     if(!e.target.matches('[data-tt-form=add]'))return;e.preventDefault();
     const name=e.target.elements.name.value.trim();if(!name)return;
