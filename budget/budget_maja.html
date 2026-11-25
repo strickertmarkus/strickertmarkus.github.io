@@ -1003,7 +1003,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="pulse-bottom-nav-v1.js?v=20261123-sheet-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261125-paylog-1">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261125-paylog-2">
 </head>
 <body>
 
@@ -1816,6 +1816,7 @@ function renderSections() {
                 <tr class="draggable-row${item.offBudget ? ' is-off-budget' : ''}${item.refund ? ' is-refund' : ''}" data-section="${sIdx}" data-item="${iIdx}">
                     <td>
                         <span class="editable-field" onclick="editItemName(this, ${sIdx}, ${iIdx})" title="Klicka för att redigera">${item.name}</span>
+                        ${payCount ? `<button type="button" class="pay-log-btn${payOpen ? ' is-open' : ''}" onclick="togglePayLog(${sIdx}, ${iIdx})" aria-expanded="${payOpen}" title="Visa köp" aria-label="Visa ${payCount} köp på ${item.name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>` : ''}
                         <button class="delete-btn" onclick="deleteItem(${sIdx}, ${iIdx})" title="Ta bort">×</button>
                     </td>
                     <td>
@@ -1831,7 +1832,6 @@ function renderSections() {
                                    oninput="updateInputColor(this, ${sIdx}, ${iIdx})"
                                    onchange="onActualChange(this)"
                                    onfocus="this.select()">
-                            ${payCount ? `<button type="button" class="pay-log-btn${payOpen ? ' is-open' : ''}" onclick="togglePayLog(${sIdx}, ${iIdx})" aria-expanded="${payOpen}" title="Visa köp" aria-label="Visa ${payCount} köp på ${item.name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>` : ''}
                         </div>
                     </td>
                     ${!isIncome ? `<td><span class="item-pct ${pctClass}">${iPct}%</span></td>` : ''}
@@ -2106,7 +2106,7 @@ function incrementItem(sIdx, iIdx) {
 }
 
 // ── Purchases on a post: the inbox logs each sorted purchase in item.payments
-// ({id, merchant, amount, time, card}); a small arrow by the amount opens the list. ──
+// ({id, merchant, amount, time, card}); a small arrow by the name opens the list. ──
 const openPayLogs = new Set();
 const PAY_MONTHS = ["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
 function payLogKey(section, item) { return (section.key || section.name) + '|' + item.name; }
@@ -2426,6 +2426,15 @@ function saveLocalWithFeedback() {
     }, 2000);
 }
 
+// One saved budget post: the fields plus the optional flags and purchase list, so they survive reloads and sync.
+function savedItem(it) {
+    const o = { name: it.name, budget: it.budget, actual: it.actual };
+    if (it.offBudget) o.offBudget = true;
+    if (it.refund) o.refund = true;
+    if (Array.isArray(it.payments) && it.payments.length) o.payments = it.payments;
+    return o;
+}
+
 function saveLocal() {
     const data = {
         currentMonth: currentMonth.toISOString(),
@@ -2438,7 +2447,7 @@ function saveLocal() {
                     light: s.light,
                     bg: s.bg,
                     isIncome: s.isIncome,
-                    items: s.items.map(it => ({ name: it.name, budget: it.budget, actual: it.actual }))
+                    items: s.items.map(savedItem)
                 }))
             };
             return acc;

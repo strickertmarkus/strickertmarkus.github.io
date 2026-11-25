@@ -358,19 +358,20 @@ html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-refund inpu
    page's colours, so give it a dark scheme and dark options instead of white on white. */
 html[data-finance-view] select,html.listor-theme select{color-scheme:dark}
 html[data-finance-view] select option,html[data-finance-view] select optgroup,html.listor-theme select option,html.listor-theme select optgroup{background-color:#161b22;color:#f0f6fc}
-/* Purchases on a budget post (item.payments from the Apple Pay inbox): a small arrow by the amount opens them under the row */
-html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn{appearance:none;flex:0 0 auto;width:24px;height:24px;margin-left:2px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--lt-dim,#7d8996);display:grid;place-items:center;cursor:pointer}
+/* Purchases on a budget post (item.payments from the Apple Pay inbox): a small arrow by the name opens them under the row */
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn{appearance:none;flex:0 0 auto;width:28px;height:28px;margin:0 0 0 2px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--lt-dim,#7d8996);display:grid;place-items:center;cursor:pointer}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn:hover,html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn.is-open{color:var(--lt-a,#FDBA74)}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn.is-open svg{transform:rotate(180deg)}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody tr.pay-log-row{display:block!important;min-height:0!important;padding:0 0 8px!important;border-top:0!important}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .items-table tbody tr.pay-log-row td{display:block!important;padding:0!important}
-.pay-log{margin:0 0 2px 2px;padding:2px 0 2px 12px;border-left:1px solid rgba(var(--lt-ar,253,186,116),.28)}
-.pay-log-e{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12.5px;color:var(--lt-sec,#c3cad4)}
+.pay-log{min-width:0;max-width:100%;overflow:hidden;margin:0 0 2px 2px;padding:2px 0 2px 12px;border-left:1px solid rgba(var(--lt-ar,253,186,116),.28)}
+.pay-log-e{display:flex;align-items:center;gap:6px;min-width:0;padding:5px 0;font-size:12.5px;color:var(--lt-sec,#c3cad4)}
 .pay-log-e .m{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pay-log-e .c{font-size:10px;font-weight:700;border-radius:999px;padding:1px 6px;color:var(--lt-sec,#929ba9);background:rgba(255,255,255,.06);white-space:nowrap}
+.pay-log-e .c{max-width:92px;min-width:0;overflow:hidden;text-overflow:ellipsis;flex:0 1 auto;font-size:10px;font-weight:700;border-radius:999px;padding:1px 6px;color:var(--lt-sec,#929ba9);background:rgba(255,255,255,.06);white-space:nowrap}
 .pay-log-e .c.ica{color:#E3C77A;background:rgba(227,199,122,.12)}
+.pay-log-e .d,.pay-log-e .a{flex:0 0 auto}
 .pay-log-e .d{color:var(--lt-dim,#7d8996);font-size:11px;white-space:nowrap}
 .pay-log-e .a{font-variant-numeric:tabular-nums;color:var(--lt-text,#f0f6fc)}
-.pay-log-e .x{appearance:none;border:0;background:transparent;color:var(--lt-dim,#5b6472);font:400 17px/1 Inter,sans-serif;width:26px;height:26px;border-radius:8px;cursor:pointer}
+.pay-log-e .x{flex:0 0 auto;appearance:none;border:0;background:transparent;color:var(--lt-dim,#5b6472);font:400 17px/1 Inter,sans-serif;width:26px;height:26px;border-radius:8px;cursor:pointer}
 .pay-log-e .x:hover{color:var(--lt-minus,#F87171);background:rgba(248,113,113,.08)}
