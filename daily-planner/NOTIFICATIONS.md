@@ -23,7 +23,7 @@ Pushklienten är förberedd. Serverfunktionen måste publiceras innan tidsnotise
 
 ```sh
 npm install
-firebase deploy --only functions:daylineReminders --project frick-budget
+firebase deploy --only functions:dayline --project frick-budget
 ```
 
 4. På iPhone: lägg Dayline på hemskärmen, öppna därifrån, logga in och välj Mer → Aktivera notiser. Tillåt notiser. Återaktivera om enhetens token ändras eller appen installeras om.

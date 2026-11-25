@@ -4,7 +4,7 @@ import {getDatabase} from 'firebase-admin/database';
 import {getMessaging} from 'firebase-admin/messaging';
 import {createHash} from 'node:crypto';
 import {dayTasks,validateState} from './model.mjs';
-initializeApp();
+initializeApp({databaseURL:'https://frick-budget-default-rtdb.europe-west1.firebasedatabase.app'});
 export const daylineReminders=onSchedule({schedule:'every 1 minutes',region:'europe-west1',timeZone:'Europe/Stockholm',maxInstances:1},async()=>{
  const db=getDatabase(),now=new Date(),parts=Object.fromEntries(new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now).map(p=>[p.type,p.value]));
  const date=`${parts.year}-${parts.month}-${parts.day}`,minute=Number(parts.hour)*60+Number(parts.minute);
