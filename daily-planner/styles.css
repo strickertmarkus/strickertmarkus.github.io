@@ -195,58 +195,55 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 /* Upcoming activities (not done, not running, not late) get a border in their type colour, like running (amber) and late (red) ones */
 .task-row:not(.is-done):not(.is-current):not(.is-overdue) .task{border-color:color-mix(in srgb,var(--c) 45%,transparent)}
 
-/* ── Activity editor in the timeline (sketch B+C): times in the timeline column, a card bordered in the type colour,
-   type as colour dots, one row of small fields that each open a line of choices ── */
-.inline-editor.ed-row{border:0;border-radius:0;padding:0;background:none;margin:0 0 16px;overflow:visible}
-.ed-form{display:grid;grid-template-columns:56px 10px minmax(0,1fr);gap:10px;align-items:start}
-.task-row.is-editing{display:none!important}
-.ed-time{display:grid;gap:6px;justify-items:end;padding-top:12px}
-.ed-time input{width:56px;min-height:0;padding:0 0 2px;border:0;border-bottom:1px dashed #ffffff2e;border-radius:0;background:none;color:var(--amber);font-size:16px;font-variant-numeric:tabular-nums;text-align:right;-webkit-appearance:none;appearance:none}
-.ed-time input#taskEnd{color:var(--muted);font-size:14px}
-.ed-time input::-webkit-calendar-picker-indicator{display:none}
-.ed-time input::-webkit-date-and-time-value{text-align:right}
-.ed-add{font-size:12px;color:var(--muted);padding:2px 0;min-height:24px}
-.ed-add:hover{color:var(--amber)}
-.ed-node{width:10px;height:10px;border-radius:50%;margin-top:18px;background:var(--c,var(--amber));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--amber)) 25%,transparent)}
-.ed-card{border:1px solid color-mix(in srgb,var(--c,var(--amber)) 50%,transparent);border-radius:16px;padding:10px 12px 8px;background:#121318;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0;animation:ttIn .22s var(--ease)}
+/* ── Activity editor (sketch B): a compact card bordered in the type colour; type as its icons in their colours,
+   one row of small fields (date, time, reminder, priority, repeat, note) that each open a line of choices ── */
+.inline-editor.ed-box{border:1px solid color-mix(in srgb,var(--c,var(--amber)) 50%,transparent);border-radius:16px;padding:10px 12px 8px;background:#121318;margin-bottom:18px;overflow:visible;animation:ttIn .22s var(--ease)}
+.ed-form{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .ed-head{display:flex;align-items:center;gap:6px}
 .ed-head input{flex:1;min-width:0;font-size:18px;border:0;border-bottom:1px solid #f5bc7c40;border-radius:0;padding:4px 0 7px;background:none;outline:none}
 .ed-head input:focus{border-bottom-color:#f5bc7caa}
 .ed-head .icon-btn{width:32px;height:32px;margin-right:-6px}
-.ed-types{display:flex;align-items:center;gap:4px}
-.ed-type{width:28px;height:28px;display:grid;place-items:center;border-radius:50%}
-.ed-type::before{content:'';width:11px;height:11px;border-radius:50%;background:var(--c);opacity:.55;transition:transform .2s,opacity .2s,box-shadow .2s}
-.ed-type[aria-pressed=true]::before{opacity:1;transform:scale(1.2);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent),0 0 10px color-mix(in srgb,var(--c) 50%,transparent)}
-.ed-type-name{font-size:12px;color:var(--c,var(--amber));margin-left:4px}
+.ed-types{display:flex;align-items:center;gap:2px}
+.ed-type{width:36px;height:34px;display:grid;place-items:center;border-radius:10px;color:var(--c);opacity:.5;transition:opacity .2s,transform .2s}
+.ed-type svg{width:19px;height:19px;stroke-width:1.8}
+.ed-type[aria-pressed=true]{opacity:1;transform:scale(1.1);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--c) 55%,transparent))}
+.ed-type:hover{opacity:.85}
+.ed-type-name{font-size:12px;color:var(--c,var(--amber));margin-left:6px}
 .ed-chips{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
-.ed-chip{position:relative;display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:2px 0;border:0;border-bottom:1px dashed #ffffff26;border-radius:0;background:none;font-size:13px;color:#c6cdd8;cursor:pointer}
+.ed-chip{position:relative;display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:2px 0;border:0;border-bottom:1px dashed #ffffff26;border-radius:0;background:none;font-size:13px;color:#c6cdd8;cursor:pointer;font-variant-numeric:tabular-nums}
 .ed-chip svg{width:15px;height:15px;color:var(--muted)}
 .ed-chip[aria-expanded=true],.ed-chip[aria-expanded=true] svg{color:var(--amber);border-bottom-color:var(--amber)}
 .ed-chip.is-on svg,#priorityChip[aria-pressed=true],#priorityChip[aria-pressed=true] svg{color:var(--amber)}
 #priorityChip .ed-chip-txt{display:none}
 #priorityChip[aria-pressed=true] .ed-chip-txt{display:inline}
-#repeatText:empty,#noteChip .ed-chip-txt{display:none}
+#repeatText:empty{display:none}
 .ed-date input{position:absolute;inset:0;width:100%;height:100%;opacity:.011;border:0;padding:0;font-size:16px;cursor:pointer}
-.ed-more{display:grid;gap:8px;padding:2px 0 2px;animation:ttIn .18s var(--ease)}
-.ed-more[hidden]{display:none}
+.ed-more{display:grid;gap:8px;padding:2px 0;animation:ttIn .18s var(--ease)}
+.ed-more[hidden],.ed-times[hidden]{display:none}
 .ed-words{display:flex;flex-wrap:wrap;align-items:center;gap:2px 14px}
 .ed-words button{min-height:28px;padding:2px 0;font-size:13px;color:#aeb7c4;border-bottom:1.5px solid transparent}
 .ed-words button:hover{color:#ffd39f}
 .ed-words button[aria-pressed=true]{color:var(--amber);border-bottom-color:var(--amber)}
+.ed-times{display:flex;align-items:flex-end;gap:12px}
+.ed-times label{display:grid;gap:2px;font-size:11px;color:var(--muted)}
+.ed-times label[hidden]{display:none}
+.ed-times input{width:92px;min-height:0;padding:2px 0 4px;border:0;border-bottom:1px dashed #ffffff2e;border-radius:0;background:none;color:var(--amber);font-size:18px;font-variant-numeric:tabular-nums;-webkit-appearance:none;appearance:none}
+.ed-times input:focus{outline:none;border-bottom-color:var(--amber)}
+.ed-dash{color:var(--muted);padding-bottom:6px}
 .ed-muted{font-size:12px;color:var(--muted)}
 .ed-default{justify-self:start;padding:0;min-height:22px;font-size:11.5px}
 .ed-more textarea{width:100%;min-height:56px;padding:6px 0;border:0;border-bottom:1px dashed #ffffff26;border-radius:0;background:none;font-size:16px;resize:vertical;outline:none}
 .ed-scope{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
 .ed-scope select{flex:1;min-height:32px;border:0;border-bottom:1px dashed #ffffff26;border-radius:0;background:none;font-size:14px}
-.ed-card .form-error:empty{display:none}
+.ed-box .form-error:empty{display:none}
 .ed-foot{display:flex;align-items:center;gap:4px;padding-top:6px;border-top:1px solid #ffffff0d}
 .ed-foot .primary-btn{margin-left:auto;padding-inline:16px}
 .ed-foot .subtle-btn{padding-inline:8px;font-size:12px}
-#taskList:has(.ed-row:not([hidden])) .empty-state{display:none}
-@media(max-width:760px){.ed-chips{gap:4px 11px}.ed-form{grid-template-columns:50px 6px minmax(0,1fr);gap:7px}.ed-time input{width:50px}.ed-node{width:6px;height:6px;margin-top:20px}.ed-card{padding:9px 10px 7px}}
+@media(max-width:760px){.ed-chips{gap:4px 11px}.inline-editor.ed-box{padding:9px 10px 7px}.ed-type{width:34px}}
 
 /* Dag / Vecka / Månad as plain words, the chosen one orange with a line under (like the week's chosen day) */
 .tt-scale.segmented{background:none;border:0;padding:0;gap:24px;box-shadow:none;border-radius:0}
 .tt-scale.segmented button{flex:0 0 auto;min-height:34px;padding:4px 0;border:0;border-bottom:2px solid transparent;border-radius:0;background:none;box-shadow:none;font-size:15px;color:var(--muted)}
 .tt-scale.segmented button:hover{color:#ffd39f}
 .tt-scale.segmented button[aria-pressed=true]{color:var(--amber);border-bottom-color:var(--amber);background:none}
+.ed-times input::-webkit-calendar-picker-indicator{display:none}

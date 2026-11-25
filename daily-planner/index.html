@@ -5,14 +5,14 @@
 <meta name="theme-color" content="#0b0e14"><meta name="description" content="Dayline – dagsplanering med Firebase-synk.">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Dayline · Daily planner</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=19">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=21">
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
 <script defer src="../budget/firebase-sync.js?v=dayline-3"></script>
 <script defer src="../budget/pulse-bottom-nav-v1.js?v=dayline-3"></script>
 <script defer src="../budget/app-refresh.js?v=20261119-1"></script>
-<script type="module" src="app.mjs?v=13"></script>
+<script type="module" src="app.mjs?v=14"></script>
 </head>
 <body>
 <a class="skip" href="#schedule">Till schemat</a>
@@ -43,9 +43,7 @@
 <section class="agenda" id="schedule" tabindex="-1">
 <div class="agenda-toolbar"><div class="section-heading"><h2 id="agendaTitle">Schema</h2><span id="taskCount"></span></div><div class="row-actions"><button class="icon-btn filter-button" id="filterToggle" data-action="filters" aria-label="Filter och visningsläge" aria-expanded="false" aria-controls="filterPanel" data-icon="filter"></button><button class="icon-btn" data-action="add" aria-label="Ny aktivitet" data-icon="plus"></button></div></div>
 <div id="filterPanel" class="filter-panel" hidden><div class="filter-top"><div class="segmented" aria-label="Visningsläge"><button id="allView" data-action="all" aria-pressed="true">Hela dagen</button><button id="focusView" data-action="focus" aria-pressed="false">Nu & nästa</button></div><button class="icon-btn" data-action="toggle-done" id="hideDone" aria-label="Dölj avklarade" aria-pressed="false" data-icon="check-circle"></button></div><div id="filters" class="filters" aria-label="Filtrera aktivitetstyp"></div><div class="search-row"><span data-icon="search"></span><input type="search" id="searchInput" placeholder="Sök" aria-label="Sök i dagens aktiviteter"></div><button class="text-btn" data-action="clear-filters">Återställ filter</button></div>
-<section id="editor" class="inline-editor ed-row" aria-labelledby="editorTitle" hidden><form id="taskForm" class="ed-form">
-<div class="ed-time" aria-label="Tid"><input id="taskStart" name="start" type="time" aria-label="Starttid"><button type="button" class="ed-add" data-add-time="start">+ tid</button><input id="taskEnd" name="end" type="time" aria-label="Sluttid"><button type="button" class="ed-add" data-add-time="end">+ slut</button></div>
-<span class="ed-node" aria-hidden="true"></span>
+<section id="editor" class="inline-editor ed-box" aria-labelledby="editorTitle" hidden><form id="taskForm" class="ed-form">
 <div class="ed-card">
 <div class="ed-head"><h2 id="editorTitle" class="sr-only">Ny aktivitet</h2><input id="taskTitle" name="title" required maxlength="160" placeholder="Aktivitet" autocomplete="off" aria-label="Aktivitet"><button type="button" class="icon-btn" data-action="close-editor" aria-label="Stäng redigering" data-icon="close"></button></div>
 <div id="typePicker" class="ed-types" role="group" aria-label="Typ av aktivitet"></div>
@@ -57,7 +55,7 @@
 <button type="button" class="ed-chip" data-ed="repeat" id="repeatField" aria-expanded="false" aria-label="Upprepa"><span data-icon="repeat"></span><span id="repeatText"></span></button>
 <button type="button" class="ed-chip" data-ed="note" id="noteChip" aria-expanded="false" aria-label="Anteckning"><span data-icon="edit"></span></button>
 </div>
-<div class="ed-more" data-panel="time" hidden><div class="ed-words" role="group" aria-label="Tid"><button type="button" data-mode="none">Ingen</button><button type="button" data-mode="start">Start</button><button type="button" data-mode="end">Slut</button><button type="button" data-mode="range">Start + slut</button></div><div class="ed-words" id="durationPresets"><span class="ed-muted">Längd</span><button type="button" data-duration="15">15 min</button><button type="button" data-duration="30">30 min</button><button type="button" data-duration="60">1 h</button><button type="button" data-duration="120">2 h</button></div><button type="button" class="text-btn ed-default" data-action="set-time-default" id="timeDefaultButton">Sätt som standard</button></div>
+<div class="ed-more" data-panel="time" hidden><div class="ed-words" role="group" aria-label="Tid"><button type="button" data-mode="none">Ingen</button><button type="button" data-mode="start">Start</button><button type="button" data-mode="end">Slut</button><button type="button" data-mode="range">Start + slut</button></div><div class="ed-times"><label id="startField">Start<input id="taskStart" name="start" type="time"></label><span class="ed-dash" id="timeDash">–</span><label id="endField">Slut<input id="taskEnd" name="end" type="time"></label></div><div class="ed-words" id="durationPresets"><span class="ed-muted">Längd</span><button type="button" data-duration="15">15 min</button><button type="button" data-duration="30">30 min</button><button type="button" data-duration="60">1 h</button><button type="button" data-duration="120">2 h</button></div><button type="button" class="text-btn ed-default" data-action="set-time-default" id="timeDefaultButton">Sätt som standard</button></div>
 <div class="ed-more" data-panel="remind" hidden><div class="ed-words" id="remindChoices" role="group" aria-label="Påminnelse"></div></div>
 <div class="ed-more" data-panel="repeat" hidden><div class="ed-words" role="group" aria-label="Upprepa"><button type="button" data-repeat="none">Inte</button><button type="button" data-repeat="daily">Dagligen</button><button type="button" data-repeat="weekdays">Vardagar</button><button type="button" data-repeat="weekly">Varje vecka</button></div></div>
 <div class="ed-more" data-panel="note" hidden><textarea id="taskNote" name="note" placeholder="Lägg till en anteckning…" rows="2" maxlength="3000" aria-label="Anteckning"></textarea></div>
