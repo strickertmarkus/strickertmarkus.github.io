@@ -38,7 +38,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     return `<header class="tt-head"><div><div class="eyebrow">Tidrapport</div><h1 id="timeTitle">Projekt<em>tid.</em></h1></div>
 <div class="segmented tt-scale" role="group" aria-label="Visa">${[['day','Dag'],['week','Vecka'],['month','Månad']].map(([k,l])=>`<button type="button" data-tt="scale" data-scale="${k}" aria-pressed="${scale===k}">${l}</button>`).join('')}</div></header>
 <div class="tt-nav"><button type="button" class="icon-btn" data-tt="prev" aria-label="Föregående">${icon('chevron-left')}</button><span class="tt-period">${esc(label)}</span><button type="button" class="icon-btn" data-tt="next" aria-label="Nästa">${icon('chevron-right')}</button><button type="button" class="subtle-btn tt-today" data-tt="today"${inPeriod?' hidden':''}>Idag</button></div>
-<div class="tt-kpis"><div><strong data-sum="total"></strong><span>timmar</span></div><div><strong data-sum="days"></strong><span>dagar med tid</span></div><div><strong data-sum="avg"></strong><span>snitt per dag</span></div></div>`;
+<div class="tt-kpis"><strong data-sum="total"></strong><span class="tt-h">h</span><span class="tt-kmeta"><b data-sum="days"></b> dagar · snitt <b data-sum="avg"></b></span></div>`;
   }
   function editorStrip(date,pid){
     const p=s().timeProjects[pid];
@@ -102,7 +102,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
       else if(kind==='total')v=total;
       if(kind==='days'){el.textContent=String(days);continue;}
       if(kind==='avg'){el.textContent=days?hm(Math.round(total/days)):'–';continue;}
-      el.textContent=kind==='cell'||kind==='day'&&el.closest('.tt-cal')?hm(v):sumText(v);
+      el.textContent=kind==='cell'||kind==='day'&&el.closest('.tt-cal')?hm(v):el.classList.contains('tt-dsum')?(hm(v)||'–'):sumText(v);
       el.classList.toggle('is-zero',!v);
     }
     for(const el of root.querySelectorAll('[data-heat]'))el.style.setProperty('--heat',Math.min(1,dayTotal(el.dataset.heat)/480).toFixed(2));

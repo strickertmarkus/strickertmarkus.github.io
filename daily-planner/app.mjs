@@ -1,5 +1,5 @@
 import {TYPES,REMINDERS,remindLabel,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=4';
-import {createTimeView} from './time-tracking.mjs?v=2';
+import {createTimeView} from './time-tracking.mjs?v=4';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const paths={
   filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
