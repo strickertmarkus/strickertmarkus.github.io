@@ -291,9 +291,12 @@
       var hit = findItem(where.sections, target);
       if (!hit) return;
       hit.item.actual = (hit.item.actual || 0) + Math.round(en.amount);
+      // Kept on the post too, so its purchases can be listed under it (arrow by the amount).
+      var pay = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), merchant: String(en.merchant || ''), amount: Math.round(en.amount), time: Number(en.time) || Date.now(), card: String(en.card || '') };
+      hit.item.payments = (Array.isArray(hit.item.payments) ? hit.item.payments : []).concat(pay);
       var n = norm(en.merchant);
       if (n) rules[WHO][n] = { section: target.section, item: target.item };
-      done.push({ en: en, item: hit.item, amount: Math.round(en.amount), date: where.date });
+      done.push({ en: en, item: hit.item, amount: Math.round(en.amount), date: where.date, pay: pay });
     });
     if (!done.length) return;
     writeRules(rules);
@@ -309,6 +312,7 @@
     toast(msg, function () {
       done.forEach(function (d) {
         d.item.actual = (d.item.actual || 0) - d.amount;
+        if (Array.isArray(d.item.payments)) { d.item.payments = d.item.payments.filter(function (p) { return p !== d.pay; }); if (!d.item.payments.length) delete d.item.payments; }
         restoreRemote(d.en);
       });
       refresh();

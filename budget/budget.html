@@ -1003,7 +1003,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="pulse-bottom-nav-v1.js?v=20261123-sheet-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261119-select-1">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261125-paylog-1">
 </head>
 <body>
 
@@ -1809,6 +1809,9 @@ function renderSections() {
                 else pctClass = "ok";
             }
 
+            // Purchases sorted onto this post from the Apple Pay inbox (item.payments).
+            const payCount = Array.isArray(item.payments) ? item.payments.length : 0;
+            const payOpen = payCount > 0 && openPayLogs.has(payLogKey(section, item));
             tableHTML += `
                 <tr class="draggable-row${item.offBudget ? ' is-off-budget' : ''}${item.refund ? ' is-refund' : ''}" data-section="${sIdx}" data-item="${iIdx}">
                     <td>
@@ -1828,10 +1831,12 @@ function renderSections() {
                                    oninput="updateInputColor(this, ${sIdx}, ${iIdx})"
                                    onchange="onActualChange(this)"
                                    onfocus="this.select()">
+                            ${payCount ? `<button type="button" class="pay-log-btn${payOpen ? ' is-open' : ''}" onclick="togglePayLog(${sIdx}, ${iIdx})" aria-expanded="${payOpen}" title="Visa köp" aria-label="Visa ${payCount} köp på ${item.name}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>` : ''}
                         </div>
                     </td>
                     ${!isIncome ? `<td><span class="item-pct ${pctClass}">${iPct}%</span></td>` : ''}
                 </tr>
+                ${payOpen ? payLogRow(item, sIdx, iIdx) : ''}
             `;
         });
 
@@ -2099,6 +2104,38 @@ function incrementItem(sIdx, iIdx) {
         item.actual = current + amount;
         refresh();
     }
+}
+
+// ── Purchases on a post: the inbox logs each sorted purchase in item.payments
+// ({id, merchant, amount, time, card}); a small arrow by the amount opens the list. ──
+const openPayLogs = new Set();
+const PAY_MONTHS = ["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+function payLogKey(section, item) { return (section.key || section.name) + '|' + item.name; }
+function togglePayLog(sIdx, iIdx) {
+    const section = getCurrentMonthSections()[sIdx], item = section && section.items[iIdx];
+    if (!item) return;
+    const k = payLogKey(section, item);
+    openPayLogs.has(k) ? openPayLogs.delete(k) : openPayLogs.add(k);
+    renderSections();
+}
+function payLogRow(item, sIdx, iIdx) {
+    const esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const rows = item.payments.slice().sort((a, b) => (b.time || 0) - (a.time || 0)).map(p => {
+        const d = new Date(p.time || Date.now());
+        const ica = /\bica\b/i.test(p.card || '');
+        return `<div class="pay-log-e"><span class="m">${esc(p.merchant || 'Köp')}</span>${p.card ? `<span class="c${ica ? ' ica' : ''}">${esc(ica ? 'ICA-kort' : p.card)}</span>` : ''}<span class="d">${d.getDate()} ${PAY_MONTHS[d.getMonth()]}</span><span class="a">${fmt(p.amount)}</span><button type="button" class="x" onclick="removePayment(${sIdx}, ${iIdx}, '${esc(p.id)}')" aria-label="Ta bort ${esc(p.merchant || 'köpet')}">×</button></div>`;
+    }).join('');
+    return `<tr class="pay-log-row"><td colspan="4"><div class="pay-log">${rows}</div></td></tr>`;
+}
+function removePayment(sIdx, iIdx, id) {
+    const item = getCurrentMonthSections()[sIdx]?.items[iIdx];
+    if (!item || !Array.isArray(item.payments)) return;
+    const p = item.payments.find(x => String(x.id) === String(id));
+    if (!p) return;
+    item.payments = item.payments.filter(x => x !== p);
+    if (!item.payments.length) delete item.payments;
+    item.actual = Math.max(0, (Number(item.actual) || 0) - (Number(p.amount) || 0));
+    refresh();
 }
 
 function deleteItem(sIdx, iIdx) {
@@ -2909,7 +2946,7 @@ window.addEventListener('firebase-sync', (event) => {
 <script src="transfer-income.js?v=20261109-excel-1"></script>
 <script src="budget-tap-edit-v1.js?v=20261110-1"></script>
 <script src="budget-auto-months-v1.js?v=20261109-excel-1"></script>
-<script src="budget-pay-inbox-v1.js?v=20261113-ica-1"></script>
+<script src="budget-pay-inbox-v1.js?v=20261125-paylog-1"></script>
 </body>
 </html>
 
