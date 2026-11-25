@@ -152,7 +152,8 @@ html[data-finance-view]:not(#lt) .section-card[data-section-key] .item-input::pl
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .item-input:focus{border-bottom:1px solid var(--lt-a)!important;box-shadow:0 6px 12px -10px rgba(var(--lt-ar),.8)!important;outline:0!important}
 /* the "+ add to amount" button shows while the row is being edited */
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .increment-btn{width:0;padding:0!important;overflow:hidden;opacity:0;transition:width .15s,opacity .15s;color:var(--lt-a)!important}
-html[data-finance-view]:not(#lt) .section-card[data-section-key] tr:focus-within .increment-btn,html[data-finance-view]:not(#lt) .section-card[data-section-key] tr:hover .increment-btn{width:26px;opacity:1}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] tr:focus-within .increment-btn{width:26px;opacity:1}
+@media (hover:hover){html[data-finance-view]:not(#lt) .section-card[data-section-key] tr:hover .increment-btn{width:26px;opacity:1}}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .delete-btn{flex:0 0 auto;color:var(--lt-dim)!important;margin-left:6px;font-size:15px!important}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .delete-btn:hover{color:var(--lt-minus)!important}
 /* status chip: green on target, red over, orange close, grey otherwise */
@@ -359,7 +360,7 @@ html[data-finance-view]:not(#lt) .section-card[data-section-key] .sm-refund inpu
 html[data-finance-view] select,html.listor-theme select{color-scheme:dark}
 html[data-finance-view] select option,html[data-finance-view] select optgroup,html.listor-theme select option,html.listor-theme select optgroup{background-color:#161b22;color:#f0f6fc}
 /* Purchases on a budget post (item.payments from the Apple Pay inbox): a small arrow by the name opens them under the row */
-html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn{appearance:none;flex:0 0 auto;width:28px;height:28px;margin:0 0 0 2px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--lt-dim,#7d8996);display:grid;place-items:center;cursor:pointer}
+html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn{appearance:none;flex:0 0 auto;width:40px;height:40px;margin:-8px -6px -8px -4px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;padding:0;border:0;border-radius:50%;background:transparent;color:var(--lt-dim,#7d8996);display:grid;place-items:center;cursor:pointer}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn:hover,html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn.is-open{color:var(--lt-a,#FDBA74)}
 html[data-finance-view]:not(#lt) .section-card[data-section-key] .pay-log-btn.is-open svg{transform:rotate(180deg)}

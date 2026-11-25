@@ -559,7 +559,12 @@ html.dark-mode .items-table tbody tr {
     opacity: 0;
     transition: opacity 0.2s;
 }
-.items-table tbody tr:hover .delete-btn {
+/* Hover reveals only with a real pointer: on iPhone a hover rule turns the first tap into a "hover" and swallows it
+   (the purchase arrow needed two taps); there the delete button shows while the row is being edited. */
+@media (hover: hover) {
+    .items-table tbody tr:hover .delete-btn { opacity: 1; }
+}
+.items-table tbody tr:focus-within .delete-btn {
     opacity: 1;
 }
 .delete-btn:hover {
@@ -1003,7 +1008,7 @@ html.dark-mode .nav-dropdown-menu a.active { background: rgba(96,165,250,0.1); }
 <script src="pulse-bottom-nav-v1.js?v=20261123-sheet-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
-<link rel="stylesheet" href="listor-theme-v1.css?v=20261125-paylog-4">
+<link rel="stylesheet" href="listor-theme-v1.css?v=20261125-paylog-5">
 </head>
 <body>
 
@@ -2579,6 +2584,16 @@ let dragState = null;
 let dragHoldTimer = null;
 const DRAG_HOLD_DELAY = 600; // milliseconds to trigger drag mode
 
+let lastDragEnd = 0;
+// A tap on a row's free space (not the name, amount or a button) opens or closes its purchase list,
+// so the small arrow is not the only target; ignored right after a drag on desktop.
+document.addEventListener('click', e => {
+    const row = e.target.closest('.section-card .draggable-row');
+    if (!row || e.target.closest('input, button, a, .editable-field') || Date.now() - lastDragEnd < 400) return;
+    if (!row.querySelector('.pay-log-btn')) return;
+    togglePayLog(parseInt(row.dataset.section), parseInt(row.dataset.item));
+});
+
 function initDragAndDrop() {
     document.addEventListener('pointerdown', onDragPointerDown);
 }
@@ -2697,6 +2712,8 @@ function onDragPointerUp(e) {
     document.removeEventListener('pointerup', onDragPointerUp);
     document.removeEventListener('pointercancel', onDragPointerUp);
     
+    if (Math.abs(e.clientY - dragState.startY) >= 8) lastDragEnd = Date.now();
+
     // Actually reorder the data if position changed
     if (rowIndex !== currentIndex) {
         const sections = getCurrentMonthSections();
