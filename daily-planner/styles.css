@@ -79,7 +79,6 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .is-zero{color:#4d5868!important}
 
 /* Editor strip under a project row (week) */
-.tt-editor{margin:2px 0 8px;padding:10px 12px 12px;border-radius:14px;border:1px solid color-mix(in srgb,var(--c) 30%,#ffffff10);background:linear-gradient(135deg,color-mix(in srgb,var(--c) 9%,transparent),#ffffff03);display:grid;gap:10px;animation:ttIn .22s var(--ease)}
 @keyframes ttIn{from{opacity:0;transform:translateY(-4px)}}
 .tt-ed-head{display:flex;align-items:center;gap:2px}
 .tt-ed-head .icon-btn{width:34px;height:34px}.tt-ed-head .icon-btn svg{width:17px;height:17px}
@@ -89,8 +88,6 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .tt-ed-row .tt-input{flex:1;min-width:0;width:auto;text-align:left;font-size:20px;min-height:46px}
 .tt-ed-row .tt-8h{min-height:46px;padding:6px 14px;font-size:14px}
 .tt-chips{display:flex;flex-wrap:wrap;gap:6px}
-.tt-chips button{min-height:32px;padding:5px 11px;border-radius:999px;border:1px solid #ffffff14;font-size:12px;color:#c6cdd8}
-.tt-chips button:last-child{color:#f2958d;border-color:#f2958d33}
 
 /* Month: calendar with day totals and project bars, the chosen day's list, totals per week */
 .tt-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:14px}
@@ -175,9 +172,6 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .tt-input.is-bad{border-bottom-color:#f2958d}
 .tt-8h{min-height:34px;padding:4px 6px;border:0;background:none;font-size:13px}
 .tt-ed-row .tt-8h{min-height:40px;padding:4px 8px}
-.tt-ed-row .tt-input{min-height:40px;font-size:20px}
-.tt-editor{border:0;border-radius:12px;background:color-mix(in srgb,var(--c) 6%,transparent);margin:4px 0 6px;padding:8px 10px 10px}
-.tt-chips button{border:0;background:#ffffff08;min-height:30px}
 .tt-drow{padding:8px 0;border-bottom-color:#ffffff0d}
 .tt-dfoot{padding:12px 0 6px}
 .tt-cday{min-height:50px;border:0;border-radius:10px;background:none}
@@ -188,3 +182,13 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .tt-split{border-top:1px solid #ffffff0d;padding-top:2px}
 .tt-mday h3{margin-top:4px}
 .tt-input:focus,.tt-input:focus-visible{outline:none!important;box-shadow:none!important}
+/* Editing without a box: the field, 8 h and the quick steps sit on the page under the project row */
+.tt-editor{display:grid;background:none;border-radius:0;padding:4px 0 10px;margin:0;gap:6px;border-bottom:1px solid #ffffff0d;animation:ttIn .2s var(--ease)}
+.tt-ed-head{gap:0}
+.tt-ed-title{text-align:left;font-size:12px;font-weight:500;color:var(--muted);padding-left:2px}
+.tt-ed-head .icon-btn{width:30px;height:30px}
+.tt-ed-row .tt-input{font-size:22px;min-height:42px}
+.tt-chips{gap:2px 14px}
+.tt-chips button,.tt-chips button:last-child{border:0;background:none;min-height:30px;padding:2px 0;border-radius:0;font-size:12.5px;color:#aeb7c4}
+.tt-chips button:hover{color:var(--amber)}
+.tt-chips button:last-child{color:#e38d86;margin-left:auto}
