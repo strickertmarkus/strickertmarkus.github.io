@@ -72,18 +72,21 @@ const ORBIT_MS=24000,ORBIT_INSET=.75,ORBIT_LAYERS=14,orbitObserver=new ResizeObs
 function runOrbit(card){
   const svg=card.querySelector('.live-orbit');if(!svg)return;
   const w=Math.max(0,card.clientWidth-2*ORBIT_INSET),h=Math.max(0,card.clientHeight-2*ORBIT_INSET),r=Math.max(0,Math.min(15-ORBIT_INSET,w/2,h/2));
-  const len=2*(w+h)-(8-2*Math.PI)*r,tail=len*.18,phase=Date.now()%ORBIT_MS;
+  const x=ORBIT_INSET,y=ORBIT_INSET;
+  const d=`M ${x+r} ${y} H ${x+w-r} A ${r} ${r} 0 0 1 ${x+w} ${y+r} V ${y+h-r} A ${r} ${r} 0 0 1 ${x+w-r} ${y+h} H ${x+r} A ${r} ${r} 0 0 1 ${x} ${y+h-r} V ${y+r} A ${r} ${r} 0 0 1 ${x+r} ${y} Z`;
+  [...svg.children].forEach(path=>path.setAttribute('d',d));
+  const len=svg.firstElementChild.getTotalLength(),tail=len*.18,phase=Date.now()%ORBIT_MS;
   [...svg.children].forEach((rect,i)=>{
     const dash=rect.classList.contains('orbit-head')?.01:tail*(i+1)/ORBIT_LAYERS;
     rect.getAnimations().forEach(a=>a.cancel());
-    rect.setAttribute('width',w);rect.setAttribute('height',h);rect.setAttribute('rx',r);rect.setAttribute('stroke-dasharray',`${dash} ${len-dash}`);
+    rect.setAttribute('stroke-dasharray',`${dash} ${len-dash}`);
     rect.animate([{strokeDashoffset:dash},{strokeDashoffset:dash-len}],{duration:ORBIT_MS,iterations:Infinity}).currentTime=phase;
   });
 }
 function decorateLive(){
   orbitObserver.disconnect();
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const rect=cls=>`<rect class="${cls}" x="${ORBIT_INSET}" y="${ORBIT_INSET}"/>`;
+  const rect=cls=>`<path class="${cls}"/>`;
   for(const card of $$('.is-current .task')){
     card.insertAdjacentHTML('beforeend',`<svg class="live-orbit" aria-hidden="true">${Array.from({length:ORBIT_LAYERS},()=>rect('orbit-tail')).join('')}${rect('orbit-head')}</svg>`);
     runOrbit(card);orbitObserver.observe(card);
