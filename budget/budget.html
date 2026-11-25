@@ -1433,6 +1433,7 @@ function addNewMonth() {
                 newSections.forEach(section => {
                     section.items.forEach(item => {
                         item.actual = 0;
+                        delete item.payments;
                     });
                 });
             } else {
@@ -2954,8 +2955,8 @@ window.addEventListener('firebase-sync', (event) => {
 </script>
 <script src="transfer-income.js?v=20261109-excel-1"></script>
 <script src="budget-tap-edit-v1.js?v=20261110-1"></script>
-<script src="budget-auto-months-v1.js?v=20261109-excel-1"></script>
-<script src="budget-pay-inbox-v1.js?v=20261125-paylog-1"></script>
+<script src="budget-auto-months-v1.js?v=20261125-paylog-3"></script>
+<script src="budget-pay-inbox-v1.js?v=20261125-paylog-3"></script>
 </body>
 </html>
 

@@ -78,6 +78,29 @@
     }
     return t;
   }
+  // Shop names from Shortcuts can arrive URL-encoded ("ICA%20N%C3%84RA"), as UTF-8 read as Latin-1
+  // ("ICA NÃ„RA"), with HTML entities or invisible characters; this gives back the plain name.
+  var CP1252 = '\u20ac\u0081\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\u008d\u017d\u008f\u0090\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\u009d\u017e\u0178';
+  function fromMojibake(t) {
+    var bytes = [];
+    for (var i = 0; i < t.length; i++) {
+      var c = t.charCodeAt(i), k = CP1252.indexOf(t[i]);
+      if (c < 0x80 || (c >= 0xa0 && c <= 0xff)) bytes.push(c);
+      else if (k >= 0) bytes.push(0x80 + k);
+      else if (c < 0xa0) bytes.push(c);
+      else return t;
+    }
+    try { return new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(bytes)); } catch (_) { return t; }
+  }
+  function cleanText(v) {
+    var t = String(v == null ? '' : v);
+    if (/%[0-9a-f]{2}/i.test(t)) { try { t = decodeURIComponent(t.replace(/\+/g, ' ')); } catch (_) {} }
+    if (/[\u00c2\u00c3]./.test(t)) t = fromMojibake(t);
+    t = t.replace(/&(amp|quot|apos|#39|lt|gt);/g, function (m, e) { return { amp: '&', quot: '"', apos: "'", '#39': "'", lt: '<', gt: '>' }[e]; })
+      .replace(/&#(\d+);/g, function (m, d) { return String.fromCharCode(+d); });
+    return t.replace(/[\u0000-\u001f\u007f-\u009f\u200b-\u200f\u2028\u2029\u2060\ufeff\ufffd]/g, '')
+      .replace(/[\u00a0\s]+/g, ' ').trim();
+  }
   function norm(merchant) {
     return String(merchant || '').toLowerCase()
       .replace(/[0-9#*]+/g, ' ').replace(/[^a-zåäöéü&\s-]/g, ' ')
@@ -370,7 +393,7 @@
         if (!amount) return;
         next.push({
           path: 'pay_inbox/' + token + '/' + key, key: key, raw: raw, amount: amount,
-          merchant: String(raw.merchant || '').trim(), card: String(raw.card || '').trim(), time: pushTime(key)
+          merchant: cleanText(raw.merchant), card: cleanText(raw.card), time: pushTime(key)
         });
       });
     });

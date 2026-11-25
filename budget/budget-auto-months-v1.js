@@ -39,7 +39,7 @@
   function buildMonth(fromKey, key) {
     var from = monthlyData[fromKey];
     var sections = JSON.parse(JSON.stringify(from && from.sections ? from.sections : SECTIONS));
-    sections.forEach(function (s) { (s.items || []).forEach(function (it) { it.actual = 0; }); });
+    sections.forEach(function (s) { (s.items || []).forEach(function (it) { it.actual = 0; delete it.payments; }); });
     try {
       var t = getTransferValuesForMonth(dateOf(key), dataKey === 'budgetTracker');
       if (t) {
