@@ -72,34 +72,7 @@ function renderWeek(){const day=(parseDate(selected).getDay()+6)%7;const monday=
 function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-filter="all" aria-pressed="${filter==='all'}">Alla</button>`+Object.entries(TYPES).map(([id,t])=>`<button class="filter" data-filter="${id}" aria-pressed="${filter===id}" style="--c:${t.color}"><i></i>${t.label}</button>`).join('');}
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
-function renderTasks(){renderTaskLists();decorateLive();}
-// A comet of light runs along the inside of the current card's edge at constant speed. The tail is faint dashes that
-// all end at the head and get shorter, so their overlap fades evenly towards the back; a small bright head leads.
-// The phase follows the clock, so re-renders continue it.
-const ORBIT_MS=24000,ORBIT_INSET=.75,ORBIT_LAYERS=14,orbitObserver=new ResizeObserver(entries=>entries.forEach(entry=>runOrbit(entry.target)));
-function runOrbit(card){
-  const svg=card.querySelector('.live-orbit');if(!svg)return;
-  const w=Math.max(0,card.clientWidth-2*ORBIT_INSET),h=Math.max(0,card.clientHeight-2*ORBIT_INSET),r=Math.max(0,Math.min(15-ORBIT_INSET,w/2,h/2));
-  const x=ORBIT_INSET,y=ORBIT_INSET;
-  const d=`M ${x+r} ${y} H ${x+w-r} A ${r} ${r} 0 0 1 ${x+w} ${y+r} V ${y+h-r} A ${r} ${r} 0 0 1 ${x+w-r} ${y+h} H ${x+r} A ${r} ${r} 0 0 1 ${x} ${y+h-r} V ${y+r} A ${r} ${r} 0 0 1 ${x+r} ${y} Z`;
-  [...svg.children].forEach(path=>path.setAttribute('d',d));
-  const len=svg.firstElementChild.getTotalLength(),tail=len*.18,phase=Date.now()%ORBIT_MS;
-  [...svg.children].forEach((rect,i)=>{
-    const dash=rect.classList.contains('orbit-head')?.01:tail*(i+1)/ORBIT_LAYERS;
-    rect.getAnimations().forEach(a=>a.cancel());
-    rect.setAttribute('stroke-dasharray',`${dash} ${len-dash}`);
-    rect.animate([{strokeDashoffset:dash},{strokeDashoffset:dash-len}],{duration:ORBIT_MS,iterations:Infinity}).currentTime=phase;
-  });
-}
-function decorateLive(){
-  orbitObserver.disconnect();
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const rect=cls=>`<path class="${cls}"/>`;
-  for(const card of $$('.is-current .task')){
-    card.insertAdjacentHTML('beforeend',`<svg class="live-orbit" aria-hidden="true">${Array.from({length:ORBIT_LAYERS},()=>rect('orbit-tail')).join('')}${rect('orbit-head')}</svg>`);
-    runOrbit(card);orbitObserver.observe(card);
-  }
-}
+function renderTasks(){renderTaskLists();}
 // Today the timeline splits at the now line. A future task that is already done moves up into the part above it,
 // right above the current task (or last, if nothing is running).
 function timelineOrder(timed,active){
@@ -138,7 +111,7 @@ function taskMarkup(t,active,overlaps,focus=false){
   const progress=hasRange&&live?Math.max(0,Math.min(100,(n-minutes(t.start))/(minutes(t.end)-minutes(t.start))*100)):0;
   const status=t.done?'✓ Utförd':late?'Försenad':live?(hasRange?`${duration(remaining)} kvar`:'Pågår'):isToday()&&t.end&&minutes(t.end)<=n?'Försenad':'';
   const time=t.start?(t.start+(t.end?' – '+t.end:'')):'Senast '+t.end;
-  return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}">${t.start||t.end?`<div class="time-label">${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}</div><div class="timeline-node"></div>`:''}<div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag"><i class="type-dot"></i>${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button>${live&&hasRange?`<span class="task-progress" style="--progress:${progress}%"></span>`:''}</div></article>`;
+  return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}"><div class="time-label">${t.start||t.end?`${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}`:''}</div><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button><div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag"><i class="type-dot"></i>${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button>${live&&hasRange?`<span class="task-progress" style="--progress:${progress}%"></span>`:''}</div></article>`;
 }
 function polar(angle,r){return [140+r*Math.sin(angle),140-r*Math.cos(angle)];}
 function arc(start,end,r=103){const a=polar(start,r),b=polar(end,r);return `M${a[0]},${a[1]} A${r},${r} 0 ${end-start>Math.PI?1:0} 1 ${b[0]},${b[1]}`;}
