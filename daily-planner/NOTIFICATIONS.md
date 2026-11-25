@@ -10,7 +10,7 @@ På iPhone: öppna Dayline från hemskärmen, logga in och välj Mer → Aktiver
 
 ## Utskick
 
-- Starttid ger en notis vid start. Endast sluttid ger en notis vid slut. Utan tid skickas ingen notis.
+- Notisen skickas vid aktivitetens tid (starttid, eller sluttid om den bara har sluttid) minus vald påminnelse (`remind`, minuter före; saknas = vid tiden, -1 = ingen notis). Morgondagens aktiviteter tas med så att t.ex. "1 dag före" skickas idag. Utan tid skickas ingen notis.
 - Utförda och borttagna förekomster hoppas över. Återkommande aktiviteter använder samma modell och undantag som appen.
 - Svensk tidszon, Europe/Stockholm. Högst fem minuters försenade aktiviteter tas igen.
 - Utskicken dedupliceras per konto, förekomst, tid och enhet. Samtidiga körningar använder en databastransaktion. Avbrott precis efter leverans kan ge en dubblett med samma notistagg.

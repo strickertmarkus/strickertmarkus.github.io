@@ -1,4 +1,5 @@
-import {TYPES,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=3';
+import {TYPES,REMINDERS,remindLabel,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=4';
+import {createTimeView} from './time-tracking.mjs?v=2';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const paths={
   filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
@@ -21,6 +22,7 @@ const paths={
   refresh:'<path d="M20 12a8 8 0 1 1-2.4-5.7L20 8.6"/><path d="M20 3.5v5.1h-5.1"/>',
   trash:'<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  'clock-plus':'<path d="M20.5 11A8.5 8.5 0 1 0 12 20.5"/><path d="M12 7v5l3 2M18 15v6m-3-3h6"/>',
   repeat:'<path d="m17 2 4 4-4 4M3 10V8a2 2 0 0 1 2-2h16M7 22l-4-4 4-4m14 0v2a2 2 0 0 1-2 2H3"/>',
   shield:'<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6zM8 12l3 3 5-6"/>',
   download:'<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',upload:'<path d="M12 15V3m-5 5 5-5 5 5M4 16v5h16v-5"/>'
@@ -46,16 +48,20 @@ function save(){
 }
 function toast(message,undo=null,ms=8000){clearTimeout(toastTimer);undoAction=undo;$('#toastText').textContent=message;$('#undoButton').hidden=!undo;$('#toast').hidden=false;toastTimer=setTimeout(()=>{$('#toast').hidden=true;undoAction=null;},ms);}
 $('#undoButton').onclick=()=>{if(undoAction){const undo=undoAction;undoAction=null;undo();}$('#toast').hidden=true;};
+// Saves a change without re-rendering (project time edits keep focus while typing).
+function change(fn){const snapshot=structuredClone(currentState());fn(currentState());if(!save()){state=snapshot;return false;}return true;}
 function mutate(fn,message){const snapshot=structuredClone(currentState());fn(currentState());if(!save()){state=snapshot;render();return false;}render();if(message)toast(message,()=>{state=snapshot;save();render();});return true;}
+const timeView=createTimeView({root:$('#timeView'),getState:()=>state,change,mutate,icon,esc,toast});
 function chooseDate(date){if(!validDate(date))return;closeEditor();selected=date;query='';$('#searchInput').value='';render();}
-function setMode(next){mode=next;closePanels();render();window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));}
+function setMode(next){if(next==='time')closeEditor();mode=next;closePanels();render();if(next==='time')window.scrollTo({top:0,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));}
 function render(){
   const tasks=allTasks(); const done=tasks.filter(t=>t.done).length;
   $('#dateLabel').textContent=parseDate(selected).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
   $('#greeting').innerHTML=isToday()?'Dagens <em>planering.</em>':'Din <em>planering.</em>';
-  $('#defaultTimeMode').value=state.settings.defaultTimeMode;
+  $('#defaultTimeMode').value=state.settings.defaultTimeMode;$('#defaultRemind').value=String(state.settings.defaultRemind);
   $('#allView').setAttribute('aria-pressed',mode==='all');$('#focusView').setAttribute('aria-pressed',mode==='focus');$('#dockDay').setAttribute('aria-pressed',mode==='all');$('#dockFocus').setAttribute('aria-pressed',mode==='focus');
-  $$('.rail nav .rail-link').forEach(el=>el.classList.toggle('active',el.dataset.action===(mode==='focus'?'focus':'today')));
+  $$('.rail nav .rail-link').forEach(el=>el.classList.toggle('active',el.dataset.action===(mode==='focus'?'focus':mode==='time'?'time':'today')));
+  document.body.classList.toggle('is-time',mode==='time');$('#timeView').hidden=mode!=='time';if(mode==='time')timeView.render();
   $('#hideDone').setAttribute('aria-pressed',currentState().settings.hideDone);$('#hideDone').setAttribute('aria-label',currentState().settings.hideDone?'Visa avklarade':'Dölj avklarade');
   $('#dayNote').value=currentState().notes[selected]||'';$('#noteSaved').textContent='';
   renderWeek();renderFilters();renderTasks();renderSummary(tasks);renderNext(tasks);
@@ -161,7 +167,7 @@ function setTimeMode(value){
   timeMode=value;$$('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===value));
   $('#timeFields').hidden=value==='none';$('#startField').hidden=value==='end';$('#endField').hidden=value==='start';
   $('#durationPresets').hidden=value!=='range';$('#taskStart').required=value==='start'||value==='range';$('#taskEnd').required=value==='end'||value==='range';
-  $('#timeDefaultButton').textContent=value===state.settings.defaultTimeMode?'Standard':'Sätt som standard';updateOverlap();
+  $('#timeDefaultButton').textContent=value===state.settings.defaultTimeMode?'Standard':'Sätt som standard';$('#remindField').hidden=value==='none';updateOverlap();
 }
 function renderTypePicker(){$('#typePicker').innerHTML=Object.entries(TYPES).map(([id,t])=>`<button type="button" class="type-choice" data-type="${id}" aria-pressed="${editType===id}" style="--c:${t.color}">${icon(t.icon)}${t.label}</button>`).join('');}
 function openEditor(key=null){
@@ -171,12 +177,12 @@ function openEditor(key=null){
   const start=Math.min(1380,Math.ceil(nowMinutes()/15)*15);
   $('#taskForm').reset();$('#formError').textContent='';$('#editorTitle').textContent=editing?'Redigera':'Ny aktivitet';
   $('#taskTitle').value=editing?.title||'';$('#taskDate').value=selected;$('#taskPriority').value=editing?.priority||'normal';$('#taskRepeat').value=editing?.repeat||'none';$('#taskNote').value=editing?.note||'';
-  $('#taskStart').value=editing?.start||timeString(start);$('#taskEnd').value=editing?.end||timeString(Math.min(1439,start+60));editType=editing?.type||(filter==='all'?'work':filter);
+  $('#taskRemind').value=String(editing?.remind??state.settings.defaultRemind);$('#taskStart').value=editing?.start||timeString(start);$('#taskEnd').value=editing?.end||timeString(Math.min(1439,start+60));editType=editing?.type||(filter==='all'?'work':filter);
   $('#deleteTask').hidden=!editing;$('#duplicateTask').hidden=!editing;$('#scopeField').hidden=!(editing&&editing.repeat!=='none');$('#editScope').value='one';syncEditScope();renderTypePicker();setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):state.settings.defaultTimeMode);closePanels();$('#taskDetails').open=false;$('#editor').hidden=false;window.scrollTo({top:scrollY,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));
   if(matchMedia('(min-width:761px)').matches)$('#taskTitle').focus({preventScroll:true});
 }
 function syncEditScope(){const recurring=editing&&editing.repeat!=='none',series=recurring&&$('#editScope').value==='all';$('#repeatField').hidden=recurring&&!series;$('#taskDate').disabled=!!series;if(series)$('#taskDate').value=editing.seriesDate;else if(recurring)$('#taskDate').value=selected;}
-function taskFromForm(){return {id:editing?.id||uid(),title:$('#taskTitle').value.trim(),date:$('#taskDate').value,type:editType,start:['start','range'].includes(timeMode)?$('#taskStart').value:'',end:['end','range'].includes(timeMode)?$('#taskEnd').value:'',note:$('#taskNote').value.trim(),priority:$('#taskPriority').value,repeat:$('#taskRepeat').value,done:editing?.done||false};}
+function taskFromForm(){return {id:editing?.id||uid(),title:$('#taskTitle').value.trim(),date:$('#taskDate').value,type:editType,start:['start','range'].includes(timeMode)?$('#taskStart').value:'',end:['end','range'].includes(timeMode)?$('#taskEnd').value:'',note:$('#taskNote').value.trim(),priority:$('#taskPriority').value,remind:Number($('#taskRemind').value),repeat:$('#taskRepeat').value,done:editing?.done||false};}
 function updateOverlap(){if(!$('#taskStart').value)return;const candidate=taskFromForm();const overlaps=dayTasks(currentState(),candidate.date).filter(t=>t.key!==editing?.key&&!t.done&&t.start&&t.end&&candidate.start&&candidate.end&&minutes(t.start)<minutes(candidate.end)&&minutes(candidate.start)<minutes(t.end));$('#overlapHint').hidden=!overlaps.length;$('#overlapHint').textContent=overlaps.length?`Överlappar: ${overlaps.map(t=>t.title).join(', ')}.`:'';}
 $('#taskStart').addEventListener('input',updateOverlap);$('#taskEnd').addEventListener('input',updateOverlap);$('#taskDate').addEventListener('input',updateOverlap);$('#editScope').addEventListener('change',syncEditScope);
 function patchOccurrence(s,t,patch){if(t.repeat==='none'){const base=s.tasks.find(x=>x.id===t.id);Object.assign(base,patch);}else s.exceptions[t.key]={...s.exceptions[t.key],...patch};}
@@ -192,7 +198,7 @@ $('#taskForm').addEventListener('submit',event=>{
       // Per-day exceptions remain intentional exceptions to the series.
       if(task.repeat==='none')for(const key of Object.keys(s.exceptions))if(key.startsWith(`${editing.id}@`))delete s.exceptions[key];
     }else if(task.date!==selected){s.exceptions[editing.key]={...s.exceptions[editing.key],deleted:true};s.tasks.push({...task,id:uid(),repeat:'none'});}
-    else {const {title,type,start,end,note,priority}=task;patchOccurrence(s,editing,{title,type,start,end,note,priority});}
+    else {const {title,type,start,end,note,priority,remind}=task;patchOccurrence(s,editing,{title,type,start,end,note,priority,remind});}
   },'Sparat');
   if(!saved)return;closeEditor();selected=task.date;render();
 });
@@ -304,8 +310,11 @@ function clearPlanning(){
   pendingClear=null;$('#clearConfirm').hidden=true;closeEditor();
 }
 $('#defaultTimeMode').addEventListener('change',e=>{state.settings.defaultTimeMode=e.target.value;save();toast('Standard sparad');});
+// Reminder choices for the editor and the default under Mer.
+for(const sel of [$('#taskRemind'),$('#defaultRemind')])sel.innerHTML=REMINDERS.map(n=>`<option value="${n}">${remindLabel(n)}</option>`).join('');
+$('#defaultRemind').addEventListener('change',e=>{state.settings.defaultRemind=Number(e.target.value);save();toast('Standard sparad');});
 const actions={
-  today:()=>{chooseDate(localDate());setMode('all');},all:()=>setMode('all'),focus:()=>setMode('focus'),add:()=>openEditor(),calendar:openCalendar,settings:()=>openPanel('#settingsDialog'),filters:toggleFilters,'close-editor':closeEditor,
+  today:()=>{chooseDate(localDate());setMode('all');},all:()=>setMode('all'),focus:()=>setMode('focus'),time:()=>setMode('time'),add:()=>openEditor(),calendar:openCalendar,settings:()=>openPanel('#settingsDialog'),filters:toggleFilters,'close-editor':closeEditor,
   'prev-week':()=>chooseDate(shiftDate(selected,-7)),'next-week':()=>chooseDate(shiftDate(selected,7)),
   'toggle-done':()=>{currentState().settings.hideDone=!currentState().settings.hideDone;save();render();},
   'clear-filters':()=>{filter='all';query='';$('#searchInput').value='';currentState().settings.hideDone=false;save();setMode('all');},
@@ -331,7 +340,7 @@ document.addEventListener('click',e=>{
   if(button.dataset.type){editType=button.dataset.type;renderTypePicker();return;}
   if(button.dataset.duration){const end=minutes($('#taskStart').value)+Number(button.dataset.duration);if(end>1439){$('#formError').textContent='Intervallet behöver sluta före midnatt.';return;}$('#taskEnd').value=timeString(end);$('#formError').textContent='';updateOverlap();}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditor();closePanels();return;}if(e.ctrlKey||e.metaKey||e.altKey||e.target.matches('input,textarea,select,[contenteditable]')||!$('#editor').hidden)return;if(e.key.toLowerCase()==='n'){e.preventDefault();openEditor();}if(e.key==='/'){e.preventDefault();$('#filterPanel').hidden=false;$('#filterToggle').setAttribute('aria-expanded','true');$('#searchInput').focus();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeEditor();closePanels();return;}if(e.ctrlKey||e.metaKey||e.altKey||e.target.matches('input,textarea,select,[contenteditable]')||!$('#editor').hidden||mode==='time')return;if(e.key.toLowerCase()==='n'){e.preventDefault();openEditor();}if(e.key==='/'){e.preventDefault();$('#filterPanel').hidden=false;$('#filterToggle').setAttribute('aria-expanded','true');$('#searchInput').focus();}});
 // Cloud/account changes invalidate undo snapshots and open task editors.
 function receiveState(next){
   const changed=JSON.stringify(state)!==JSON.stringify(next);
@@ -359,5 +368,5 @@ function tick(){if(document.hidden)return;const today=localDate(),minute=`${toda
 setInterval(tick,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastMinute='';tick();}});
 render();if(!storageHealthy)toast('Sparad data kunde inte läsas. Originalet är kvar. Exportera innan du gör ändringar.',null,12000);
 // Pull-to-refresh and the automatic update (budget/app-refresh.js) wait while the editor or import is open.
-window.AppRefreshPage={canReload:()=>$('#editor').hidden&&$('#importDialog').hidden&&!$('#clearConfirm').offsetParent};
+window.AppRefreshPage={canReload:()=>$('#editor').hidden&&$('#importDialog').hidden&&!$('#clearConfirm').offsetParent&&!timeView.isEditing()};
 if('serviceWorker'in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});});

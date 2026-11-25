@@ -18,6 +18,13 @@ Appen börjar tom. Inga exempelaktiviteter skapas.
 - Kalender, inställningar, filter och import öppnas som integrerade sektioner, utan popup eller bakgrundsöverlägg.
 - Anteckningsdelen är synlig direkt i den öppna sidolayouten och har egen Rensa-knapp.
 - N = ny aktivitet, / = sök, Escape = stäng redigering och öppna paneler.
+- **Påminnelse** i redigeringen (syns när aktiviteten har en tid): Ingen, Vid tiden, 5/10/15/30 min, 1 h, 2 h eller 1 dag före. Standard för nya aktiviteter väljs under Mer → Standardpåminnelse. Sparas som `remind` (minuter före, -1 = ingen) per aktivitet eller per dag i en serie.
+- **Tid** (mobilmenyn, där Datum låg; Tid i sidomenyn på datorn) är en helsida för projekttid. Datumet ovanför rubriken på Min dag öppnar kalendern. Timmar fylls i dag för dag per projekt och visas per Dag, Vecka eller Månad:
+  - Dag: ett fält per projekt och en **8 h**-knapp som lägger till åtta timmar.
+  - Vecka: projekt × måndag–söndag med summa per projekt och dag. Tryck på en ruta för att skriva tiden; ‹ › och Enter går till nästa dag, snabbknappar +15 min, +30 min, +1 h, −30 min, Rensa och 8 h.
+  - Månad: kalender med timmar och färgstapel per dag (tryck på en dag för att fylla i den), summa per projekt och per vecka.
+  - Tid skrivs som 7:30, 730, 7.30 eller 7,5 (= 7:30) eller 8. Projekt läggs till, byter namn och färg, arkiveras eller tas bort (bara utan registrerad tid) under Projekt längst ner.
+  - Sparas i samma planering: `timeProjects` `{id: {name, color, order, archived}}` och `timeLog` `{"YYYY-MM-DD": {projektId: minuter}}`; synk sammanfogar per projekt och per dag.
 
 ## Sparning och säkerhetskopior
 
@@ -64,7 +71,8 @@ Uppdatering i hemskärmsläget: dra ner från toppen av sidan, eller välj **Mer
 | `index.html` | Semantisk appstruktur, inline-redigering, mobilmeny |
 | `styles.css` | Layout, responsiva brytpunkter, färger, rörelse |
 | `app.mjs` | Rendering, inmatning, lagring, import/export |
-| `model.mjs` | Datum, återkommande aktiviteter, tidslogik, validering |
+| `model.mjs` | Datum, återkommande aktiviteter, tidslogik, påminnelser, projekttidens data och tolkning av tid, validering |
+| `time-tracking.mjs` | Tid-sidan: projekttid per dag, vecka och månad, projektlistan |
 | `model.test.mjs` | Riktade kontroller av tids- och datalogiken |
 | `sw.js` | Offlinecache för appen och dess uttryckliga beroenden |
 | `../budget/firebase-sync.js` | Gemensam Firebase-konfiguration och kontoavgränsad Dayline-synk |
