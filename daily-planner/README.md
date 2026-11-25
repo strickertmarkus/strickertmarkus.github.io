@@ -51,7 +51,7 @@ En bredare tillåtelse på en föräldranod kan inte begränsas av en barnregel;
 
 Manifest, PNG/SVG-ikoner och en service worker ingår. På iPhone: öppna i Safari → Dela → Lägg till på hemskärmen. Appskalet cachas efter första lyckade besöket. Service workern styr bara `daily-planner/`. Den cachar även de två uttryckligen listade delade modulerna och Firebase SDK. Nätversion används när anslutning finns och cache offline.
 
-Service workern skickar inga pushnotiser. Bakgrundspåminnelser och kalenderintegration ingår inte.
+Service workern visar pushnotiser från den befintliga avsändaren i budget/push-worker.mjs. Se NOTIFICATIONS.md för aktivering och utskicksregler.
 
 Vid ändring av cachelagrade filer: öka `CACHE` i `sw.js`. En ny worker tar över direkt (`skipWaiting`), eftersom appskalet hämtas från nätet först.
 

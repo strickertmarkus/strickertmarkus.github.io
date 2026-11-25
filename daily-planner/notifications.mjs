@@ -11,7 +11,7 @@ button.addEventListener('click',async()=>{
     const token=await messaging.getToken({serviceWorkerRegistration:registration,vapidKey:'BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkSLbYF1l4EFBho3eT11rSdjV8esa4m9v97GjLk'});
     let id=localStorage.getItem('dayline.push.device');if(!id){id=crypto.randomUUID();localStorage.setItem('dayline.push.device',id);}
     await firebase.database().ref(`dayline_push/${user.uid}/${id}`).set({token,enabled:true,updatedAt:Date.now()});
-    status.textContent='Enheten är registrerad. Notiser kräver att serverfunktionen är publicerad.';
+    status.textContent='Notiser är aktiverade på den här enheten.';
   }catch(e){status.textContent=e.code==='PERMISSION_DENIED'?'Firebase behöver behörighetsregeln för notiser.':e.message;}finally{button.disabled=false;}
 });
 // Foreground delivery uses the same notification presentation as background push.

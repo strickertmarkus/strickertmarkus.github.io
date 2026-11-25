@@ -4,6 +4,7 @@ import { initializeApp, cert, deleteApp } from 'firebase-admin/app';
 import { getDatabase } from 'firebase-admin/database';
 import { getMessaging } from 'firebase-admin/messaging';
 import { dueTomorrowTasks } from './todo-push-reminders.mjs';
+import { processDaylineReminders } from '../daily-planner/push-reminders.mjs';
 
 const LOOKBACK_MINUTES = 20;
 const CREATION_LOOKBACK_MINUTES = 20;
@@ -392,6 +393,7 @@ try {
   await processCreatedEvents(events, devices);
   await processReminders(events, devices);
   await processTodoDeadlines(todos, devices);
+  await processDaylineReminders(db, fcm);
   console.log('[push] worker complete');
 } finally {
   await deleteApp(app);

@@ -1,33 +1,21 @@
-# Aktivera Daylines pushnotiser
+# Daylines pushnotiser
 
-Pushklienten är förberedd. Serverfunktionen måste publiceras innan tidsnotiser fungerar med appen stängd. Den befintliga kalenderavsändaren ändras inte.
+Dayline använder den befintliga avsändaren `budget/push-worker.mjs` och dess befintliga Firebase Admin-konto. Varje körning behandlar också Daylines aktiviteter via `daily-planner/push-reminders.mjs`. Ingen separat Cloud Function, Firebase CLI-publicering eller Blaze-uppgradering krävs för denna ändring.
 
-1. Firebase-projektet `frick-budget` behöver Blaze och Cloud Scheduler för den schemalagda funktionen. Dessa tjänster kan medföra kostnad.
-2. Lägg till följande gren i befintliga Realtime Database-regler (ersätt inte andra regler):
+Den befintliga externa minutstarten anropar arbetsflödet Calendar push reminders via workflow_dispatch. Körhistoriken 2026-11-25 visar lyckade körningar med en minuts mellanrum. Arbetsflödets egna dagliga cron är en separat start; den externa minutstarten måste fortsätta vara aktiv. Ingen ny schemaläggare skapas här.
 
-```json
-"dayline_push": {
-  "$uid": {
-    ".read": "auth != null && auth.uid === $uid",
-    "$device": {
-      ".write": "auth != null && auth.uid === $uid",
-      ".validate": "newData.hasChildren(['token','enabled','updatedAt']) && newData.child('token').isString() && newData.child('token').val().length < 4096 && newData.child('enabled').isBoolean() && newData.child('updatedAt').isNumber()"
-    }
-  }
-}
-```
+## Mobilen
 
-`dayline_push_sent` ska inte ges klientåtkomst. Servern använder Admin SDK. Kontrollera att bredare föräldraregler inte redan medger obehörig åtkomst.
+På iPhone: öppna Dayline från hemskärmen, logga in och välj Mer → Aktivera notiser. Redan registrerade enheter behöver inte registreras igen. Registreringen är separat från budgetappens enheter och kopplad till användarens uid.
 
-3. Från denna mapp, med Firebase CLI och behörighet till projektet:
+## Utskick
 
-```sh
-npm install
-firebase deploy --only functions:dayline --project frick-budget
-```
+- Starttid ger en notis vid start. Endast sluttid ger en notis vid slut. Utan tid skickas ingen notis.
+- Utförda och borttagna förekomster hoppas över. Återkommande aktiviteter använder samma modell och undantag som appen.
+- Svensk tidszon, Europe/Stockholm. Högst fem minuters försenade aktiviteter tas igen.
+- Utskicken dedupliceras per konto, förekomst, tid och enhet. Samtidiga körningar använder en databastransaktion. Avbrott precis efter leverans kan ge en dubblett med samma notistagg.
+- Operativsystem och kötid kan fördröja leveransen. Telefonleverans behöver verifieras på den registrerade enheten.
 
-4. På iPhone: lägg Dayline på hemskärmen, öppna därifrån, logga in och välj Mer → Aktivera notiser. Tillåt notiser. Återaktivera om enhetens token ändras eller appen installeras om.
+## Databasregler
 
-Notiser avser starttiden, eller sluttiden när endast slut anges. Utan tid skickas ingen notis. Utförda och borttagna förekomster hoppas över. Tider tolkas som Europe/Stockholm. Avsändaren kör varje minut, tar igen högst fem minuter och deduplicerar per enhet. Leverans kan fördröjas av operativsystem/nätverk; det är inte ett exakt alarm. En omkörning efter ett avbrott precis efter leverans kan ge en dubblett, samma tag ersätter den normalt.
-
-Ingen serverfunktion eller databasregel har publicerats av kodändringen. Inga enhetstokens eller servicekontonycklar ska läggas i Git.
+Behåll de redan publicerade reglerna: daily_planner_v1/$uid och dayline_push/$uid är kontoavgränsade. dayline_push_sent är server-only och läses/skrivs med Admin SDK. Inga enhetstokens eller servicekontonycklar får läggas i Git.
