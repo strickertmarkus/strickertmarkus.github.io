@@ -76,10 +76,10 @@ function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===fi
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
 // The timeline is solid up to the now marker and dashed after it (whole day solid for past days, dashed for future ones).
 // Each row also gets --d, its distance in rows from the running activity or the now line, which sizes its node.
-function placeNowLine(){const list=$('#taskList');markDistance(list);const live=list.querySelector('.is-current .task-check'),nm=list.querySelector('.now-marker'),y=live?live.closest('.task-row').offsetTop+live.offsetTop+live.offsetHeight/2:nm?nm.offsetTop+nm.offsetHeight/2-7:selected<localDate()?list.scrollHeight:0;list.style.setProperty('--now-y',`${Math.round(y)}px`);}
+function placeNowLine(){const list=$('#taskList');markDistance(list);const live=list.querySelector('.is-current .task-check')||list.querySelector('.day-done-node'),nm=list.querySelector('.now-marker'),y=live?live.parentElement.offsetTop+live.offsetTop+live.offsetHeight/2:nm?nm.offsetTop+nm.offsetHeight/2-7:selected<localDate()?list.scrollHeight:0;list.style.setProperty('--now-y',`${Math.round(y)}px`);}
 function markDistance(list){
-  const live=!!list.querySelector('.task-row.is-current'),items=[...list.children].filter(el=>el.classList.contains('task-row')||!live&&el.classList.contains('now-marker'));
-  let at=items.findIndex(el=>el.classList.contains('is-current'));
+  const live=!!list.querySelector('.task-row.is-current,.day-done'),items=[...list.children].filter(el=>el.classList.contains('task-row')||el.classList.contains('day-done')||!live&&el.classList.contains('now-marker'));
+  let at=items.findIndex(el=>el.classList.contains('is-current')||el.classList.contains('day-done'));
   if(at<0)at=items.findIndex(el=>el.classList.contains('now-marker'));
   if(at<0)at=selected<localDate()?items.length:-1;
   items.forEach((el,i)=>{if(!el.classList.contains('task-row'))return;el.style.setProperty('--d',String(Math.abs(i-at)));});
@@ -106,13 +106,14 @@ function renderTaskLists(){
     $('#taskCount').textContent=String(live.length+next.length);
     $('#taskList').innerHTML=(live.length?`<div class="focus-section-label">Nu</div>${live.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')+(next.length?`<div class="focus-section-label">Nästa</div>${next.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')||emptyMarkup('Inga aktuella aktiviteter.');return;
   }
-  if(!visible.length){$('#taskList').innerHTML=tasks.length?(state.settings.hideDone&&tasks.every(t=>t.done)?`<button class="done-fold" data-action="toggle-done"><span></span><i aria-hidden="true"></i><span>Allt klart för dagen <span>· visa</span></span></button>`:emptyMarkup('Inga träffar.','clear-filters','Återställ filter')):emptyMarkup('Inga aktiviteter ännu');return;}
+  const allDone=tasks.length>0&&tasks.every(t=>t.done)&&mode==='all'&&!query&&filter==='all';
+  if(!visible.length){$('#taskList').innerHTML=tasks.length?(allDone&&state.settings.hideDone?`<button class="done-fold" data-action="toggle-done"><span></span><i aria-hidden="true"></i><span>${tasks.length} ${tasks.length===1?'klar':'klara'} <span>· visa</span></span></button>${dayDoneRow(tasks)}`:emptyMarkup('Inga träffar.','clear-filters','Återställ filter')):emptyMarkup('Inga aktiviteter ännu');return;}
   const timed=visible.filter(t=>t.start||t.end),untimed=visible.filter(t=>!t.start&&!t.end);let html='';
   const {before,after}=timelineOrder(timed,active);
   const row=t=>(gaps[t.key]||'')+taskMarkup(t,active,overlaps),gaps=freeGaps(tasks);
   const doneCount=tasks.filter(t=>t.done&&(t.start||t.end)&&(filter==='all'||t.type===filter)).length;
   const fold=doneCount&&mode==='all'&&!query?`<button class="done-fold" data-action="toggle-done"><span></span><i aria-hidden="true"></i><span>${state.settings.hideDone?`${doneCount} ${doneCount===1?'klar':'klara'} <span>· visa</span>`:'<span>Dölj klara</span>'}</span></button>`:'';
-  html=fold+before.map(row).join('')+(isToday()&&timed.length?`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`:'')+after.map(row).join('');
+  html=fold+before.map(row).join('')+(isToday()&&timed.length&&!allDone?`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`:'')+after.map(row).join('')+(allDone?dayDoneRow(tasks):'');
   $('#taskList').innerHTML=html;
   if(untimed.length){$('#untimedSection').hidden=false;$('#untimedCount').textContent=String(untimed.length);$('#untimedList').innerHTML=untimed.map(t=>taskMarkup(t,active,overlaps)).join('');}
 }
@@ -128,6 +129,11 @@ function freeGaps(tasks){
     end=end==null?b:Math.max(end,b);
   }
   return out;
+}
+// When every activity of the day is done the timeline lands in a filled node: "Dagen är klar" (sketch A, no tick).
+function dayDoneRow(tasks){
+  const planned=plannedMinutes(tasks);
+  return `<div class="day-done"><span class="time-label">${isToday()?timeString(Math.floor(nowMinutes())):''}</span><i class="day-done-node" aria-hidden="true"></i><div><div class="day-done-title">Dagen är klar</div><div class="day-done-meta">${tasks.length} ${tasks.length===1?'aktivitet':'aktiviteter'}${planned?` · ${duration(planned)}`:''}</div><button class="day-done-next" data-action="plan-tomorrow">Planera i morgon</button></div></div>`;
 }
 function isOverdue(t,tasks){
   if(t.done||selected>localDate()||(!t.start&&!t.end))return false;
@@ -145,12 +151,21 @@ function taskMarkup(t,active,overlaps,focus=false){
 // planned time and how many are left under it, and the mix of types as a thin bar.
 function polar(angle,r){return [140+r*Math.sin(angle),140-r*Math.cos(angle)];}
 function arc(start,end,r=103){const a=polar(start,r),b=polar(end,r);return `M${a[0]},${a[1]} A${r},${r} 0 ${end-start>Math.PI?1:0} 1 ${b[0]},${b[1]}`;}
+const seenOpen=new Set(),celebrated=new Set();
 function renderSummary(tasks){
   const done=tasks.filter(t=>t.done).length;$('#doneNumber').textContent=done;$('#totalNumber').textContent=` / ${tasks.length}`;$('#progressLabel').textContent='aktiviteter klara';$('#plannedTime').textContent=duration(plannedMinutes(tasks));$('#remainingCount').textContent=tasks.length-done;$('#clock').textContent=new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
   const start=-Math.PI*.77,extent=Math.PI*1.54;let svg='<defs><radialGradient id="orbitGlow"><stop offset="0%" stop-color="#f5bc7c" stop-opacity=".05"/><stop offset="100%" stop-color="#f5bc7c" stop-opacity="0"/></radialGradient></defs><circle cx="140" cy="140" r="134" fill="url(#orbitGlow)" stroke="none"/><circle cx="140" cy="140" r="121" stroke="#ffffff07" stroke-width="1"/>';
   for(let i=0;i<60;i++){const a=start+extent*i/59,p=polar(a,113),q=polar(a,i%5===0?118:115.5);svg+=`<path d="M${p}L${q}" stroke="#ffffff${i%5===0?'2a':'13'}" stroke-width="1"/>`;}
   svg+=`<path d="${arc(start,start+extent)}" stroke="#ffffff09" stroke-width="7"/>`;
   if(tasks.length){const gap=Math.min(.045,extent/tasks.length*.25),unit=extent/tasks.length;tasks.forEach((t,i)=>{svg+=`<path d="${arc(start+i*unit+gap/2,start+(i+1)*unit-gap/2)}" stroke="${TYPES[t.type].color}" stroke-opacity="${t.done?1:.3}" stroke-width="${t.done?7:5}"/>`;});}else svg+=`<path d="${arc(start,start+.55)}" stroke="#f5bc7c" stroke-width="5" stroke-opacity=".55"/>`;
+  const allDone=tasks.length>0&&done===tasks.length;
+  if(!allDone)seenOpen.add(selected);
+  if(allDone){
+    svg+=`<defs><filter id="doneGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path class="orbit-done" d="${arc(start,start+extent)}" stroke="#f5bc7c" stroke-width="7" stroke-linecap="round" filter="url(#doneGlow)"/>`;
+    if(seenOpen.has(selected)&&!celebrated.has(selected)){celebrated.add(selected);svg+=[[28,70],[252,52],[236,214],[48,226],[140,8]].map(([x,y],i)=>`<circle class="done-spark" cx="${x}" cy="${y}" r="3" fill="#ffd29e" stroke="none" style="animation-delay:${i*.35}s"/>`).join('');}
+    $('#progressLabel').textContent='allt klart';
+  }
+  $('.rhythm').classList.toggle('all-done',allDone);
   svg+='<g class="orbit-spark"><circle cx="140" cy="19" r="2" fill="#f5bc7c" stroke="none"/></g>';
   $('#dayOrbit').innerHTML=svg;$('#dayOrbit').setAttribute('aria-label',`${done} av ${tasks.length} aktiviteter klara`);
   $('#typeBalance').innerHTML=Object.entries(TYPES).map(([id,t])=>{const count=tasks.filter(x=>x.type===id).length;return count?`<i style="--c:${t.color};flex:${count}" title="${t.label}: ${count}"></i>`:'';}).join('');
@@ -360,6 +375,7 @@ $('#defaultRemind').addEventListener('change',e=>{state.settings.defaultRemind=N
 const actions={
   today:()=>{chooseDate(localDate());setMode('all');},all:()=>setMode('all'),focus:()=>setMode('focus'),time:()=>setMode('time'),add:()=>openEditor(),calendar:openCalendar,settings:()=>openPanel('#settingsDialog'),filters:toggleFilters,'close-editor':closeEditor,'toggle-priority':()=>{$('#taskPriority').value=$('#taskPriority').value==='high'?'normal':'high';syncEditor();},
   'prev-week':()=>chooseDate(shiftDate(selected,-7)),'next-week':()=>chooseDate(shiftDate(selected,7)),
+  'plan-tomorrow':()=>{chooseDate(shiftDate(selected,1));setMode('all');},
   'toggle-done':()=>{currentState().settings.hideDone=!currentState().settings.hideDone;save();render();},
   'clear-filters':()=>{filter='all';query='';$('#searchInput').value='';currentState().settings.hideDone=false;save();setMode('all');},
   'prev-month':()=>stepMonth(-1),'next-month':()=>stepMonth(1),'calendar-today':()=>{chooseDate(localDate());closePanel($('#calendarDialog'));},

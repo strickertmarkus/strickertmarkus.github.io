@@ -323,8 +323,8 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .note-saved{font-size:11px;color:#8edbb1}
 @media(max-width:760px){.rhythm{grid-row:span 2}.day-stats{margin-bottom:20px}.type-balance{margin-bottom:0}.orbit-wrap{max-width:180px;margin-top:14px}.orbit-center strong{font-size:37px}.orbit-center>div{font-size:16px}.orbit-center>span{font-size:10px}.day-stats strong{font-size:16px}.day-stats span{font-size:10px}.next-up{padding-top:0;border-top:0;margin-bottom:24px}.day-note{padding-top:20px}}
 @media(max-width:360px){.rhythm{max-width:300px;margin:0 auto 28px}.next-up,.day-note{border-top:1px solid var(--line);padding-top:22px}}
-@media(max-width:760px){.done-fold{--fold-cols:38px 28px minmax(0,1fr);gap:6px}}
-@media(max-width:360px){.done-fold{--fold-cols:32px 28px minmax(0,1fr)}}
+@media(max-width:760px){.done-fold,.day-done{--fold-cols:38px 28px minmax(0,1fr);gap:6px}}
+@media(max-width:360px){.done-fold,.day-done{--fold-cols:32px 28px minmax(0,1fr)}}
 
 .is-overdue .task-title{color:#f2958d}
 
@@ -353,3 +353,17 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 /* Tid: filled-in hours take their project's colour (cells, the day fields, the week editor); sums stay white */
 .tt-cell:not(:empty),.tt-cell.is-sel:not(:empty){color:var(--c)}
 .tt-drow .tt-input,.tt-editor .tt-input{color:var(--c,var(--ink))}
+
+/* All done: the line lands in a filled amber node "Dagen är klar" (no tick), and the overview wheel lights up */
+.day-done{display:grid;grid-template-columns:var(--fold-cols,44px 28px minmax(0,1fr));gap:8px;align-items:start;position:relative;z-index:2;padding:6px 0 4px}
+.day-done .time-label{color:var(--amber);padding-top:5px}
+.day-done-node{justify-self:center;width:18px;height:18px;margin-top:4px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 5px #f5bc7c22,0 0 16px #f5bc7c66}
+.day-done-title{color:var(--amber);font-size:17px;font-weight:550;letter-spacing:-.2px}
+.day-done-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.day-done-next{margin-top:8px;padding:0 0 1px;font-size:12.5px;color:var(--amber);border-bottom:1px solid #f5bc7c66}
+.task-list:has(.day-done):after{display:none}
+.rhythm.all-done .orbit-center strong{color:var(--amber)}
+.rhythm.all-done #progressLabel{color:var(--amber)}
+.done-spark{transform-box:fill-box;transform-origin:center;opacity:0;animation:dl-twinkle 1.1s ease-in-out 3 both}
+@keyframes dl-twinkle{0%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1.25)}100%{opacity:0;transform:scale(.4)}}
+@media(prefers-reduced-motion:reduce){.done-spark{display:none}}
