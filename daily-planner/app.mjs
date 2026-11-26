@@ -1,4 +1,4 @@
-import {TYPES,REMINDERS,remindLabel,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=4';
+import {isoWeek,TYPES,REMINDERS,remindLabel,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=4';
 import {createTimeView} from './time-tracking.mjs?v=5';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const paths={
@@ -58,8 +58,10 @@ function chooseDate(date){if(!validDate(date))return;closeEditor();selected=date
 function setMode(next){if(next==='time')closeEditor();mode=next;closePanels();render();if(next==='time')window.scrollTo({top:0,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));}
 function render(){
   const tasks=allTasks(); const done=tasks.filter(t=>t.done).length;
-  $('#dateLabel').textContent=parseDate(selected).toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'});
-  $('#greeting').innerHTML=isToday()?'Dagens <em>planering.</em>':'Din <em>planering.</em>';
+  // Heading (sketch A): "Onsdag 25 nov" opens the calendar, week number beside it, Idag only on other days.
+  const day=parseDate(selected),wd=day.toLocaleDateString('sv-SE',{weekday:'long'});
+  $('#greeting').innerHTML=`${wd[0].toUpperCase()+wd.slice(1)} <em>${day.getDate()} ${day.toLocaleDateString('sv-SE',{month:'short'}).replace('.','')}</em>`;
+  $('#weekNo').textContent=`v.${isoWeek(selected)}`;$('#todayButton').hidden=isToday();
   $('#defaultTimeMode').value=state.settings.defaultTimeMode;$('#defaultRemind').value=String(state.settings.defaultRemind);
   $('#allView').setAttribute('aria-pressed',mode==='all');$('#focusView').setAttribute('aria-pressed',mode==='focus');$('#dockDay').setAttribute('aria-pressed',mode==='all');$('#dockFocus').setAttribute('aria-pressed',mode==='focus');
   $$('.rail nav .rail-link').forEach(el=>el.classList.toggle('active',el.dataset.action===(mode==='focus'?'focus':mode==='time'?'time':'today')));
@@ -73,7 +75,7 @@ function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-fi
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
 // The timeline is solid up to the now marker and dashed after it (whole day solid for past days, dashed for future ones).
-function placeNowLine(){const list=$('#taskList'),nm=list.querySelector('.now-marker'),y=nm?nm.offsetTop+nm.offsetHeight/2-7:selected<localDate()?list.scrollHeight:0;list.style.setProperty('--now-y',`${Math.round(y)}px`);}
+function placeNowLine(){const list=$('#taskList'),live=list.querySelector('.is-current .task-check'),nm=list.querySelector('.now-marker'),y=live?live.closest('.task-row').offsetTop+live.offsetTop+live.offsetHeight/2:nm?nm.offsetTop+nm.offsetHeight/2-7:selected<localDate()?list.scrollHeight:0;list.style.setProperty('--now-y',`${Math.round(y)}px`);}
 function renderTasks(){renderTaskLists();placeNowLine();}
 window.addEventListener('resize',()=>placeNowLine());
 // Today the timeline splits at the now line. A future task that is already done moves up into the part above it,
@@ -87,7 +89,7 @@ function timelineOrder(timed,active){
 }
 function renderTaskLists(){
   const tasks=allTasks(),visible=visibleTasks(tasks),f=isToday()?focusTasks(tasks,nowMinutes()):{active:[],next:[]},active=new Set(f.active.map(t=>t.key)),overlaps=overlapKeys(tasks);
-  $('#filterToggle').classList.toggle('has-filter',filter!=='all'||!!query||mode==='focus'||state.settings.hideDone);
+  $('#filterToggle').classList.toggle('has-filter',filter!=='all'||!!query||mode==='focus');
   $('#taskList').classList.toggle('focus-list',mode==='focus');$('#agendaTitle').textContent=mode==='focus'?'Nu & nästa':'Dagens tidslinje';$('#taskCount').textContent=String(visible.length);
   $('#untimedSection').hidden=true;
   if(mode==='focus'){
@@ -96,12 +98,28 @@ function renderTaskLists(){
     $('#taskCount').textContent=String(live.length+next.length);
     $('#taskList').innerHTML=(live.length?`<div class="focus-section-label">Nu</div>${live.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')+(next.length?`<div class="focus-section-label">Nästa</div>${next.map(t=>taskMarkup(t,active,overlaps,true)).join('')}`:'')||emptyMarkup('Inga aktuella aktiviteter.');return;
   }
-  if(!visible.length){$('#taskList').innerHTML=tasks.length?emptyMarkup('Inga träffar.','clear-filters','Återställ filter'):emptyMarkup('Inga aktiviteter ännu');return;}
+  if(!visible.length){$('#taskList').innerHTML=tasks.length?(state.settings.hideDone&&tasks.every(t=>t.done)?`<button class="done-fold" data-action="toggle-done"><span></span><i aria-hidden="true"></i><span>Allt klart för dagen <span>· visa</span></span></button>`:emptyMarkup('Inga träffar.','clear-filters','Återställ filter')):emptyMarkup('Inga aktiviteter ännu');return;}
   const timed=visible.filter(t=>t.start||t.end),untimed=visible.filter(t=>!t.start&&!t.end);let html='';
   const {before,after}=timelineOrder(timed,active);
-  html=before.map(t=>taskMarkup(t,active,overlaps)).join('')+(isToday()&&timed.length?`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`:'')+after.map(t=>taskMarkup(t,active,overlaps)).join('');
+  const row=t=>(gaps[t.key]||'')+taskMarkup(t,active,overlaps),gaps=freeGaps(tasks);
+  const doneCount=tasks.filter(t=>t.done&&(t.start||t.end)&&(filter==='all'||t.type===filter)).length;
+  const fold=doneCount&&mode==='all'&&!query?`<button class="done-fold" data-action="toggle-done"><span></span><i aria-hidden="true"></i><span>${doneCount} ${doneCount===1?'klar':'klara'} <span>· ${state.settings.hideDone?'visa':'dölj'}</span></span></button>`:'';
+  html=fold+before.map(row).join('')+(isToday()&&timed.length?`<div class="now-marker"><span>${timeString(Math.floor(nowMinutes()))}</span></div>`:'')+after.map(row).join('');
   $('#taskList').innerHTML=html;
   if(untimed.length){$('#untimedSection').hidden=false;$('#untimedCount').textContent=String(untimed.length);$('#untimedList').innerHTML=untimed.map(t=>taskMarkup(t,active,overlaps)).join('');}
+}
+// Free time of 30 min or more between timed activities, shown before the later one; a tap plans something there.
+// Only gaps still ahead (today) or on coming days.
+function freeGaps(tasks){
+  const out={},timed=tasks.filter(t=>t.start||t.end).map(t=>({t,a:minutes(t.start||t.end),b:minutes(t.end||t.start)})).sort((x,y)=>x.a-y.a);
+  if(selected<localDate())return out;
+  let end=null;
+  for(const {t,a,b} of timed){
+    const from=isToday()&&end!=null?Math.max(end,Math.ceil(nowMinutes()/5)*5):end;
+    if(end!=null&&a-from>=30)out[t.key]=`<button class="gap-row" data-gap="${from}"><span>${duration(a-from)} fritt</span></button>`;
+    end=end==null?b:Math.max(end,b);
+  }
+  return out;
 }
 function isOverdue(t,tasks){
   if(t.done||selected>localDate()||(!t.start&&!t.end))return false;
@@ -111,27 +129,20 @@ function isOverdue(t,tasks){
 }
 function taskMarkup(t,active,overlaps,focus=false){
   const late=isOverdue(t,allTasks()),type=TYPES[t.type],live=active.has(t.key)&&!late,hasRange=t.start&&t.end,n=nowMinutes(),remaining=hasRange?Math.max(0,Math.ceil(minutes(t.end)-n)):null;
-  const progress=hasRange&&live?Math.max(0,Math.min(100,(n-minutes(t.start))/(minutes(t.end)-minutes(t.start))*100)):0;
   const status=t.done?'✓ Utförd':late?'Försenad':live?(hasRange?`${duration(remaining)} kvar`:'Pågår'):isToday()&&t.end&&minutes(t.end)<=n?'Försenad':'';
   const time=t.start?(t.start+(t.end?' – '+t.end:'')):'Senast '+t.end;
-  return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}"><div class="time-label">${t.start||t.end?`${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}`:''}</div><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button><div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag"><i class="type-dot"></i>${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button>${live&&hasRange?`<span class="task-progress" style="--progress:${progress}%"></span>`:''}</div></article>`;
+  return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}"><div class="time-label">${t.start||t.end?`${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}`:''}</div><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button><div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-meta"><span class="tag"><i class="type-dot"></i>${type.label}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span title="Återkommande">${icon('repeat')}</span>`:''}${status?`<span class="task-status">${status}</span>`:''}</span><span class="task-title">${esc(t.title)}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button></div></article>`;
 }
-function polar(angle,r){return [140+r*Math.sin(angle),140-r*Math.cos(angle)];}
-function arc(start,end,r=103){const a=polar(start,r),b=polar(end,r);return `M${a[0]},${a[1]} A${r},${r} 0 ${end-start>Math.PI?1:0} 1 ${b[0]},${b[1]}`;}
+// Day summary under the timeline (line style): done of total, planned and remaining time.
 function renderSummary(tasks){
-  const done=tasks.filter(t=>t.done).length;$('#doneNumber').textContent=done;$('#totalNumber').textContent=` / ${tasks.length}`;$('#progressLabel').textContent='aktiviteter klara';$('#plannedTime').textContent=duration(plannedMinutes(tasks));$('#remainingCount').textContent=tasks.length-done;$('#clock').textContent=new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
-  const start=-Math.PI*.77,extent=Math.PI*1.54;let svg='<defs><radialGradient id="orbitGlow"><stop offset="0%" stop-color="#f5bc7c" stop-opacity=".05"/><stop offset="100%" stop-color="#f5bc7c" stop-opacity="0"/></radialGradient></defs><circle cx="140" cy="140" r="134" fill="url(#orbitGlow)" stroke="none"/><circle cx="140" cy="140" r="121" stroke="#ffffff07" stroke-width="1"/>';
-  for(let i=0;i<60;i++){const a=start+extent*i/59,p=polar(a,113),q=polar(a,i%5===0?118:115.5);svg+=`<path d="M${p}L${q}" stroke="#ffffff${i%5===0?'2a':'13'}" stroke-width="1"/>`;}
-  svg+=`<path d="${arc(start,start+extent)}" stroke="#ffffff09" stroke-width="7"/>`;
-  if(tasks.length){const gap=Math.min(.045,extent/tasks.length*.25),unit=extent/tasks.length;tasks.forEach((t,i)=>{svg+=`<path d="${arc(start+i*unit+gap/2,start+(i+1)*unit-gap/2)}" stroke="${TYPES[t.type].color}" stroke-opacity="${t.done?1:.3}" stroke-width="${t.done?7:5}"/>`;});}else svg+=`<path d="${arc(start,start+.55)}" stroke="#f5bc7c" stroke-width="5" stroke-opacity=".55"/>`;
-  svg+='<g class="orbit-spark"><circle cx="140" cy="19" r="2" fill="#f5bc7c" stroke="none"/></g>';
-  $('#dayOrbit').innerHTML=svg;$('#dayOrbit').setAttribute('aria-label',`${done} av ${tasks.length} aktiviteter klara`);
-  $('#typeBalance').innerHTML=Object.entries(TYPES).map(([id,t])=>{const count=tasks.filter(x=>x.type===id).length;return count?`<i style="--c:${t.color};flex:${count}" title="${t.label}: ${count}"></i>`:'';}).join('');
+  const done=tasks.filter(t=>t.done).length,left=plannedMinutes(tasks.filter(t=>!t.done));
+  $('#doneNumber').textContent=done;$('#totalNumber').textContent=` av ${tasks.length} klara`;
+  $('#sumMeta').textContent=tasks.length?`${duration(plannedMinutes(tasks))} planerat${left?` · ${duration(left)} kvar`:''}`:'Inget planerat';
 }
 function renderNext(tasks){
   const f=isToday()?focusTasks(tasks,nowMinutes()):{next:tasks.filter(t=>(t.start||t.end)&&!t.done).slice(0,1)},t=f.next[0];
   $('#nextUp').hidden=false;
-  $('#nextUp').innerHTML=t?`<div class="next-label">${icon('sparkles')}Nästa aktivitet</div><button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><h3>${esc(t.title)}</h3><span class="next-time">${t.start||'Senast '+t.end}</span></button>`:`<div class="next-label">${icon('sparkles')}Nästa aktivitet</div><h3>Inget mer inplanerat</h3>`;
+  $('#nextUp').innerHTML=`<span class="next-label">Nästa</span>${t?`<button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><i class="type-dot"></i>${esc(t.title)} <span>${t.start||'senast '+t.end}</span></button>`:'<span class="next-none">Inget mer inplanerat</span>'}`;
 }
 function closePanels(){for(const panel of $$('.utility-panels>.inline-panel'))panel.hidden=true;}
 function openPanel(id){
@@ -168,17 +179,17 @@ function syncEditor(){
   $$('#editor [data-repeat]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.repeat===repeat)));
   $('#noteChip').classList.toggle('is-on',!!$('#taskNote').value.trim());
 }
-function openEditor(key=null){
+function openEditor(key=null,opts={}){
   const scrollY=window.scrollY;
   if(!key){const add=$('.add-inline');if(add.getBoundingClientRect().top<innerHeight) add.before($('#editor'));else $('#filterPanel').after($('#editor'));}else $('#filterPanel').after($('#editor'));
   editing=key?allTasks().find(t=>t.key===key):null;
-  const start=Math.min(1380,Math.ceil(nowMinutes()/15)*15);
+  const start=opts.start??Math.min(1380,Math.ceil(nowMinutes()/15)*15);
   $('#taskForm').reset();$('#formError').textContent='';$('#editorTitle').textContent=editing?'Redigera':'Ny aktivitet';
   $('#taskTitle').value=editing?.title||'';$('#taskDate').value=selected;$('#taskPriority').value=editing?.priority||'normal';$('#taskRepeat').value=editing?.repeat||'none';$('#taskNote').value=editing?.note||'';
   $('#taskRemind').value=String(editing?.remind??state.settings.defaultRemind);$('#taskStart').value=editing?.start||timeString(start);$('#taskEnd').value=editing?.end||timeString(Math.min(1439,start+60));editType=editing?.type||(filter==='all'?'work':filter);
   $('#deleteTask').hidden=!editing;$('#duplicateTask').hidden=!editing;$('#scopeField').hidden=!(editing&&editing.repeat!=='none');$('#editScope').value='one';syncEditScope();renderTypePicker();closePanels();
   $$('#editor .ed-more').forEach(el=>el.hidden=true);
-  setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):state.settings.defaultTimeMode);
+  setTimeMode(editing?(editing.start?(editing.end?'range':'start'):(editing.end?'end':'none')):opts.start!=null&&state.settings.defaultTimeMode==='none'?'start':state.settings.defaultTimeMode);
   $('#editor').hidden=false;openMore(null);
   window.scrollTo({top:scrollY,behavior:'instant'});window.dispatchEvent(new CustomEvent('dayline:view',{detail:{mode}}));
   keepEditorVisible();
@@ -354,6 +365,7 @@ document.addEventListener('click',e=>{
   if(button.dataset.edit){openEditor(button.dataset.edit);return;}
   if(button.dataset.done){toggleDone(button.dataset.done);return;}
   if(button.dataset.mode){setTimeMode(button.dataset.mode);return;}
+  if(button.dataset.gap){openEditor(null,{start:Number(button.dataset.gap)});return;}
   if(button.dataset.type){editType=button.dataset.type;renderTypePicker();return;}
   if(button.dataset.ed){openMore(button.dataset.ed);return;}
   if(button.dataset.remind!==undefined){$('#taskRemind').value=button.dataset.remind;syncEditor();return;}
