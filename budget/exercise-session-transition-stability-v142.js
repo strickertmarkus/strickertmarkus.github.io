@@ -283,6 +283,12 @@
       return;
     }
 
+    if (activeRest && activeRest.onDone) {
+      /* Automatic mode's rest may cover the end of a between exercise, so the position moves on
+         underneath it; it only ends with the pass or when a real set starts. */
+      if (String(state.passStartedAt || '') !== activeRest.passToken || (state.setRunning && !state.__betweenCustomRuntimeV3)) cancelRest(true);
+      else return;
+    }
     if (activeRest) {
       var currentKey = positionKey(state,activeRest.kind);
       if (

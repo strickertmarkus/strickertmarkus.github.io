@@ -273,8 +273,24 @@
     var state = getState();
     var transition = (restSequence && restSequence.kind) || (expectedRestTransition(state) || {}).kind;
     if (overlay.dataset.restScope === 'exercise') transition = 'finish';
-    button.textContent = transition === 'finish' ? 'Starta nästa övning direkt' : 'Starta nästa set direkt';
+    var text = transition === 'finish' ? 'Starta nästa övning direkt' : 'Starta nästa set direkt';
+    if (button.textContent !== text) button.textContent = text;
     return button;
+  }
+
+  /* The 80 ms guard above sleeps during a pass (exercise-points-8-9.js), so the button text follows
+     the rest overlay itself: whenever it is shown or its scope changes. */
+  var watchedOverlay = null;
+  function watchRestOverlay() {
+    var hook = function () {
+      var overlay = document.getElementById('session-between-overlay-v2');
+      if (!overlay || overlay === watchedOverlay) return;
+      watchedOverlay = overlay;
+      new MutationObserver(function () { if (overlay.classList.contains('show')) ensureRestButton(); })
+        .observe(overlay, { attributes: true, attributeFilter: ['class', 'data-rest-scope'] });
+    };
+    hook();
+    new MutationObserver(hook).observe(document.body, { childList: true });
   }
 
   function rawStartCurrentSet(state) {
@@ -544,6 +560,7 @@
       syncRestFlow();
       ensureRestButton();
     }, 80);
+    watchRestOverlay();
     setInterval(syncCurrentSetEditor,250);
   }
 

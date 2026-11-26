@@ -219,7 +219,7 @@
   /* ── rest before a new exercise / after a between exercise: the session's own rest timer.
      Its countdown ticks come from the rest timer itself (exercise-timer-focus.js syncRestSound). ── */
   var resting = null;   // true while the rest runs
-  function startRest(state, seconds, label, scope, then) {
+  function startRest(state, seconds, label, scope, then, instant) {
     var owner = window.__exerciseSessionTransitionStabilityV142;
     if (!owner || typeof owner.beginRest !== 'function') { then(); return; }
     resting = true;
@@ -228,7 +228,34 @@
       if (timedOut && window.SessionSound) window.SessionSound.go();
       then();
     } });
-    if (!ok) { resting = null; then(); }
+    if (!ok) { resting = null; then(); return; }
+    // Covering the end of a between exercise: no fade, so the session view changing underneath never shows.
+    var overlay = instant && document.getElementById('session-between-overlay-v2');
+    if (overlay) {
+      overlay.style.setProperty('transition', 'none', 'important');
+      overlay.style.setProperty('opacity', '1', 'important');
+      requestAnimationFrame(function () { requestAnimationFrame(function () { overlay.style.removeProperty('transition'); overlay.style.removeProperty('opacity'); }); });
+    }
+  }
+  /* Starts the next set once the session offers its start button (it can take a few frames). */
+  function clickStartSoon(tries) {
+    tries = tries || 0;
+    if (!settings.on) return;
+    var b = controlButton(/^starta (set|nästa set|nästa övning)$/i);
+    if (b) { b.click(); return; }
+    if (tries < 40) setTimeout(function () { clickStartSoon(tries + 1); }, 50);
+  }
+  /* A between exercise has run out and a rest follows: show the rest first, then let the session
+     move on underneath it, so nothing of the in-between step is drawn. */
+  function coverBetweenEnd(state, idx) {
+    var runtime = state.__betweenCustomRuntimeV3 || {};
+    var finish = runtime.transition === 'finish';
+    var restSec = Math.max(settings.betweenRest || 0, finish ? settings.exerciseRest || 0 : 0);
+    if (!restSec) return false;
+    sawBetween = false; needRest = false;
+    if (finish) lastRunIdx = (Number(runtime.index) >= 0 ? Number(runtime.index) : idx) + 1;
+    startRest(state, restSec, finish ? 'Före nästa övning' : 'Efter mellanövningen', finish ? 'exercise' : 'set', function () { clickStartSoon(0); }, true);
+    return true;
   }
   function restTick() {
     var overlay = document.getElementById('session-between-overlay-v2');
@@ -257,12 +284,8 @@
   var sawBetween = false;     // a between exercise has been running
   var needRest = false;       // next start waits for the rest after a between exercise
   var lastRunIdx = -1;        // index of the last real exercise that ran a set (a higher one = new exercise)
-  var doneToken = '', ticked = {}, waitSince = 0, waitKey = '';
+  var doneToken = '', ticked = {};
   function setToken(state) { return [state.passStartedAt, state.exerciseIndex, state.currentSet, state.setStartedAt].join('|'); }
-  function after(key, ms) {
-    if (waitKey !== key) { waitKey = key; waitSince = Date.now(); return false; }
-    return Date.now() - waitSince >= ms;
-  }
   function tick() {
     var state = getState();
     ensureToggle();
@@ -289,33 +312,35 @@
     var left = limit != null ? limit - elapsed(state) : null;
     paintToggle(left != null && !ex.__betweenCustomV3 ? left : null);
     if (resting) { restTick(); return; }
-    if (blocked() || state.__hypePaused) { waitKey = ''; return; }
+    if (blocked() || state.__hypePaused) return;
 
     if (running && left != null) {
       var token = setToken(state);
       var sec = Math.ceil(left);
       if (!ex.__betweenCustomV3 && sec >= 1 && sec <= 4 && !ticked[token + sec]) { ticked[token + sec] = 1; if (window.SessionSound) window.SessionSound.tick(); }
-      if (left <= 0 && doneToken !== token) {
+      // A between exercise is taken over a moment before its own end (it would otherwise close itself
+      // and draw the session view for a few frames before the rest appears).
+      var endAt = ex.__betweenCustomV3 ? 0.35 : 0;
+      if (left <= endAt && doneToken !== token) {
         doneToken = token;
         if (!ex.__betweenCustomV3 && window.SessionSound) window.SessionSound.go();
         var done = controlButton(/^klar med set$/i);
-        if (done) done.click();
+        if (ex.__betweenCustomV3 && done) coverBetweenEnd(state, idx);
+        if (done) { done.click(); soon(); }
       }
       return;
     }
     if (!armed || running) return;
 
+    // The decision row and start buttons are answered at once, so they are never on screen for long.
     if (state.awaitingDecision) {
-      var key = 'decide|' + setToken(state);
-      if (!after(key, 700)) return;
-      waitKey = '';
       var nextSet = controlButton(/^starta nästa set$/i);
       var finish = controlButton(/^övning klar$/i);
-      (nextSet || finish || { click: function () {} }).click();
+      if (nextSet || finish) { (nextSet || finish).click(); soon(); }
       return;
     }
     var start = controlButton(/^starta (set|nästa set|nästa övning)$/i);
-    if (!start) { waitKey = ''; return; }
+    if (!start) return;
     // Rest before this start: between two exercises (exerciseRest) and/or after a between
     // exercise (betweenRest); when both apply the longer one.
     var newExercise = lastRunIdx >= 0 && idx > lastRunIdx && !(ex && ex.__betweenCustomV3);
@@ -324,15 +349,14 @@
       needRest = false;
       if (newExercise) lastRunIdx = idx;
       if (restSec > 0) {
-        waitKey = '';
         startRest(state, restSec, newExercise ? 'Före nästa övning' : 'Efter mellanövningen', newExercise ? 'exercise' : 'set', function () { var b = controlButton(/^starta (set|nästa set|nästa övning)$/i); if (b && settings.on) b.click(); });
         return;
       }
     }
-    if (!after('start|' + setToken(state), 700)) return;
-    waitKey = '';
     start.click();
   }
+  // Runs the engine again in the next frames after it pressed a button, instead of waiting for the interval.
+  function soon() { setTimeout(tick, 0); requestAnimationFrame(function () { tick(); }); setTimeout(tick, 60); }
 
   installStyle();
   setInterval(tick, 200);
