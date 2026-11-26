@@ -75,7 +75,15 @@ function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-fi
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
 // The timeline is solid up to the now marker and dashed after it (whole day solid for past days, dashed for future ones).
-function placeNowLine(){const list=$('#taskList'),live=list.querySelector('.is-current .task-check'),nm=list.querySelector('.now-marker'),y=live?live.closest('.task-row').offsetTop+live.offsetTop+live.offsetHeight/2:nm?nm.offsetTop+nm.offsetHeight/2-7:selected<localDate()?list.scrollHeight:0;list.style.setProperty('--now-y',`${Math.round(y)}px`);}
+// Each row also gets --d, its distance in rows from the running activity or the now line, which sizes its node.
+function placeNowLine(){const list=$('#taskList');markDistance(list);const live=list.querySelector('.is-current .task-check'),nm=list.querySelector('.now-marker'),y=live?live.closest('.task-row').offsetTop+live.offsetTop+live.offsetHeight/2:nm?nm.offsetTop+nm.offsetHeight/2-7:selected<localDate()?list.scrollHeight:0;list.style.setProperty('--now-y',`${Math.round(y)}px`);}
+function markDistance(list){
+  const live=!!list.querySelector('.task-row.is-current'),items=[...list.children].filter(el=>el.classList.contains('task-row')||!live&&el.classList.contains('now-marker'));
+  let at=items.findIndex(el=>el.classList.contains('is-current'));
+  if(at<0)at=items.findIndex(el=>el.classList.contains('now-marker'));
+  if(at<0)at=selected<localDate()?items.length:-1;
+  items.forEach((el,i)=>{if(!el.classList.contains('task-row'))return;el.style.setProperty('--d',String(Math.abs(i-at)));});
+}
 function renderTasks(){renderTaskLists();placeNowLine();}
 window.addEventListener('resize',()=>placeNowLine());
 // Today the timeline splits at the now line. A future task that is already done moves up into the part above it,
