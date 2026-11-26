@@ -72,7 +72,10 @@ function renderWeek(){const day=(parseDate(selected).getDay()+6)%7;const monday=
 function renderFilters(){$('#filters').innerHTML=`<button class="filter" data-filter="all" aria-pressed="${filter==='all'}">Alla</button>`+Object.entries(TYPES).map(([id,t])=>`<button class="filter" data-filter="${id}" aria-pressed="${filter===id}" style="--c:${t.color}"><i></i>${t.label}</button>`).join('');}
 function visibleTasks(tasks){return tasks.filter(t=>(filter==='all'||t.type===filter) && (!currentState().settings.hideDone||!t.done) && (!query || `${t.title} ${t.note} ${TYPES[t.type].label}`.toLocaleLowerCase('sv').includes(query)));}
 function emptyMarkup(title,action='',button=''){return `<div class="empty-state">${icon('orbit')}<h3>${esc(title)}</h3>${action?`<button class="text-btn" data-action="${action}">${esc(button)}</button>`:''}</div>`;}
-function renderTasks(){renderTaskLists();}
+// The timeline is solid up to the now marker and dashed after it (whole day solid for past days, dashed for future ones).
+function placeNowLine(){const list=$('#taskList'),nm=list.querySelector('.now-marker'),y=nm?nm.offsetTop+nm.offsetHeight/2-7:selected<localDate()?list.scrollHeight:0;list.style.setProperty('--now-y',`${Math.round(y)}px`);}
+function renderTasks(){renderTaskLists();placeNowLine();}
+window.addEventListener('resize',()=>placeNowLine());
 // Today the timeline splits at the now line. A future task that is already done moves up into the part above it,
 // right above the current task (or last, if nothing is running).
 function timelineOrder(timed,active){
