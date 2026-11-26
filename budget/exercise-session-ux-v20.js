@@ -272,6 +272,7 @@
     }
     var state = getState();
     var transition = (restSequence && restSequence.kind) || (expectedRestTransition(state) || {}).kind;
+    if (overlay.dataset.restScope === 'exercise') transition = 'finish';
     button.textContent = transition === 'finish' ? 'Starta nästa övning direkt' : 'Starta nästa set direkt';
     return button;
   }

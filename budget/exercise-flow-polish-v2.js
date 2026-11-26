@@ -222,6 +222,7 @@
       }
       .bs-rest-overview-row:first-of-type { border-top:0; }
       .bs-rest-overview-row.current .bs-rest-name { color:#F0F6FC; font-weight:800; }
+      #session-between-overlay-v2 .bs-rest-overview .bs-rest-weight { margin-left:8px; color:#A8B3C2; font-style:normal; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
       .bs-rest-name { color:#94A3B8; overflow-wrap:anywhere; }
       .bs-rest-progress { color:var(--flow-accent-soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
 
@@ -412,8 +413,18 @@
       var logs = Array.isArray(state.logs && state.logs[idx]) ? state.logs[idx] : [];
       var planned = ex.kind === 'cardio' ? 1 : Math.max(1,Number(ex.plannedSets) || 1);
       var done = Math.min(logs.length,planned);
+      // Weight: the last logged set, otherwise the planned weight.
+      var weight = '';
+      if (ex.kind !== 'cardio') {
+        if (ex.weightMode === 'bodyweight') weight = 'Kroppsvikt';
+        else {
+          var lastLog = logs.length ? logs[logs.length - 1] : null;
+          var kg = Number(lastLog && lastLog.actualWeight) || Number(ex.weight) || 0;
+          if (kg > 0) weight = kg.toLocaleString('sv-SE') + ' kg';
+        }
+      }
       html += '<div class="bs-rest-overview-row' + (idx === Number(state.exerciseIndex) ? ' current' : '') + '">' +
-        '<span class="bs-rest-name">' + escapeHtml(ex.name || 'Övning') + '</span>' +
+        '<span class="bs-rest-name">' + escapeHtml(ex.name || 'Övning') + (weight ? '<em class="bs-rest-weight">' + weight + '</em>' : '') + '</span>' +
         '<span class="bs-rest-progress">' + done + ' / ' + planned + '</span>' +
       '</div>';
     });

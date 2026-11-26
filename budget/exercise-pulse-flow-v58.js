@@ -580,8 +580,8 @@
         --pf-rgb:251,146,60;
         --pf-speed:1.1s;
       }
-      /* Rest before the next exercise: the same rest timer, turned from cyan to green. */
-      #session-between-overlay-v2[data-rest-scope="exercise"] :is(.bs-heading,.bs-ring,.bs-rest-overview-title) {
+      /* Rest before the next exercise: the whole rest view (timer, button, overview) turned from cyan to green. */
+      #session-between-overlay-v2[data-rest-scope="exercise"] .bs-overlay-wrap {
         filter:hue-rotate(-32deg) saturate(1.08);
       }
       #session-between-overlay-v2.pulse-flow-rest-v58 .bs-overlay-wrap {
