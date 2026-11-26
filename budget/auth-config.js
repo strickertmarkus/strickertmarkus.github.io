@@ -117,11 +117,11 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
     {src:'exercise-hype-timer-layout-v1.js',version:'20261119-top-1',attr:'data-exercise-hype-timer-layout-v1',group:'session-presentation'},
     {src:'exercise-session-stability-v55.js',attr:'data-exercise-session-stability-v55',group:'session-stability'},
     {src:'exercise-custom-transition-atomic-v56.js',version:'20261111-countup-1',attr:'data-exercise-custom-transition-atomic-v56',group:'session-transition'},
-    {src:'exercise-pulse-flow-v58.js',attr:'data-exercise-pulse-flow-v58',group:'pulse-presentation'},
+    {src:'exercise-pulse-flow-v58.js',version:'20261126-auto-rest-1',attr:'data-exercise-pulse-flow-v58',group:'pulse-presentation'},
     {src:'exercise-pulse-flow-motion-v67.js',version:'20261111-countup-1',attr:'data-exercise-pulse-flow-motion-v67',group:'motion'},
     {src:'exercise-session-typography.js',attr:'data-exercise-session-typography',group:'pulse-presentation'},
     {src:'exercise-cardio-finish-v1.js',version:'20261112-cardio-1',attr:'data-exercise-cardio-finish-v1',group:'session-transition'},
-    {src:'exercise-auto-mode-v1.js',version:'20261120-auto-2',attr:'data-exercise-auto-mode-v1',group:'session-transition'}
+    {src:'exercise-auto-mode-v1.js',version:'20261126-auto-rest-1',attr:'data-exercise-auto-mode-v1',group:'session-transition'}
   ];
   var exerciseAssetManifestV2 = embeddedFieldWorkspace
     ? allExerciseAssetManifestV2.filter(function (item) {
@@ -143,9 +143,9 @@ window.FIREBASE_VAPID_KEY = "BDxkgYtOxV9Pwiz_IJk0wzLmZCXAd1Gkdo1yHdBwZZCJr-NdwkS
         {src:'exercise-progress-consistency-v10.js',attr:'data-exercise-progress-consistency-v10'},
         {src:'exercise-pulse-flow-progress-marker-v92.js',attr:'data-exercise-pulse-flow-progress-marker-v92'},
         {src:'exercise-pulse-flow-completed-marker-v102.js',attr:'data-exercise-pulse-flow-completed-marker-v102'},
-        {src:'exercise-pulse-flow-ecg-glow-v104.js',version:'20261120-auto-2',attr:'data-exercise-pulse-flow-ecg-glow-v104'},
+        {src:'exercise-pulse-flow-ecg-glow-v104.js',version:'20261126-auto-rest-1',attr:'data-exercise-pulse-flow-ecg-glow-v104'},
         {src:'exercise-pulse-flow-canvas-glow-v130.js',attr:'data-exercise-pulse-flow-canvas-glow-v130'},
-        {src:'exercise-pulse-flow-canvas-glow-v131.js',version:'20261119-today-1',attr:'data-exercise-pulse-flow-canvas-glow-v131'}
+        {src:'exercise-pulse-flow-canvas-glow-v131.js',version:'20261126-auto-rest-1',attr:'data-exercise-pulse-flow-canvas-glow-v131'}
       ])
     : [];
   window.__embeddedSessionAssetManifestV1 = embeddedSessionAssetManifestV1;

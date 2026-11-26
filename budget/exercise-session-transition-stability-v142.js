@@ -178,7 +178,7 @@
       overlay.removeAttribute('data-between-type');
     }
     overlay.removeAttribute('data-transition-stability-rest-v142');
-    delete overlay.dataset.restDeadline;delete overlay.dataset.restTotalMs;
+    delete overlay.dataset.restDeadline;delete overlay.dataset.restTotalMs;delete overlay.dataset.restScope;
     if (overlay.dataset.autoRestV118 === 'true' && owned) overlay.removeAttribute('data-auto-rest-v118');
   }
 
@@ -193,7 +193,7 @@
       overlay.classList.remove('show');
       overlay.removeAttribute('data-between-type');
       overlay.removeAttribute('data-transition-stability-rest-v142');
-      delete overlay.dataset.restDeadline;delete overlay.dataset.restTotalMs;
+      delete overlay.dataset.restDeadline;delete overlay.dataset.restTotalMs;delete overlay.dataset.restScope;
       overlay.removeAttribute('data-auto-rest-v118');
     }
 
@@ -259,6 +259,8 @@
     overlay.dataset.restDeadline=String(activeRest.deadline);
     overlay.dataset.restTotalMs=String(activeRest.totalMs);
     overlay.dataset.betweenType = 'rest';
+    // A rest before a new exercise is drawn green, a rest between sets keeps the cyan rest theme.
+    overlay.dataset.restScope = config.scope || (kind === 'finish' ? 'exercise' : 'set');
     overlay.dataset.transitionStabilityRestV142 = 'true';
     overlay.classList.add('show');
 

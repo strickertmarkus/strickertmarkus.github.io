@@ -46,6 +46,15 @@
     } catch (_) { return null; }
   }
 
+  /* Rests that automatic mode adds on its own (exercise-auto-mode-v1.js): before a new exercise and
+     after a between exercise. 0 when Auto is off. */
+  function autoRest(state, which) {
+    try {
+      var cfg = window.ExAutoConfig ? window.ExAutoConfig.get(state.date || '') : null;
+      return cfg && cfg.on ? Math.max(0, Number(cfg[which]) || 0) : 0;
+    } catch (_) { return 0; }
+  }
+
   /* { name, kind: 'between' | 'rest' | 'exercise', seconds, exercise } or null when the pass ends. */
   window.__sessionUpcomingV1 = function (state) {
     state = state || getState();
@@ -57,10 +66,13 @@
     var runtime = state.__betweenCustomRuntimeV3;
     if (current && current.__betweenCustomV3 && runtime && runtime.originalExercise) {
       var original = runtime.originalExercise;
+      var restAfter = Math.max(autoRest(state, 'betweenRest'), runtime.transition === 'finish' ? autoRest(state, 'exerciseRest') : 0);
       if (runtime.transition === 'finish') {
         var after = state.exercises[runtime.index + 1];
+        if (after && restAfter) return { name: 'Vila', kind: 'rest', seconds: restAfter, exercise: String(after.name || '').trim() };
         return after ? { name: String(after.name || '').trim(), kind: 'exercise', seconds: 0, exercise: after.name } : null;
       }
+      if (restAfter) return { name: 'Vila', kind: 'rest', seconds: restAfter, exercise: String(original.name || '').trim() };
       return { name: String(original.name || '').trim(), kind: 'exercise', seconds: 0, exercise: original.name, afterSets: true,
         setNo: (Number(runtime.originalCurrentSet) || 1) + 1, sets: Math.max(Number(original.plannedSets) || 1, (Number(runtime.originalCurrentSet) || 1) + 1) };
     }
@@ -78,7 +90,8 @@
     }
     if (config.type === 'custom' && config.name) return { name: config.name, kind: 'between', seconds: config.seconds, exercise: false };
     if (!nextExercise) return null;
-    if (!setsLeft && config.type === 'rest') return { name: 'Vila', kind: 'rest', seconds: config.seconds, exercise: nextExercise.name };
+    var exerciseRest = setsLeft ? 0 : autoRest(state, 'exerciseRest');
+    if (!setsLeft && (config.type === 'rest' || exerciseRest)) return { name: 'Vila', kind: 'rest', seconds: Math.max(config.type === 'rest' ? config.seconds : 0, exerciseRest), exercise: nextExercise.name };
     return { name: String(nextExercise.name || '').trim(), kind: 'exercise', seconds: 0, exercise: nextExercise.name, afterSets: setsLeft };
   };
 

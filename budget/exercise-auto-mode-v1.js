@@ -216,13 +216,14 @@
     setTimeout(function () { if (!pop.classList.contains('show')) pop.hidden = true; }, 200);
   }
 
-  /* ── 20 s rest after a between exercise: the session's own rest timer, with the usual ticks ── */
-  var resting = null;   // { ticked: {} } while the rest runs
-  function startRest(state, seconds, label, then) {
+  /* ── rest before a new exercise / after a between exercise: the session's own rest timer.
+     Its countdown ticks come from the rest timer itself (exercise-timer-focus.js syncRestSound). ── */
+  var resting = null;   // true while the rest runs
+  function startRest(state, seconds, label, scope, then) {
     var owner = window.__exerciseSessionTransitionStabilityV142;
     if (!owner || typeof owner.beginRest !== 'function') { then(); return; }
-    resting = { ticked: {} };
-    var ok = owner.beginRest(state, 'auto-rest', { type: 'rest', seconds: seconds, label: label, onDone: function (timedOut) {
+    resting = true;
+    var ok = owner.beginRest(state, 'auto-rest', { type: 'rest', seconds: seconds, label: label, scope: scope, onDone: function (timedOut) {
       resting = null;
       if (timedOut && window.SessionSound) window.SessionSound.go();
       then();
@@ -232,9 +233,23 @@
   function restTick() {
     var overlay = document.getElementById('session-between-overlay-v2');
     var deadline = overlay && overlay.classList.contains('show') ? Number(overlay.dataset.restDeadline) : 0;
-    if (!deadline) { resting = null; return; }   // skipped or cancelled elsewhere
-    var sec = Math.ceil((deadline - Date.now()) / 1000);
-    if (sec >= 1 && sec <= 4 && !resting.ticked[sec]) { resting.ticked[sec] = 1; if (window.SessionSound) window.SessionSound.tick(); }
+    if (!deadline) resting = null;   // skipped or cancelled elsewhere
+  }
+
+  /* ── screen kept on while Auto runs a pass (Screen Wake Lock; released when Auto is off or the session closes) ── */
+  var wakeLock = null, wakeWanted = false;
+  function keepAwake(want) {
+    wakeWanted = want;
+    if (want && !wakeLock && navigator.wakeLock && !document.hidden) {
+      wakeLock = 'pending';
+      navigator.wakeLock.request('screen').then(function (lock) {
+        if (!wakeWanted) { wakeLock = null; lock.release().catch(function () {}); return; }
+        wakeLock = lock;
+        lock.addEventListener('release', function () { if (wakeLock === lock) wakeLock = null; });
+      }).catch(function () { wakeLock = null; });
+    } else if (!want && wakeLock && wakeLock !== 'pending') {
+      var held = wakeLock; wakeLock = null; held.release().catch(function () {});
+    }
   }
 
   /* ── engine ── */
@@ -251,8 +266,11 @@
   function tick() {
     var state = getState();
     ensureToggle();
-    if (!state) { armed = false; sawBetween = false; needRest = false; lastRunIdx = -1; paintToggle(null); return; }
+    var modal = document.getElementById('session-modal');
+    var open = !!(state && modal && modal.classList.contains('show') && !modal.classList.contains('session-overview-mode'));
+    if (!state) { armed = false; sawBetween = false; needRest = false; lastRunIdx = -1; paintToggle(null); keepAwake(false); return; }
     refresh(state.date || '');
+    keepAwake(open && settings.on);
     var ex = current(state);
     var running = !!(state.setRunning && state.setStartedAt);
     if (running && ex && ex.__betweenCustomV3) sawBetween = true;
@@ -307,7 +325,7 @@
       if (newExercise) lastRunIdx = idx;
       if (restSec > 0) {
         waitKey = '';
-        startRest(state, restSec, newExercise ? 'Före nästa övning' : 'Efter mellanövningen', function () { var b = controlButton(/^starta (set|nästa set|nästa övning)$/i); if (b && settings.on) b.click(); });
+        startRest(state, restSec, newExercise ? 'Före nästa övning' : 'Efter mellanövningen', newExercise ? 'exercise' : 'set', function () { var b = controlButton(/^starta (set|nästa set|nästa övning)$/i); if (b && settings.on) b.click(); });
         return;
       }
     }
