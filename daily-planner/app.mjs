@@ -1,5 +1,5 @@
-import {isoWeek,TYPES,REMINDERS,remindLabel,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=4';
-import {createTimeView} from './time-tracking.mjs?v=5';
+import {isoWeek,TYPES,REMINDERS,remindLabel,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=5';
+import {createTimeView} from './time-tracking.mjs?v=6';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const paths={
   filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
@@ -108,15 +108,15 @@ function renderTaskLists(){
   $('#taskList').innerHTML=html;
   if(untimed.length){$('#untimedSection').hidden=false;$('#untimedCount').textContent=String(untimed.length);$('#untimedList').innerHTML=untimed.map(t=>taskMarkup(t,active,overlaps)).join('');}
 }
-// Free time of 30 min or more between timed activities, shown before the later one; a tap plans something there.
-// Only gaps still ahead (today) or on coming days.
+// Free time of 30 min or more between timed activities: a small label on the line between the two rows (takes no
+// height); a tap plans something there. Only gaps still ahead (today) or on coming days.
 function freeGaps(tasks){
   const out={},timed=tasks.filter(t=>t.start||t.end).map(t=>({t,a:minutes(t.start||t.end),b:minutes(t.end||t.start)})).sort((x,y)=>x.a-y.a);
   if(selected<localDate())return out;
   let end=null;
   for(const {t,a,b} of timed){
     const from=isToday()&&end!=null?Math.max(end,Math.ceil(nowMinutes()/5)*5):end;
-    if(end!=null&&a-from>=30)out[t.key]=`<button class="gap-row" data-gap="${from}"><span>${duration(a-from)} fritt</span></button>`;
+    if(end!=null&&a-from>=30)out[t.key]=`<div class="gap-mark"><button data-gap="${from}" aria-label="${duration(a-from)} fritt, planera något">${duration(a-from)} fritt</button></div>`;
     end=end==null?b:Math.max(end,b);
   }
   return out;
@@ -137,7 +137,8 @@ function taskMarkup(t,active,overlaps,focus=false){
 function renderSummary(tasks){
   const done=tasks.filter(t=>t.done).length,left=plannedMinutes(tasks.filter(t=>!t.done));
   $('#doneNumber').textContent=done;$('#totalNumber').textContent=` av ${tasks.length} klara`;
-  $('#sumMeta').textContent=tasks.length?`${duration(plannedMinutes(tasks))} planerat${left?` · ${duration(left)} kvar`:''}`:'Inget planerat';
+  const planned=plannedMinutes(tasks);
+  $('#sumMeta').textContent=!tasks.length?'Inget planerat':planned?`${duration(planned)} planerat${left?` · ${duration(left)} kvar`:''}`:`${tasks.length-done} kvar`;
 }
 function renderNext(tasks){
   const f=isToday()?focusTasks(tasks,nowMinutes()):{next:tasks.filter(t=>(t.start||t.end)&&!t.done).slice(0,1)},t=f.next[0];

@@ -1,6 +1,6 @@
 // Project time ("Tid"): hours per project and day, shown and edited per day, week or month.
 // Data lives in the planner state (timeProjects, timeLog) and syncs with it; see model.mjs.
-import {localDate,parseDate,shiftDate,uid,parseDuration,hm,isoWeek,PROJECT_COLORS} from './model.mjs?v=4';
+import {localDate,parseDate,shiftDate,uid,parseDuration,hm,isoWeek,PROJECT_COLORS} from './model.mjs?v=5';
 
 const DAY=['mån','tis','ons','tor','fre','lör','sön'];
 const dateText=(d,opts)=>parseDate(d).toLocaleDateString('sv-SE',opts);
