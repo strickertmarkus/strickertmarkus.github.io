@@ -5,14 +5,14 @@
 <meta name="theme-color" content="#0b0e14"><meta name="description" content="Dayline – dagsplanering med Firebase-synk.">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Dayline · Daily planner</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=31">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=32">
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
 <script defer src="../budget/firebase-sync.js?v=dayline-3"></script>
 <script defer src="../budget/pulse-bottom-nav-v1.js?v=dayline-3"></script>
 <script defer src="../budget/app-refresh.js?v=20261119-1"></script>
-<script type="module" src="app.mjs?v=23"></script>
+<script type="module" src="app.mjs?v=24"></script>
 </head>
 <body>
 <a class="skip" href="#schedule">Till schemat</a>
@@ -24,7 +24,7 @@
 </aside>
 <main class="workspace">
 <header class="topbar"><span class="desktop-label">DAGSPLANERING</span><div class="top-actions"><button class="save-state" id="saveState" data-action="settings" aria-label="Visa synkstatus">Ansluter…</button><button class="icon-btn" data-action="settings" aria-label="Inställningar" data-icon="settings"></button></div></header>
-<section class="page-heading"><button type="button" class="day-title" id="dateLabel" data-action="calendar" aria-label="Välj datum i kalendern"><h1 id="greeting"></h1></button><span class="week-no" id="weekNo"></span><button class="subtle-btn" data-action="today" id="todayButton">Idag</button></section>
+<section class="page-heading"><button type="button" class="day-title" id="dateLabel" data-action="calendar" aria-label="Välj datum i kalendern"><h1 id="greeting"></h1></button><span class="week-no" id="weekNo"></span><button class="icon-btn filter-button" id="filterToggle" data-action="filters" aria-label="Filter och visningsläge" aria-expanded="false" aria-controls="filterPanel" data-icon="filter"></button><button class="subtle-btn" data-action="today" id="todayButton">Idag</button></section>
 <section class="week-strip" aria-label="Veckonavigering"><button class="icon-btn" data-action="prev-week" aria-label="Föregående vecka" data-icon="chevron-left"></button><div id="weekDays" class="week-days"></div><button class="icon-btn" data-action="next-week" aria-label="Nästa vecka" data-icon="chevron-right"></button></section>
 <div class="utility-panels">
 <section id="calendarDialog" class="inline-panel" aria-labelledby="calendarTitle" hidden><header class="panel-head"><h2 id="calendarTitle">Kalender</h2><button class="icon-btn" data-close aria-label="Stäng kalender" data-icon="close"></button></header><div class="calendar-head"><button class="icon-btn" data-action="prev-month" aria-label="Föregående månad" data-icon="chevron-left"></button><h3 id="calendarMonth"></h3><button class="icon-btn" data-action="next-month" aria-label="Nästa månad" data-icon="chevron-right"></button></div><div id="calendarGrid" class="calendar-grid"></div></section>
@@ -41,7 +41,7 @@
 </div>
 <div class="content-grid">
 <section class="agenda" id="schedule" tabindex="-1">
-<div class="agenda-toolbar"><div class="section-heading"><h2 id="agendaTitle">Schema</h2><span id="taskCount"></span></div><div class="row-actions"><button class="icon-btn filter-button" id="filterToggle" data-action="filters" aria-label="Filter och visningsläge" aria-expanded="false" aria-controls="filterPanel" data-icon="filter"></button><button class="icon-btn" data-action="add" aria-label="Ny aktivitet" data-icon="plus"></button></div></div>
+<div class="agenda-toolbar"><div class="section-heading"><h2 id="agendaTitle">Schema</h2><span id="taskCount"></span></div><div class="row-actions"><button class="icon-btn" data-action="add" aria-label="Ny aktivitet" data-icon="plus"></button></div></div>
 <div id="filterPanel" class="filter-panel" hidden><div class="filter-top"><div class="segmented" aria-label="Visningsläge"><button id="allView" data-action="all" aria-pressed="true">Hela dagen</button><button id="focusView" data-action="focus" aria-pressed="false">Nu & nästa</button></div><button class="icon-btn" data-action="toggle-done" id="hideDone" aria-label="Dölj avklarade" aria-pressed="false" data-icon="check-circle"></button></div><div id="filters" class="filters" aria-label="Filtrera aktivitetstyp"></div><div class="search-row"><span data-icon="search"></span><input type="search" id="searchInput" placeholder="Sök" aria-label="Sök i dagens aktiviteter"></div><button class="text-btn" data-action="clear-filters">Återställ filter</button></div>
 <section id="editor" class="inline-editor ed-box" aria-labelledby="editorTitle" hidden><form id="taskForm" class="ed-form">
 <div class="ed-card">
