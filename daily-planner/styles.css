@@ -144,7 +144,7 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
   .tt-kpis strong{font-size:26px}
 }
 @media(max-width:760px){
-  .time-view{padding-top:18px}
+  .time-view{padding-top:calc(env(safe-area-inset-top) + 18px)}
   .tt-head h1{font-size:30px}
   .tt-kpis{gap:6px}.tt-kpis>div{padding:10px 11px}.tt-kpis strong{font-size:19px}.tt-kpis span{font-size:10px}
 }
