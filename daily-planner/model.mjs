@@ -1,8 +1,8 @@
 export const TYPES = {
-  work: { label: 'Arbete', color: '#5e9bff', icon: 'briefcase' },
+  work: { label: 'Arbete', color: '#f5bc7c', icon: 'briefcase' },
   personal: { label: 'Egentid', color: '#c1a6f5', icon: 'sparkles' },
   health: { label: 'Hälsa', color: '#8edbb1', icon: 'heart' },
-  home: { label: 'Vardag', color: '#f5bc7c', icon: 'home' },
+  home: { label: 'Vardag', color: '#5e9bff', icon: 'home' },
   break: { label: 'Paus', color: '#a5b6cb', icon: 'coffee' }
 };
 export const localDate = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
