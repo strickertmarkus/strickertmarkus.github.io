@@ -259,13 +259,11 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .task-check[aria-pressed=true] svg{width:11px;height:11px;padding:0;background:#5b6472;border-color:transparent;stroke:transparent}
 .is-overdue .task-check{color:#f2958d}
 .is-current .task-check{color:var(--amber)}
-.is-current .task-check svg{box-shadow:0 0 12px #f5bc7c66;animation:dl-echo-glow 4.8s ease-out 2.4s infinite}
-/* Running: two soft echoes spread slowly from the node and fade, over a steady glow (the row may not clip them) */
+/* Running: one thin ring spreads slowly from the node and fades (no glow); centred with inset:0 + margin:auto (the row may not clip it) */
 .task-row.is-current{overflow:visible}
-.is-current .task-check::before{content:'';position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:1.5px solid #f5bc7c;box-shadow:0 0 8px #f5bc7c88;animation:dl-echo 4.8s ease-out infinite;pointer-events:none}
-@keyframes dl-echo{0%{transform:scale(1);opacity:.75}100%{transform:scale(2.5);opacity:0}}
-@keyframes dl-echo-glow{0%{box-shadow:0 0 12px #f5bc7c66,0 0 0 0 #f5bc7c70}100%{box-shadow:0 0 12px #f5bc7c66,0 0 0 17px #f5bc7c00}}
-@media(prefers-reduced-motion:reduce){.is-current .task-check::before{display:none}.is-current .task-check svg{animation:none}}
+.is-current .task-check::before{content:'';position:absolute;inset:0;margin:auto;box-sizing:border-box;width:22px;height:22px;border-radius:50%;border:1.5px solid #f5bc7c;animation:dl-echo 4s ease-out infinite;pointer-events:none}
+@keyframes dl-echo{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.4);opacity:0}}
+@media(prefers-reduced-motion:reduce){.is-current .task-check::before{display:none}}
 .is-current .task-title{color:var(--amber);font-size:1.08em}
 .just-done .task-check svg{animation:dl-pop .45s var(--ease)}
 .just-done .task-check path{stroke-dasharray:21;animation:dl-draw .32s .1s ease-out both}
