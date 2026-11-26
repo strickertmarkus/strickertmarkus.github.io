@@ -5,14 +5,14 @@
 <meta name="theme-color" content="#0b0e14"><meta name="description" content="Dayline – dagsplanering med Firebase-synk.">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Dayline · Daily planner</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=36">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="styles.css?v=37">
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script><script defer src="https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"></script>
 <script defer src="../budget/firebase-sync.js?v=dayline-3"></script>
 <script defer src="../budget/pulse-bottom-nav-v1.js?v=dayline-3"></script>
 <script defer src="../budget/app-refresh.js?v=20261119-1"></script>
-<script type="module" src="app.mjs?v=27"></script>
+<script type="module" src="app.mjs?v=28"></script>
 </head>
 <body>
 <a class="skip" href="#schedule">Till schemat</a>
@@ -67,7 +67,7 @@
 <div id="taskList" class="task-list"></div><div id="untimedSection" class="untimed-section" hidden><div class="section-heading"><h2>Utan tid</h2><span id="untimedCount"></span></div><div id="untimedList"></div></div>
 <button class="add-inline" data-action="add"><span data-icon="plus"></span>Ny aktivitet</button>
 </section>
-<aside class="day-aside"><section class="rhythm"><div class="section-heading"><h2>Dagens översikt</h2><span id="clock" class="live-clock"></span></div><div class="orbit-wrap"><svg id="dayOrbit" viewBox="0 0 280 280" role="img" aria-label="Avklarade aktiviteter"></svg><div class="orbit-center"><div><strong id="doneNumber">0</strong><span id="totalNumber"> / 0</span></div><span id="progressLabel">klara</span></div></div><div class="day-stats"><div><strong id="plannedTime">0 min</strong><span>planerad tid</span></div><div><strong id="remainingCount">0</strong><span>kvar att göra</span></div></div><div id="typeBalance" class="type-balance"></div></section><section class="next-up" id="nextUp" hidden></section><section class="day-note" aria-label="Anteckningar"><textarea id="dayNote" placeholder="Skriv en anteckning…" maxlength="5000" rows="2" aria-label="Dagsanteckning"></textarea><div class="row-actions"><span id="noteSaved" class="note-saved" aria-live="polite"></span><button class="text-btn" data-action="clear-note">Rensa</button></div></section></aside>
+<aside class="day-aside"><section class="rhythm"><div class="section-heading"><h2>Dagens översikt</h2><span id="clock" class="live-clock"></span></div><div class="orbit-wrap"><svg id="dayOrbit" viewBox="0 0 280 280" role="img" aria-label="Avklarade aktiviteter"></svg><div class="orbit-center"><div><strong id="doneNumber">0</strong><span id="totalNumber"> / 0</span></div><span id="progressLabel">klara</span></div></div><div class="day-stats"><div><strong id="plannedTime">0 min</strong><span>planerad tid</span></div><div><strong id="remainingCount">0</strong><span>kvar att göra</span></div></div><div id="typeBalance" class="type-balance"></div></section><section class="next-up" id="nextUp" hidden></section><section class="day-note" aria-labelledby="noteHeading"><header class="note-heading"><h2 id="noteHeading">Anteckningar</h2><span data-icon="edit"></span></header><textarea id="dayNote" placeholder="Skriv en anteckning…" maxlength="5000" rows="3" aria-label="Dagsanteckning"></textarea><div class="row-actions"><span id="noteSaved" class="note-saved" aria-live="polite"></span><button class="text-btn" data-action="clear-note">Rensa</button></div></section></aside>
 </div>
 <section id="timeView" class="time-view" aria-labelledby="timeTitle" hidden></section>
 </main>

@@ -291,9 +291,8 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .gap-mark button{position:absolute;left:calc(var(--line-x) + 10px);top:calc(-3px - var(--row-gap,12px)/2);transform:translateY(-50%);padding:4px 6px;font-size:10.5px;letter-spacing:.02em;color:#566170;white-space:nowrap;font-variant-numeric:tabular-nums}
 .gap-mark button::before{content:'';position:absolute;left:-10.5px;top:50%;width:6px;height:1px;background:#ffffff26}
 .gap-mark button:hover{color:var(--amber)}
-/* Summary, next and notes under the timeline as lines, not boxes */
-.day-aside{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-content:start}
-.orbit-wrap{position:relative;width:min(100%,260px);aspect-ratio:1;margin:8px auto 10px}
+/* Day overview (wheel, stats, type mix), next activity card and notes, as before the line-style experiment */
+.orbit-wrap{position:relative;width:min(100%,300px);aspect-ratio:1;margin:8px auto 10px}
 .orbit-wrap>svg{width:100%;height:100%;overflow:visible}
 .orbit-center{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding-bottom:3px;pointer-events:none}
 .orbit-center>div{line-height:1.4;margin-top:6px;font-size:21px;color:#8a96a7;font-weight:300}
@@ -301,25 +300,29 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .orbit-center>span{font-size:12px;color:var(--muted)}
 .orbit-spark{transform-origin:140px 140px;animation:orbit 50s linear infinite;opacity:.6}
 @keyframes orbit{to{transform:rotate(360deg)}}
-.day-stats{display:grid;grid-template-columns:1fr 1fr;text-align:center;margin:0 0 6px}
+.day-stats{display:grid;grid-template-columns:1fr 1fr;text-align:center;margin:0 0 24px}
 .day-stats>div+div{border-left:1px solid var(--line)}
 .day-stats strong{font-size:20px;font-weight:500;letter-spacing:-.6px;display:block}
 .day-stats span{font-size:12px;color:var(--muted)}
-.type-balance{display:flex;gap:4px;height:4px;margin:12px 0 8px}
+.type-balance{display:flex;gap:4px;height:4px;margin:10px 0 31px}
 .type-balance i{border-radius:3px;min-width:4px;background:var(--c);opacity:.7}
-
-@media(max-width:760px){.rhythm{padding-top:14px;border-top:1px solid var(--line)}.orbit-wrap{max-width:200px}.orbit-center strong{font-size:40px}.orbit-center>div{font-size:17px}.day-stats strong{font-size:17px}.day-stats span{font-size:11px}}
-.next-up{display:flex;align-items:baseline;gap:12px;font-size:14px}
+.next-up{border-top:1px solid var(--line);padding-top:24px;margin-bottom:28px}
 .next-up[hidden]{display:none}
-.next-label{font-size:12px;color:var(--muted);flex:0 0 auto}
-.next-up button{text-align:left;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
-.next-up button .type-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:1px}
-.next-up button span{color:var(--muted);font-size:12px;margin-left:4px;font-variant-numeric:tabular-nums}
-.next-none{color:var(--muted)}
-.day-note textarea{width:100%;min-height:44px;padding:6px 0;border:0;border-bottom:1px dashed #ffffff26;border-radius:0;background:none;font-size:16px;resize:vertical;outline:none;color:var(--ink)}
-.day-note textarea:focus{border-bottom-color:var(--amber)}
-.day-note .row-actions{display:flex;justify-content:space-between;align-items:center;min-height:24px}
-.day-note .row-actions .text-btn{font-size:12px;padding:0}
+.next-label{display:flex;gap:7px;align-items:center;font-size:10px;letter-spacing:1.4px;color:var(--amber);text-transform:uppercase}
+.next-label svg{width:14px;height:14px}
+.next-up button{color:var(--muted);text-align:left;width:100%;padding:0}
+.next-up h3{font-size:17px;line-height:1.4;font-weight:500;letter-spacing:-.3px;margin:12px 0 7px;color:var(--ink)}
+.next-time{font-size:12px;color:var(--c,var(--amber))}
+.day-note{border-top:1px solid var(--line);padding-top:23px}
+.note-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;color:var(--ink)}
+.note-heading h2{font-size:14px;font-weight:550}
+.note-heading svg{width:20px;height:20px;color:var(--muted)}
+.day-note textarea{background:none;border:0;resize:vertical;padding:8px 0;min-height:85px;font-size:16px;color:#c7d0dd;width:100%;line-height:1.7;outline:none}
+.day-note .row-actions{display:flex;justify-content:space-between;align-items:center}
+.day-note textarea::placeholder{color:var(--muted);opacity:.8}
+.note-saved{font-size:11px;color:#8edbb1}
+@media(max-width:760px){.rhythm{grid-row:span 2}.day-stats{margin-bottom:20px}.type-balance{margin-bottom:0}.orbit-wrap{max-width:180px;margin-top:14px}.orbit-center strong{font-size:37px}.orbit-center>div{font-size:16px}.orbit-center>span{font-size:10px}.day-stats strong{font-size:16px}.day-stats span{font-size:10px}.next-up{padding-top:0;border-top:0;margin-bottom:24px}.day-note{padding-top:20px}}
+@media(max-width:360px){.rhythm{max-width:300px;margin:0 auto 28px}.next-up,.day-note{border-top:1px solid var(--line);padding-top:22px}}
 @media(max-width:760px){.done-fold{--fold-cols:38px 28px minmax(0,1fr);gap:6px}}
 @media(max-width:360px){.done-fold{--fold-cols:32px 28px minmax(0,1fr)}}
 
@@ -346,3 +349,7 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .task-row.is-done{--node:clamp(5px,calc(12.5px - var(--d,1)*1.5px),11px)}
 .task-row.is-current{--node:22px}
 .task-check svg{transition:width .4s var(--ease),height .4s var(--ease),background .3s,border-color .3s}
+
+/* Tid: filled-in hours take their project's colour (cells, the day fields, the week editor); sums stay white */
+.tt-cell:not(:empty),.tt-cell.is-sel:not(:empty){color:var(--c)}
+.tt-drow .tt-input,.tt-editor .tt-input{color:var(--c,var(--ink))}

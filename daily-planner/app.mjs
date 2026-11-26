@@ -1,5 +1,5 @@
 import {isoWeek,TYPES,REMINDERS,remindLabel,localDate,parseDate,shiftDate,minutes,timeString,duration,uid,emptyState,validDate,validTask,validateState,dayTasks,focusTasks,overlapKeys,plannedMinutes,mergeStates} from './model.mjs?v=8';
-import {createTimeView} from './time-tracking.mjs?v=9';
+import {createTimeView} from './time-tracking.mjs?v=10';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const paths={
   filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',
@@ -158,7 +158,7 @@ function renderSummary(tasks){
 function renderNext(tasks){
   const f=isToday()?focusTasks(tasks,nowMinutes()):{next:tasks.filter(t=>(t.start||t.end)&&!t.done).slice(0,1)},t=f.next[0];
   $('#nextUp').hidden=false;
-  $('#nextUp').innerHTML=`<span class="next-label">Nästa</span>${t?`<button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><i class="type-dot"></i>${esc(t.title)} <span>${t.start||'senast '+t.end}</span></button>`:'<span class="next-none">Inget mer inplanerat</span>'}`;
+  $('#nextUp').innerHTML=t?`<div class="next-label">${icon('sparkles')}Nästa aktivitet</div><button data-edit="${esc(t.key)}" style="--c:${TYPES[t.type].color}"><h3>${esc(t.title)}</h3><span class="next-time">${t.start||'Senast '+t.end}</span></button>`:`<div class="next-label">${icon('sparkles')}Nästa aktivitet</div><h3>Inget mer inplanerat</h3>`;
 }
 function closePanels(){for(const panel of $$('.utility-panels>.inline-panel'))panel.hidden=true;}
 function openPanel(id){

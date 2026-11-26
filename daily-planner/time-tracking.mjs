@@ -48,7 +48,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
   }
   function dayRows(date,list){
     if(!list.length)return '';
-    return `<div class="tt-day">${list.map(p=>`<div class="tt-drow">${dot(p)}<span class="tt-pname">${esc(p.name)}</span>${input(date,p.id)}${eight(date,p.id)}</div>`).join('')}<div class="tt-drow tt-dfoot"><span class="tt-pname">Totalt</span><strong data-sum="day|${date}"></strong></div></div>`;
+    return `<div class="tt-day">${list.map(p=>`<div class="tt-drow" style="--c:${p.color}">${dot(p)}<span class="tt-pname">${esc(p.name)}</span>${input(date,p.id)}${eight(date,p.id)}</div>`).join('')}<div class="tt-drow tt-dfoot"><span class="tt-pname">Totalt</span><strong data-sum="day|${date}"></strong></div></div>`;
   }
   function weekGrid(dates,list){
     const today=localDate();
