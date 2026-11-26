@@ -321,6 +321,8 @@ html:not([data-wellness-mode="zen"]) #pulse-page:not(:has(#session-modal.show)):
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-row-v7.is-cardio .plan-preview-name-v7{color:#ffad9f!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(.plan-preview-target-v7,.plan-preview-num-v7){font-size:12px!important;color:#a6b1c8!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .plan-preview-between-v7{font-size:12px!important;color:#fff1ea!important}
+#pulse-page:not(:has(#session-modal.show)) #exercise-plan-preview-v7 :is(.plan-preview-between-v7,.plan-preview-global-v7).is-rest{color:#7fe3ef!important}
+#pulse-page:not(:has(#session-modal.show)) #exercise-plan-preview-v7 .plan-preview-global-v7.is-rest{background:#7fe3ef0f!important;border-color:#7fe3ef4d!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) .log-add-summary-v52{border-color:#ffad9f26!important;background:#ffad9f10!important;color:#b6bfd1!important;padding:12px!important}
 #pulse-page:not(:has(#session-modal.show)) :is(.pulse-editor,#exercise-edit-modal-v9,#exercise-plan-preview-v7) :is(:focus-visible){outline:2px solid #ffad9f!important;outline-offset:3px}
 #pulse-page:not(:has(#session-modal.show)) #toast{background:#121820!important;border-color:#ffad9f55!important;color:#fff1ea!important;box-shadow:0 15px 40px #0007!important;border-radius:8px!important;max-width:90vw;text-align:center}

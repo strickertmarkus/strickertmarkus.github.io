@@ -209,6 +209,8 @@
       .plan-preview-name-v7{color:#E6EDF5;font-size:11px;font-weight:750;overflow-wrap:anywhere}
       .plan-preview-target-v7{color:#8FA0B3;font-size:9px;text-align:right;white-space:nowrap}
       .plan-preview-between-v7{grid-column:2/-1;margin-top:-2px;color:#FDBA74;font-size:8px;font-weight:700}
+      #exercise-plan-preview-v7 .plan-preview-between-v7.is-rest{color:#7fe3ef!important}
+      #exercise-plan-preview-v7 .plan-preview-global-v7.is-rest{border-color:rgba(127,227,239,.3)!important;background:rgba(127,227,239,.06)!important;color:#7fe3ef!important}
       .plan-preview-row-v7.is-cardio{background:linear-gradient(90deg,rgba(239,68,68,.055),transparent 44%)}
       .plan-preview-row-v7.is-cardio .plan-preview-num-v7,.plan-preview-row-v7.is-cardio .plan-preview-name-v7{color:#F87171}
       .plan-preview-row-v7.is-cardio .plan-preview-target-v7{color:#D99A9A}
@@ -513,6 +515,11 @@
     return base;
   }
 
+  function isRest(cfg) {
+    cfg=normalizeConfig(cfg);
+    return cfg.enabled&&cfg.type==='rest';
+  }
+
   function configText(cfg,prefix) {
     cfg=normalizeConfig(cfg);
     if (!cfg.enabled) return '';
@@ -553,11 +560,12 @@
     document.getElementById('plan-preview-list-v7').innerHTML=draft.exercises.map(function (entry,index) {
       var between=configText(entry.betweenSets,'Mellan set');
       var kindClass=entry.exercise&&entry.exercise.kind==='cardio'?' is-cardio':' is-strength';
-      return '<div class="plan-preview-row-v7'+kindClass+'"><div class="plan-preview-num-v7">'+(index+1)+'</div><div class="plan-preview-name-v7">'+esc(entry.exercise.name)+'</div><div class="plan-preview-target-v7">'+esc(targetText(entry.exercise))+'</div>'+(between?'<div class="plan-preview-between-v7">'+esc(between)+'</div>':'')+'</div>';
+      return '<div class="plan-preview-row-v7'+kindClass+'"><div class="plan-preview-num-v7">'+(index+1)+'</div><div class="plan-preview-name-v7">'+esc(entry.exercise.name)+'</div><div class="plan-preview-target-v7">'+esc(targetText(entry.exercise))+'</div>'+(between?'<div class="plan-preview-between-v7'+(isRest(entry.betweenSets)?' is-rest':'')+'">'+esc(between)+'</div>':'')+'</div>';
     }).join('');
     var global=document.getElementById('plan-preview-global-v7');
     var globalText=configText(draft.betweenExercises,'Mellan övningar');
     global.hidden=!globalText;
+    global.classList.toggle('is-rest',isRest(draft.betweenExercises));
     global.textContent=globalText;
     overlay.classList.add('show');
     return true;
