@@ -255,9 +255,9 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .task-check[aria-pressed=true] svg{background:#3a3f48;border-color:transparent;stroke:#d5dae2;stroke-width:2.4}
 .is-overdue .task-check{color:#f2958d}
 .is-current .task-check{color:var(--amber)}
-.is-current .task-check svg{box-shadow:0 0 0 3px #f5bc7c22,0 0 10px #f5bc7c55;animation:dl-pulse 2.8s ease-in-out infinite}
+.is-current .task-check svg{box-shadow:0 0 0 3px #f5bc7c22,0 0 10px #f5bc7c55;animation:dl-pulse 7s ease-in-out infinite}
 /* Running: a small light circles the node while the ring breathes */
-.is-current .task-check::before{content:'';position:absolute;left:50%;top:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;background:radial-gradient(circle at 50% 2.5px,#ffd29e 0 2px,transparent 2.6px);filter:drop-shadow(0 0 3px #f5bc7c);animation:dl-orbit 3s linear infinite;pointer-events:none}
+.is-current .task-check::before{content:'';position:absolute;left:50%;top:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;background:radial-gradient(circle at 50% 2.5px,#ffd29e 0 2px,transparent 2.6px);filter:drop-shadow(0 0 3px #f5bc7c);animation:dl-orbit 14s linear infinite;pointer-events:none}
 @keyframes dl-orbit{to{transform:rotate(360deg)}}
 @keyframes dl-pulse{0%,100%{box-shadow:0 0 0 3px #f5bc7c22,0 0 10px #f5bc7c55}50%{box-shadow:0 0 0 6px #f5bc7c0c,0 0 18px #f5bc7c88}}
 @media(prefers-reduced-motion:reduce){.is-current .task-check::before,.is-current .task-check svg{animation:none}}
