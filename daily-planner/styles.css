@@ -247,15 +247,20 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 
 /* Activities without cards (sketch C): each is a node on the timeline, centred on the line, that is also the tick;
    ring in the type colour (red when late, glowing amber while running), filled with a tick when done */
-.task-check{width:28px;height:28px;margin-top:22px;display:grid;place-items:center;position:relative;z-index:2;color:color-mix(in srgb,var(--c) 85%,transparent);transition:color .3s}
+.task-check{box-sizing:border-box;width:28px;height:28px;padding:0;margin-top:22px;display:grid;place-items:center;position:relative;z-index:2;color:color-mix(in srgb,var(--c) 85%,transparent);transition:color .3s}
 .task-check::after{content:'';position:absolute;inset:-9px}
-.task-check svg{width:20px;height:20px;padding:4px;border:1.5px solid currentColor;border-radius:50%;background:var(--bg);stroke:transparent;transition:background .3s,border-color .3s,box-shadow .3s}
+.task-check svg{box-sizing:border-box;width:22px;height:22px;padding:4px;border:1.5px solid currentColor;border-radius:50%;background:var(--bg);stroke:transparent;transition:background .3s,border-color .3s,box-shadow .3s}
 .task-check:hover svg{stroke:currentColor;stroke-width:2}
 .task-check[aria-pressed=true]{color:#5b6472}
 .task-check[aria-pressed=true] svg{background:#3a3f48;border-color:transparent;stroke:#d5dae2;stroke-width:2.4}
 .is-overdue .task-check{color:#f2958d}
 .is-current .task-check{color:var(--amber)}
-.is-current .task-check svg{box-shadow:0 0 0 4px #f5bc7c22,0 0 14px #f5bc7c66}
+.is-current .task-check svg{box-shadow:0 0 0 3px #f5bc7c22,0 0 10px #f5bc7c55;animation:dl-pulse 2.8s ease-in-out infinite}
+/* Running: a small light circles the node while the ring breathes */
+.is-current .task-check::before{content:'';position:absolute;left:50%;top:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;background:radial-gradient(circle at 50% 2.5px,#ffd29e 0 2px,transparent 2.6px);filter:drop-shadow(0 0 3px #f5bc7c);animation:dl-orbit 3s linear infinite;pointer-events:none}
+@keyframes dl-orbit{to{transform:rotate(360deg)}}
+@keyframes dl-pulse{0%,100%{box-shadow:0 0 0 3px #f5bc7c22,0 0 10px #f5bc7c55}50%{box-shadow:0 0 0 6px #f5bc7c0c,0 0 18px #f5bc7c88}}
+@media(prefers-reduced-motion:reduce){.is-current .task-check::before,.is-current .task-check svg{animation:none}}
 .is-current .task-title{color:var(--amber);font-size:1.08em}
 .just-done .task-check svg{animation:dl-pop .45s var(--ease)}
 .just-done .task-check path{stroke-dasharray:21;animation:dl-draw .32s .1s ease-out both}
