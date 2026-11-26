@@ -141,12 +141,19 @@ function taskMarkup(t,active,overlaps,focus=false){
   const time=t.start?(t.start+(t.end?' – '+t.end:'')):'Senast '+t.end;
   return `<article class="task-row ${t.done?'is-done':''} ${live?'is-current':''} ${late?'is-overdue':''}" data-task-key="${esc(t.key)}" style="--c:${type.color}"><div class="time-label">${t.start||t.end?`${!t.start?'<small>senast</small>':''}${t.start||t.end}${hasRange?`<small>${t.end}</small>`:''}`:''}</div><button class="task-check" data-done="${esc(t.key)}" aria-label="${t.done?'Markera som ej klar':'Klarmarkera'}: ${esc(t.title)}" aria-pressed="${t.done}">${icon('check')}</button><div class="task"><button class="task-main" data-edit="${esc(t.key)}" aria-label="Redigera ${esc(t.title)}"><span class="task-line"><span class="task-title">${esc(t.title)}</span>${t.priority==='high'?'<span class="priority">Viktig</span>':''}${t.repeat!=='none'?`<span class="task-repeat" title="Återkommande">${icon('repeat')}</span>`:''}${status&&!t.done?`<span class="task-status">${status}</span>`:''}</span>${t.note?`<span class="task-note">${esc(t.note)}</span>`:''}${overlaps.has(t.key)?'<span class="task-note overlap-tag">Överlappande tid</span>':''}${focus?`<span class="focus-time">${time}</span>`:''}</button></div></article>`;
 }
-// Day summary under the timeline (line style): done of total, planned and remaining time.
+// Day summary wheel: one arc segment per activity in its type colour (bright when done), done/total in the middle,
+// planned time and how many are left under it, and the mix of types as a thin bar.
+function polar(angle,r){return [140+r*Math.sin(angle),140-r*Math.cos(angle)];}
+function arc(start,end,r=103){const a=polar(start,r),b=polar(end,r);return `M${a[0]},${a[1]} A${r},${r} 0 ${end-start>Math.PI?1:0} 1 ${b[0]},${b[1]}`;}
 function renderSummary(tasks){
-  const done=tasks.filter(t=>t.done).length,left=plannedMinutes(tasks.filter(t=>!t.done));
-  $('#doneNumber').textContent=done;$('#totalNumber').textContent=` av ${tasks.length} klara`;
-  const planned=plannedMinutes(tasks);
-  $('#sumMeta').textContent=!tasks.length?'Inget planerat':planned?`${duration(planned)} planerat${left?` · ${duration(left)} kvar`:''}`:`${tasks.length-done} kvar`;
+  const done=tasks.filter(t=>t.done).length;$('#doneNumber').textContent=done;$('#totalNumber').textContent=` / ${tasks.length}`;$('#progressLabel').textContent='aktiviteter klara';$('#plannedTime').textContent=duration(plannedMinutes(tasks));$('#remainingCount').textContent=tasks.length-done;$('#clock').textContent=new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+  const start=-Math.PI*.77,extent=Math.PI*1.54;let svg='<defs><radialGradient id="orbitGlow"><stop offset="0%" stop-color="#f5bc7c" stop-opacity=".05"/><stop offset="100%" stop-color="#f5bc7c" stop-opacity="0"/></radialGradient></defs><circle cx="140" cy="140" r="134" fill="url(#orbitGlow)" stroke="none"/><circle cx="140" cy="140" r="121" stroke="#ffffff07" stroke-width="1"/>';
+  for(let i=0;i<60;i++){const a=start+extent*i/59,p=polar(a,113),q=polar(a,i%5===0?118:115.5);svg+=`<path d="M${p}L${q}" stroke="#ffffff${i%5===0?'2a':'13'}" stroke-width="1"/>`;}
+  svg+=`<path d="${arc(start,start+extent)}" stroke="#ffffff09" stroke-width="7"/>`;
+  if(tasks.length){const gap=Math.min(.045,extent/tasks.length*.25),unit=extent/tasks.length;tasks.forEach((t,i)=>{svg+=`<path d="${arc(start+i*unit+gap/2,start+(i+1)*unit-gap/2)}" stroke="${TYPES[t.type].color}" stroke-opacity="${t.done?1:.3}" stroke-width="${t.done?7:5}"/>`;});}else svg+=`<path d="${arc(start,start+.55)}" stroke="#f5bc7c" stroke-width="5" stroke-opacity=".55"/>`;
+  svg+='<g class="orbit-spark"><circle cx="140" cy="19" r="2" fill="#f5bc7c" stroke="none"/></g>';
+  $('#dayOrbit').innerHTML=svg;$('#dayOrbit').setAttribute('aria-label',`${done} av ${tasks.length} aktiviteter klara`);
+  $('#typeBalance').innerHTML=Object.entries(TYPES).map(([id,t])=>{const count=tasks.filter(x=>x.type===id).length;return count?`<i style="--c:${t.color};flex:${count}" title="${t.label}: ${count}"></i>`:'';}).join('');
 }
 function renderNext(tasks){
   const f=isToday()?focusTasks(tasks,nowMinutes()):{next:tasks.filter(t=>(t.start||t.end)&&!t.done).slice(0,1)},t=f.next[0];

@@ -293,11 +293,22 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 .gap-mark button:hover{color:var(--amber)}
 /* Summary, next and notes under the timeline as lines, not boxes */
 .day-aside{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-content:start}
-.day-sum{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
-.sum-main strong{font-size:24px;font-weight:600;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
-.sum-main{white-space:nowrap}
-.sum-main span{font-size:13px;color:var(--muted)}
-.sum-meta{font-size:12px;color:var(--muted);text-align:right}
+.orbit-wrap{position:relative;width:min(100%,260px);aspect-ratio:1;margin:8px auto 10px}
+.orbit-wrap>svg{width:100%;height:100%;overflow:visible}
+.orbit-center{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding-bottom:3px;pointer-events:none}
+.orbit-center>div{line-height:1.4;margin-top:6px;font-size:21px;color:#8a96a7;font-weight:300}
+.orbit-center strong{font-size:53px;font-weight:350;letter-spacing:-3px;color:var(--ink)}
+.orbit-center>span{font-size:12px;color:var(--muted)}
+.orbit-spark{transform-origin:140px 140px;animation:orbit 50s linear infinite;opacity:.6}
+@keyframes orbit{to{transform:rotate(360deg)}}
+.day-stats{display:grid;grid-template-columns:1fr 1fr;text-align:center;margin:0 0 6px}
+.day-stats>div+div{border-left:1px solid var(--line)}
+.day-stats strong{font-size:20px;font-weight:500;letter-spacing:-.6px;display:block}
+.day-stats span{font-size:12px;color:var(--muted)}
+.type-balance{display:flex;gap:4px;height:4px;margin:12px 0 8px}
+.type-balance i{border-radius:3px;min-width:4px;background:var(--c);opacity:.7}
+
+@media(max-width:760px){.rhythm{padding-top:14px;border-top:1px solid var(--line)}.orbit-wrap{max-width:200px}.orbit-center strong{font-size:40px}.orbit-center>div{font-size:17px}.day-stats strong{font-size:17px}.day-stats span{font-size:11px}}
 .next-up{display:flex;align-items:baseline;gap:12px;font-size:14px}
 .next-up[hidden]{display:none}
 .next-label{font-size:12px;color:var(--muted);flex:0 0 auto}
