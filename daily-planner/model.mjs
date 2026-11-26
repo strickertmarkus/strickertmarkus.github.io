@@ -1,5 +1,5 @@
 export const TYPES = {
-  work: { label: 'Arbete', color: '#ff6fd8', icon: 'briefcase' },
+  work: { label: 'Arbete', color: '#5e9bff', icon: 'briefcase' },
   personal: { label: 'Egentid', color: '#c1a6f5', icon: 'sparkles' },
   health: { label: 'Hälsa', color: '#8edbb1', icon: 'heart' },
   home: { label: 'Vardag', color: '#f5bc7c', icon: 'home' },
