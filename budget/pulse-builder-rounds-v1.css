@@ -39,14 +39,24 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list>.e
 }
 .pbu-v1 .pbr-chev { flex: 0 0 auto; width: 8px; height: 8px; margin: 0 8px 0 2px; border-right: 1.5px solid var(--pbu-dim); border-bottom: 1.5px solid var(--pbu-dim); transform: rotate(45deg) translateY(-2px); transition: transform .2s ease; }
 .pbu-v1 .pbr-toggle[aria-expanded="true"] .pbr-chev { transform: rotate(-135deg) translateY(-2px); }
-.pbu-v1 .pbr-settings { display: flex; flex-direction: column; gap: 10px; padding: 10px 0 6px 32px; animation: pbu-fade .22s ease both; }
+.pbu-v1 .pbr-settings { display: flex; flex-direction: column; gap: 8px; padding: 4px 0 4px 32px; animation: pbu-fade .22s ease both; }
 .pbu-v1 .pbr-name { display: flex; align-items: center; gap: 14px; }
-.pbu-v1 .pbr-name input {
-  flex: 1; min-width: 0; min-height: 40px; padding: 0 2px; border: 0; border-bottom: 1px dashed var(--pbu-line-strong); border-radius: 0;
-  background: none; color: var(--pbu-text); font: 500 16px Inter, system-ui, sans-serif;
+.pbu-v1 #day-workout-ex-list .pbr-name input {
+  flex: 1; min-width: 0; height: 36px !important; min-height: 0 !important; padding: 0 2px !important; border: 0 !important; border-bottom: 1px dashed var(--pbu-line-strong) !important;
+  border-radius: 0 !important; background: none !important; box-shadow: none !important; color: var(--pbu-text); font: 500 16px Inter, system-ui, sans-serif;
 }
-.pbu-v1 .pbr-steps { display: flex; flex-direction: column; gap: 6px; }
-.pbu-v1 .pbr-dissolve { align-self: flex-start; }
+/* Varv, rest between exercises and rest between laps on one compact row. */
+.pbu-v1 .pbr-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 6px; margin-top: 2px; }
+.pbu-v1 .pbr-steps .pbu-step { gap: 4px; }
+.pbu-v1 .pbr-steps .pbu-step-label { letter-spacing: .1em; white-space: nowrap; }
+.pbu-v1 .pbr-steps .pbu-step-ctrl { height: 38px; padding: 0 2px; border-radius: 12px; }
+.pbu-v1 .pbr-steps .pbu-step-ctrl button { width: 26px; height: 34px; }
+html.pbu-v1 body #day-workout-ex-list .pbr-steps .pbu-step-value { height: 26px !important; font-size: 16px; }
+@media (max-width: 340px) {
+  .pbu-v1 .pbr-steps .pbu-step-ctrl { height: auto; padding: 4px; row-gap: 2px; }
+  .pbu-v1 .pbr-steps .pbu-step-label { white-space: normal; }
+}
+.pbu-v1 .pbr-dissolve { align-self: flex-start; min-height: 32px; padding: 0; font-size: 13px; }
 
 /* "Lägg till i rundan" */
 .pbu-v1 #day-workout-ex-list>.pbr-add {

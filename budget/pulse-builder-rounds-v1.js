@@ -108,7 +108,7 @@
       '<span class="pbr-laps">' + round.laps + ' varv</span><i class="pbr-chev" aria-hidden="true"></i></button>' +
       (open ? '<div class="pbr-settings">' +
         '<label class="pbr-name"><span class="pbu-step-label">Namn</span><input type="text" data-pbr-name value="' + esc(round.name) + '" maxlength="40" autocomplete="off"></label>' +
-        '<div class="pbu-steps pbr-steps">' + step('laps', 'Varv', '') + step('rest', 'Vila mellan övningar', 's') + step('lapRest', 'Vila mellan varv', 's') + '</div>' +
+        '<div class="pbu-steps pbr-steps">' + step('laps', 'Varv', '') + step('rest', 'Vila övning', 's') + step('lapRest', 'Vila varv', 's') + '</div>' +
         '<button type="button" class="pbu-link pbr-dissolve" data-pbr-dissolve>Lös upp rundan</button></div>' : '');
   }
 
