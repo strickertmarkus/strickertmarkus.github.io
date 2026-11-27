@@ -10,6 +10,7 @@ const sumText=n=>n?hm(n):'0:00';
 
 export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
   let scale='week',anchor=localDate(),cell=null,monthDay=localDate();
+  const openWeeks=new Set(),cheered=new Set();
 
   const s=()=>getState();
   const mins=(date,pid)=>s().timeLog[date]?.[pid]||0;
@@ -55,7 +56,8 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     const headRow=`<div class="tt-row tt-row-head"><span class="tt-name"></span>${dates.map((d,i)=>`<span class="tt-dh${d===today?' is-today':''}${isWeekend(d)?' is-weekend':''}"><b>${DAY[i]}</b>${parseDate(d).getDate()}</span>`).join('')}<span class="tt-tot">Σ</span></div>`;
     const rows=list.map(p=>`<div class="tt-row" style="--c:${p.color}"><span class="tt-name">${dot(p)}<span>${esc(p.name)}</span></span>${dates.map(d=>`<button type="button" class="tt-cell${cell&&cell.date===d&&cell.pid===p.id?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="cell" data-target="${d}|${p.id}" data-sum="cell|${d}|${p.id}" aria-label="${esc(p.name)} ${DAY[(parseDate(d).getDay()+6)%7]} ${parseDate(d).getDate()}"></button>`).join('')}<span class="tt-tot" data-sum="proj|${p.id}"></span></div><div class="tt-row tt-quick"><span class="tt-name"></span>${dates.map(d=>isWeekend(d)?'<span></span>':`<button type="button" class="tt-plus8" data-tt="add" data-target="${d}|${p.id}" data-amount="480" data-quick="${d}|${p.id}" aria-label="Lägg till 8 timmar">+8</button>`).join('')}<span></span></div>${cell&&cell.pid===p.id&&dates.includes(cell.date)?editorStrip(cell.date,p.id):''}`).join('');
     const foot=`<div class="tt-row tt-row-foot"><span class="tt-name">Totalt</span>${dates.map(d=>`<span class="tt-dsum" data-sum="day|${d}"></span>`).join('')}<span class="tt-tot" data-sum="total"></span></div>`;
-    return `<div class="tt-week">${headRow}${rows}${foot}</div>`;
+    const done=`<div class="tt-weekdone" data-weekdone="${dates[0]}" hidden><i class="tt-weekdone-node" aria-hidden="true"></i><div><div class="tt-weekdone-title">Veckan är rapporterad</div><div class="tt-weekdone-meta" data-weekdone-meta></div></div></div>`;
+    return `<div class="tt-week">${headRow}${rows}${foot}</div>${done}`;
   }
   function monthView(dates,list){
     const first=dates[0],lead=(parseDate(first).getDay()+6)%7,today=localDate();
@@ -105,7 +107,18 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
       el.textContent=kind==='cell'||kind==='day'&&el.closest('.tt-cal')?hm(v):el.classList.contains('tt-dsum')?(hm(v)||'–'):sumText(v);
       el.classList.toggle('is-zero',!v);
     }
+    // Week fully reported (time on every weekday Monday–Friday): a closing line like "Dagen är klar" on the day page,
+    // with a few sparks the moment the last day is filled in.
+    for(const el of root.querySelectorAll('[data-weekdone]')){
+      const week=Array.from({length:5},(_,i)=>shiftDate(el.dataset.weekdone,i)),complete=week.every(d=>dayTotal(d)>0);
+      if(!complete)openWeeks.add(el.dataset.weekdone);
+      el.hidden=!complete;
+      if(complete){const t=Array.from({length:7},(_,i)=>shiftDate(el.dataset.weekdone,i)).reduce((n,d)=>n+dayTotal(d),0);el.querySelector('[data-weekdone-meta]').textContent=`5 dagar · ${hm(t)} h`;
+        if(openWeeks.has(el.dataset.weekdone)&&!cheered.has(el.dataset.weekdone)){cheered.add(el.dataset.weekdone);el.classList.remove('is-cheer');void el.offsetWidth;el.classList.add('is-cheer');}}
+    }
     for(const el of root.querySelectorAll('[data-quick]')){const [d,p]=el.dataset.quick.split('|');el.classList.toggle('is-filled',!!mins(d,p));}
+    // A +8 row with nothing left to fill is hidden; the project row above keeps its line only then.
+    for(const q of root.querySelectorAll('.tt-quick')){const empty=!q.querySelector('.tt-plus8:not(.is-filled)');q.classList.toggle('is-empty',empty);q.previousElementSibling?.classList.toggle('has-quick',!empty);}
     for(const el of root.querySelectorAll('[data-heat]'))el.style.setProperty('--heat',Math.min(1,dayTotal(el.dataset.heat)/480).toFixed(2));
     // Month days: the two biggest projects of the day with their hours in their colour, "+n" when there are more.
     const short=n=>n%60?hm(n):String(n/60);
