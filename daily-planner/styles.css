@@ -378,17 +378,32 @@ body.is-time .page-heading,body.is-time .week-strip,body.is-time .content-grid{d
 @media(min-width:761px){.tt-quick>.tt-name{display:block}}
 /* Month: the day's two biggest projects in their colours */
 
-/* Week fully reported: closing line with a filled amber node (like "Dagen är klar"), sparks once when it happens */
-.tt-weekdone{position:relative;display:flex;align-items:center;gap:14px;margin:14px 0 4px;padding:14px 2px 6px;border-top:1px solid transparent;border-image:linear-gradient(90deg,#f5bc7c88,transparent) 1}
+/* Week reported (A days, B ring and summary, C rising sparks); everything animates only the moment it happens (.is-cheer) */
+.tt-weekdone{position:relative;margin:18px 0 6px;padding:16px 0 10px;border-top:1px solid #ffffff0d;overflow:hidden}
 .tt-weekdone[hidden]{display:none}
-.tt-weekdone-node{flex:0 0 auto;width:18px;height:18px;border-radius:50%;background:var(--amber);box-shadow:0 0 0 5px #f5bc7c22,0 0 16px #f5bc7c66}
-.tt-weekdone-title{color:var(--amber);font-size:16px;font-weight:550}
-.tt-weekdone-meta{font-size:12px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
-.tt-weekdone.is-cheer .tt-weekdone-node{animation:dl-pop .5s var(--ease)}
-.tt-weekdone.is-cheer::before,.tt-weekdone.is-cheer::after{content:'';position:absolute;width:4px;height:4px;border-radius:50%;background:#ffd29e;opacity:0;animation:dl-twinkle 1.1s ease-in-out 3 both}
-.tt-weekdone.is-cheer::before{left:-2px;top:6px}
-.tt-weekdone.is-cheer::after{left:26px;top:40px;animation-delay:.45s}
-@media(prefers-reduced-motion:reduce){.tt-weekdone.is-cheer::before,.tt-weekdone.is-cheer::after{display:none}}
+.wd-days{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.wd-days i{height:32px;border-radius:9px;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:650;color:#0e1015;background:var(--amber);box-shadow:0 0 12px #f5bc7c66}
+.is-cheer .wd-days i{animation:wd-lit .9s ease-out calc(var(--i)*.22s) both}
+@keyframes wd-lit{0%{background:#ffffff10;box-shadow:none;color:#7d8796;transform:scale(.92)}60%{transform:scale(1.06)}100%{background:var(--amber);box-shadow:0 0 12px #f5bc7c66;color:#0e1015;transform:scale(1)}}
+.wd-body{display:flex;align-items:center;gap:18px}
+.wd-ring{position:relative;width:96px;height:96px;flex:0 0 auto}
+.wd-ring svg{width:100%;height:100%;overflow:visible}
+.wd-ring circle{fill:none;stroke-width:5}
+.wd-ring-bg{stroke:#ffffff10}
+.wd-ring-fg{stroke:var(--amber);stroke-linecap:round;stroke-dasharray:302;stroke-dashoffset:0;transform:rotate(-90deg);transform-origin:55px 55px;filter:drop-shadow(0 0 6px #f5bc7c99)}
+.is-cheer .wd-ring-fg{animation:wd-ring 1.4s ease-out 1.1s both}
+@keyframes wd-ring{from{stroke-dashoffset:302}to{stroke-dashoffset:0}}
+.wd-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.wd-center b{font-size:26px;font-weight:550;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
+.wd-center span{font-size:10px;color:var(--muted)}
+.wd-title{color:var(--amber);font-size:17px;font-weight:550;letter-spacing:-.2px}
+.wd-meta{font-size:12px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+.wd-projects{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:12.5px;font-variant-numeric:tabular-nums}
+.wd-projects i{display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:6px;vertical-align:1px}
+.wd-spark{position:absolute;bottom:8px;width:4px;height:4px;border-radius:50%;background:#ffd29e;opacity:0;pointer-events:none}
+.is-cheer .wd-spark{animation:wd-rise 2.2s ease-out var(--d) 2 both}
+@keyframes wd-rise{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-90px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.is-cheer .wd-days i,.is-cheer .wd-ring-fg,.is-cheer .wd-spark{animation:none}}
 /* Larger fields and figures on desktop */
 @media(min-width:761px){
   .tt-cell,.tt-cell:not(:empty),.tt-cell.is-weekend:empty{min-height:46px;font-size:16px}
