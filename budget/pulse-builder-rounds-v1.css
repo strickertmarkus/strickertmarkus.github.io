@@ -1,0 +1,69 @@
+/* Rounds in the pass builder (pulse-builder-rounds-v1.js). The round is drawn as a bracket line on
+   the left that runs from its heading through its exercises to "Lägg till i rundan". */
+.pbu-v1 { --pbr: #f6b26b; --pbr-rgb: 246,178,107; --pbr-rest: #7fe3ef; }
+
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list>.ex-row-item.pbu-row.pbr-in { margin-left: 18px !important; }
+html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list>.ex-row-item.pbu-row.pbr-in::before,
+.pbu-v1 #day-workout-ex-list>.pbr-add::before {
+  content: ''; position: absolute; left: -18px; top: 0; bottom: -1px; width: 2px; background: rgba(var(--pbr-rgb),.5);
+}
+/* Round exercises: one set per lap, so no set count and no rest between sets. */
+.pbu-v1 #day-workout-ex-list>.pbr-in .pbu-steps[data-kind="strength"] .pbu-step:first-child,
+.pbu-v1 #day-workout-ex-list>.pbr-in .pbu-between-btn,
+.pbu-v1 #day-workout-ex-list>.pbr-in .pbu-between-note,
+.pbu-v1 #day-workout-ex-list>.pbr-in .pbu-between-inline,
+.pbu-v1 #day-workout-ex-list>.pbr-in .per-set-v7 { display: none !important; }
+.pbu-v1 #day-workout-ex-list>.pbr-in:not(.pbu-empty) .pbu-head { padding-right: 78px; }
+.pbu-v1 #day-workout-ex-list>.pbr-in>.pbu-quick-del { right: 34px; }
+
+/* Heading */
+.pbu-v1 #day-workout-ex-list>.pbr-head { position: relative; padding: 14px 0 6px; border-bottom: 1px solid var(--pbu-line); }
+.pbu-v1 #day-workout-ex-list>.pbr-head::before {
+  content: ''; position: absolute; left: 0; top: 34px; bottom: -1px; width: 2px; background: rgba(var(--pbr-rgb),.5);
+}
+.pbu-v1 .pbr-toggle {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0; border: 0; background: none;
+  color: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.pbu-v1 .pbr-icon {
+  position: relative; z-index: 1; display: grid; place-items: center; flex: 0 0 38px; width: 38px; height: 38px; margin-left: -18px;
+  border-radius: 50%; background: #0b1018; box-shadow: inset 0 0 0 1px rgba(var(--pbr-rgb),.45), 0 0 18px -6px rgba(var(--pbr-rgb),.6); color: var(--pbr);
+}
+.pbu-v1 .pbr-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.pbu-v1 .pbr-copy { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.pbu-v1 .pbr-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 600 16.5px/1.25 Inter, system-ui, sans-serif; color: var(--pbu-text); }
+.pbu-v1 .pbr-rest { font: 500 13px/1.3 Inter, system-ui, sans-serif; color: var(--pbr-rest); }
+.pbu-v1 .pbr-laps {
+  flex: 0 0 auto; padding: 4px 10px; border: 1px solid rgba(var(--pbr-rgb),.45); border-radius: 999px;
+  font: 600 13px Inter, system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--pbr);
+}
+.pbu-v1 .pbr-chev { flex: 0 0 auto; width: 8px; height: 8px; margin: 0 8px 0 2px; border-right: 1.5px solid var(--pbu-dim); border-bottom: 1.5px solid var(--pbu-dim); transform: rotate(45deg) translateY(-2px); transition: transform .2s ease; }
+.pbu-v1 .pbr-toggle[aria-expanded="true"] .pbr-chev { transform: rotate(-135deg) translateY(-2px); }
+.pbu-v1 .pbr-settings { display: flex; flex-direction: column; gap: 10px; padding: 10px 0 6px 32px; animation: pbu-fade .22s ease both; }
+.pbu-v1 .pbr-name { display: flex; align-items: center; gap: 14px; }
+.pbu-v1 .pbr-name input {
+  flex: 1; min-width: 0; min-height: 40px; padding: 0 2px; border: 0; border-bottom: 1px dashed var(--pbu-line-strong); border-radius: 0;
+  background: none; color: var(--pbu-text); font: 500 16px Inter, system-ui, sans-serif;
+}
+.pbu-v1 .pbr-steps { display: flex; flex-direction: column; gap: 6px; }
+.pbu-v1 .pbr-dissolve { align-self: flex-start; }
+
+/* "Lägg till i rundan" */
+.pbu-v1 #day-workout-ex-list>.pbr-add {
+  position: relative; display: flex; align-items: center; gap: 14px; width: calc(100% - 18px); min-height: 58px; margin: 0 0 0 18px; padding: 0 0 0 4px;
+  border: 0; border-bottom: 1px solid var(--pbu-line); background: none; color: var(--pbu-muted); font: 500 15px Inter, system-ui, sans-serif; text-align: left; cursor: pointer;
+}
+.pbu-v1 #day-workout-ex-list>.pbr-add::before { bottom: 50%; }
+.pbu-v1 #day-workout-ex-list>.pbr-add .pbu-plus {
+  position: relative; box-sizing: content-box; width: 11px; height: 11px; padding: 10px; border-radius: 50%; color: var(--pbr);
+  box-shadow: inset 0 0 0 1px rgba(var(--pbr-rgb),.4);
+}
+
+/* "Lägg till övning" and "Runda" side by side */
+.pbu-v1 #day-workout-modal .pbr-adds { display: flex; align-items: center; gap: 18px; order: 8; }
+.pbu-v1 #day-workout-modal .pbr-adds .pbu-add { flex: 1; min-width: 0; }
+.pbu-v1 #day-workout-modal .pbr-start {
+  order: 9; display: flex; align-items: center; gap: 10px; flex: 0 0 auto; min-height: 52px; padding: 0 4px; border: 0; background: none;
+  color: var(--pbu-pale); font: 600 15px Inter, system-ui, sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.pbu-v1 #day-workout-modal .pbr-start .pbr-icon { margin-left: 0; }

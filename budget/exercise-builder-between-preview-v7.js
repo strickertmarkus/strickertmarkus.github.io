@@ -210,6 +210,9 @@
       .plan-preview-target-v7{color:#8FA0B3;font-size:9px;text-align:right;white-space:nowrap}
       .plan-preview-between-v7{grid-column:2/-1;margin-top:-2px;color:#FDBA74;font-size:8px;font-weight:700}
       #exercise-plan-preview-v7 .plan-preview-between-v7.is-rest{color:#7fe3ef!important}
+      #exercise-plan-preview-v7 .plan-preview-round-v7{display:flex;flex-direction:column;gap:2px;padding:12px 0 4px;color:#F6B26B;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+      #exercise-plan-preview-v7 .plan-preview-round-v7 span{color:#7fe3ef;font-weight:600;letter-spacing:0;text-transform:none}
+      #exercise-plan-preview-v7 .plan-preview-row-v7.in-round{border-left:2px solid rgba(246,178,107,.5);padding-left:8px}
       #exercise-plan-preview-v7 .plan-preview-global-v7.is-rest{border-color:rgba(127,227,239,.3)!important;background:rgba(127,227,239,.06)!important;color:#7fe3ef!important}
       .plan-preview-row-v7.is-cardio{background:linear-gradient(90deg,rgba(239,68,68,.055),transparent 44%)}
       .plan-preview-row-v7.is-cardio .plan-preview-num-v7,.plan-preview-row-v7.is-cardio .plan-preview-name-v7{color:#F87171}
@@ -509,7 +512,8 @@
       if (Number(ex.time)>0) p.push(ex.time+' min');
       return p.join(' · ') || 'Kondition';
     }
-    var base=(Number(ex.sets)||1)+'×'+(Number(ex.reps)||0);
+    // A round exercise is one set per lap: reps only.
+    var base=ex.round?(Number(ex.reps)||0)+' reps':(Number(ex.sets)||1)+'×'+(Number(ex.reps)||0);
     if (ex.weightMode==='bodyweight') base+=' · Kroppsvikt';
     else if (Number(ex.weight)>0) base+=' · '+ex.weight+' kg';
     return base;
@@ -557,10 +561,14 @@
     var overlay=ensurePreview();
     document.getElementById('plan-preview-title-v7').textContent=draft.type;
     document.getElementById('plan-preview-date-v7').textContent=draft.date || '';
+    var lastRound='';
     document.getElementById('plan-preview-list-v7').innerHTML=draft.exercises.map(function (entry,index) {
-      var between=configText(entry.betweenSets,'Mellan set');
+      var round=entry.exercise&&entry.exercise.round, head='';
+      if (round && round.id!==lastRound) head='<div class="plan-preview-round-v7">Runda · '+esc(round.name)+' · '+round.laps+' varv<span>'+(round.rest?'Vila '+round.rest+' s mellan övningar':'Ingen vila mellan övningar')+' · '+(round.lapRest?round.lapRest+' s mellan varv':'ingen vila mellan varv')+'</span></div>';
+      lastRound=round?round.id:'';
+      var between=round?'':configText(entry.betweenSets,'Mellan set');
       var kindClass=entry.exercise&&entry.exercise.kind==='cardio'?' is-cardio':' is-strength';
-      return '<div class="plan-preview-row-v7'+kindClass+'"><div class="plan-preview-num-v7">'+(index+1)+'</div><div class="plan-preview-name-v7">'+esc(entry.exercise.name)+'</div><div class="plan-preview-target-v7">'+esc(targetText(entry.exercise))+'</div>'+(between?'<div class="plan-preview-between-v7'+(isRest(entry.betweenSets)?' is-rest':'')+'">'+esc(between)+'</div>':'')+'</div>';
+      return head+'<div class="plan-preview-row-v7'+kindClass+(round?' in-round':'')+'"><div class="plan-preview-num-v7">'+(index+1)+'</div><div class="plan-preview-name-v7">'+esc(entry.exercise.name)+'</div><div class="plan-preview-target-v7">'+esc(targetText(entry.exercise))+'</div>'+(between?'<div class="plan-preview-between-v7'+(isRest(entry.betweenSets)?' is-rest':'')+'">'+esc(between)+'</div>':'')+'</div>';
     }).join('');
     var global=document.getElementById('plan-preview-global-v7');
     var globalText=configText(draft.betweenExercises,'Mellan övningar');

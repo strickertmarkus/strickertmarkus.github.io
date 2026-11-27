@@ -130,7 +130,7 @@
       var state = getState();
       var exercise = currentExercise(state);
       var self = this, args = arguments;
-      if (passing || !state || !exercise || exercise.kind !== 'cardio' || exercise.__betweenCustomV3 || !state.setRunning || !state.setStartedAt) {
+      if (passing || !state || !exercise || exercise.kind !== 'cardio' || exercise.__betweenCustomV3 || exercise.round || !state.setRunning || !state.setStartedAt) {
         return current.apply(self, args);
       }
       if (open) return;

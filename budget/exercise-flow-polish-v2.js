@@ -222,6 +222,8 @@
       }
       .bs-rest-overview-row:first-of-type { border-top:0; }
       .bs-rest-overview-row.current .bs-rest-name { color:#F0F6FC; font-weight:800; }
+      #session-between-overlay-v2 .bs-rest-overview .bs-rest-overview-round { padding:10px 0 4px; color:#F6B26B; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+      #session-between-overlay-v2 .bs-rest-overview .bs-rest-overview-row.in-round .bs-rest-name { padding-left:12px; }
       #session-between-overlay-v2 .bs-rest-overview .bs-rest-weight { margin-left:8px; color:#A8B3C2; font-style:normal; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
       .bs-rest-name { color:#94A3B8; overflow-wrap:anywhere; }
       .bs-rest-progress { color:var(--flow-accent-soft); font-variant-numeric:tabular-nums; white-space:nowrap; }
@@ -409,10 +411,30 @@
     if (!panel || !state || !Array.isArray(state.exercises)) return;
 
     var html = '<div class="bs-rest-overview-title">Översikt</div>';
+    var currentIdx = Number(state.exerciseIndex) || 0;
+    // A round's laps are one row per exercise (laps done / laps), under one line naming the round.
+    var rows = [], byKey = {};
     state.exercises.forEach(function (ex, idx) {
       var logs = Array.isArray(state.logs && state.logs[idx]) ? state.logs[idx] : [];
-      var planned = ex.kind === 'cardio' ? 1 : Math.max(1,Number(ex.plannedSets) || 1);
-      var done = Math.min(logs.length,planned);
+      var key = ex.round ? 'r|' + ex.round.id + '|' + String(ex.name || '').toLocaleLowerCase('sv-SE') : 'i|' + idx;
+      var row = byKey[key];
+      if (!row) {
+        row = byKey[key] = { ex: ex, logs: [], planned: 0, current: false };
+        if (ex.round && ex.round.pos === 1 && ex.round.lap === 1) rows.push({ roundHead: ex.round, idx: idx });
+        rows.push(row);
+      }
+      row.logs = row.logs.concat(logs);
+      row.planned += ex.kind === 'cardio' ? 1 : Math.max(1, Number(ex.plannedSets) || 1);
+      if (idx === currentIdx) row.current = true;
+    });
+    var current = state.exercises[currentIdx];
+    rows.forEach(function (row) {
+      if (row.roundHead) {
+        var r = row.roundHead, lap = current && current.round && current.round.id === r.id ? current.round.lap : 0;
+        html += '<div class="bs-rest-overview-round">Runda · ' + escapeHtml(r.name) + (lap ? ' · varv ' + lap + ' / ' + r.laps : ' · ' + r.laps + ' varv') + '</div>';
+        return;
+      }
+      var ex = row.ex, logs = row.logs, planned = row.planned, done = Math.min(logs.length, planned);
       // Weight: the last logged set, otherwise the planned weight.
       var weight = '';
       if (ex.kind !== 'cardio') {
@@ -423,7 +445,7 @@
           if (kg > 0) weight = kg.toLocaleString('sv-SE') + ' kg';
         }
       }
-      html += '<div class="bs-rest-overview-row' + (idx === Number(state.exerciseIndex) ? ' current' : '') + '">' +
+      html += '<div class="bs-rest-overview-row' + (row.current ? ' current' : '') + (ex.round ? ' in-round' : '') + '">' +
         '<span class="bs-rest-name">' + escapeHtml(ex.name || 'Övning') + (weight ? '<em class="bs-rest-weight">' + weight + '</em>' : '') + '</span>' +
         '<span class="bs-rest-progress">' + done + ' / ' + planned + '</span>' +
       '</div>';

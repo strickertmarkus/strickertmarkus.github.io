@@ -308,6 +308,8 @@
     if (running && ex) {
       if (ex.__betweenCustomV3) limit = Math.max(1, Number(ex.time) * 60);
       else if (ex.kind !== 'cardio') limit = settings.seconds;
+      // A timed exercise in a round (Plankan 1:00) ends after its own time, like a between exercise.
+      else if (ex.round && ex.timerMode !== 'up' && Number(ex.time) > 0) limit = Number(ex.time) * 60;
     }
     var left = limit != null ? limit - elapsed(state) : null;
     paintToggle(left != null && !ex.__betweenCustomV3 ? left : null);
@@ -323,7 +325,7 @@
       var endAt = ex.__betweenCustomV3 ? 0.35 : 0;
       if (left <= endAt && doneToken !== token) {
         doneToken = token;
-        if (!ex.__betweenCustomV3 && window.SessionSound) window.SessionSound.go();
+        if (!ex.__betweenCustomV3 && ex.kind !== 'cardio' && window.SessionSound) window.SessionSound.go();   // cardio chimes from its own countdown
         var done = controlButton(/^klar med set$/i);
         if (ex.__betweenCustomV3 && done) coverBetweenEnd(state, idx);
         if (done) { done.click(); soon(); }
@@ -344,6 +346,9 @@
     // Rest before this start: between two exercises (exerciseRest) and/or after a between
     // exercise (betweenRest); when both apply the longer one.
     var newExercise = lastRunIdx >= 0 && idx > lastRunIdx && !(ex && ex.__betweenCustomV3);
+    // Inside a round the round's own rests apply (roundTransitionConfig), not Auto's rest between exercises.
+    var prevEx = state.exercises && state.exercises[lastRunIdx];
+    if (newExercise && ex && ex.round && prevEx && prevEx.round && prevEx.round.id === ex.round.id) { newExercise = false; lastRunIdx = idx; }
     var restSec = Math.max(newExercise ? settings.exerciseRest : 0, needRest ? settings.betweenRest : 0);
     if (needRest || newExercise) {
       needRest = false;

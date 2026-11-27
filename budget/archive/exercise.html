@@ -563,7 +563,9 @@ if(!window.__FIELD_EMBEDDED__){
 <link rel="stylesheet" href="pulse-motion.css?v=20261029-home-1">
 <script defer src="pulse-motion.js?v=20261103-history-back-3"></script>
 <script defer src="pulse-explore.js?v=20261111-countup-1"></script>
-<script defer src="pulse-builder-ui.js?v=20261127-new-top-1"></script>
+<script defer src="pulse-builder-ui.js?v=20261127-rounds-1"></script>
+<link rel="stylesheet" href="pulse-builder-rounds-v1.css?v=20261127-rounds-1">
+<script defer src="pulse-builder-rounds-v1.js?v=20261127-rounds-1"></script>
 <link rel="stylesheet" href="ui-motion.css?v=20261020-surfaces-3">
 <script defer src="ui-motion.js?v=20261108-rest-1"></script>
 <link rel="stylesheet" href="training-zen-plans.css?v=20261103-zen-drag-2">
@@ -2921,6 +2923,54 @@ function fillWorkoutFromPlan(iso,extraId){
   if(typeof showToast==='function')showToast('Passet är ifyllt. Justera och spara.');
 }
 
+/* The planned exercises as session entries. A round (exercises sharing ex.round, see
+   pulse-builder-rounds-v1.js) becomes one entry per exercise and lap, so the session runs it as
+   ordinary one-set exercises; entry.round says where in the round it is, entry.planIndex which
+   planned exercise it came from (plan lookups by index use it). */
+function sessionExercisesFromPlan(list){
+  function entry(ex,planIndex){
+    var norm=normalizeExercise(ex);
+    var out=norm.kind==='cardio'
+      ? {kind:'cardio',name:norm.name,distance:norm.distance,time:norm.time,timerMode:norm.timerMode,plannedSets:1}
+      : {kind:'strength',name:norm.name,plannedSets:+norm.sets||1,reps:+norm.reps||0,weight:+norm.weight||0,weightMode:norm.weightMode||'kg'};
+    out.planIndex=planIndex;
+    return out;
+  }
+  var out=[],i=0;
+  while(i<list.length){
+    var round=list[i]&&list[i].round,id=round&&round.id;
+    if(!id){out.push(entry(list[i],i));i++;continue;}
+    var members=[];
+    while(i<list.length&&list[i]&&list[i].round&&list[i].round.id===id){members.push({ex:list[i],index:i});i++;}
+    var laps=Math.max(1,Math.min(20,Math.round(Number(round.laps)||1)));
+    for(var lap=1;lap<=laps;lap++){
+      members.forEach(function(m,pos){
+        var e=entry(m.ex,m.index);
+        e.plannedSets=1;
+        e.round={id:id,name:String(round.name||'Runda'),lap:lap,laps:laps,pos:pos+1,count:members.length,
+          rest:Math.max(0,Math.round(Number(round.rest)||0)),lapRest:Math.max(0,Math.round(Number(round.lapRest)||0))};
+        out.push(e);
+      });
+    }
+  }
+  return out;
+}
+/* The rest after a round entry: between its exercises, between laps, or (after the last lap)
+   nothing here so the pass's own between-exercises setting applies. Used by the rest owners
+   (exercise-session-transition-stability-v142.js, exercise-between-routing-v7.js) and the
+   next-up label (exercise-session-next-preview-v1.js). */
+function roundTransitionConfig(state,kind){
+  if(kind!=='finish'||!state||!Array.isArray(state.exercises))return null;
+  var index=Number(state.exerciseIndex)||0,cur=state.exercises[index],next=state.exercises[index+1];
+  var r=cur&&cur.round;
+  if(!r||!next||!next.round||next.round.id!==r.id)return null;
+  var newLap=next.round.lap!==r.lap,seconds=newLap?r.lapRest:r.rest;
+  if(!seconds)return {enabled:false,type:'none',seconds:30,name:''};
+  return {enabled:true,type:'rest',seconds:seconds,name:'',scope:newLap?'exercise':'set',label:newLap?'Mellan varv':'Mellan övningar'};
+}
+window.sessionExercisesFromPlan=sessionExercisesFromPlan;
+window.roundTransitionConfig=roundTransitionConfig;
+
 function startWorkoutSessionForDate(iso,extraId){
   var primaryPlan=getPlannedSessions()[iso]||{};
   var zenPlan=extraId?pulseExtraListV1(primaryPlan).find(function(e){return String(e.id)===String(extraId);})||primaryPlan:primaryPlan;
@@ -2955,12 +3005,7 @@ function startWorkoutSessionForDate(iso,extraId){
     type:planned.type||'Övrigt',
     name:planned.name||planned.type||'Träning',
     sourceExtraId:extraId||null,
-    exercises:(planned.exercises||[]).map(function(ex){
-      var norm=normalizeExercise(ex);
-      return norm.kind==='cardio'
-        ? {kind:'cardio',name:norm.name,distance:norm.distance,time:norm.time,timerMode:norm.timerMode,plannedSets:1}
-        : {kind:'strength',name:norm.name,plannedSets:+norm.sets||1,reps:+norm.reps||0,weight:+norm.weight||0,weightMode:norm.weightMode||'kg'};
-    }),
+    exercises:sessionExercisesFromPlan(planned.exercises||[]),
     exerciseIndex:0,
     currentSet:1,
     setRunning:false,
@@ -3076,9 +3121,11 @@ function renderSessionMode(){
     var ex=sessionState.exercises[sessionState.exerciseIndex];
     var targetSets=ex.plannedSets;
     currentExEl.textContent=ex.name;
+    // In a round the lap takes the place of the set count.
+    var roundText=ex.round?'Runda '+ex.round.name+' · varv '+ex.round.lap+' av '+ex.round.laps:'';
     currentTargetEl.textContent=ex.kind==='cardio'
-      ? (ex.timerMode==='up'?'Kondition - Ta tid':'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time))
-      : 'Set '+sessionState.currentSet+' av '+targetSets+' - '+ex.reps+' reps · '+(ex.weightMode==='bodyweight'?'Kroppsvikt':ex.weight+' kg');
+      ? (roundText?roundText+' - '+formatCardioTime(ex.time):ex.timerMode==='up'?'Kondition - Ta tid':'Kondition - '+(ex.distance?ex.distance+' km':'—')+' / '+formatCardioTime(ex.time))
+      : (roundText||'Set '+sessionState.currentSet+' av '+targetSets)+' - '+ex.reps+' reps · '+(ex.weightMode==='bodyweight'?'Kroppsvikt':ex.weight+' kg');
     renderSessionWeightHint(ex);
 
     if(sessionState.setRunning){
@@ -3231,8 +3278,17 @@ function sessionDoneWork(){
   var totalSec=Math.max(60,Math.round((Date.now()-sessionState.passStartedAt)/1000));
   var exercises=[];
   var exerciseTimings=[];
+  // A round's laps are saved as one exercise each, with one set per lap.
+  var work=[],byRound={};
   sessionState.exercises.forEach(function(ex,i){
     var logs=sessionState.logs[i]||[];
+    if(!ex.round){work.push({ex:ex,i:i,logs:logs.slice()});return;}
+    var key=ex.round.id+'|'+String(ex.name||'').toLocaleLowerCase('sv-SE');
+    if(byRound[key]){byRound[key].logs=byRound[key].logs.concat(logs);return;}
+    byRound[key]={ex:ex,i:i,logs:logs.slice()};work.push(byRound[key]);
+  });
+  work.forEach(function(item){
+    var ex=item.ex,i=item.i,logs=item.logs;
     if(!logs.length)return;
     var dur=logs.reduce(function(s,l){return s+(l.durationSec||0);},0);
     if(ex.kind==='cardio'){
@@ -3242,7 +3298,7 @@ function sessionDoneWork(){
       var reps=Math.round(logs.reduce(function(s,l){return s+(l.actualReps||0);},0)/sets);
       var weight=+(logs.reduce(function(s,l){return s+(l.actualWeight||0);},0)/sets).toFixed(1);
       var done=normalizeExercise({name:ex.name,kind:'strength',sets:sets,reps:reps,weight:weight,weightMode:ex.weightMode||'kg'});
-      var between=betweenForWorkoutExercise({date:sessionState.date},ex,i)||(ex.betweenSets&&ex.betweenSets.enabled?ex.betweenSets:null);
+      var between=ex.round?null:betweenForWorkoutExercise({date:sessionState.date},ex,i)||(ex.betweenSets&&ex.betweenSets.enabled?ex.betweenSets:null);
       if(between)done.betweenSets=between;
       done.logs=logs.map(function(log){return {actualReps:Number(log.actualReps)||0,actualWeight:ex.weightMode==='bodyweight'?0:Number(log.actualWeight)||0,weightMode:ex.weightMode||'kg'};});
       exercises.push(done);

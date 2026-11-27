@@ -63,7 +63,10 @@
   function buildCanonicalPlan(state) {
     var stored = getStoredPlan(state && state.date) || {};
     var planExercises = Array.isArray(stored.exercises) ? stored.exercises : [];
-    var baseCount = planExercises.length;
+    // A round is expanded into one session entry per exercise and lap (sessionExercisesFromPlan):
+    // then the session's entries are the moments, each pointing at its planned exercise.
+    var expanded = !!(state && Array.isArray(state.exercises) && state.exercises.some(function (ex) { return ex && ex.round; }));
+    var baseCount = expanded ? 0 : planExercises.length;
     if (!baseCount && state && Array.isArray(state.exercises)) {
       baseCount = state.exercises.filter(function (ex) {
         return ex && !ex.__betweenCustomSavedV3 && !ex.__betweenCustomSavedV7;
@@ -74,7 +77,8 @@
     var segments = [];
 
     for (var i = 0; i < baseCount; i++) {
-      var plannedEx = planExercises[i] || null;
+      var entry = expanded ? state.exercises[i] : null;
+      var plannedEx = (expanded ? planExercises[entry && entry.planIndex] : planExercises[i]) || null;
       var ex = baseExercise(state,i,plannedEx);
       if (!ex) continue;
       var sets = Math.max(1,Number(ex.plannedSets) || (plannedEx && Number(plannedEx.sets)) || 1);
@@ -88,7 +92,9 @@
         }
       }
 
-      if (i < baseCount - 1 && globalBetween.type === 'custom' && globalBetween.name) {
+      var next = expanded ? state.exercises[i + 1] : null;
+      var sameRound = !!(entry && entry.round && next && next.round && next.round.id === entry.round.id);
+      if (i < baseCount - 1 && !sameRound && globalBetween.type === 'custom' && globalBetween.name) {
         segments.push({type:'custom',kind:'cardio',key:customKey(globalBetween),exIndex:i,transition:'finish'});
       }
     }

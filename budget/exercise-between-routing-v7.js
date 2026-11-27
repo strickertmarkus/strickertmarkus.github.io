@@ -39,6 +39,8 @@
     if (!state || !state.date || !planned) return normalizeConfig(null);
     var plan = planned[state.date];
     if (!plan) return normalizeConfig(null);
+    var round = typeof window.roundTransitionConfig === 'function' ? window.roundTransitionConfig(state, transition) : null;
+    if (round) return round;
 
     if (transition === 'finish') {
       if (plan.betweenExercises) return normalizeConfig(plan.betweenExercises);
@@ -47,7 +49,8 @@
     }
 
     if (transition === 'next' || transition === 'extra') {
-      var index = Number(state.exerciseIndex) || 0;
+      var index = Number(state.exerciseIndex) || 0, current = Array.isArray(state.exercises) ? state.exercises[index] : null;
+      if (current && current.planIndex != null) index = Number(current.planIndex);
       var exercise = Array.isArray(plan.exercises) ? plan.exercises[index] : null;
       return normalizeConfig(exercise && exercise.betweenSets);
     }

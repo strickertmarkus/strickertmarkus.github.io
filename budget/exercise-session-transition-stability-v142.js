@@ -23,11 +23,15 @@
     raw = raw || {};
     if (raw.enabled === false) return { type:'none', seconds:30, name:'' };
     var type = raw.type === 'rest' || raw.type === 'custom' ? raw.type : 'none';
-    return {
+    var out = {
       type:type,
       seconds:Math.max(1,Math.round(Number(raw.seconds) || (type === 'rest' ? 60 : 30))),
       name:type === 'custom' ? String(raw.name || '').trim() : ''
     };
+    // Rounds name their rests and say whether they sit between laps (green) or exercises (cyan).
+    if (raw.scope) out.scope = raw.scope;
+    if (raw.label) out.label = raw.label;
+    return out;
   }
 
   function expectedTransition(state) {
@@ -48,6 +52,8 @@
 
   function transitionConfig(state, kind) {
     if (!state || !state.date || !kind) return normalizeConfig(null);
+    var round = typeof window.roundTransitionConfig === 'function' ? window.roundTransitionConfig(state, kind) : null;
+    if (round) return normalizeConfig(round);
     var plans = plansSafe();
 
     try {
@@ -61,11 +67,17 @@
     if (!plan) return normalizeConfig(null);
     if (kind === 'finish') return normalizeConfig(plan.betweenExercises || plan.betweenSets);
     if (kind === 'next') {
-      var index = Math.max(0,Number(state.exerciseIndex) || 0);
+      var index = planIndex(state);
       var plannedExercise = Array.isArray(plan.exercises) ? plan.exercises[index] : null;
       return normalizeConfig((plannedExercise && plannedExercise.betweenSets) || plan.betweenSets);
     }
     return normalizeConfig(null);
+  }
+
+  /* The planned exercise behind the current session entry (a round repeats planned exercises). */
+  function planIndex(state) {
+    var index = Math.max(0,Number(state.exerciseIndex) || 0), ex = Array.isArray(state.exercises) ? state.exercises[index] : null;
+    return ex && ex.planIndex != null ? Number(ex.planIndex) : index;
   }
 
   function positionKey(state, kind) {

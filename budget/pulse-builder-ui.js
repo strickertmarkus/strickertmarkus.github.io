@@ -212,6 +212,8 @@ function summaryText(row){
  }
  var w=num(field(row,3).value);
  var bw=field(row,3).dataset.weightMode==='bodyweight';
+ // In a round (pulse-builder-rounds-v1.js) every exercise is one set per lap: show reps only.
+ if(row.dataset.roundV1)return (b?b+' reps':'Ange reps')+(bw?' · Kroppsvikt':w?' · '+fmt(w)+' kg':'');
  if(!a&&!b&&!w&&!bw)return 'Ange sets och reps';
  return (a||'–')+' × '+(b||'–')+(bw?' · Kroppsvikt':w?' · '+fmt(w)+' kg':'');
 }
@@ -740,5 +742,5 @@ function initLog(){
  if(type)type.addEventListener('input',function(){list.querySelectorAll('.pbu-row.pbu-picking').forEach(function(r){renderOptions(r,(r.querySelector('[data-pbu-search]')||{}).value||'');});});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-window.PulseBuilderUI={openRow:openRow,closeRow:closeRow,musclesFromText:musclesFromText};
+window.PulseBuilderUI={openRow:openRow,closeRow:closeRow,paintRow:paintRow,musclesFromText:musclesFromText};
 })();

@@ -80,9 +80,11 @@
     var setsLeft = !!current && (Number(state.currentSet) || 1) < (Number(current.plannedSets) || 1);
     var plan = planFor(state);
     var config = between(null);
-    if (plan) {
+    var round = !setsLeft && typeof window.roundTransitionConfig === 'function' ? window.roundTransitionConfig(state, 'finish') : null;
+    if (round) config = between(round);
+    else if (plan) {
       if (setsLeft) {
-        var planned = Array.isArray(plan.exercises) ? plan.exercises[index] : null;
+        var planned = Array.isArray(plan.exercises) ? plan.exercises[current && current.planIndex != null ? current.planIndex : index] : null;
         config = between((planned && planned.betweenSets) || plan.betweenSets);
       } else if (nextExercise) {
         config = between(plan.betweenExercises || plan.betweenSets);
@@ -90,7 +92,8 @@
     }
     if (config.type === 'custom' && config.name) return { name: config.name, kind: 'between', seconds: config.seconds, exercise: false };
     if (!nextExercise) return null;
-    var exerciseRest = setsLeft ? 0 : autoRest(state, 'exerciseRest');
+    var inRound = !!(current && current.round && nextExercise.round && nextExercise.round.id === current.round.id);
+    var exerciseRest = setsLeft || inRound ? 0 : autoRest(state, 'exerciseRest');
     if (!setsLeft && (config.type === 'rest' || exerciseRest)) return { name: 'Vila', kind: 'rest', seconds: Math.max(config.type === 'rest' ? config.seconds : 0, exerciseRest), exercise: nextExercise.name };
     return { name: String(nextExercise.name || '').trim(), kind: 'exercise', seconds: 0, exercise: nextExercise.name, afterSets: setsLeft };
   };
