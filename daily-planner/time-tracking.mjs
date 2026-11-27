@@ -7,6 +7,8 @@ const dateText=(d,opts)=>parseDate(d).toLocaleDateString('sv-SE',opts);
 const mondayOf=d=>shiftDate(d,-((parseDate(d).getDay()+6)%7));
 const isWeekend=d=>[0,6].includes(parseDate(d).getDay());
 const sumText=n=>n?hm(n):'0:00';
+// Hours in quarters for tight spots: 8, 8½, 7¾, ¼.
+const quarters=n=>{const q=Math.round(n/15),h=Math.floor(q/4),f=['','¼','½','¾'][q%4];return (h||!f?String(h):'')+f;};
 
 export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
   let scale='week',anchor=localDate(),cell=null,monthDay=localDate();
@@ -64,10 +66,13 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     const first=dates[0],lead=(parseDate(first).getDay()+6)%7,today=localDate();
     if(!dates.includes(monthDay))monthDay=dates.includes(today)?today:first;
     const cal=`<div class="tt-cal">${['M','T','O','T','F','L','S'].map(d=>`<span class="tt-cwd">${d}</span>`).join('')}${'<span></span>'.repeat(lead)}${dates.map(d=>`<button type="button" class="tt-cday${d===today?' is-today':''}${d===monthDay?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="mday" data-date="${d}" data-heat="${d}"><span class="n">${parseDate(d).getDate()}</span><span class="split" data-split="${d}"></span></button>`).join('')}</div>`;
-    const mondays=[...new Set(dates.map(mondayOf))],inMonth=m=>Array.from({length:7},(_,i)=>shiftDate(m,i)).filter(d=>dates.includes(d));
-    const range=m=>{const w=inMonth(m),a=parseDate(w[0]).getDate(),b=parseDate(w.at(-1)).getDate();return a===b?String(a):`${a}–${b}`;};
-    const split=`<div class="tt-split"><h3>Per projekt</h3>${list.map(p=>`<div class="tt-brow">${dot(p)}<span class="tt-bname">${esc(p.name)}</span><span class="tt-bar" data-pbar="${p.id}" style="--c:${p.color}"><i></i></span><strong data-sum="proj|${p.id}"></strong></div>`).join('')}
-<h3>Per vecka</h3>${mondays.map(m=>`<div class="tt-brow"><span class="tt-bname"><b>v.${isoWeek(m)}</b> ${range(m)}</span><span class="tt-bar tt-stack" data-wbars="${m}"></span><strong data-sum="weektotal|${m}"></strong></div>`).join('')}</div>`;
+    const mondays=[...new Set(dates.map(mondayOf))];
+    // Month summary: a ring of the projects' shares with the month's hours inside, then projects × weeks in the
+    // week view's line style (hours in quarters, Σ per project, Totalt per week).
+    const thisWeek=mondayOf(localDate());
+    const cellsFor=fn=>mondays.map(m=>`<span data-sum="${fn(m)}" data-fmt="q"></span>`).join('');
+    const split=`<div class="tt-msum"><div class="ms-top"><div class="ms-ring"><svg viewBox="0 0 100 100" data-mring aria-hidden="true"></svg><div class="ms-center"><b data-sum="total" data-fmt="q"></b><span>timmar</span></div></div><div class="ms-legend">${list.map(p=>`<div class="ms-lrow" style="--c:${p.color}"><span>${dot(p)}${esc(p.name)}</span><b data-sum="proj|${p.id}" data-fmt="q"></b><small data-share="${p.id}"></small></div>`).join('')}</div></div>
+<div class="ms-grid" style="--weeks:${mondays.length}"><div class="ms-row ms-head"><span></span>${mondays.map(m=>`<span class="${m===thisWeek?'is-now':''}">v.${isoWeek(m)}</span>`).join('')}<span>Σ</span></div>${list.map(p=>`<div class="ms-row" style="--c:${p.color}"><span class="ms-name">${dot(p)}<span>${esc(p.name)}</span></span>${cellsFor(m=>`week|${m}|${p.id}`)}<span class="ms-sum" data-sum="proj|${p.id}" data-fmt="q"></span></div>`).join('')}<div class="ms-row ms-foot"><span class="ms-name">Totalt</span>${cellsFor(m=>`weektotal|${m}`)}<span class="ms-sum" data-sum="total" data-fmt="q"></span></div></div></div>`;
     return `${cal}<section class="tt-mday"><h3>${esc(dateText(monthDay,{weekday:'long',day:'numeric',month:'long'}))}</h3>${dayRows(monthDay,sorted().filter(p=>!p.archived||mins(monthDay,p.id)))}</section>${split}`;
   }
   function projectsPanel(){
@@ -105,7 +110,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
       else if(kind==='total')v=total;
       if(kind==='days'){el.textContent=String(days);continue;}
       if(kind==='avg'){el.textContent=days?hm(Math.round(total/days)):'–';continue;}
-      el.textContent=kind==='cell'||kind==='day'&&el.closest('.tt-cal')?hm(v):el.classList.contains('tt-dsum')?(hm(v)||'–'):sumText(v);
+      el.textContent=el.dataset.fmt==='q'?(v?quarters(v):'·'):kind==='cell'||kind==='day'&&el.closest('.tt-cal')?hm(v):el.classList.contains('tt-dsum')?(hm(v)||'–'):sumText(v);
       el.classList.toggle('is-zero',!v);
     }
     // Week fully reported (time on every weekday Monday–Friday): a closing line like "Dagen är klar" on the day page,
@@ -126,14 +131,14 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     for(const el of root.querySelectorAll('[data-heat]'))el.style.setProperty('--heat',Math.min(1,dayTotal(el.dataset.heat)/480).toFixed(2));
     // Month days: one glowing bar split by project, each part with its hours above it in the project's colour
     // (hours in quarters: 8½, 7¾; the number is left out when a part is too thin to hold it).
-    const short=n=>{const q=Math.round(n/15),h=Math.floor(q/4),f=['','¼','½','¾'][q%4];return (h||!f?String(h):'')+f;};
+    const short=quarters;
     for(const el of root.querySelectorAll('[data-split]')){const d=el.dataset.split,t=dayTotal(d),ps=sorted().filter(p=>mins(d,p.id));
       el.innerHTML=ps.map(p=>{const m=mins(d,p.id);return `<span class="part" style="--c:${p.color};flex:${m}"><b>${m/t>=.28?short(m):''}</b><i></i></span>`;}).join('');}
-    // Month bars: share of the month per project, and each week split by project (scaled to the busiest week).
-    const projTotal=id=>dates.reduce((n,d)=>n+mins(d,id),0),weekDays=m=>Array.from({length:7},(_,i)=>shiftDate(m,i)).filter(d=>dates.includes(d));
-    for(const el of root.querySelectorAll('[data-pbar]'))el.firstElementChild.style.width=`${total?projTotal(el.dataset.pbar)/total*100:0}%`;
-    const wbars=[...root.querySelectorAll('[data-wbars]')],weekSum=m=>weekDays(m).reduce((n,d)=>n+dayTotal(d),0),top=Math.max(1,...wbars.map(el=>weekSum(el.dataset.wbars)));
-    for(const el of wbars){const days=weekDays(el.dataset.wbars);el.innerHTML=sorted().map(p=>{const v=days.reduce((n,d)=>n+mins(d,p.id),0);return v?`<i style="--c:${p.color};width:${v/top*100}%"></i>`:'';}).join('');}
+    // Month ring: one arc per project in its colour, sized by its share of the month; shares as percent beside it.
+    const projTotal=id=>dates.reduce((n,d)=>n+mins(d,id),0);
+    for(const el of root.querySelectorAll('[data-share]')){const v=projTotal(el.dataset.share);el.textContent=total&&v?`${Math.round(v/total*100)} %`:'';}
+    for(const svg of root.querySelectorAll('[data-mring]')){const C=2*Math.PI*40,ps=sorted().map(p=>({p,v:projTotal(p.id)})).filter(x=>x.v),gap=ps.length>1?3:0;let at=0;
+      svg.innerHTML=`<circle cx="50" cy="50" r="40" class="ms-ring-bg"/>`+ps.map(({p,v})=>{const len=Math.max(0,v/total*C-gap),arc=`<circle cx="50" cy="50" r="40" class="ms-ring-arc" stroke="${p.color}" stroke-dasharray="${len.toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-at).toFixed(1)}"/>`;at+=v/total*C;return arc;}).join('');}
     // A focused field keeps what is being typed, unless a button changed the value (all=true).
     for(const el of root.querySelectorAll('.tt-input'))if(all||el!==document.activeElement){const [d,p]=el.dataset.input.split('|');el.value=hm(mins(d,p));el.classList.remove('is-bad');}
   }
