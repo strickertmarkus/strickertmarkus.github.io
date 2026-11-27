@@ -62,7 +62,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
   function monthView(dates,list){
     const first=dates[0],lead=(parseDate(first).getDay()+6)%7,today=localDate();
     if(!dates.includes(monthDay))monthDay=dates.includes(today)?today:first;
-    const cal=`<div class="tt-cal">${['M','T','O','T','F','L','S'].map(d=>`<span class="tt-cwd">${d}</span>`).join('')}${'<span></span>'.repeat(lead)}${dates.map(d=>`<button type="button" class="tt-cday${d===today?' is-today':''}${d===monthDay?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="mday" data-date="${d}" data-heat="${d}"><span class="n">${parseDate(d).getDate()}</span><span class="vals" data-mvals="${d}"></span><span class="bars" data-bars="${d}"></span></button>`).join('')}</div>`;
+    const cal=`<div class="tt-cal">${['M','T','O','T','F','L','S'].map(d=>`<span class="tt-cwd">${d}</span>`).join('')}${'<span></span>'.repeat(lead)}${dates.map(d=>`<button type="button" class="tt-cday${d===today?' is-today':''}${d===monthDay?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="mday" data-date="${d}" data-heat="${d}"><span class="n">${parseDate(d).getDate()}</span><span class="split" data-split="${d}"></span></button>`).join('')}</div>`;
     const mondays=[...new Set(dates.map(mondayOf))],inMonth=m=>Array.from({length:7},(_,i)=>shiftDate(m,i)).filter(d=>dates.includes(d));
     const range=m=>{const w=inMonth(m),a=parseDate(w[0]).getDate(),b=parseDate(w.at(-1)).getDate();return a===b?String(a):`${a}–${b}`;};
     const split=`<div class="tt-split"><h3>Per projekt</h3>${list.map(p=>`<div class="tt-brow">${dot(p)}<span class="tt-bname">${esc(p.name)}</span><span class="tt-bar" data-pbar="${p.id}" style="--c:${p.color}"><i></i></span><strong data-sum="proj|${p.id}"></strong></div>`).join('')}
@@ -120,10 +120,11 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     // A +8 row with nothing left to fill is hidden; the project row above keeps its line only then.
     for(const q of root.querySelectorAll('.tt-quick')){const empty=!q.querySelector('.tt-plus8:not(.is-filled)');q.classList.toggle('is-empty',empty);q.previousElementSibling?.classList.toggle('has-quick',!empty);}
     for(const el of root.querySelectorAll('[data-heat]'))el.style.setProperty('--heat',Math.min(1,dayTotal(el.dataset.heat)/480).toFixed(2));
-    // Month days: the two biggest projects of the day with their hours in their colour, "+n" when there are more.
-    const short=n=>n%60?hm(n):String(n/60);
-    for(const el of root.querySelectorAll('[data-mvals]')){const d=el.dataset.mvals,ps=sorted().filter(p=>mins(d,p.id)).sort((a,b)=>mins(d,b.id)-mins(d,a.id));el.innerHTML=ps.slice(0,2).map(p=>`<span style="color:${p.color}">${short(mins(d,p.id))}</span>`).join('')+(ps.length>2?`<span class="more">+${ps.length-2}</span>`:'');}
-    for(const el of root.querySelectorAll('[data-bars]')){const d=el.dataset.bars,t=dayTotal(d);el.innerHTML=t?sorted().filter(p=>mins(d,p.id)).map(p=>`<i style="--c:${p.color};flex:${mins(d,p.id)}"></i>`).join(''):'';}
+    // Month days: one glowing bar split by project, each part with its hours above it in the project's colour
+    // (hours in quarters: 8½, 7¾; the number is left out when a part is too thin to hold it).
+    const short=n=>{const q=Math.round(n/15),h=Math.floor(q/4),f=['','¼','½','¾'][q%4];return (h||!f?String(h):'')+f;};
+    for(const el of root.querySelectorAll('[data-split]')){const d=el.dataset.split,t=dayTotal(d),ps=sorted().filter(p=>mins(d,p.id));
+      el.innerHTML=ps.map(p=>{const m=mins(d,p.id);return `<span class="part" style="--c:${p.color};flex:${m}"><b>${m/t>=.28?short(m):''}</b><i></i></span>`;}).join('');}
     // Month bars: share of the month per project, and each week split by project (scaled to the busiest week).
     const projTotal=id=>dates.reduce((n,d)=>n+mins(d,id),0),weekDays=m=>Array.from({length:7},(_,i)=>shiftDate(m,i)).filter(d=>dates.includes(d));
     for(const el of root.querySelectorAll('[data-pbar]'))el.firstElementChild.style.width=`${total?projTotal(el.dataset.pbar)/total*100:0}%`;
