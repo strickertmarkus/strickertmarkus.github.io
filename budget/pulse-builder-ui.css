@@ -289,7 +289,10 @@ html.pbu-v1[data-field-embedded] body :is(#day-workout-modal,#wk-modal,#exercise
 .pbu-v1 .pbu-opt.is-used{opacity:.5}
 .pbu-v1 .pbu-opt.is-current .pbu-opt-name{color:var(--pbu-accent)}
 .pbu-v1 .pbu-opt .pbu-link{flex:none;padding:0 4px;color:var(--pbu-accent-soft);font-size:12.5px}
-.pbu-v1 .pbu-new{display:block;width:100%;min-height:48px;margin-top:8px;padding:0 4px;border:0;border-top:1px solid var(--pbu-line);background:none;color:var(--pbu-muted);text-align:left;font:500 14px Inter,system-ui,sans-serif;cursor:pointer}
+.pbu-v1 .pbu-new{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;margin:0 0 6px;padding:0 4px;border:0;border-bottom:1px solid var(--pbu-line);background:none;color:var(--pbu-muted);text-align:left;font:500 14px Inter,system-ui,sans-serif;cursor:pointer}
+.pbu-v1 .pbu-new-plus{position:relative;flex:0 0 32px;width:32px;height:32px;border:1px solid var(--pbu-line);border-radius:50%}
+.pbu-v1 .pbu-new-plus::before,.pbu-v1 .pbu-new-plus::after{content:'';position:absolute;left:50%;top:50%;width:13px;height:1.6px;border-radius:2px;background:var(--pbu-pale);transform:translate(-50%,-50%)}
+.pbu-v1 .pbu-new-plus::after{transform:translate(-50%,-50%) rotate(90deg)}
 .pbu-v1 .pbu-new b{color:var(--pbu-pale);font-weight:600}
 .pbu-v1 .pbu-hint{margin:12px 0 4px;color:var(--pbu-muted);font:450 13px/1.5 Inter,system-ui,sans-serif}
 .pbu-v1 .pbu-hint b{color:var(--pbu-pale);font-weight:600}

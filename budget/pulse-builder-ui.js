@@ -482,7 +482,8 @@ function renderOptions(row,query){
  html=q?ownHtml+guideHtml:guideHtml+ownHtml;
  var typed=String(query||'').trim();
  var exact=typed&&(guide.concat(own)).some(function(e){return key(e.name)===key(typed);});
- if(typed&&!exact)html+='<button type="button" class="pbu-new" data-pbu-pick="'+esc(typed.slice(0,70))+'" data-pbu-kind-pick="'+(ctx.cardio?'cardio':rowKind(row))+'">Lägg till <b>'+esc(typed.slice(0,70))+'</b> som ny övning</button>';
+ // A name that is not in the guide or among your own exercises can be added as a new one, first in the list.
+ if(typed&&!exact)html='<button type="button" class="pbu-new" data-pbu-pick="'+esc(typed.slice(0,70))+'" data-pbu-kind-pick="'+(ctx.cardio?'cardio':rowKind(row))+'"><span class="pbu-new-plus" aria-hidden="true"></span><span>Lägg till <b>'+esc(typed.slice(0,70))+'</b> som ny övning</span></button>'+html;
  if(!html)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden, eller skriv ett eget namn ovan.</p>';
  else if(!guide.length&&!q&&!ctx.cardio)html='<p class="pbu-hint">Döp passet till t.ex. <b>Bröst + Triceps</b> så får du förslag ur övningsguiden.</p>'+html;
  box.innerHTML=html;
