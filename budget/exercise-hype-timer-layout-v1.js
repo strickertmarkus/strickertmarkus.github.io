@@ -612,9 +612,16 @@
     startUnifiedTimerLoop();
   }
 
+  /* Inside a round (pulse-builder-rounds-v1.js) only its very first exercise gets the 5 s timer;
+     the rest follow on straight after the round's own rests. */
+  function inRoundAfterStart(state) {
+    var ex = Array.isArray(state.exercises) ? state.exercises[Number(state.exerciseIndex) || 0] : null;
+    return !!(ex && ex.round && (ex.round.lap > 1 || ex.round.pos > 1));
+  }
+
   function startSetWithGate(state) {
     if (!state || unifiedPretimer) return false;
-    if (!timerEnabledForDate(state.date)) {
+    if (!timerEnabledForDate(state.date) || inRoundAfterStart(state)) {
       beginSetRaw(state);
       return false;
     }
