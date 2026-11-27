@@ -7,7 +7,8 @@
  * The training session expands a round into one entry per exercise and lap
  * (sessionExercisesFromPlan in archive/exercise.html), so the session itself stays as it is.
  *
- * Builder: "Runda" beside "Lägg till övning" starts a round; the round gets a heading row with its
+ * Builder: a "Runda" toggle beside Styrka / Kondition in an exercise's panel puts it in a round
+ * (the round above or below it, otherwise a new one); the round gets a heading row with its
  * settings and a "Lägg till i rundan" row after its last exercise. Both are list children that are
  * not .ex-row-item, so saving, drag-and-drop and the row UI (pulse-builder-ui.js) ignore them. */
 (function () {
@@ -117,6 +118,7 @@
     if (!l || painting) return;
     painting = true;
     try {
+      rows().forEach(syncToggle);
       var gs = groups(), keep = [], marks = new Map();
       gs.forEach(function (g) { g.rows.forEach(function (row, i) { marks.set(row, { first: i === 0, last: i === g.rows.length - 1 }); }); });
       rows().forEach(function (row) {
@@ -170,36 +172,41 @@
     paint();
     setTimeout(function () { openNewRow(row); }, 0);
   }
-  function startRound() {
-    var round = clean(Object.assign({ id: newId() }, DEFAULTS));
-    openRounds[round.id] = true;
-    // An empty last row (the builder keeps one ready) becomes the round's first exercise.
-    var all = rows(), last = all[all.length - 1], nameEl = last && last.querySelector('input[class*="-name"]');
-    if (last && nameEl && !nameEl.value.trim() && !readRound(last)) {
-      writeRound(last, round);
-      oneSet(last);
-      paint();
-      setTimeout(function () { openNewRow(last); }, 0);
-      return;
+  /* The "Runda" toggle on a row: joins the round right above (or below) it, or starts a new one. */
+  function toggleRow(row) {
+    if (readRound(row)) { writeRound(row, null); paint(); return; }
+    var prev = row.previousElementSibling, next = row.nextElementSibling;
+    while (prev && !prev.classList.contains('ex-row-item')) prev = prev.previousElementSibling;
+    while (next && !next.classList.contains('ex-row-item')) next = next.nextElementSibling;
+    var round = (prev && readRound(prev)) || (next && readRound(next));
+    if (!round) { round = clean(Object.assign({ id: newId() }, DEFAULTS)); openRounds[round.id] = true; }
+    writeRound(row, round);
+    oneSet(row);
+    if (window.PulseBuilderUI && window.PulseBuilderUI.paintRow) window.PulseBuilderUI.paintRow(row);
+    paint();
+  }
+  var LOOP_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 2.5l3 3-3 3"/><path d="M4 11.5v-1a5 5 0 0 1 5-5h11"/><path d="M7 21.5l-3-3 3-3"/><path d="M20 12.5v1a5 5 0 0 1-5 5H4"/></svg>';
+  /* Puts the toggle beside the row's Styrka / Kondition choice once the row has its panel. */
+  function syncToggle(row) {
+    var seg = row.querySelector('.pbu-panel > .pbu-seg, .pbr-kind-row > .pbu-seg');
+    if (!seg) return;
+    var wrap = seg.parentNode.classList.contains('pbr-kind-row') ? seg.parentNode : null;
+    if (!wrap) {
+      wrap = document.createElement('div'); wrap.className = 'pbr-kind-row';
+      seg.parentNode.insertBefore(wrap, seg); wrap.appendChild(seg);
+      wrap.insertAdjacentHTML('beforeend', '<div class="pbu-seg pbr-row-toggle" role="group" aria-label="Runda"><button type="button" data-pbr-row-toggle aria-pressed="false">' + LOOP_ICON + '<span>Runda</span></button></div>');
     }
-    addRow(round, null);
+    var btn = wrap.querySelector('[data-pbr-row-toggle]'), on = String(!!readRound(row));
+    if (btn.getAttribute('aria-pressed') !== on) btn.setAttribute('aria-pressed', on);
   }
 
   function bind() {
-    var modal = document.getElementById('day-workout-modal'), l = list();
-    var addBtn = modal && modal.querySelector('[onclick="addDayWorkoutExRow()"]');
-    if (!modal || !l || !addBtn || !installParse() || !installLoad()) return false;
-    if (!modal.querySelector('.pbr-start')) {
-      var wrap = document.createElement('div'); wrap.className = 'pbr-adds';
-      addBtn.parentNode.insertBefore(wrap, addBtn);
-      wrap.appendChild(addBtn);
-      var start = document.createElement('button'); start.type = 'button'; start.className = 'pbr-start';
-      start.innerHTML = '<span class="pbr-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M17 2.5l3 3-3 3"/><path d="M4 11.5v-1a5 5 0 0 1 5-5h11"/><path d="M7 21.5l-3-3 3-3"/><path d="M20 12.5v1a5 5 0 0 1-5 5H4"/></svg></span><span>Runda</span>';
-      start.addEventListener('click', startRound);
-      wrap.appendChild(start);
-    }
+    var l = list();
+    if (!l || !installParse() || !installLoad()) return false;
     l.addEventListener('click', function (e) {
       var t = e.target, head = t.closest('.pbr-head'), add = t.closest('.pbr-add');
+      var rowToggle = t.closest('[data-pbr-row-toggle]');
+      if (rowToggle) { toggleRow(rowToggle.closest('.ex-row-item')); return; }
       if (add) { var rr = roundRows(add.dataset.round); if (rr.length) addRow(readRound(rr[0]), rr[rr.length - 1]); return; }
       if (!head) return;
       var id = head.dataset.round;

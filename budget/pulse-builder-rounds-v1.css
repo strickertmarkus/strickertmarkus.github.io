@@ -59,11 +59,8 @@ html.pbu-v1[data-field-embedded] body #day-workout-modal #day-workout-ex-list>.e
   box-shadow: inset 0 0 0 1px rgba(var(--pbr-rgb),.4);
 }
 
-/* "Lägg till övning" and "Runda" side by side */
-.pbu-v1 #day-workout-modal .pbr-adds { display: flex; align-items: center; gap: 18px; order: 8; }
-.pbu-v1 #day-workout-modal .pbr-adds .pbu-add { flex: 1; min-width: 0; }
-.pbu-v1 #day-workout-modal .pbr-start {
-  order: 9; display: flex; align-items: center; gap: 10px; flex: 0 0 auto; min-height: 52px; padding: 0 4px; border: 0; background: none;
-  color: var(--pbu-pale); font: 600 15px Inter, system-ui, sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent;
-}
-.pbu-v1 #day-workout-modal .pbr-start .pbr-icon { margin-left: 0; }
+/* The "Runda" toggle beside Styrka / Kondition */
+.pbu-v1 .pbr-kind-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.pbu-v1 .pbr-row-toggle button { display: inline-flex; align-items: center; gap: 6px; }
+.pbu-v1 .pbr-row-toggle svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pbu-v1 .pbu-seg.pbr-row-toggle button[aria-pressed="true"] { background: rgba(var(--pbr-rgb),.16); color: var(--pbr); box-shadow: inset 0 0 0 1px rgba(var(--pbr-rgb),.45); }
