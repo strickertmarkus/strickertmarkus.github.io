@@ -29,7 +29,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
 
   // ── Markup ──
   const dot=p=>`<i class="tt-dot" style="--c:${p.color}"></i>`;
-  const input=(date,pid)=>`<input class="tt-input" data-input="${date}|${pid}" value="${hm(mins(date,pid))}" inputmode="decimal" enterkeyhint="next" autocomplete="off" placeholder="0:00" aria-label="Tid ${esc(s().timeProjects[pid]?.name||'')} ${dateText(date,{weekday:'long',day:'numeric',month:'long'})}">`;
+  const input=(date,pid,done=false)=>`<input class="tt-input" data-input="${date}|${pid}" value="${hm(mins(date,pid))}" inputmode="decimal" enterkeyhint="${done?'done':'next'}" autocomplete="off" placeholder="0:00" aria-label="Tid ${esc(s().timeProjects[pid]?.name||'')} ${dateText(date,{weekday:'long',day:'numeric',month:'long'})}">`;
   const eight=(date,pid)=>`<button type="button" class="tt-8h" data-tt="add" data-target="${date}|${pid}" data-amount="480" aria-label="Lägg till 8 timmar">${icon('clock-plus')}<span>8 h</span></button>`;
   function head(){
     const dates=periodDates(),m=mondayOf(anchor);
@@ -43,7 +43,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
   function editorStrip(date,pid){
     const p=s().timeProjects[pid];
     return `<div class="tt-editor" style="--c:${p.color}"><div class="tt-ed-head"><button type="button" class="icon-btn" data-tt="ed-step" data-step="-1" aria-label="Dagen före">${icon('chevron-left')}</button><span class="tt-ed-title">${esc(p.name)} · ${dateText(date,{weekday:'short',day:'numeric',month:'short'}).replace(/\./g,'')}</span><button type="button" class="icon-btn" data-tt="ed-step" data-step="1" aria-label="Dagen efter">${icon('chevron-right')}</button><button type="button" class="icon-btn" data-tt="ed-close" aria-label="Stäng">${icon('close')}</button></div>
-<div class="tt-ed-row">${input(date,pid)}${eight(date,pid)}</div>
+<div class="tt-ed-row">${input(date,pid,true)}${eight(date,pid)}</div>
 <div class="tt-chips">${[[15,'+15 min'],[30,'+30 min'],[60,'+1 h'],[-30,'−30 min']].map(([n,l])=>`<button type="button" data-tt="add" data-target="${date}|${pid}" data-amount="${n}">${l}</button>`).join('')}<button type="button" data-tt="clear" data-target="${date}|${pid}">Rensa</button></div></div>`;
   }
   function dayRows(date,list){
@@ -53,14 +53,14 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
   function weekGrid(dates,list){
     const today=localDate();
     const headRow=`<div class="tt-row tt-row-head"><span class="tt-name"></span>${dates.map((d,i)=>`<span class="tt-dh${d===today?' is-today':''}${isWeekend(d)?' is-weekend':''}"><b>${DAY[i]}</b>${parseDate(d).getDate()}</span>`).join('')}<span class="tt-tot">Σ</span></div>`;
-    const rows=list.map(p=>`<div class="tt-row" style="--c:${p.color}"><span class="tt-name">${dot(p)}<span>${esc(p.name)}</span></span>${dates.map(d=>`<button type="button" class="tt-cell${cell&&cell.date===d&&cell.pid===p.id?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="cell" data-target="${d}|${p.id}" data-sum="cell|${d}|${p.id}" aria-label="${esc(p.name)} ${DAY[(parseDate(d).getDay()+6)%7]} ${parseDate(d).getDate()}"></button>`).join('')}<span class="tt-tot" data-sum="proj|${p.id}"></span></div>${cell&&cell.pid===p.id&&dates.includes(cell.date)?editorStrip(cell.date,p.id):''}`).join('');
+    const rows=list.map(p=>`<div class="tt-row" style="--c:${p.color}"><span class="tt-name">${dot(p)}<span>${esc(p.name)}</span></span>${dates.map(d=>`<button type="button" class="tt-cell${cell&&cell.date===d&&cell.pid===p.id?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="cell" data-target="${d}|${p.id}" data-sum="cell|${d}|${p.id}" aria-label="${esc(p.name)} ${DAY[(parseDate(d).getDay()+6)%7]} ${parseDate(d).getDate()}"></button>`).join('')}<span class="tt-tot" data-sum="proj|${p.id}"></span></div><div class="tt-row tt-quick"><span class="tt-name"></span>${dates.map(d=>isWeekend(d)?'<span></span>':`<button type="button" class="tt-plus8" data-tt="add" data-target="${d}|${p.id}" data-amount="480" data-quick="${d}|${p.id}" aria-label="Lägg till 8 timmar">+8</button>`).join('')}<span></span></div>${cell&&cell.pid===p.id&&dates.includes(cell.date)?editorStrip(cell.date,p.id):''}`).join('');
     const foot=`<div class="tt-row tt-row-foot"><span class="tt-name">Totalt</span>${dates.map(d=>`<span class="tt-dsum" data-sum="day|${d}"></span>`).join('')}<span class="tt-tot" data-sum="total"></span></div>`;
     return `<div class="tt-week">${headRow}${rows}${foot}</div>`;
   }
   function monthView(dates,list){
     const first=dates[0],lead=(parseDate(first).getDay()+6)%7,today=localDate();
     if(!dates.includes(monthDay))monthDay=dates.includes(today)?today:first;
-    const cal=`<div class="tt-cal">${['M','T','O','T','F','L','S'].map(d=>`<span class="tt-cwd">${d}</span>`).join('')}${'<span></span>'.repeat(lead)}${dates.map(d=>`<button type="button" class="tt-cday${d===today?' is-today':''}${d===monthDay?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="mday" data-date="${d}" data-heat="${d}"><span class="n">${parseDate(d).getDate()}</span><span class="v" data-sum="day|${d}"></span><span class="bars" data-bars="${d}"></span></button>`).join('')}</div>`;
+    const cal=`<div class="tt-cal">${['M','T','O','T','F','L','S'].map(d=>`<span class="tt-cwd">${d}</span>`).join('')}${'<span></span>'.repeat(lead)}${dates.map(d=>`<button type="button" class="tt-cday${d===today?' is-today':''}${d===monthDay?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="mday" data-date="${d}" data-heat="${d}"><span class="n">${parseDate(d).getDate()}</span><span class="vals" data-mvals="${d}"></span><span class="bars" data-bars="${d}"></span></button>`).join('')}</div>`;
     const mondays=[...new Set(dates.map(mondayOf))],inMonth=m=>Array.from({length:7},(_,i)=>shiftDate(m,i)).filter(d=>dates.includes(d));
     const range=m=>{const w=inMonth(m),a=parseDate(w[0]).getDate(),b=parseDate(w.at(-1)).getDate();return a===b?String(a):`${a}–${b}`;};
     const split=`<div class="tt-split"><h3>Per projekt</h3>${list.map(p=>`<div class="tt-brow">${dot(p)}<span class="tt-bname">${esc(p.name)}</span><span class="tt-bar" data-pbar="${p.id}" style="--c:${p.color}"><i></i></span><strong data-sum="proj|${p.id}"></strong></div>`).join('')}
@@ -105,7 +105,11 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
       el.textContent=kind==='cell'||kind==='day'&&el.closest('.tt-cal')?hm(v):el.classList.contains('tt-dsum')?(hm(v)||'–'):sumText(v);
       el.classList.toggle('is-zero',!v);
     }
+    for(const el of root.querySelectorAll('[data-quick]')){const [d,p]=el.dataset.quick.split('|');el.classList.toggle('is-filled',!!mins(d,p));}
     for(const el of root.querySelectorAll('[data-heat]'))el.style.setProperty('--heat',Math.min(1,dayTotal(el.dataset.heat)/480).toFixed(2));
+    // Month days: the two biggest projects of the day with their hours in their colour, "+n" when there are more.
+    const short=n=>n%60?hm(n):String(n/60);
+    for(const el of root.querySelectorAll('[data-mvals]')){const d=el.dataset.mvals,ps=sorted().filter(p=>mins(d,p.id)).sort((a,b)=>mins(d,b.id)-mins(d,a.id));el.innerHTML=ps.slice(0,2).map(p=>`<span style="color:${p.color}">${short(mins(d,p.id))}</span>`).join('')+(ps.length>2?`<span class="more">+${ps.length-2}</span>`:'');}
     for(const el of root.querySelectorAll('[data-bars]')){const d=el.dataset.bars,t=dayTotal(d);el.innerHTML=t?sorted().filter(p=>mins(d,p.id)).map(p=>`<i style="--c:${p.color};flex:${mins(d,p.id)}"></i>`).join(''):'';}
     // Month bars: share of the month per project, and each week split by project (scaled to the busiest week).
     const projTotal=id=>dates.reduce((n,d)=>n+mins(d,id),0),weekDays=m=>Array.from({length:7},(_,i)=>shiftDate(m,i)).filter(d=>dates.includes(d));
@@ -139,7 +143,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
   root.addEventListener('keydown',e=>{
     if(e.key!=='Enter'||!e.target.matches('.tt-input'))return;
     e.preventDefault();if(!commit(e.target))return;
-    if(e.target.closest('.tt-editor')){moveCell(1);return;}
+    if(e.target.closest('.tt-editor')){cell=null;draw();return;}
     const all=[...root.querySelectorAll('.tt-input')],next=all[all.indexOf(e.target)+1];
     if(next){next.focus();next.select();}else e.target.blur();
   });
@@ -156,6 +160,14 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     [60,320,620].forEach(ms=>setTimeout(fit,ms));
     if(vv){const once=()=>{vv.removeEventListener('resize',once);setTimeout(fit,40);};vv.addEventListener('resize',once);setTimeout(()=>vv.removeEventListener('resize',once),1500);}
   }
+  // The keyboard's Klar (the field loses focus without another tap in the editor) saves and closes the editor too;
+  // a tap on one of the editor's own buttons keeps it open.
+  let editorTap=0;
+  root.addEventListener('pointerdown',e=>{if(e.target.closest('.tt-editor'))editorTap=Date.now();},true);
+  root.addEventListener('focusout',e=>{
+    if(!e.target.matches('.tt-editor .tt-input'))return;
+    setTimeout(()=>{if(!cell||Date.now()-editorTap<600||root.querySelector('.tt-editor')?.contains(document.activeElement))return;if(commit(e.target)){cell=null;draw();}},180);
+  });
   root.addEventListener('focusin',e=>{if(e.target.matches('.tt-input')){setTimeout(()=>e.target.select(),0);keepVisible(e.target);}});
   root.addEventListener('submit',e=>{
     if(!e.target.matches('[data-tt-form=add]'))return;e.preventDefault();
