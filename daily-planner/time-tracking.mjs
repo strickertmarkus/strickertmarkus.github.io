@@ -8,6 +8,9 @@ const mondayOf=d=>shiftDate(d,-((parseDate(d).getDay()+6)%7));
 const isWeekend=d=>[0,6].includes(parseDate(d).getDay());
 const sumText=n=>n?hm(n):'0:00';
 // Hours in quarters for tight spots: 8, 8½, 7¾, ¼.
+// Project shares as one ring of arcs (month summary and the reported week).
+const drawRing=(svg,entries,total)=>{const C=2*Math.PI*40,ps=entries.filter(x=>x.v),gap=ps.length>1?3:0;let at=0;
+      svg.innerHTML=`<circle cx="50" cy="50" r="40" class="ms-ring-bg"/>`+ps.map(({p,v})=>{const len=Math.max(0,v/total*C-gap),arc=`<circle cx="50" cy="50" r="40" class="ms-ring-arc" stroke="${p.color}" stroke-dasharray="${len.toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-at).toFixed(1)}"/>`;at+=v/total*C;return arc;}).join('');};
 const quarters=n=>{const q=Math.round(n/15),h=Math.floor(q/4),f=['','¼','½','¾'][q%4];return (h||!f?String(h):'')+f;};
 
 export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
@@ -59,7 +62,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     const rows=list.map(p=>`<div class="tt-row" style="--c:${p.color}"><span class="tt-name">${dot(p)}<span>${esc(p.name)}</span></span>${dates.map(d=>`<button type="button" class="tt-cell${cell&&cell.date===d&&cell.pid===p.id?' is-sel':''}${isWeekend(d)?' is-weekend':''}" data-tt="cell" data-target="${d}|${p.id}" data-sum="cell|${d}|${p.id}" aria-label="${esc(p.name)} ${DAY[(parseDate(d).getDay()+6)%7]} ${parseDate(d).getDate()}"></button>`).join('')}<span class="tt-tot" data-sum="proj|${p.id}"></span></div><div class="tt-row tt-quick"><span class="tt-name"></span>${dates.map(d=>isWeekend(d)?'<span></span>':`<button type="button" class="tt-plus8" data-tt="add" data-target="${d}|${p.id}" data-amount="480" data-quick="${d}|${p.id}" aria-label="Lägg till 8 timmar">+8</button>`).join('')}<span></span></div>${cell&&cell.pid===p.id&&dates.includes(cell.date)?editorStrip(cell.date,p.id):''}`).join('');
     const foot=`<div class="tt-row tt-row-foot"><span class="tt-name">Totalt</span>${dates.map(d=>`<span class="tt-dsum" data-sum="day|${d}"></span>`).join('')}<span class="tt-tot" data-sum="total"></span></div>`;
     // Week reported: the weekdays light up one by one, a ring closes around the week's hours, small sparks rise.
-    const done=`<div class="tt-weekdone" data-weekdone="${dates[0]}" hidden><div class="wd-days" aria-hidden="true">${['M','T','O','T','F'].map((d,i)=>`<i style="--i:${i}">${d}</i>`).join('')}</div><div class="wd-body"><div class="wd-ring"><svg viewBox="0 0 110 110" aria-hidden="true"><circle cx="55" cy="55" r="48" class="wd-ring-bg"/><circle cx="55" cy="55" r="48" class="wd-ring-fg"/></svg><div class="wd-center"><b data-wd-total></b><span>timmar</span></div></div><div><div class="wd-title">Veckan är rapporterad</div><div class="wd-meta" data-wd-meta></div><div class="wd-projects" data-wd-projects></div></div></div>${[18,42,64,84].map((x,i)=>`<i class="wd-spark" style="left:${x}%;--d:${(1.2+i*.3).toFixed(1)}s" aria-hidden="true"></i>`).join('')}</div>`;
+    const done=`<div class="tt-weekdone" data-weekdone="${dates[0]}" hidden><div class="wd-body"><div class="ms-ring"><svg viewBox="0 0 100 100" data-wring aria-hidden="true"></svg><div class="ms-center"><b data-wd-total></b><span>timmar</span></div></div><div><div class="wd-title">Veckan är rapporterad</div><div class="wd-meta" data-wd-meta></div><div class="wd-projects" data-wd-projects></div></div></div>${[18,42,64,84].map((x,i)=>`<i class="wd-spark" style="left:${x}%;--d:${(1.2+i*.3).toFixed(1)}s" aria-hidden="true"></i>`).join('')}</div>`;
     return `<div class="tt-week">${headRow}${rows}${foot}</div>${done}`;
   }
   function monthView(dates,list){
@@ -121,6 +124,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
       el.hidden=!complete;
       if(complete){const days=Array.from({length:7},(_,i)=>shiftDate(el.dataset.weekdone,i)),t=days.reduce((n,d)=>n+dayTotal(d),0),worked=days.filter(d=>dayTotal(d)).length;
         el.querySelector('[data-wd-total]').textContent=t%60?hm(t):String(t/60);
+        drawRing(el.querySelector('[data-wring]'),sorted().map(p=>({p,v:days.reduce((n,d)=>n+mins(d,p.id),0)})),t);
         el.querySelector('[data-wd-meta]').textContent=`5 av 5 dagar · snitt ${hm(Math.round(t/worked))}`;
         el.querySelector('[data-wd-projects]').innerHTML=sorted().map(p=>({p,m:days.reduce((n,d)=>n+mins(d,p.id),0)})).filter(x=>x.m).map(({p,m})=>`<span style="color:${p.color}"><i></i>${esc(p.name)} ${m%60?hm(m):m/60}</span>`).join('');
         if(openWeeks.has(el.dataset.weekdone)&&!cheered.has(el.dataset.weekdone)){cheered.add(el.dataset.weekdone);el.classList.remove('is-cheer');void el.offsetWidth;el.classList.add('is-cheer');}}
@@ -137,8 +141,7 @@ export function createTimeView({root,getState,change,mutate,icon,esc,toast}){
     // Month ring: one arc per project in its colour, sized by its share of the month; shares as percent beside it.
     const projTotal=id=>dates.reduce((n,d)=>n+mins(d,id),0);
     for(const el of root.querySelectorAll('[data-share]')){const v=projTotal(el.dataset.share);el.textContent=total&&v?`${Math.round(v/total*100)} %`:'';}
-    for(const svg of root.querySelectorAll('[data-mring]')){const C=2*Math.PI*40,ps=sorted().map(p=>({p,v:projTotal(p.id)})).filter(x=>x.v),gap=ps.length>1?3:0;let at=0;
-      svg.innerHTML=`<circle cx="50" cy="50" r="40" class="ms-ring-bg"/>`+ps.map(({p,v})=>{const len=Math.max(0,v/total*C-gap),arc=`<circle cx="50" cy="50" r="40" class="ms-ring-arc" stroke="${p.color}" stroke-dasharray="${len.toFixed(1)} ${C.toFixed(1)}" stroke-dashoffset="${(-at).toFixed(1)}"/>`;at+=v/total*C;return arc;}).join('');}
+    for(const svg of root.querySelectorAll('[data-mring]'))drawRing(svg,sorted().map(p=>({p,v:projTotal(p.id)})),total);
     // A focused field keeps what is being typed, unless a button changed the value (all=true).
     for(const el of root.querySelectorAll('.tt-input'))if(all||el!==document.activeElement){const [d,p]=el.dataset.input.split('|');el.value=hm(mins(d,p));el.classList.remove('is-bad');}
   }
